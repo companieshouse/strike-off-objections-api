@@ -6,7 +6,7 @@
     "title": "Companies House - Strike Off Objections API"
   },
   "host": "api.companieshouse.gov.uk",
-  "basePath": "/company/{companyNumber}/objections",
+  "basePath": "/company/{companyNumber}/objections/strike-off/request",
   "schemes": [
     "https"
   ],
