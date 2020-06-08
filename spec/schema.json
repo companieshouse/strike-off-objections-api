@@ -1,0 +1,67 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "An API to support lodging objections to compulsory and voluntary strike offs",
+    "version": "1.0.0",
+    "title": "Companies House - Strike Off Objections API"
+  },
+  "host": "api.companieshouse.gov.uk",
+  "basePath": "/company/{companyNumber}/objections",
+  "schemes": [
+    "https"
+  ],
+  "tags": [
+    {
+      "name": "Strike Off Objections"
+    }
+  ],
+  "paths": {
+    "/test": {
+      "post": {
+        "summary": "Temporary end-point to prove sprint zero connectivity from the web app",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "contact",
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/ObjectionInput"
+            }
+          }
+        ],
+        "tags": [
+          "Strike Off Objections"
+        ],
+        "responses": {
+          "201": {
+            "description": "An objection request has been received.",
+            "schema": {
+              "$ref": "#/definitions/ObjectionOutput"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "ObjectionOutput": {
+      "type": "object",
+      "properties": {
+        "processed": {
+          "type": "boolean"
+        }
+      }
+    },
+    "ObjectionInput": {
+      "type": "object",
+      "properties": {
+        "reason": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}
