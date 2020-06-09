@@ -6,7 +6,7 @@
     "title": "Companies House - Strike Off Objections API"
   },
   "host": "api.companieshouse.gov.uk",
-  "basePath": "/company/{companyNumber}/objections/strike-off/request",
+  "basePath": "/company/{companyNumber}/objections/strike-off",
   "schemes": [
     "https"
   ],
@@ -16,7 +16,7 @@
     }
   ],
   "paths": {
-    "/test": {
+    "/request": {
       "post": {
         "summary": "Temporary end-point to prove sprint zero connectivity from the web app",
         "produces": [
@@ -25,8 +25,8 @@
         "parameters": [
           {
             "in": "body",
-            "name": "contact",
-            "description": "",
+            "name": "objection",
+            "description": "Details of the objection",
             "schema": {
               "$ref": "#/definitions/ObjectionInput"
             }
@@ -50,8 +50,9 @@
     "ObjectionOutput": {
       "type": "object",
       "properties": {
-        "processed": {
-          "type": "boolean"
+        "requestId": {
+          "type": "integer",
+          "format": "int64"
         }
       }
     },
