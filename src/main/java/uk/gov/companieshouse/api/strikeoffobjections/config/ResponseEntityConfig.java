@@ -13,7 +13,7 @@ public class ResponseEntityConfig {
         return PluggableResponseEntityFactory
                 .builder()
                 .addStandardFactories()
-                .add(new PromiseToFileResponseFactory())
+                .add(new ObjectionsResponseFactory())
                 .build();
     }
 }

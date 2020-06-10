@@ -9,7 +9,7 @@ import uk.gov.companieshouse.service.rest.response.ChResponseBody;
 import uk.gov.companieshouse.service.rest.response.ResponseEntityFactory;
 
 
-public class PromiseToFileResponseFactory implements ResponseEntityFactory {
+public class ObjectionsResponseFactory implements ResponseEntityFactory {
         
     @Override
     public <T> ResponseEntity<ChResponseBody<T>> createResponseEntity(

@@ -19,7 +19,7 @@ import uk.gov.companieshouse.service.rest.response.PluggableResponseEntityFactor
 import javax.validation.Valid;
 
 @RestController
-@RequestMapping(value = "${api.endpoint}")
+@RequestMapping(value = "/company/{companyNumber}/objections/strike-off")
 public class ObjectionRequestController {
 
     private static final String LOG_COMPANY_NUMBER_KEY = LogConstants.COMPANY_NUMBER.getValue();
@@ -40,7 +40,7 @@ public class ObjectionRequestController {
     }
 
     @PostMapping("/request")
-    public ResponseEntity<ChResponseBody<ObjectionResponseBody>> updateCurrentCase(
+    public ResponseEntity<ChResponseBody<ObjectionResponseBody>> createObjectionRequest(
             @Valid @RequestBody ObjectionRequestBody requestBody,
             @PathVariable("companyNumber") String companyNumber,
             @RequestHeader(value = ERIC_REQUEST_ID_HEADER) String requestId) {
