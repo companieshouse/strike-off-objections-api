@@ -348,7 +348,8 @@
       "type": "string",
       "enum": [
         "OPEN",
-        "SUBMITTED"
+        "SUBMITTED",
+        "PROCESSED"
       ]
     }
   }
