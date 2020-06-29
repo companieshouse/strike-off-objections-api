@@ -40,7 +40,7 @@
     },
     "/": {
       "post": {
-        "summary": "Create a new strike-off objection request",
+        "summary": "Create a new strike-off objection",
         "produces": [
           "application/json"
         ],
@@ -49,7 +49,7 @@
         ],
         "responses": {
           "201": {
-            "description": "An objection request has been created.",
+            "description": "An objection has been created.",
             "schema": {
               "$ref": "#/definitions/ResourceCreated"
             }
@@ -68,7 +68,7 @@
         }
       ],
       "get": {
-        "summary": "Returns the objection request identified by objectionId",
+        "summary": "Returns the objection identified by objectionId",
         "produces": [
           "application/json"
         ],
@@ -95,9 +95,9 @@
         "parameters": [
           {
             "in": "body",
-            "name": "Patch request",
+            "name": "Patch",
             "schema": {
-              "$ref": "#/definitions/PatchRequest"
+              "$ref": "#/definitions/Patch"
             }
           }
         ],
@@ -128,7 +128,7 @@
         ],
         "responses": {
           "201": {
-            "description": "An attachment has been added to the Objection",
+            "description": "An attachment has been added to the objection",
             "schema": {
               "$ref": "#/definitions/ResourceCreated"
             }
@@ -137,7 +137,7 @@
             "description": "there was an error processing the request"
           },
           "404": {
-            "description": "the request or reason does not exist"
+            "description": "the objection or attachment was not found"
           }
         }
       }
@@ -339,7 +339,7 @@
         }
       }
     },
-    "PatchRequest": {
+    "Patch": {
       "type": "object",
       "properties": {
         "reason": {
