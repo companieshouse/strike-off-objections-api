@@ -251,6 +251,9 @@
         "created_by": {
           "$ref": "#/definitions/CreatedBy"
         },
+        "company_number": {
+          "type": "string"
+        },
         "reason": {
           "type": "string"
         },
