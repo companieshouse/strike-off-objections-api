@@ -77,7 +77,7 @@
         ],
         "responses": {
           "200": {
-            "description": "a Status object has been returned successfully",
+            "description": "An objection has been returned successfully",
             "schema": {
               "$ref": "#/definitions/Objection"
             }
