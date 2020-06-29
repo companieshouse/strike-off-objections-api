@@ -2,7 +2,7 @@ package uk.gov.companieshouse.api.strikeoffobjections.model.request;
 
 public class CreatedBy {
     private String id;
-    private String emailAddress;
+    private String email;
 
     public String getId() {
         return id;
@@ -12,11 +12,11 @@ public class CreatedBy {
         this.id = id;
     }
 
-    public String getEmailAddress() {
-        return emailAddress;
+    public String getEmail() {
+        return email;
     }
 
-    public void setEmailAddress(String emailAddress) {
-        this.emailAddress = emailAddress;
+    public void setEmail(String email) {
+        this.email = email;
     }
 }
