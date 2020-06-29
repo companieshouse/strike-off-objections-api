@@ -1,7 +1,13 @@
 package uk.gov.companieshouse.api.strikeoffobjections.model.request;
 
+import org.springframework.data.mongodb.core.mapping.Field;
+
 public class CreatedBy {
+
+    @Field("id")
     private String id;
+
+    @Field("email")
     private String email;
 
     public String getId() {
