@@ -327,12 +327,6 @@
         "id": {
           "type": "string"
         },
-        "forename": {
-          "type": "string"
-        },
-        "surname": {
-          "type": "string"
-        },
         "email": {
           "type": "string",
           "format": "email"
@@ -353,8 +347,8 @@
     "Status": {
       "type": "string",
       "enum": [
-        "open",
-        "submit"
+        "OPEN",
+        "SUBMITTED"
       ]
     }
   }
