@@ -11,17 +11,11 @@ public class StrikeOffObjectionsEntity {
 
 
     public static class Builder {
-        private String username;
         private String eMailAddress;
         private String reason;
         private CreatedBy createdBy;
         private LocalDateTime createdOn;
         private RequestStatus status;
-
-        public Builder withUsername(String username) {
-            this.username = username;
-            return this;
-        }
 
         public Builder withEMailAddress(String eMail) {
             this.eMailAddress = eMail;
@@ -50,7 +44,6 @@ public class StrikeOffObjectionsEntity {
 
         public StrikeOffObjectionsEntity build() {
             StrikeOffObjectionsEntity strikeOffObjectionsEntity = new StrikeOffObjectionsEntity();
-            strikeOffObjectionsEntity.setUsername(this.username);
             strikeOffObjectionsEntity.setEMailAddress(this.eMailAddress);
             strikeOffObjectionsEntity.setReason(this.reason);
             strikeOffObjectionsEntity.setCreatedBy(this.createdBy);
@@ -62,8 +55,6 @@ public class StrikeOffObjectionsEntity {
 
     @Id
     private String id;
-    @Field("username")
-    private String username;
     @Field("e_mail_address")
     private String eMailAddress;
     @Field("reason")
@@ -77,14 +68,6 @@ public class StrikeOffObjectionsEntity {
 
     public String getId() {
         return id;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
     }
 
     public String getEMailAddress() {
