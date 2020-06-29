@@ -49,7 +49,7 @@
         ],
         "responses": {
           "201": {
-            "description": "An objection request has been received.",
+            "description": "An objection request has been created.",
             "schema": {
               "$ref": "#/definitions/ResourceCreated"
             }
