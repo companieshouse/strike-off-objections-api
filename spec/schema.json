@@ -6,7 +6,7 @@
     "title": "Companies House - Strike Off Objections API"
   },
   "host": "api.companieshouse.gov.uk",
-  "basePath": "/company/{companyNumber}/objections/strike-off",
+  "basePath": "/company/{companyNumber}/strike-off-objections",
   "schemes": [
     "https"
   ],
@@ -16,21 +16,33 @@
     }
   ],
   "paths": {
-    "/request": {
-      "post": {
-        "summary": "Temporary end-point to prove sprint zero connectivity from the web app",
+    "/status": {
+      "get": {
+        "summary": "Returns information describing the strike-off status of the company",
         "produces": [
           "application/json"
         ],
-        "parameters": [
-          {
-            "in": "body",
-            "name": "objection",
-            "description": "Details of the objection",
+        "tags": [
+          "Strike Off Objections"
+        ],
+        "responses": {
+          "200": {
+            "description": "a Status object has been returned successfully",
             "schema": {
-              "$ref": "#/definitions/ObjectionInput"
+              "$ref": "#/definitions/StrikeOffStatus"
             }
+          },
+          "404": {
+            "description": "not found"
           }
+        }
+      }
+    },
+    "/": {
+      "post": {
+        "summary": "Create a new strike-off objection request",
+        "produces": [
+          "application/json"
         ],
         "tags": [
           "Strike Off Objections"
@@ -39,30 +51,314 @@
           "201": {
             "description": "An objection request has been received.",
             "schema": {
-              "$ref": "#/definitions/ObjectionOutput"
+              "$ref": "#/definitions/ResourceCreated"
             }
+          }
+        }
+      }
+    },
+    "/{objectionId}": {
+      "parameters": [
+        {
+          "name": "objectionId",
+          "in": "path",
+          "required": true,
+          "description": "ID of the Objection",
+          "type": "string"
+        }
+      ],
+      "get": {
+        "summary": "Returns the objection request identified by objectionId",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Strike Off Objections"
+        ],
+        "responses": {
+          "200": {
+            "description": "a Status object has been returned successfully",
+            "schema": {
+              "$ref": "#/definitions/Objection"
+            }
+          }
+        }
+      },
+      "patch": {
+        "summary": "Updates the strike-off objection identified by objectionId with the values provided",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Strike Off Objections"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "Patch request",
+            "schema": {
+              "$ref": "#/definitions/PatchRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "a Status object has been returned successfully",
+            "schema": {
+              "$ref": "#/definitions/Objection"
+            }
+          }
+        }
+      }
+    },
+    "/{objectionId}/attachments": {
+      "parameters": [
+        {
+          "name": "objectionId",
+          "in": "path",
+          "required": true,
+          "description": "ID of the Objection",
+          "type": "string"
+        }
+      ],
+      "post": {
+        "summary": "Add an attachment to the Objection",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Strike Off Objections"
+        ],
+        "responses": {
+          "202": {
+            "description": "An attachment has been added to the Objection",
+            "schema": {
+              "$ref": "#/definitions/ResourceCreated"
+            }
+          },
+          "400": {
+            "description": "there was an error processing the request"
+          },
+          "404": {
+            "description": "the request or reason does not exist"
+          }
+        }
+      }
+    },
+    "/{objectionId}/attachments/{attachmentId}": {
+      "parameters": [
+        {
+          "name": "objectionId",
+          "in": "path",
+          "required": true,
+          "description": "ID of the Objection",
+          "type": "string"
+        },
+        {
+          "name": "attachmentId",
+          "in": "path",
+          "required": true,
+          "description": "ID of the attachment",
+          "type": "string"
+        }
+      ],
+      "get": {
+        "description": "get this attachment",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Strike Off Objections"
+        ],
+        "responses": {
+          "200": {
+            "description": "the attachment was found",
+            "schema": {
+              "$ref": "#/definitions/Attachment"
+            }
+          },
+          "404": {
+            "description": "Objection or attachment not found"
+          }
+        }
+      },
+      "delete": {
+        "description": "Delete this attachment from the Objection",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Strike Off Objections"
+        ],
+        "responses": {
+          "204": {
+            "description": "the attachment was deleted"
+          },
+          "404": {
+            "description": "Objection or attachment not found"
+          }
+        }
+      }
+    },
+    "/{objectionId}/attachments/{attachmentId}/download": {
+      "parameters": [
+        {
+          "name": "objectionId",
+          "in": "path",
+          "required": true,
+          "description": "ID of the Objection",
+          "type": "string"
+        },
+        {
+          "name": "attachmentId",
+          "in": "path",
+          "required": true,
+          "description": "ID of the attachment",
+          "type": "string"
+        }
+      ],
+      "get": {
+        "description": "download this attachment",
+        "produces": [
+          "application/octet-stream"
+        ],
+        "tags": [
+          "Strike Off Objections"
+        ],
+        "responses": {
+          "200": {
+            "description": "the attachment was found",
+            "schema": {
+              "type": "file"
+            }
+          },
+          "404": {
+            "description": "Objection or attachment not found"
           }
         }
       }
     }
   },
   "definitions": {
-    "ObjectionOutput": {
+    "Objection": {
       "type": "object",
       "properties": {
-        "requestId": {
-          "type": "integer",
-          "format": "int64"
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "created_on": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "created_by": {
+          "$ref": "#/definitions/CreatedBy"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "attachments": {
+          "type": "array",
+          "items": {
+            "properties": {
+              "link": {
+                "type": "string",
+                "format": "uri"
+              }
+            }
+          }
+        },
+        "status": {
+          "$ref": "#/definitions/Status"
         }
       }
     },
-    "ObjectionInput": {
+    "StrikeOffStatus": {
+      "type": "object",
+      "properties": {
+        "isEligible": {
+          "type": "boolean"
+        },
+        "strikeOffDate": {
+          "type": "string"
+        }
+      }
+    },
+    "ResourceCreated": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    },
+    "Attachment": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "name": {
+          "type": "string"
+        },
+        "content_type": {
+          "type": "string"
+        },
+        "size": {
+          "type": "number"
+        },
+        "links": {
+          "type": "object",
+          "properties": {
+            "download": {
+              "type": "string",
+              "format": "uri"
+            },
+            "self": {
+              "type": "string",
+              "format": "uri"
+            }
+          }
+        }
+      }
+    },
+    "CreatedBy": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "forename": {
+          "type": "string"
+        },
+        "surname": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string",
+          "format": "email"
+        }
+      }
+    },
+    "PatchRequest": {
       "type": "object",
       "properties": {
         "reason": {
           "type": "string"
+        },
+        "status": {
+          "$ref": "#/definitions/Status"
         }
       }
+    },
+    "Status": {
+      "type": "string",
+      "enum": [
+        "open",
+        "submit"
+      ]
     }
   }
 }
