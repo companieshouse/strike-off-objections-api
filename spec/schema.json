@@ -102,11 +102,8 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "a Status object has been returned successfully",
-            "schema": {
-              "$ref": "#/definitions/Objection"
-            }
+          "204": {
+            "description": "patched successfully"
           }
         }
       }
@@ -130,7 +127,7 @@
           "Strike Off Objections"
         ],
         "responses": {
-          "202": {
+          "201": {
             "description": "An attachment has been added to the Objection",
             "schema": {
               "$ref": "#/definitions/ResourceCreated"
