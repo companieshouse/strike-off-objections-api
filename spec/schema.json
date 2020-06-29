@@ -270,6 +270,15 @@
         },
         "status": {
           "$ref": "#/definitions/Status"
+        },
+        "links": {
+          "type": "object",
+          "properties": {
+            "self": {
+              "type": "string",
+              "format": "uri"
+            }
+          }
         }
       }
     },
@@ -312,11 +321,11 @@
         "links": {
           "type": "object",
           "properties": {
-            "download": {
+            "self": {
               "type": "string",
               "format": "uri"
             },
-            "self": {
+            "download": {
               "type": "string",
               "format": "uri"
             }
