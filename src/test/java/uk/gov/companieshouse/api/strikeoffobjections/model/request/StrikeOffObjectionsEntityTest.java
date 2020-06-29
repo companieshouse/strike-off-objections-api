@@ -19,14 +19,14 @@ public class StrikeOffObjectionsEntityTest {
 
        StrikeOffObjectionsEntity strikeOffObjectionsEntity =
                new StrikeOffObjectionsEntity.Builder()
-                       .withEMailAddress("jBloggs@ch.gov.uk")
+                       .withEmail("jBloggs@ch.gov.uk")
                        .withReason("This is a test")
                        .withCreatedBy(createdBy)
                        .withCreatedOn(MOCK_PRESENT)
                        .withStatus(RequestStatus.OPEN)
                        .build();
 
-       assertEquals("jBloggs@ch.gov.uk", strikeOffObjectionsEntity.getEMailAddress());
+       assertEquals("jBloggs@ch.gov.uk", strikeOffObjectionsEntity.getEmail());
        assertEquals("This is a test", strikeOffObjectionsEntity.getReason());
        assertEquals("1", strikeOffObjectionsEntity.getCreatedBy().getId());
        assertEquals("jBloggs@ch.gov.uk", strikeOffObjectionsEntity.getCreatedBy().getEmailAddress());
