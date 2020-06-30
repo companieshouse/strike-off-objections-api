@@ -5,7 +5,7 @@
     "version": "1.0.0",
     "title": "Companies House - Strike Off Objections API"
   },
-  "host": "internalapi.companieshouse.gov.uk",
+  "host": "api.companieshouse.gov.uk",
   "basePath": "/company/{companyNumber}/strike-off-objections",
   "schemes": [
     "https"
@@ -137,7 +137,7 @@
             }
           },
           "404": {
-            "description": "the objection or attachments were not found"
+            "description": "the objection was not found"
           }
         }
       },
