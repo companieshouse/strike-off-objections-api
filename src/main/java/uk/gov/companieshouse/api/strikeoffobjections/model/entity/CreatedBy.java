@@ -7,6 +7,7 @@ public class CreatedBy {
     @Field("id")
     private String id;
 
+    // TODO need to resolve the issue of what the official CH standard is for email
     @Field("email")
     private String email;
 
