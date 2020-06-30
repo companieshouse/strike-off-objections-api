@@ -39,7 +39,7 @@ class ObjectionServiceTest {
     ObjectionService objectionService;
 
     @Test
-    void createObjectionTest() {
+    void createObjectionTest() throws Exception{
         Objection returnedEntity = new Objection.Builder()
                 .withCompanyNumber(COMPANY_NUMBER)
                 .build();
@@ -53,5 +53,6 @@ class ObjectionServiceTest {
         verify(objectionRepository).save(acObjection.capture());
         assertEquals(OBJECTION_ID, returnedId);
         assertEquals(MOCKED_TIME_STAMP, acObjection.getValue().getCreatedOn());
+        assertEquals(COMPANY_NUMBER, acObjection.getValue().getCompanyNumber());
     }
 }

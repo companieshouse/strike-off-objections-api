@@ -28,7 +28,7 @@ public class ObjectionService implements IObjectionService {
     }
 
     @Override
-    public String createObjection(String requestId, String companyNumber) {
+    public String createObjection(String requestId, String companyNumber) throws Exception{
         Map<String, Object> logMap = new HashMap<>();
         logMap.put(LogConstants.COMPANY_NUMBER.getValue(), companyNumber);
         logger.infoContext(requestId, "Creating objection", logMap);

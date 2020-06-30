@@ -16,6 +16,7 @@ import uk.gov.companieshouse.service.rest.response.PluggableResponseEntityFactor
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -39,7 +40,7 @@ class ObjectionRequestControllerTest {
     ObjectionRequestController objectionRequestController;
 
     @Test
-    void createObjectionTest() {
+    void createObjectionTest() throws Exception{
         ObjectionResponse objectionResponse = new ObjectionResponse(OBJECTION_ID);
         when(objectionService.createObjection(REQUEST_ID, COMPANY_NUMBER)).thenReturn(OBJECTION_ID);
         when(pluggableResponseEntityFactory.createResponse(any(ServiceResult.class))).thenReturn(
@@ -53,5 +54,18 @@ class ObjectionRequestControllerTest {
 
         assertNotNull(responseBody.getSuccessBody());
         assertEquals(OBJECTION_ID, responseBody.getSuccessBody().getId());
+    }
+
+    @Test
+    void createObjectionExceptionTest() throws Exception{
+        when(objectionService.createObjection(REQUEST_ID, COMPANY_NUMBER)).thenThrow(new Exception("ERROR MESSAGE"));
+        when(pluggableResponseEntityFactory.createEmptyInternalServerError()).thenReturn(
+                ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build()
+        );
+
+        ResponseEntity<ChResponseBody<ObjectionResponse>> response = objectionRequestController.createObjection(COMPANY_NUMBER, REQUEST_ID);
+
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+
     }
 }
