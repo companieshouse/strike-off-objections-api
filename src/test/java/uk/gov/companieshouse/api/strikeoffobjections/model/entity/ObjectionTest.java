@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class StrikeOffObjectionsEntityTest {
+public class ObjectionTest {
 
     private static final LocalDateTime MOCK_PRESENT = LocalDateTime.of(2020, 6, 30, 10, 00);
 
@@ -17,19 +17,19 @@ public class StrikeOffObjectionsEntityTest {
        createdBy.setId("1");
        createdBy.setEmail("jBloggs@ch.gov.uk");
 
-       StrikeOffObjectionsEntity strikeOffObjectionsEntity =
-               new StrikeOffObjectionsEntity.Builder()
+       Objection objection =
+               new Objection.Builder()
                        .withCreatedOn(MOCK_PRESENT)
                        .withCreatedBy(createdBy)
                        .withCompanyNumber("00006400")
                        .withReason("This is a test")
                        .withStatus(ObjectionStatus.OPEN)
                        .build();
-       assertEquals(MOCK_PRESENT, strikeOffObjectionsEntity.getCreatedOn());
-       assertEquals("1", strikeOffObjectionsEntity.getCreatedBy().getId());
-       assertEquals("jBloggs@ch.gov.uk", strikeOffObjectionsEntity.getCreatedBy().getEmail());
-       assertEquals("00006400", strikeOffObjectionsEntity.getCompanyNumber());
-       assertEquals("This is a test", strikeOffObjectionsEntity.getReason());
-       assertEquals(ObjectionStatus.OPEN, strikeOffObjectionsEntity.getStatus());
+       assertEquals(MOCK_PRESENT, objection.getCreatedOn());
+       assertEquals("1", objection.getCreatedBy().getId());
+       assertEquals("jBloggs@ch.gov.uk", objection.getCreatedBy().getEmail());
+       assertEquals("00006400", objection.getCompanyNumber());
+       assertEquals("This is a test", objection.getReason());
+       assertEquals(ObjectionStatus.OPEN, objection.getStatus());
     }
 }

@@ -7,7 +7,7 @@ import org.springframework.data.mongodb.core.mapping.Field;
 import java.time.LocalDateTime;
 
 @Document(collection = "strike_off_objections")
-public class StrikeOffObjectionsEntity {
+public class Objection {
 
 
     public static class Builder {
@@ -43,14 +43,14 @@ public class StrikeOffObjectionsEntity {
             return this;
         }
 
-        public StrikeOffObjectionsEntity build() {
-            StrikeOffObjectionsEntity strikeOffObjectionsEntity = new StrikeOffObjectionsEntity();
-            strikeOffObjectionsEntity.setCreatedOn(this.createdOn);
-            strikeOffObjectionsEntity.setCreatedBy(this.createdBy);
-            strikeOffObjectionsEntity.setCompanyNumber(this.companyNumber);
-            strikeOffObjectionsEntity.setReason(this.reason);
-            strikeOffObjectionsEntity.setStatus(this.status);
-            return strikeOffObjectionsEntity;
+        public Objection build() {
+            Objection objection = new Objection();
+            objection.setCreatedOn(this.createdOn);
+            objection.setCreatedBy(this.createdBy);
+            objection.setCompanyNumber(this.companyNumber);
+            objection.setReason(this.reason);
+            objection.setStatus(this.status);
+            return objection;
         }
     }
 
