@@ -25,12 +25,11 @@ public class StrikeOffObjectionsEntityTest {
                        .withReason("This is a test")
                        .withStatus(ObjectionStatus.OPEN)
                        .build();
-
-       assertEquals("00006400", strikeOffObjectionsEntity.getCompanyNumber());
-       assertEquals("This is a test", strikeOffObjectionsEntity.getReason());
+       assertEquals(MOCK_PRESENT, strikeOffObjectionsEntity.getCreatedOn());
        assertEquals("1", strikeOffObjectionsEntity.getCreatedBy().getId());
        assertEquals("jBloggs@ch.gov.uk", strikeOffObjectionsEntity.getCreatedBy().getEmail());
-       assertEquals(MOCK_PRESENT, strikeOffObjectionsEntity.getCreatedOn());
+       assertEquals("00006400", strikeOffObjectionsEntity.getCompanyNumber());
+       assertEquals("This is a test", strikeOffObjectionsEntity.getReason());
        assertEquals(ObjectionStatus.OPEN, strikeOffObjectionsEntity.getStatus());
     }
 }
