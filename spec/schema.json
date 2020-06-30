@@ -5,7 +5,7 @@
     "version": "1.0.0",
     "title": "Companies House - Strike Off Objections API"
   },
-  "host": "api.companieshouse.gov.uk",
+  "host": "internalapi.companieshouse.gov.uk",
   "basePath": "/company/{companyNumber}/strike-off-objections",
   "schemes": [
     "https"
@@ -118,6 +118,29 @@
           "type": "string"
         }
       ],
+      "get": {
+        "summary": "Get all attachments from the Objection",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Strike Off Objections"
+        ],
+        "responses": {
+          "200": {
+            "description": "Attachments returned successfully",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Attachment"
+              }
+            }
+          },
+          "404": {
+            "description": "the objection or attachments were not found"
+          }
+        }
+      },
       "post": {
         "summary": "Add an attachment to the Objection",
         "produces": [
