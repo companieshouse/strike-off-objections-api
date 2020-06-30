@@ -137,7 +137,7 @@
             }
           },
           "404": {
-            "description": "the objection was not found"
+            "description": "the Objection was not found"
           }
         }
       },
@@ -151,7 +151,7 @@
         ],
         "responses": {
           "201": {
-            "description": "An attachment has been added to the objection",
+            "description": "An attachment has been added to the Objection",
             "schema": {
               "$ref": "#/definitions/ResourceCreated"
             }
@@ -160,7 +160,7 @@
             "description": "there was an error processing the request"
           },
           "404": {
-            "description": "the objection or attachment was not found"
+            "description": "the Objection or attachment was not found"
           }
         }
       }
