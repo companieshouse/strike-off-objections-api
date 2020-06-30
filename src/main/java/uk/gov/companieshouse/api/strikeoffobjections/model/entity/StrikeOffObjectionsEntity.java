@@ -70,6 +70,10 @@ public class StrikeOffObjectionsEntity {
         return id;
     }
 
+    public void setId(String id) {
+        this.id = id;
+    }
+
     public String getCompanyNumber() {
         return companyNumber;
     }
