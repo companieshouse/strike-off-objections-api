@@ -1,4 +1,4 @@
-package uk.gov.companieshouse.api.strikeoffobjections.model.request;
+package uk.gov.companieshouse.api.strikeoffobjections.model.entity;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -15,15 +15,15 @@ public class StrikeOffObjectionsEntity {
         private String reason;
         private CreatedBy createdBy;
         private LocalDateTime createdOn;
-        private RequestStatus status;
+        private ObjectionStatus status;
 
         public Builder withCompanyNumber(String companyNumber) {
             this.companyNumber = companyNumber;
             return this;
         }
 
-        public Builder withReason(String requestInformation) {
-            this.reason = requestInformation;
+        public Builder withReason(String reason) {
+            this.reason = reason;
             return this;
         }
 
@@ -37,7 +37,7 @@ public class StrikeOffObjectionsEntity {
             return this;
         }
 
-        public Builder withStatus(RequestStatus status) {
+        public Builder withStatus(ObjectionStatus status) {
             this.status = status;
             return this;
         }
@@ -64,7 +64,7 @@ public class StrikeOffObjectionsEntity {
     @Field("created_on")
     private LocalDateTime createdOn;
     @Field("status")
-    private RequestStatus status;
+    private ObjectionStatus status;
 
     public String getId() {
         return id;
@@ -102,11 +102,11 @@ public class StrikeOffObjectionsEntity {
         this.createdOn = createdOn;
     }
 
-    public RequestStatus getStatus() {
+    public ObjectionStatus getStatus() {
         return status;
     }
 
-    public void setStatus(RequestStatus status) {
+    public void setStatus(ObjectionStatus status) {
         this.status = status;
     }
 }

@@ -1,4 +1,4 @@
-package uk.gov.companieshouse.api.strikeoffobjections.model.request;
+package uk.gov.companieshouse.api.strikeoffobjections.model.entity;
 
 import org.junit.jupiter.api.Test;
 
@@ -23,7 +23,7 @@ public class StrikeOffObjectionsEntityTest {
                        .withReason("This is a test")
                        .withCreatedBy(createdBy)
                        .withCreatedOn(MOCK_PRESENT)
-                       .withStatus(RequestStatus.OPEN)
+                       .withStatus(ObjectionStatus.OPEN)
                        .build();
 
        assertEquals("00006400", strikeOffObjectionsEntity.getCompanyNumber());
@@ -31,6 +31,6 @@ public class StrikeOffObjectionsEntityTest {
        assertEquals("1", strikeOffObjectionsEntity.getCreatedBy().getId());
        assertEquals("jBloggs@ch.gov.uk", strikeOffObjectionsEntity.getCreatedBy().getEmail());
        assertEquals(MOCK_PRESENT, strikeOffObjectionsEntity.getCreatedOn());
-       assertEquals(RequestStatus.OPEN, strikeOffObjectionsEntity.getStatus());
+       assertEquals(ObjectionStatus.OPEN, strikeOffObjectionsEntity.getStatus());
     }
 }

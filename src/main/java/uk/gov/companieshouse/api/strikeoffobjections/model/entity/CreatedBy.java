@@ -1,4 +1,4 @@
-package uk.gov.companieshouse.api.strikeoffobjections.model.request;
+package uk.gov.companieshouse.api.strikeoffobjections.model.entity;
 
 import org.springframework.data.mongodb.core.mapping.Field;
 
