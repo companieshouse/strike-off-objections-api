@@ -4,8 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.gov.companieshouse.api.strikeoffobjections.common.ApiLogger;
 import uk.gov.companieshouse.api.strikeoffobjections.common.LogConstants;
-import uk.gov.companieshouse.api.strikeoffobjections.model.entity.StrikeOffObjectionsEntity;
-import uk.gov.companieshouse.api.strikeoffobjections.repository.StrikeOffObjectionsRepository;
+import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Objection;
+import uk.gov.companieshouse.api.strikeoffobjections.repository.ObjectionRepository;
 import uk.gov.companieshouse.api.strikeoffobjections.service.IObjectionService;
 
 import java.time.LocalDateTime;
@@ -16,13 +16,13 @@ import java.util.function.Supplier;
 @Service
 public class ObjectionService implements IObjectionService {
 
-    private StrikeOffObjectionsRepository strikeOffObjectionsRepository;
+    private ObjectionRepository objectionRepository;
     private ApiLogger logger;
     private Supplier<LocalDateTime> dateTimeSupplier;
 
     @Autowired
-    public ObjectionService(StrikeOffObjectionsRepository strikeOffObjectionsRepository, ApiLogger logger, Supplier<LocalDateTime> dateTimeSupplier) {
-        this.strikeOffObjectionsRepository = strikeOffObjectionsRepository;
+    public ObjectionService(ObjectionRepository objectionRepository, ApiLogger logger, Supplier<LocalDateTime> dateTimeSupplier) {
+        this.objectionRepository = objectionRepository;
         this.logger = logger;
         this.dateTimeSupplier = dateTimeSupplier;
     }
@@ -33,13 +33,13 @@ public class ObjectionService implements IObjectionService {
         logMap.put(LogConstants.COMPANY_NUMBER.getValue(), companyNumber);
         logger.infoContext(requestId, "Creating objection", logMap);
 
-        StrikeOffObjectionsEntity entity = new StrikeOffObjectionsEntity.Builder()
+        Objection entity = new Objection.Builder()
                 .withCompanyNumber(companyNumber)
                 .withCreatedOn(dateTimeSupplier.get())
                 .withHttpRequestId(requestId)
                 .build();
 
-        StrikeOffObjectionsEntity savedEntity = strikeOffObjectionsRepository.save(entity);
+        Objection savedEntity = objectionRepository.save(entity);
         return savedEntity.getId();
     }
 }

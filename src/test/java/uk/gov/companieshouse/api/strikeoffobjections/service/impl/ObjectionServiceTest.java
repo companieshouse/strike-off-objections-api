@@ -7,8 +7,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.companieshouse.api.strikeoffobjections.common.ApiLogger;
-import uk.gov.companieshouse.api.strikeoffobjections.model.entity.StrikeOffObjectionsEntity;
-import uk.gov.companieshouse.api.strikeoffobjections.repository.StrikeOffObjectionsRepository;
+import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Objection;
+import uk.gov.companieshouse.api.strikeoffobjections.repository.ObjectionRepository;
 
 import java.time.LocalDateTime;
 import java.util.function.Supplier;
@@ -30,7 +30,7 @@ class ObjectionServiceTest {
     ApiLogger apiLogger;
 
     @Mock
-    StrikeOffObjectionsRepository strikeOffObjectionsRepository;
+    ObjectionRepository objectionRepository;
 
     @Mock
     Supplier<LocalDateTime> localDateTimeSupplier;
@@ -40,17 +40,17 @@ class ObjectionServiceTest {
 
     @Test
     void createObjectionTest() {
-        StrikeOffObjectionsEntity returnedEntity = new StrikeOffObjectionsEntity.Builder()
+        Objection returnedEntity = new Objection.Builder()
                 .withCompanyNumber(COMPANY_NUMBER)
                 .build();
         returnedEntity.setId(OBJECTION_ID);
-        when(strikeOffObjectionsRepository.save(any())).thenReturn(returnedEntity);
+        when(objectionRepository.save(any())).thenReturn(returnedEntity);
         when(localDateTimeSupplier.get()).thenReturn(MOCKED_TIME_STAMP);
 
-        ArgumentCaptor<StrikeOffObjectionsEntity> acObjection = ArgumentCaptor.forClass(StrikeOffObjectionsEntity.class);
+        ArgumentCaptor<Objection> acObjection = ArgumentCaptor.forClass(Objection.class);
         String returnedId = objectionService.createObjection(REQUEST_ID, COMPANY_NUMBER);
 
-        verify(strikeOffObjectionsRepository).save(acObjection.capture());
+        verify(objectionRepository).save(acObjection.capture());
         assertEquals(OBJECTION_ID, returnedId);
         assertEquals(MOCKED_TIME_STAMP, acObjection.getValue().getCreatedOn());
     }
