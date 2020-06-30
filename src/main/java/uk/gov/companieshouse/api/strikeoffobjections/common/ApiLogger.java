@@ -34,4 +34,8 @@ public class ApiLogger {
     public void errorContext(String context, String message, Exception e) {
         LOGGER.errorContext(context, message, e, null);
     }
+
+    public void errorContext(String context, String message, Exception e, Map<String, Object> dataMap) {
+        LOGGER.errorContext(context, message, e, dataMap);
+    }
 }

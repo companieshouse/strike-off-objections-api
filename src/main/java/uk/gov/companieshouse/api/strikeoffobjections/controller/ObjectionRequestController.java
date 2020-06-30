@@ -12,14 +12,18 @@ import org.springframework.web.bind.annotation.RestController;
 
 import uk.gov.companieshouse.api.strikeoffobjections.common.ApiLogger;
 import uk.gov.companieshouse.api.strikeoffobjections.common.LogConstants;
+import uk.gov.companieshouse.api.strikeoffobjections.service.IObjectionService;
+import uk.gov.companieshouse.api.strikeoffobjections.service.impl.ObjectionService;
 import uk.gov.companieshouse.service.ServiceResult;
 import uk.gov.companieshouse.service.rest.response.ChResponseBody;
 import uk.gov.companieshouse.service.rest.response.PluggableResponseEntityFactory;
 
 import javax.validation.Valid;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
-@RequestMapping(value = "/company/{companyNumber}/objections/strike-off")
+@RequestMapping(value = "/company/{companyNumber}/strike-off-objections")
 public class ObjectionRequestController {
 
     private static final String LOG_COMPANY_NUMBER_KEY = LogConstants.COMPANY_NUMBER.getValue();
@@ -28,15 +32,50 @@ public class ObjectionRequestController {
     private static final String ERIC_REQUEST_ID_HEADER = "X-Request-Id";
 
     private PluggableResponseEntityFactory responseEntityFactory;
+    private IObjectionService objectionService;
     private ApiLogger apiLogger;
 
     @Autowired
-    public ObjectionRequestController(
-            PluggableResponseEntityFactory responseEntityFactory,
-            ApiLogger apiLogger) {
-
+    public ObjectionRequestController(PluggableResponseEntityFactory responseEntityFactory, IObjectionService objectionService, ApiLogger apiLogger) {
         this.responseEntityFactory = responseEntityFactory;
+        this.objectionService = objectionService;
         this.apiLogger = apiLogger;
+    }
+
+    @PostMapping
+    public ResponseEntity<ChResponseBody<Object>> createObjection(
+            @PathVariable("companyNumber") String companyNumber,
+            @RequestHeader(value = ERIC_REQUEST_ID_HEADER) String requestId
+    ) {
+        Map<String, Object> logMap = new HashMap<>();
+        logMap.put(LOG_COMPANY_NUMBER_KEY, companyNumber);
+
+        apiLogger.infoContext(
+                requestId,
+                "POST / request received",
+                logMap
+        );
+
+        try {
+            String objectionId = objectionService.createObjection(requestId, companyNumber);
+
+            return responseEntityFactory.createResponse(ServiceResult.created(objectionId));
+        } catch (Exception e) {
+            apiLogger.errorContext(
+                    requestId,
+                    "Error processing the Strike-Off Objection request",
+                    e,
+                    logMap
+            );
+
+            return responseEntityFactory.createEmptyInternalServerError();
+        } finally {
+            apiLogger.infoContext(
+                    requestId,
+                    "Finished POST / request",
+                    logMap
+            );
+        }
     }
 
     @PostMapping("/request")
