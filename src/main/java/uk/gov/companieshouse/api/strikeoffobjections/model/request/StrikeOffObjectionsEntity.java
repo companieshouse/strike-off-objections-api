@@ -11,10 +11,16 @@ public class StrikeOffObjectionsEntity {
 
 
     public static class Builder {
+        private String companyNumber;
         private String reason;
         private CreatedBy createdBy;
         private LocalDateTime createdOn;
         private RequestStatus status;
+
+        public Builder withCompanyNumber(String companyNumber) {
+            this.companyNumber = companyNumber;
+            return this;
+        }
 
         public Builder withReason(String requestInformation) {
             this.reason = requestInformation;
@@ -38,6 +44,7 @@ public class StrikeOffObjectionsEntity {
 
         public StrikeOffObjectionsEntity build() {
             StrikeOffObjectionsEntity strikeOffObjectionsEntity = new StrikeOffObjectionsEntity();
+            strikeOffObjectionsEntity.setCompanyNumber(this.companyNumber);
             strikeOffObjectionsEntity.setReason(this.reason);
             strikeOffObjectionsEntity.setCreatedBy(this.createdBy);
             strikeOffObjectionsEntity.setCreatedOn(this.createdOn);
@@ -48,6 +55,8 @@ public class StrikeOffObjectionsEntity {
 
     @Id
     private String id;
+    @Field("company_number")
+    private String companyNumber;
     @Field("reason")
     private String reason;
     @Field("created_by")
@@ -59,6 +68,14 @@ public class StrikeOffObjectionsEntity {
 
     public String getId() {
         return id;
+    }
+
+    public String getCompanyNumber() {
+        return companyNumber;
+    }
+
+    public void setCompanyNumber(String companyNumber) {
+        this.companyNumber = companyNumber;
     }
 
     public String getReason() {

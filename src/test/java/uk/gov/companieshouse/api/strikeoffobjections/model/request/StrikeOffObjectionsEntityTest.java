@@ -19,12 +19,14 @@ public class StrikeOffObjectionsEntityTest {
 
        StrikeOffObjectionsEntity strikeOffObjectionsEntity =
                new StrikeOffObjectionsEntity.Builder()
+                       .withCompanyNumber("00006400")
                        .withReason("This is a test")
                        .withCreatedBy(createdBy)
                        .withCreatedOn(MOCK_PRESENT)
                        .withStatus(RequestStatus.OPEN)
                        .build();
 
+       assertEquals("00006400", strikeOffObjectionsEntity.getCompanyNumber());
        assertEquals("This is a test", strikeOffObjectionsEntity.getReason());
        assertEquals("1", strikeOffObjectionsEntity.getCreatedBy().getId());
        assertEquals("jBloggs@ch.gov.uk", strikeOffObjectionsEntity.getCreatedBy().getEmail());
