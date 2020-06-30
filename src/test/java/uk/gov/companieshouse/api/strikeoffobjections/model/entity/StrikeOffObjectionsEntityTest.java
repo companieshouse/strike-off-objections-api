@@ -19,10 +19,10 @@ public class StrikeOffObjectionsEntityTest {
 
        StrikeOffObjectionsEntity strikeOffObjectionsEntity =
                new StrikeOffObjectionsEntity.Builder()
+                       .withCreatedOn(MOCK_PRESENT)
+                       .withCreatedBy(createdBy)
                        .withCompanyNumber("00006400")
                        .withReason("This is a test")
-                       .withCreatedBy(createdBy)
-                       .withCreatedOn(MOCK_PRESENT)
                        .withStatus(ObjectionStatus.OPEN)
                        .build();
 

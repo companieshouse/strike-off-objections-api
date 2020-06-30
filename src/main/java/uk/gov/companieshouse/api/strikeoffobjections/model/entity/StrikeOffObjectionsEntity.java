@@ -11,11 +11,21 @@ public class StrikeOffObjectionsEntity {
 
 
     public static class Builder {
+        private LocalDateTime createdOn;
+        private CreatedBy createdBy;
         private String companyNumber;
         private String reason;
-        private CreatedBy createdBy;
-        private LocalDateTime createdOn;
         private ObjectionStatus status;
+
+        public Builder withCreatedOn(LocalDateTime createdOn) {
+            this.createdOn = createdOn;
+            return this;
+        }
+
+        public Builder withCreatedBy(CreatedBy createdBy) {
+            this.createdBy = createdBy;
+            return this;
+        }
 
         public Builder withCompanyNumber(String companyNumber) {
             this.companyNumber = companyNumber;
@@ -27,15 +37,6 @@ public class StrikeOffObjectionsEntity {
             return this;
         }
 
-        public Builder withCreatedBy(CreatedBy createdBy) {
-            this.createdBy = createdBy;
-            return this;
-        }
-
-        public Builder withCreatedOn(LocalDateTime createdOn) {
-            this.createdOn = createdOn;
-            return this;
-        }
 
         public Builder withStatus(ObjectionStatus status) {
             this.status = status;
@@ -44,10 +45,10 @@ public class StrikeOffObjectionsEntity {
 
         public StrikeOffObjectionsEntity build() {
             StrikeOffObjectionsEntity strikeOffObjectionsEntity = new StrikeOffObjectionsEntity();
+            strikeOffObjectionsEntity.setCreatedOn(this.createdOn);
+            strikeOffObjectionsEntity.setCreatedBy(this.createdBy);
             strikeOffObjectionsEntity.setCompanyNumber(this.companyNumber);
             strikeOffObjectionsEntity.setReason(this.reason);
-            strikeOffObjectionsEntity.setCreatedBy(this.createdBy);
-            strikeOffObjectionsEntity.setCreatedOn(this.createdOn);
             strikeOffObjectionsEntity.setStatus(this.status);
             return strikeOffObjectionsEntity;
         }
@@ -55,19 +56,35 @@ public class StrikeOffObjectionsEntity {
 
     @Id
     private String id;
+    @Field("created_on")
+    private LocalDateTime createdOn;
+    @Field("created_by")
+    private CreatedBy createdBy;
     @Field("company_number")
     private String companyNumber;
     @Field("reason")
     private String reason;
-    @Field("created_by")
-    private CreatedBy createdBy;
-    @Field("created_on")
-    private LocalDateTime createdOn;
     @Field("status")
     private ObjectionStatus status;
 
     public String getId() {
         return id;
+    }
+
+    public LocalDateTime getCreatedOn() {
+        return createdOn;
+    }
+
+    public void setCreatedOn(LocalDateTime createdOn) {
+        this.createdOn = createdOn;
+    }
+
+    public CreatedBy getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedBy(CreatedBy createdBy) {
+        this.createdBy = createdBy;
     }
 
     public String getCompanyNumber() {
@@ -84,22 +101,6 @@ public class StrikeOffObjectionsEntity {
 
     public void setReason(String reason) {
         this.reason = reason;
-    }
-
-    public CreatedBy getCreatedBy() {
-        return createdBy;
-    }
-
-    public void setCreatedBy(CreatedBy createdBy) {
-        this.createdBy = createdBy;
-    }
-
-    public LocalDateTime getCreatedOn() {
-        return createdOn;
-    }
-
-    public void setCreatedOn(LocalDateTime createdOn) {
-        this.createdOn = createdOn;
     }
 
     public ObjectionStatus getStatus() {
