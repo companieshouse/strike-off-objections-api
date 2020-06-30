@@ -267,6 +267,9 @@
           "type": "string",
           "format": "uuid"
         },
+        "http_request_id": {
+          "type": "string"
+        },
         "created_on": {
           "type": "string",
           "format": "date-time"
