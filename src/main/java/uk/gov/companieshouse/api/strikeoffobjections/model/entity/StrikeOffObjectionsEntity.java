@@ -16,6 +16,7 @@ public class StrikeOffObjectionsEntity {
         private CreatedBy createdBy;
         private LocalDateTime createdOn;
         private ObjectionStatus status;
+        private String httpRequestId;
 
         public Builder withCompanyNumber(String companyNumber) {
             this.companyNumber = companyNumber;
@@ -42,6 +43,11 @@ public class StrikeOffObjectionsEntity {
             return this;
         }
 
+        public Builder withHttpRequestId(String httpRequestId) {
+            this.httpRequestId = httpRequestId;
+            return this;
+        }
+
         public StrikeOffObjectionsEntity build() {
             StrikeOffObjectionsEntity strikeOffObjectionsEntity = new StrikeOffObjectionsEntity();
             strikeOffObjectionsEntity.setCompanyNumber(this.companyNumber);
@@ -49,6 +55,7 @@ public class StrikeOffObjectionsEntity {
             strikeOffObjectionsEntity.setCreatedBy(this.createdBy);
             strikeOffObjectionsEntity.setCreatedOn(this.createdOn);
             strikeOffObjectionsEntity.setStatus(this.status);
+            strikeOffObjectionsEntity.setHttpRequestId(this.httpRequestId);
             return strikeOffObjectionsEntity;
         }
     }
@@ -65,6 +72,8 @@ public class StrikeOffObjectionsEntity {
     private LocalDateTime createdOn;
     @Field("status")
     private ObjectionStatus status;
+    @Field("http_request_id")
+    private String httpRequestId;
 
     public String getId() {
         return id;
@@ -112,5 +121,13 @@ public class StrikeOffObjectionsEntity {
 
     public void setStatus(ObjectionStatus status) {
         this.status = status;
+    }
+
+    public String getHttpRequestId() {
+        return httpRequestId;
+    }
+
+    public void setHttpRequestId(String httpRequestId) {
+        this.httpRequestId = httpRequestId;
     }
 }

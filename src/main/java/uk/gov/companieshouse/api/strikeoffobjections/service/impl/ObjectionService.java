@@ -33,6 +33,7 @@ public class ObjectionService implements IObjectionService {
         StrikeOffObjectionsEntity entity = new StrikeOffObjectionsEntity.Builder()
                 .withCompanyNumber(companyNumber)
                 .withCreatedOn(LocalDateTime.now())
+                .withHttpRequestId(requestId)
                 .build();
 
         StrikeOffObjectionsEntity savedEntity = strikeOffObjectionsRepository.save(entity);
