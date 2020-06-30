@@ -11,17 +11,20 @@ import uk.gov.companieshouse.api.strikeoffobjections.service.IObjectionService;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Supplier;
 
 @Service
 public class ObjectionService implements IObjectionService {
 
     private StrikeOffObjectionsRepository strikeOffObjectionsRepository;
     private ApiLogger logger;
+    private Supplier<LocalDateTime> dateTimeSupplier;
 
     @Autowired
-    public ObjectionService(StrikeOffObjectionsRepository strikeOffObjectionsRepository, ApiLogger logger) {
+    public ObjectionService(StrikeOffObjectionsRepository strikeOffObjectionsRepository, ApiLogger logger, Supplier<LocalDateTime> dateTimeSupplier) {
         this.strikeOffObjectionsRepository = strikeOffObjectionsRepository;
         this.logger = logger;
+        this.dateTimeSupplier = dateTimeSupplier;
     }
 
     @Override
@@ -32,7 +35,7 @@ public class ObjectionService implements IObjectionService {
 
         StrikeOffObjectionsEntity entity = new StrikeOffObjectionsEntity.Builder()
                 .withCompanyNumber(companyNumber)
-                .withCreatedOn(LocalDateTime.now())
+                .withCreatedOn(dateTimeSupplier.get())
                 .withHttpRequestId(requestId)
                 .build();
 
