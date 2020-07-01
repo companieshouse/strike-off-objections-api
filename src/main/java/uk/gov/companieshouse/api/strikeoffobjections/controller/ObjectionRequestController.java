@@ -58,7 +58,7 @@ public class ObjectionRequestController {
         } catch (Exception e) {
             apiLogger.errorContext(
                     requestId,
-                    "Error processing the Strike-Off Objection request",
+                    "Error creating the Strike-Off Objection",
                     e,
                     logMap
             );
