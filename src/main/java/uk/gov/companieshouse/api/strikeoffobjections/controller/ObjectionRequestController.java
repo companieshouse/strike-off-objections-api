@@ -88,6 +88,7 @@ public class ObjectionRequestController {
     ) {
         Map<String, Object> logMap = new HashMap<>();
         logMap.put(LOG_COMPANY_NUMBER_KEY, companyNumber);
+        logMap.put(LOG_OBJECTION_ID_KEY, objectionId);
 
         apiLogger.infoContext(
                 requestId,
@@ -100,7 +101,6 @@ public class ObjectionRequestController {
 
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } catch (ObjectionNotFoundException e) {
-            logMap.put(LOG_OBJECTION_ID_KEY, objectionId);
 
             apiLogger.errorContext(
                     requestId,
@@ -110,17 +110,6 @@ public class ObjectionRequestController {
             );
 
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        } catch (Exception e) {
-            logMap.put(LOG_OBJECTION_ID_KEY, objectionId);
-
-            apiLogger.errorContext(
-                    requestId,
-                    "Error patching the Strike-Off Objection",
-                    e,
-                    logMap
-            );
-
-            return responseEntityFactory.createEmptyInternalServerError();
         } finally {
             apiLogger.infoContext(
                     requestId,

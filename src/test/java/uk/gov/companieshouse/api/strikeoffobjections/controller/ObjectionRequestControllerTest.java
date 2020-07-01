@@ -94,18 +94,4 @@ class ObjectionRequestControllerTest {
 
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     }
-
-    @Test
-    void  patchObjectionGeneralExceptionTest() throws  Exception {
-        ObjectionRequest objectionRequest = new ObjectionRequest();
-        objectionRequest.setReason(REASON);
-        objectionRequest.setStatus(ObjectionStatus.OPEN);
-        when(pluggableResponseEntityFactory.createEmptyInternalServerError()).thenReturn(
-                ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build()
-        );
-        doThrow(new Exception("Message")).when(objectionService).patchObjection(any(), any(), any(), any());
-        ResponseEntity<ChResponseBody<ObjectionResponse>> response = objectionRequestController.patchObjection(COMPANY_NUMBER, OBJECTION_ID, objectionRequest,REQUEST_ID);
-
-        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
-    }
 }

@@ -50,7 +50,7 @@ public class ObjectionService implements IObjectionService {
     }
 
     @Override
-    public void patchObjection(String requestId, String companyNumber, String objectionID, ObjectionRequest objectionRequest) throws Exception {
+    public void patchObjection(String requestId, String companyNumber, String objectionID, ObjectionRequest objectionRequest) throws ObjectionNotFoundException {
         Optional<Objection> existingObjection = objectionRepository.findById(objectionID);
         if(existingObjection.isPresent()){
             Objection objection = objectionPatcher.patchObjection(objectionRequest, requestId, existingObjection.get());

@@ -7,6 +7,7 @@ public class ObjectionRequest {
     private ObjectionStatus status;
 
     public ObjectionRequest() {
+        // Default empty constructor
     }
 
     public String getReason() {
