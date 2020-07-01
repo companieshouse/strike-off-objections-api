@@ -1,5 +1,6 @@
 package uk.gov.companieshouse.api.strikeoffobjections.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
@@ -16,6 +17,7 @@ public class Objection {
         private String companyNumber;
         private String reason;
         private ObjectionStatus status;
+        private String httpRequestId;
 
         public Builder withCreatedOn(LocalDateTime createdOn) {
             this.createdOn = createdOn;
@@ -43,6 +45,11 @@ public class Objection {
             return this;
         }
 
+        public Builder withHttpRequestId(String httpRequestId) {
+            this.httpRequestId = httpRequestId;
+            return this;
+        }
+
         public Objection build() {
             Objection objection = new Objection();
             objection.setCreatedOn(this.createdOn);
@@ -50,6 +57,7 @@ public class Objection {
             objection.setCompanyNumber(this.companyNumber);
             objection.setReason(this.reason);
             objection.setStatus(this.status);
+            objection.setHttpRequestId(this.httpRequestId);
             return objection;
         }
     }
@@ -66,9 +74,16 @@ public class Objection {
     private String reason;
     @Field("status")
     private ObjectionStatus status;
+    @Field("http_request_id")
+    @JsonIgnore
+    private String httpRequestId;
 
     public String getId() {
         return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public LocalDateTime getCreatedOn() {
@@ -109,5 +124,13 @@ public class Objection {
 
     public void setStatus(ObjectionStatus status) {
         this.status = status;
+    }
+
+    public String getHttpRequestId() {
+        return httpRequestId;
+    }
+
+    public void setHttpRequestId(String httpRequestId) {
+        this.httpRequestId = httpRequestId;
     }
 }
