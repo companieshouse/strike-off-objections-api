@@ -8,6 +8,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import uk.gov.companieshouse.api.strikeoffobjections.common.ApiLogger;
+import uk.gov.companieshouse.api.strikeoffobjections.exception.ObjectionNotFoundException;
+import uk.gov.companieshouse.api.strikeoffobjections.model.entity.ObjectionStatus;
+import uk.gov.companieshouse.api.strikeoffobjections.model.request.ObjectionRequest;
 import uk.gov.companieshouse.api.strikeoffobjections.model.response.ObjectionResponse;
 import uk.gov.companieshouse.api.strikeoffobjections.service.IObjectionService;
 import uk.gov.companieshouse.service.ServiceResult;
@@ -18,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -26,6 +30,7 @@ class ObjectionRequestControllerTest {
     private static final String COMPANY_NUMBER = "12345678";
     private static final String REQUEST_ID = "87654321";
     private static final String OBJECTION_ID = "87651234";
+    private static final String REASON = "REASON";
 
     @Mock
     IObjectionService objectionService;
@@ -40,7 +45,7 @@ class ObjectionRequestControllerTest {
     ObjectionRequestController objectionRequestController;
 
     @Test
-    void createObjectionTest() throws Exception{
+    void createObjectionTest() throws Exception {
         ObjectionResponse objectionResponse = new ObjectionResponse(OBJECTION_ID);
         when(objectionService.createObjection(REQUEST_ID, COMPANY_NUMBER)).thenReturn(OBJECTION_ID);
         when(pluggableResponseEntityFactory.createResponse(any(ServiceResult.class))).thenReturn(
@@ -57,7 +62,7 @@ class ObjectionRequestControllerTest {
     }
 
     @Test
-    void createObjectionExceptionTest() throws Exception{
+    void createObjectionExceptionTest() throws Exception {
         when(objectionService.createObjection(REQUEST_ID, COMPANY_NUMBER)).thenThrow(new Exception("ERROR MESSAGE"));
         when(pluggableResponseEntityFactory.createEmptyInternalServerError()).thenReturn(
                 ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build()
@@ -67,5 +72,40 @@ class ObjectionRequestControllerTest {
 
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
 
+    }
+
+    @Test
+    void  patchObjectionTest() throws  Exception {
+        ObjectionRequest objectionRequest = new ObjectionRequest();
+        objectionRequest.setReason(REASON);
+        objectionRequest.setStatus(ObjectionStatus.OPEN);
+        ResponseEntity<ChResponseBody<ObjectionResponse>> response = objectionRequestController.patchObjection(COMPANY_NUMBER, OBJECTION_ID, objectionRequest,REQUEST_ID);
+
+        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
+    }
+
+    @Test
+    void  patchObjectionNotFoundExceptionTest() throws  Exception {
+        ObjectionRequest objectionRequest = new ObjectionRequest();
+        objectionRequest.setReason(REASON);
+        objectionRequest.setStatus(ObjectionStatus.OPEN);
+        doThrow(new ObjectionNotFoundException("Message")).when(objectionService).patchObjection(any(), any(), any(), any());
+        ResponseEntity<ChResponseBody<ObjectionResponse>> response = objectionRequestController.patchObjection(COMPANY_NUMBER, OBJECTION_ID, objectionRequest,REQUEST_ID);
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+    }
+
+    @Test
+    void  patchObjectionGeneralExceptionTest() throws  Exception {
+        ObjectionRequest objectionRequest = new ObjectionRequest();
+        objectionRequest.setReason(REASON);
+        objectionRequest.setStatus(ObjectionStatus.OPEN);
+        when(pluggableResponseEntityFactory.createEmptyInternalServerError()).thenReturn(
+                ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build()
+        );
+        doThrow(new Exception("Message")).when(objectionService).patchObjection(any(), any(), any(), any());
+        ResponseEntity<ChResponseBody<ObjectionResponse>> response = objectionRequestController.patchObjection(COMPANY_NUMBER, OBJECTION_ID, objectionRequest,REQUEST_ID);
+
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
     }
 }
