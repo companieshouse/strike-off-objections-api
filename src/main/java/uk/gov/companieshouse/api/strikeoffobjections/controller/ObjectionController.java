@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import uk.gov.companieshouse.api.strikeoffobjections.common.ApiLogger;
 import uk.gov.companieshouse.api.strikeoffobjections.common.LogConstants;
 import uk.gov.companieshouse.api.strikeoffobjections.exception.ObjectionNotFoundException;
-import uk.gov.companieshouse.api.strikeoffobjections.model.request.ObjectionRequest;
+import uk.gov.companieshouse.api.strikeoffobjections.model.patch.ObjectionPatch;
 import uk.gov.companieshouse.api.strikeoffobjections.model.response.ObjectionResponse;
 import uk.gov.companieshouse.api.strikeoffobjections.service.IObjectionService;
 import uk.gov.companieshouse.service.ServiceResult;
@@ -26,7 +26,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping(value = "/company/{companyNumber}/strike-off-objections")
-public class ObjectionRequestController {
+public class ObjectionController {
 
     private static final String LOG_COMPANY_NUMBER_KEY = LogConstants.COMPANY_NUMBER.getValue();
     private static final String LOG_OBJECTION_ID_KEY = LogConstants.OBJECTION_ID.getValue();
@@ -37,7 +37,7 @@ public class ObjectionRequestController {
     private ApiLogger apiLogger;
 
     @Autowired
-    public ObjectionRequestController(PluggableResponseEntityFactory responseEntityFactory, IObjectionService objectionService, ApiLogger apiLogger) {
+    public ObjectionController(PluggableResponseEntityFactory responseEntityFactory, IObjectionService objectionService, ApiLogger apiLogger) {
         this.responseEntityFactory = responseEntityFactory;
         this.objectionService = objectionService;
         this.apiLogger = apiLogger;
@@ -83,7 +83,7 @@ public class ObjectionRequestController {
     public ResponseEntity<ChResponseBody<ObjectionResponse>> patchObjection(
             @PathVariable("companyNumber") String companyNumber,
             @PathVariable("objectionId") String objectionId,
-            @RequestBody ObjectionRequest objectionRequest,
+            @RequestBody ObjectionPatch objectionPatch,
             @RequestHeader(value = ERIC_REQUEST_ID_HEADER) String requestId
     ) {
         Map<String, Object> logMap = new HashMap<>();
@@ -97,7 +97,7 @@ public class ObjectionRequestController {
         );
 
         try {
-            objectionService.patchObjection(requestId, companyNumber, objectionId, objectionRequest);
+            objectionService.patchObjection(requestId, companyNumber, objectionId, objectionPatch);
 
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } catch (ObjectionNotFoundException e) {

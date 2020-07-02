@@ -3,7 +3,7 @@ package uk.gov.companieshouse.api.strikeoffobjections.model.patcher;
 import org.junit.jupiter.api.Test;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Objection;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.ObjectionStatus;
-import uk.gov.companieshouse.api.strikeoffobjections.model.request.ObjectionRequest;
+import uk.gov.companieshouse.api.strikeoffobjections.model.patch.ObjectionPatch;
 
 import java.time.LocalDateTime;
 
@@ -20,16 +20,16 @@ class ObjectionPatcherTest {
     private ObjectionPatcher objectionPatcher = new ObjectionPatcher();
     @Test
     void requestToObjectionCreationTest() {
-        ObjectionRequest objectionRequest = new ObjectionRequest();
-        objectionRequest.setReason(REASON);
-        objectionRequest.setStatus(ObjectionStatus.OPEN);
+        ObjectionPatch objectionPatch = new ObjectionPatch();
+        objectionPatch.setReason(REASON);
+        objectionPatch.setStatus(ObjectionStatus.OPEN);
 
         Objection existingObjection = new Objection();
         existingObjection.setCreatedOn(CREATED_ON);
         existingObjection.setId(OBJECTION_ID);
         existingObjection.setCompanyNumber(COMPANY_NUMBER);
 
-        Objection objection = objectionPatcher.patchObjection(objectionRequest, REQUEST_ID, existingObjection);
+        Objection objection = objectionPatcher.patchObjection(objectionPatch, REQUEST_ID, existingObjection);
 
         assertEquals(REASON, objection.getReason());
         assertEquals(OBJECTION_ID, objection.getId());

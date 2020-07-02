@@ -11,7 +11,7 @@ import uk.gov.companieshouse.api.strikeoffobjections.exception.ObjectionNotFound
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Objection;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.ObjectionStatus;
 import uk.gov.companieshouse.api.strikeoffobjections.model.patcher.ObjectionPatcher;
-import uk.gov.companieshouse.api.strikeoffobjections.model.request.ObjectionRequest;
+import uk.gov.companieshouse.api.strikeoffobjections.model.patch.ObjectionPatch;
 import uk.gov.companieshouse.api.strikeoffobjections.repository.ObjectionRepository;
 
 import java.time.LocalDateTime;
@@ -73,25 +73,25 @@ class ObjectionServiceTest {
         existingObjection.setId(OBJECTION_ID);
         Objection objection = new Objection();
         objection.setId(OBJECTION_ID);
-        ObjectionRequest objectionRequest = new ObjectionRequest();
-        objectionRequest.setReason(REASON);
-        objectionRequest.setStatus(ObjectionStatus.OPEN);
+        ObjectionPatch objectionPatch = new ObjectionPatch();
+        objectionPatch.setReason(REASON);
+        objectionPatch.setStatus(ObjectionStatus.OPEN);
         when(objectionRepository.findById(any())).thenReturn(Optional.of(existingObjection));
         when(objectionPatcher.patchObjection(any(), any(), any())).thenReturn(objection);
 
-        objectionService.patchObjection(REQUEST_ID, COMPANY_NUMBER, OBJECTION_ID, objectionRequest);
+        objectionService.patchObjection(REQUEST_ID, COMPANY_NUMBER, OBJECTION_ID, objectionPatch);
 
         verify(objectionRepository, times(1)).save(objection);
     }
 
     @Test
     void patchObjectionDoesNotExistTest() throws Exception {
-        ObjectionRequest objectionRequest = new ObjectionRequest();
-        objectionRequest.setReason(REASON);
-        objectionRequest.setStatus(ObjectionStatus.OPEN);
+        ObjectionPatch objectionPatch = new ObjectionPatch();
+        objectionPatch.setReason(REASON);
+        objectionPatch.setStatus(ObjectionStatus.OPEN);
         when(objectionRepository.findById(any())).thenReturn(Optional.empty());
 
-        assertThrows(ObjectionNotFoundException.class, () -> objectionService.patchObjection(REQUEST_ID, COMPANY_NUMBER, OBJECTION_ID, objectionRequest));
+        assertThrows(ObjectionNotFoundException.class, () -> objectionService.patchObjection(REQUEST_ID, COMPANY_NUMBER, OBJECTION_ID, objectionPatch));
 
         verify(objectionRepository, times(0)).save(any());
     }

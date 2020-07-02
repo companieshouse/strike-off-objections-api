@@ -1,14 +1,10 @@
-package uk.gov.companieshouse.api.strikeoffobjections.model.request;
+package uk.gov.companieshouse.api.strikeoffobjections.model.patch;
 
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.ObjectionStatus;
 
-public class ObjectionRequest {
+public class ObjectionPatch {
     private String reason;
     private ObjectionStatus status;
-
-    public ObjectionRequest() {
-        // Default empty constructor
-    }
 
     public String getReason() {
         return reason;

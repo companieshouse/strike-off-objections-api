@@ -7,7 +7,7 @@ import uk.gov.companieshouse.api.strikeoffobjections.common.LogConstants;
 import uk.gov.companieshouse.api.strikeoffobjections.exception.ObjectionNotFoundException;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Objection;
 import uk.gov.companieshouse.api.strikeoffobjections.model.patcher.ObjectionPatcher;
-import uk.gov.companieshouse.api.strikeoffobjections.model.request.ObjectionRequest;
+import uk.gov.companieshouse.api.strikeoffobjections.model.patch.ObjectionPatch;
 import uk.gov.companieshouse.api.strikeoffobjections.repository.ObjectionRepository;
 import uk.gov.companieshouse.api.strikeoffobjections.service.IObjectionService;
 
@@ -50,12 +50,19 @@ public class ObjectionService implements IObjectionService {
     }
 
     @Override
-    public void patchObjection(String requestId, String companyNumber, String objectionID, ObjectionRequest objectionRequest) throws ObjectionNotFoundException {
+    public void patchObjection(String requestId, String companyNumber, String objectionID, ObjectionPatch objectionPatch) throws ObjectionNotFoundException {
+        Map<String, Object> logMap = new HashMap<>();
+        logMap.put(LogConstants.COMPANY_NUMBER.getValue(), companyNumber);
+        logMap.put(LogConstants.OBJECTION_ID.getValue(), objectionID);
+        logger.infoContext(requestId, "Checking for existing objection", logMap);
+
         Optional<Objection> existingObjection = objectionRepository.findById(objectionID);
-        if(existingObjection.isPresent()){
-            Objection objection = objectionPatcher.patchObjection(objectionRequest, requestId, existingObjection.get());
+        if (existingObjection.isPresent()) {
+            logger.infoContext(requestId, "Objection exists, patching", logMap);
+            Objection objection = objectionPatcher.patchObjection(objectionPatch, requestId, existingObjection.get());
             objectionRepository.save(objection);
-        } else{
+        } else {
+            logger.infoContext(requestId, "Objection does not exist", logMap);
             throw new ObjectionNotFoundException(String.format("Objection ID: %s, not found", objectionID));
         }
     }
