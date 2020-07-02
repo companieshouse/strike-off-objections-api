@@ -3,7 +3,7 @@ package uk.gov.companieshouse.api.strikeoffobjections.common;
 public enum LogConstants {
 
     COMPANY_NUMBER("company_number"),
-    REQUEST_ID("request_id"),
+    OBJECTION_ID("objection_id"),
     REASON("reason");
 
     private String value;
