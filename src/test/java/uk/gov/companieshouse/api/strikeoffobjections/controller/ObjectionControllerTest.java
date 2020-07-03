@@ -79,7 +79,7 @@ class ObjectionControllerTest {
         ObjectionPatch objectionPatch = new ObjectionPatch();
         objectionPatch.setReason(REASON);
         objectionPatch.setStatus(ObjectionStatus.OPEN);
-        ResponseEntity<ChResponseBody<ObjectionResponse>> response = objectionController.patchObjection(COMPANY_NUMBER, OBJECTION_ID, objectionPatch,REQUEST_ID);
+        ResponseEntity response = objectionController.patchObjection(COMPANY_NUMBER, OBJECTION_ID, objectionPatch,REQUEST_ID);
 
         assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
     }
@@ -90,7 +90,7 @@ class ObjectionControllerTest {
         objectionPatch.setReason(REASON);
         objectionPatch.setStatus(ObjectionStatus.OPEN);
         doThrow(new ObjectionNotFoundException("Message")).when(objectionService).patchObjection(any(), any(), any(), any());
-        ResponseEntity<ChResponseBody<ObjectionResponse>> response = objectionController.patchObjection(COMPANY_NUMBER, OBJECTION_ID, objectionPatch,REQUEST_ID);
+        ResponseEntity response = objectionController.patchObjection(COMPANY_NUMBER, OBJECTION_ID, objectionPatch,REQUEST_ID);
 
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     }

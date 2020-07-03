@@ -80,7 +80,7 @@ public class ObjectionController {
     }
 
     @PatchMapping("/{objectionId}")
-    public ResponseEntity<ChResponseBody<ObjectionResponse>> patchObjection(
+    public ResponseEntity patchObjection(
             @PathVariable("companyNumber") String companyNumber,
             @PathVariable("objectionId") String objectionId,
             @RequestBody ObjectionPatch objectionPatch,
