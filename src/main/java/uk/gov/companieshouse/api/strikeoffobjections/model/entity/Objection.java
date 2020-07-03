@@ -133,7 +133,7 @@ public class Objection {
     }
 
     public void setAttachments(List<Attachment> attachments) {
-        this. attachments =  attachments;
+        this. attachments = attachments;
     }
 
     public ObjectionStatus getStatus() {
