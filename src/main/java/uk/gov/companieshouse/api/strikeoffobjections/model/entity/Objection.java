@@ -129,10 +129,10 @@ public class Objection {
     }
 
     public List<Attachment> getAttachments() {
-        return  attachments;
+        return attachments;
     }
 
-    public void setAttachments(List<Attachment>  attachments) {
+    public void setAttachments(List<Attachment> attachments) {
         this. attachments =  attachments;
     }
 
