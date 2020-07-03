@@ -152,6 +152,18 @@
         "tags": [
           "Strike Off Objections"
         ],
+        "parameters": [
+          {
+            "in": "formData",
+            "name": "file",
+            "type": "file",
+            "description": "A MultipartFile object containing file data",
+            "required": true
+          }
+        ],
+        "consumes": [
+          "multipart/form-data"
+        ],
         "responses": {
           "201": {
             "description": "An attachment has been added to the Objection",
