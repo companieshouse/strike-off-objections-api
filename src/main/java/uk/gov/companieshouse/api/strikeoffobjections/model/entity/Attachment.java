@@ -11,7 +11,6 @@ public class Attachment implements Serializable {
     @Field("id")
     private String id;
     @Field("links")
-    @JsonUnwrapped
     private Links links;
     @Field("name")
     private String name;
