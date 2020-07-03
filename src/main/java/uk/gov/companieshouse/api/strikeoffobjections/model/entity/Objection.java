@@ -6,6 +6,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Document(collection = "strike_off_objections")
 public class Objection {
@@ -72,6 +74,8 @@ public class Objection {
     private String companyNumber;
     @Field("reason")
     private String reason;
+    @Field("attachments")
+    private List<Attachment> attachments = new ArrayList<>();
     @Field("status")
     private ObjectionStatus status;
     @Field("http_request_id")
@@ -118,6 +122,20 @@ public class Objection {
         this.reason = reason;
     }
 
+    public void addAttachment(Attachment attachment) {
+        if (attachments != null) {
+            attachments.add(attachment);
+        }
+    }
+
+    public List<Attachment> getAttachments() {
+        return  attachments;
+    }
+
+    public void setAttachments(List<Attachment>  attachments) {
+        this. attachments =  attachments;
+    }
+
     public ObjectionStatus getStatus() {
         return status;
     }
@@ -133,4 +151,5 @@ public class Objection {
     public void setHttpRequestId(String httpRequestId) {
         this.httpRequestId = httpRequestId;
     }
+
 }
