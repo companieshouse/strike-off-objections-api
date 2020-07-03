@@ -1,7 +1,6 @@
 package uk.gov.companieshouse.api.strikeoffobjections.model.entity;
 
 import org.junit.jupiter.api.Test;
-import uk.gov.companieshouse.service.links.LinkKey;
 import uk.gov.companieshouse.service.links.Links;
 
 import java.time.LocalDateTime;
@@ -52,8 +51,8 @@ public class ObjectionTest {
        assertEquals("00006400", objection.getCompanyNumber());
 
        assertEquals("1", objection.getAttachments().get(0).getId());
-       assertEquals("/abc/download", objection.getAttachments().get(0).getLinks().getLink(ObjectionsLinkKeys.DOWNLOAD));
-       assertEquals("abc/self", objection.getAttachments().get(0).getLinks().getLink(ObjectionsLinkKeys.SELF));
+       assertEquals("/abc/download", objection.getAttachments().get(0).getLinks().getLink(ObjectionLinkKeys.DOWNLOAD));
+       assertEquals("abc/self", objection.getAttachments().get(0).getLinks().getLink(ObjectionLinkKeys.SELF));
        assertEquals("test.jpg", objection.getAttachments().get(0).getName());
        assertEquals("image/jpeg", objection.getAttachments().get(0).getContentType());
        assertEquals(5000L, objection.getAttachments().get(0).getSize());
