@@ -1,21 +1,21 @@
 package uk.gov.companieshouse.api.strikeoffobjections.model.entity;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonUnwrapped;
+import org.springframework.data.mongodb.core.mapping.Field;
 import uk.gov.companieshouse.service.links.Links;
 
 import java.io.Serializable;
 
 public class Attachment implements Serializable {
 
+    @Field("id")
     private String id;
-    @JsonUnwrapped
+    @Field("links")
     private Links links;
+    @Field("name")
     private String name;
-
-    @JsonProperty("content_type")
+    @Field("content_type")
     private String contentType;
-
+    @Field("size")
     private long size;
 
     public Links getLinks() {
