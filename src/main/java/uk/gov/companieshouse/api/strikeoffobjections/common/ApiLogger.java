@@ -31,6 +31,10 @@ public class ApiLogger {
         LOGGER.errorContext(context, e, null);
     }
 
+    public void errorContext(String context) {
+        LOGGER.errorContext(context, null, null);
+    }
+
     public void errorContext(String context, String message, Exception e) {
         LOGGER.errorContext(context, message, e, null);
     }
