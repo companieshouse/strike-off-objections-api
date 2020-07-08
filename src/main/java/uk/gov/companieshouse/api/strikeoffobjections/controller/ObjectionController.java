@@ -9,14 +9,19 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import org.springframework.web.multipart.MultipartFile;
 import uk.gov.companieshouse.api.strikeoffobjections.common.ApiLogger;
 import uk.gov.companieshouse.api.strikeoffobjections.common.LogConstants;
 import uk.gov.companieshouse.api.strikeoffobjections.exception.ObjectionNotFoundException;
+import uk.gov.companieshouse.api.strikeoffobjections.file.FileTransferApiClient;
+import uk.gov.companieshouse.api.strikeoffobjections.file.FileTransferApiClientResponse;
 import uk.gov.companieshouse.api.strikeoffobjections.model.patch.ObjectionPatch;
 import uk.gov.companieshouse.api.strikeoffobjections.model.response.ObjectionResponse;
 import uk.gov.companieshouse.api.strikeoffobjections.service.IObjectionService;
+import uk.gov.companieshouse.service.ServiceException;
 import uk.gov.companieshouse.service.ServiceResult;
 import uk.gov.companieshouse.service.rest.response.ChResponseBody;
 import uk.gov.companieshouse.service.rest.response.PluggableResponseEntityFactory;
@@ -34,10 +39,13 @@ public class ObjectionController {
 
     private PluggableResponseEntityFactory responseEntityFactory;
     private IObjectionService objectionService;
+
     private ApiLogger apiLogger;
 
     @Autowired
-    public ObjectionController(PluggableResponseEntityFactory responseEntityFactory, IObjectionService objectionService, ApiLogger apiLogger) {
+    public ObjectionController(PluggableResponseEntityFactory responseEntityFactory,
+                               IObjectionService objectionService,
+                               ApiLogger apiLogger) {
         this.responseEntityFactory = responseEntityFactory;
         this.objectionService = objectionService;
         this.apiLogger = apiLogger;
@@ -116,6 +124,18 @@ public class ObjectionController {
                     "Finished PATCH /{objectionId} request",
                     logMap
             );
+        }
+    }
+
+    @PostMapping("/{objectionId}/attachments")
+    public ResponseEntity<String> uploadAttachmentToRequest(
+            @RequestParam("file") MultipartFile file, @PathVariable String objectionId) {
+        try {
+            ServiceResult<String> result = objectionService.addAttachment(objectionId, file);
+            return new ResponseEntity(result, HttpStatus.OK);
+        } catch(ServiceException e) {
+
+            return ResponseEntity.status(503).build();
         }
     }
 }
