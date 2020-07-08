@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.multipart.MultipartFile;
 import uk.gov.companieshouse.api.strikeoffobjections.common.ApiLogger;
 import uk.gov.companieshouse.api.strikeoffobjections.common.LogConstants;
@@ -156,6 +158,16 @@ public class ObjectionController {
                     logMap
             );
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        } catch(HttpClientErrorException | HttpServerErrorException e) {
+
+            apiLogger.errorContext(
+                    requestId,
+                    String.format("The file-transfer-api has returned an error for file: %s",
+                            file.getOriginalFilename()),
+                    e,
+                    logMap
+            );
+            return ResponseEntity.status(e.getStatusCode()).build();
         } finally {
             apiLogger.infoContext(
                      requestId,
