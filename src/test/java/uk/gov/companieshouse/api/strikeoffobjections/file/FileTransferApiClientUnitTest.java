@@ -28,6 +28,7 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 public class FileTransferApiClientUnitTest {
 
+    private static final String REQUEST_ID = "abc";
     private static final String DUMMY_URL = "http://test";
     private static final String FILE_ID = "12345";
     private static final String EXCEPTION_MESSAGE = "BAD THINGS";
@@ -59,7 +60,7 @@ public class FileTransferApiClientUnitTest {
         when(restTemplate.postForEntity(eq(DUMMY_URL), any(), eq(FileTransferApiResponse.class)))
                 .thenReturn(apiResponse);
 
-        FileTransferApiClientResponse fileTransferApiClientResponse = fileTransferApiClient.upload(file);
+        FileTransferApiClientResponse fileTransferApiClientResponse = fileTransferApiClient.upload(REQUEST_ID, file);
 
         assertEquals(FILE_ID, fileTransferApiClientResponse.getFileId());
         assertEquals(HttpStatus.OK, fileTransferApiClientResponse.getHttpStatus());
@@ -71,7 +72,7 @@ public class FileTransferApiClientUnitTest {
 
         when(restTemplate.postForEntity(eq(DUMMY_URL), any(), eq(FileTransferApiResponse.class))).thenReturn(apiErrorResponse);
 
-        FileTransferApiClientResponse fileTransferApiClientResponse = fileTransferApiClient.upload(file);
+        FileTransferApiClientResponse fileTransferApiClientResponse = fileTransferApiClient.upload(REQUEST_ID, file);
 
         assertTrue(fileTransferApiClientResponse.getHttpStatus().isError());
         assertEquals(apiErrorResponse.getStatusCode(), fileTransferApiClientResponse.getHttpStatus());
@@ -87,10 +88,8 @@ public class FileTransferApiClientUnitTest {
         expectedException.expect(RestClientException.class);
         expectedException.expectMessage(exception.getMessage());
 
-        assertThrows(RestClientException.class, () -> fileTransferApiClient.upload(file));
+        assertThrows(RestClientException.class, () -> fileTransferApiClient.upload(REQUEST_ID, file));
     }
-
-
 
     private ResponseEntity<FileTransferApiResponse> apiSuccessResponse() {
         FileTransferApiResponse response = new FileTransferApiResponse();
@@ -102,5 +101,4 @@ public class FileTransferApiClientUnitTest {
         FileTransferApiResponse response = new FileTransferApiResponse();
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
-
 }

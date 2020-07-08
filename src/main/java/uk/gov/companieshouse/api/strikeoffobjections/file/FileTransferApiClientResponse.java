@@ -7,7 +7,7 @@ public class FileTransferApiClientResponse {
 
     private String fileId;
     private HttpStatus httpStatus;
-    private HttpHeaders headers;
+    private HttpHeaders httpHeaders;
 
     public String getFileId() {
         return fileId;
@@ -25,11 +25,11 @@ public class FileTransferApiClientResponse {
         this.httpStatus = httpStatus;
     }
 
-    public HttpHeaders getHeaders() {
-        return headers;
+    public HttpHeaders getHttpHeaders() {
+        return httpHeaders;
     }
 
-    public void setHeaders(HttpHeaders headers) {
-        this.headers = headers;
+    public void setHttpHeaders(HttpHeaders httpHeaders) {
+        this.httpHeaders = httpHeaders;
     }
 }

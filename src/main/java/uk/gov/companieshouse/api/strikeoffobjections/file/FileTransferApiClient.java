@@ -21,6 +21,8 @@ public class FileTransferApiClient {
     private static final String CONTENT_DISPOSITION_VALUE = "form-data; name=%s; filename=%s";
     private static final String NULL_RESPONSE_MESSAGE = "null response from file transfer api url";
 
+    private String requestId;
+
     @Autowired
     private ApiLogger logger;
 
@@ -42,7 +44,7 @@ public class FileTransferApiClient {
             T operationResponse = operation.execute();
             response = responseBuilder.createResponse(operationResponse);
         } catch (IOException e) {
-            logger.errorContext(e.getMessage(), e);
+            logger.errorContext(requestId, e.getMessage(), e);
             response.setHttpStatus(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return response;
@@ -54,9 +56,10 @@ public class FileTransferApiClient {
      * the file-transfer-api. The response from the file-transfer-api contains
      * the new unique id for the file. This is captured and returned in the FileTransferApiClientResponse.
      * @param fileToUpload The file to upload
-     * @return FileTransferApiClientResponse containing the file id if successful, and http status
+     * @return FileTransferApiClientResponse containing the file id if successful, the http header and http status
      */
-    public FileTransferApiClientResponse upload(MultipartFile fileToUpload) {
+    public FileTransferApiClientResponse upload(String requestId, MultipartFile fileToUpload) {
+        this.requestId = requestId;
         return makeApiCall(
              () -> getFileTransferOperation(fileToUpload),
              responseEntity ->  getFileTransferApiClientResponse(responseEntity)
@@ -64,8 +67,10 @@ public class FileTransferApiClient {
     }
 
     /**
+     * Calls the file transfer api and returns the result of the
+     * call ready to pass to the response builder
      * @param fileToUpload
-     * @return
+     * @return ResponseEntity containing the raw data from which the response object is built
      * @throws IOException
      */
     private ResponseEntity<FileTransferApiResponse> getFileTransferOperation(MultipartFile fileToUpload) throws IOException {
@@ -86,14 +91,14 @@ public class FileTransferApiClient {
     private FileTransferApiClientResponse getFileTransferApiClientResponse(ResponseEntity<FileTransferApiResponse> responseEntity) {
         FileTransferApiClientResponse fileTransferApiClientResponse = new FileTransferApiClientResponse();
         if (responseEntity != null) {
-            fileTransferApiClientResponse.setHeaders(responseEntity.getHeaders());
+            fileTransferApiClientResponse.setHttpHeaders(responseEntity.getHeaders());
             fileTransferApiClientResponse.setHttpStatus(responseEntity.getStatusCode());
             FileTransferApiResponse apiResponse = responseEntity.getBody();
             if (apiResponse != null) {
                 fileTransferApiClientResponse.setFileId(apiResponse.getId());
             }
         } else {
-            logger.errorContext(String.format("%s %s", NULL_RESPONSE_MESSAGE,fileTransferApiURL));
+            logger.infoContext(requestId, String.format("%s %s", NULL_RESPONSE_MESSAGE,fileTransferApiURL));
             fileTransferApiClientResponse.setHttpStatus(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return fileTransferApiClientResponse;
