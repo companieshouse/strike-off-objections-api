@@ -21,8 +21,6 @@ public class FileTransferApiClient {
     private static final String CONTENT_DISPOSITION_VALUE = "form-data; name=%s; filename=%s";
     private static final String NULL_RESPONSE_MESSAGE = "null response from file transfer api url";
 
-    private String requestId;
-
     @Autowired
     private ApiLogger logger;
 
@@ -36,7 +34,8 @@ public class FileTransferApiClient {
     private String fileTransferApiKey;
 
 
-    private <T> FileTransferApiClientResponse makeApiCall(FileTransferOperation <T> operation,
+    private <T> FileTransferApiClientResponse makeApiCall(String requestId,
+                                                          FileTransferOperation <T> operation,
                                                           FileTransferResponseBuilder <T> responseBuilder) {
         FileTransferApiClientResponse response = new FileTransferApiClientResponse();
 
@@ -59,10 +58,11 @@ public class FileTransferApiClient {
      * @return FileTransferApiClientResponse containing the file id if successful, the http header and http status
      */
     public FileTransferApiClientResponse upload(String requestId, MultipartFile fileToUpload) {
-        this.requestId = requestId;
+
         return makeApiCall(
+             requestId,
              () -> getFileTransferOperation(fileToUpload),
-             responseEntity ->  getFileTransferApiClientResponse(responseEntity)
+             responseEntity ->  getFileTransferApiClientResponse(requestId, responseEntity)
         );
     }
 
@@ -88,7 +88,8 @@ public class FileTransferApiClient {
      * @param responseEntity
      * @return
      */
-    private FileTransferApiClientResponse getFileTransferApiClientResponse(ResponseEntity<FileTransferApiResponse> responseEntity) {
+    private FileTransferApiClientResponse getFileTransferApiClientResponse(
+            String requestId, ResponseEntity<FileTransferApiResponse> responseEntity) {
         FileTransferApiClientResponse fileTransferApiClientResponse = new FileTransferApiClientResponse();
         if (responseEntity != null) {
             fileTransferApiClientResponse.setHttpHeaders(responseEntity.getHeaders());
