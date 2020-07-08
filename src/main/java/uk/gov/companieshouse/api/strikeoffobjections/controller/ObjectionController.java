@@ -128,14 +128,39 @@ public class ObjectionController {
     }
 
     @PostMapping("/{objectionId}/attachments")
-    public ResponseEntity<String> uploadAttachmentToRequest(
-            @RequestParam("file") MultipartFile file, @PathVariable String objectionId) {
+    public ResponseEntity<String> uploadAttachmentToObjection (
+            @RequestParam("file") MultipartFile file,
+            @PathVariable("companyNumber") String companyNumber,
+            @PathVariable String objectionId) {
+
+        Map<String, Object> logMap = new HashMap<>();
+        logMap.put(LOG_COMPANY_NUMBER_KEY, companyNumber);
+        logMap.put(LOG_OBJECTION_ID_KEY, objectionId);
+
+        apiLogger.infoContext(
+                objectionId,
+                "POST /{objectionId}/attachments request received",
+                logMap
+        );
+
         try {
             ServiceResult<String> result = objectionService.addAttachment(objectionId, file);
-            return new ResponseEntity(result, HttpStatus.OK);
+            return new ResponseEntity(result.getData(), HttpStatus.OK);
         } catch(ServiceException e) {
 
-            return ResponseEntity.status(503).build();
+            apiLogger.errorContext(
+                    objectionId,
+                    "Objection not found",
+                    e,
+                    logMap
+            );
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        } finally {
+            apiLogger.infoContext(
+                    objectionId,
+                    "Finished POST /{objectionId}/attachments request",
+                    logMap
+            );
         }
     }
 }
