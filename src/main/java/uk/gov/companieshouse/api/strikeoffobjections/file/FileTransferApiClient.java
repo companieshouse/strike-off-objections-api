@@ -71,7 +71,7 @@ public class FileTransferApiClient {
     /**
      * Calls the file transfer api and returns the result of the
      * call ready to pass to the response builder
-     * @param fileToUpload
+     * @param fileToUpload multipart file to be uploaded
      * @return ResponseEntity containing the raw data from which the response object is built
      * @throws IOException when multipart file bytes have access errors
      */
@@ -87,7 +87,7 @@ public class FileTransferApiClient {
     /**
      * FileTransferResponseBuilder - the output from FileTransferOperation is the input into
      * this FileTransferResponseBuilder
-     * @param responseEntity
+     * @param responseEntity raw data returned from file transfer api upload call
      * @return FileTransferApiClientResponse contains data ready to add to mongo
      */
     private FileTransferApiClientResponse getFileTransferApiClientResponse(
