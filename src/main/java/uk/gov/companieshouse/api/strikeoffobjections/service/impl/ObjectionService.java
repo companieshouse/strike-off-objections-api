@@ -2,9 +2,11 @@ package uk.gov.companieshouse.api.strikeoffobjections.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import uk.gov.companieshouse.api.strikeoffobjections.common.ApiLogger;
 import uk.gov.companieshouse.api.strikeoffobjections.common.LogConstants;
 import uk.gov.companieshouse.api.strikeoffobjections.exception.ObjectionNotFoundException;
+import uk.gov.companieshouse.api.strikeoffobjections.model.entity.CreatedBy;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Objection;
 import uk.gov.companieshouse.api.strikeoffobjections.model.patcher.ObjectionPatcher;
 import uk.gov.companieshouse.api.strikeoffobjections.model.patch.ObjectionPatch;
@@ -24,24 +26,33 @@ public class ObjectionService implements IObjectionService {
     private ApiLogger logger;
     private Supplier<LocalDateTime> dateTimeSupplier;
     private ObjectionPatcher objectionPatcher;
+    private ERICHeaderParser ericHeaderParser;
 
     @Autowired
-    public ObjectionService(ObjectionRepository objectionRepository, ApiLogger logger, Supplier<LocalDateTime> dateTimeSupplier, ObjectionPatcher objectionPatcher) {
+    public ObjectionService(ObjectionRepository objectionRepository,
+            ApiLogger logger,
+            Supplier<LocalDateTime> dateTimeSupplier,
+            ObjectionPatcher objectionPatcher,
+            ERICHeaderParser ericHeaderParser) {
         this.objectionRepository = objectionRepository;
         this.logger = logger;
         this.dateTimeSupplier = dateTimeSupplier;
         this.objectionPatcher = objectionPatcher;
+        this.ericHeaderParser = ericHeaderParser;
     }
 
     @Override
-    public String createObjection(String requestId, String companyNumber) throws Exception{
+    public String createObjection(String requestId, String companyNumber, String ericUserId, String ericUserDetails) throws Exception{
         Map<String, Object> logMap = new HashMap<>();
         logMap.put(LogConstants.COMPANY_NUMBER.getValue(), companyNumber);
         logger.infoContext(requestId, "Creating objection", logMap);
 
+        final String userEmailAddress = ericHeaderParser.getEmailAddress(ericUserDetails);
+        
         Objection entity = new Objection.Builder()
                 .withCompanyNumber(companyNumber)
                 .withCreatedOn(dateTimeSupplier.get())
+                .withCreatedBy(new CreatedBy(ericUserId, userEmailAddress))
                 .withHttpRequestId(requestId)
                 .build();
 

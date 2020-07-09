@@ -30,6 +30,9 @@ class ObjectionServiceTest {
 
     private static final String COMPANY_NUMBER = "12345678";
     private static final String REQUEST_ID = "87654321";
+    private static final String AUTH_ID = "22334455";
+    private static final String E_MAIL = "demo@ch.gov.uk";
+    private static final String AUTH_USER = E_MAIL + "; forename=demoForename; surname=demoSurname";
     private static final String OBJECTION_ID = "87651234";
     private static final String REASON = "REASON";
     private static final LocalDateTime MOCKED_TIME_STAMP = LocalDateTime.of(2020, 2,2, 0, 0);
@@ -46,6 +49,9 @@ class ObjectionServiceTest {
     @Mock
     ObjectionPatcher objectionPatcher;
 
+    @Mock
+    private ERICHeaderParser ericHeaderParser;
+
     @InjectMocks
     ObjectionService objectionService;
 
@@ -57,14 +63,17 @@ class ObjectionServiceTest {
         returnedEntity.setId(OBJECTION_ID);
         when(objectionRepository.save(any())).thenReturn(returnedEntity);
         when(localDateTimeSupplier.get()).thenReturn(MOCKED_TIME_STAMP);
+        when(ericHeaderParser.getEmailAddress(AUTH_USER)).thenReturn(E_MAIL);
 
         ArgumentCaptor<Objection> acObjection = ArgumentCaptor.forClass(Objection.class);
-        String returnedId = objectionService.createObjection(REQUEST_ID, COMPANY_NUMBER);
+        String returnedId = objectionService.createObjection(REQUEST_ID, COMPANY_NUMBER, AUTH_ID, AUTH_USER);
 
         verify(objectionRepository).save(acObjection.capture());
         assertEquals(OBJECTION_ID, returnedId);
         assertEquals(MOCKED_TIME_STAMP, acObjection.getValue().getCreatedOn());
         assertEquals(COMPANY_NUMBER, acObjection.getValue().getCompanyNumber());
+        assertEquals(AUTH_ID, acObjection.getValue().getCreatedBy().getId());
+        assertEquals(E_MAIL, acObjection.getValue().getCreatedBy().getEmail());
     }
 
     @Test
