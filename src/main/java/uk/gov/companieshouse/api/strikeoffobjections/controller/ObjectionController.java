@@ -18,8 +18,6 @@ import org.springframework.web.multipart.MultipartFile;
 import uk.gov.companieshouse.api.strikeoffobjections.common.ApiLogger;
 import uk.gov.companieshouse.api.strikeoffobjections.common.LogConstants;
 import uk.gov.companieshouse.api.strikeoffobjections.exception.ObjectionNotFoundException;
-import uk.gov.companieshouse.api.strikeoffobjections.file.FileTransferApiClient;
-import uk.gov.companieshouse.api.strikeoffobjections.file.FileTransferApiClientResponse;
 import uk.gov.companieshouse.api.strikeoffobjections.model.patch.ObjectionPatch;
 import uk.gov.companieshouse.api.strikeoffobjections.model.response.ObjectionResponse;
 import uk.gov.companieshouse.api.strikeoffobjections.service.IObjectionService;
