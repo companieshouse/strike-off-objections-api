@@ -73,7 +73,7 @@ public class FileTransferApiClient {
      * call ready to pass to the response builder
      * @param fileToUpload
      * @return ResponseEntity containing the raw data from which the response object is built
-     * @throws IOException
+     * @throws IOException when multipart file bytes have access errors
      */
     private ResponseEntity<FileTransferApiResponse> getFileTransferOperation(MultipartFile fileToUpload) throws IOException {
         HttpHeaders headers = createFileTransferApiHttpHeaders();
@@ -88,7 +88,7 @@ public class FileTransferApiClient {
      * FileTransferResponseBuilder - the output from FileTransferOperation is the input into
      * this FileTransferResponseBuilder
      * @param responseEntity
-     * @return
+     * @return FileTransferApiClientResponse contains data ready to add to mongo
      */
     private FileTransferApiClientResponse getFileTransferApiClientResponse(
             String requestId, ResponseEntity<FileTransferApiResponse> responseEntity) {
