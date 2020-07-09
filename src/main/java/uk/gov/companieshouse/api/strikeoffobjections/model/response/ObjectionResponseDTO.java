@@ -1,9 +1,9 @@
 package uk.gov.companieshouse.api.strikeoffobjections.model.response;
 
-public class ObjectionResponse {
+public class ObjectionResponseDTO {
     private final String id;
 
-    public ObjectionResponse(String id) {
+    public ObjectionResponseDTO(String id) {
         this.id = id;
     }
 

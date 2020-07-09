@@ -15,6 +15,7 @@ import uk.gov.companieshouse.api.strikeoffobjections.common.ApiLogger;
 import uk.gov.companieshouse.api.strikeoffobjections.exception.ObjectionNotFoundException;
 import uk.gov.companieshouse.api.strikeoffobjections.file.FileTransferApiClient;
 import uk.gov.companieshouse.api.strikeoffobjections.file.FileTransferApiClientResponse;
+import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Attachment;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Objection;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.ObjectionStatus;
 import uk.gov.companieshouse.api.strikeoffobjections.model.patcher.ObjectionPatcher;
@@ -24,6 +25,7 @@ import uk.gov.companieshouse.api.strikeoffobjections.utils.Utils;
 import uk.gov.companieshouse.service.ServiceException;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
 
@@ -79,6 +81,7 @@ class ObjectionServiceTest {
         assertEquals(OBJECTION_ID, returnedId);
         assertEquals(MOCKED_TIME_STAMP, acObjection.getValue().getCreatedOn());
         assertEquals(COMPANY_NUMBER, acObjection.getValue().getCompanyNumber());
+        assertEquals(ObjectionStatus.OPEN, acObjection.getValue().getStatus());
     }
 
     @Test
@@ -89,7 +92,7 @@ class ObjectionServiceTest {
         objection.setId(OBJECTION_ID);
         ObjectionPatch objectionPatch = new ObjectionPatch();
         objectionPatch.setReason(REASON);
-        objectionPatch.setStatus(ObjectionStatus.OPEN);
+        objectionPatch.setStatus(ObjectionStatus.PROCESSED);
         when(objectionRepository.findById(any())).thenReturn(Optional.of(existingObjection));
         when(objectionPatcher.patchObjection(any(), any(), any())).thenReturn(objection);
 
@@ -106,6 +109,29 @@ class ObjectionServiceTest {
         when(objectionRepository.findById(any())).thenReturn(Optional.empty());
 
         assertThrows(ObjectionNotFoundException.class, () -> objectionService.patchObjection(REQUEST_ID, COMPANY_NUMBER, OBJECTION_ID, objectionPatch));
+
+        verify(objectionRepository, times(0)).save(any());
+    }
+
+    @Test
+    void getAttachmentWhenObjectionExistsTest() throws Exception {
+        Objection existingObjection = new Objection();
+        existingObjection.setId(OBJECTION_ID);
+        Attachment attachment = new Attachment();
+        existingObjection.addAttachment(attachment);
+        when(objectionRepository.findById(any())).thenReturn(Optional.of(existingObjection));
+
+        List<Attachment> attachments = objectionService.getAttachments(REQUEST_ID, COMPANY_NUMBER, OBJECTION_ID);
+
+        assertEquals(1, attachments.size());
+        assertEquals(attachment, attachments.get(0));
+    }
+
+    @Test
+    void getAttachmentsWhenObjectionDoesNotExistTest() throws Exception {
+        when(objectionRepository.findById(any())).thenReturn(Optional.empty());
+
+        assertThrows(ObjectionNotFoundException.class, () -> objectionService.getAttachments(REQUEST_ID, COMPANY_NUMBER, OBJECTION_ID));
 
         verify(objectionRepository, times(0)).save(any());
     }
