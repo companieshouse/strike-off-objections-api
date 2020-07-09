@@ -41,6 +41,7 @@ public class ObjectionController {
     private static final String LOG_COMPANY_NUMBER_KEY = LogConstants.COMPANY_NUMBER.getValue();
     private static final String LOG_OBJECTION_ID_KEY = LogConstants.OBJECTION_ID.getValue();
     private static final String ERIC_REQUEST_ID_HEADER = "X-Request-Id";
+    public static final String OBJECTION_NOT_FOUND = "Objection not found";
 
     private PluggableResponseEntityFactory responseEntityFactory;
     private IObjectionService objectionService;
@@ -201,7 +202,7 @@ public class ObjectionController {
 
             apiLogger.errorContext(
                     requestId,
-                    "Objection not found",
+                    OBJECTION_NOT_FOUND,
                     e,
                     logMap
             );
