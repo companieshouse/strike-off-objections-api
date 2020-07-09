@@ -9,10 +9,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.multipart.MultipartFile;
 import uk.gov.companieshouse.api.strikeoffobjections.common.ApiLogger;
 import uk.gov.companieshouse.api.strikeoffobjections.exception.ObjectionNotFoundException;
 import uk.gov.companieshouse.api.strikeoffobjections.file.FileTransferApiClient;
+import uk.gov.companieshouse.api.strikeoffobjections.file.FileTransferApiClientResponse;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Objection;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.ObjectionStatus;
 import uk.gov.companieshouse.api.strikeoffobjections.model.patcher.ObjectionPatcher;
@@ -108,12 +110,9 @@ class ObjectionServiceTest {
         verify(objectionRepository, times(0)).save(any());
     }
 
-
-
     @Test
     public void willThrowServiceExceptionIfUploadErrors() throws Exception {
         when(fileTransferApiClient.upload(anyString(), any(MultipartFile.class))).thenReturn(Utils.getUnsuccessfulUploadResponse());
-
         try {
             objectionService.addAttachment(OBJECTION_ID, Utils.mockMultipartFile());
             fail();
@@ -144,5 +143,17 @@ class ObjectionServiceTest {
         } catch(HttpClientErrorException e) {
             assertEquals(HttpStatus.BAD_REQUEST.toString(), e.getMessage());
         }
+    }
+
+    @Test
+    public void willThrowServiceExceptions() {
+        FileTransferApiClientResponse response = new FileTransferApiClientResponse();
+        response.setFileId("");
+                when(fileTransferApiClient.upload(anyString(), any(MultipartFile.class)))
+                .thenReturn(response);
+
+        assertThrows(ServiceException.class, () ->
+                objectionService.addAttachment(OBJECTION_ID, Utils.mockMultipartFile()));
+
     }
 }
