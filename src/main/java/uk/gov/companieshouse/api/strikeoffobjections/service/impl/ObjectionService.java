@@ -6,6 +6,7 @@ import uk.gov.companieshouse.api.strikeoffobjections.common.ApiLogger;
 import uk.gov.companieshouse.api.strikeoffobjections.common.LogConstants;
 import uk.gov.companieshouse.api.strikeoffobjections.exception.ObjectionNotFoundException;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Objection;
+import uk.gov.companieshouse.api.strikeoffobjections.model.entity.ObjectionStatus;
 import uk.gov.companieshouse.api.strikeoffobjections.model.patcher.ObjectionPatcher;
 import uk.gov.companieshouse.api.strikeoffobjections.model.patch.ObjectionPatch;
 import uk.gov.companieshouse.api.strikeoffobjections.repository.ObjectionRepository;
@@ -43,6 +44,7 @@ public class ObjectionService implements IObjectionService {
                 .withCompanyNumber(companyNumber)
                 .withCreatedOn(dateTimeSupplier.get())
                 .withHttpRequestId(requestId)
+                .withStatus(ObjectionStatus.OPEN)
                 .build();
 
         Objection savedEntity = objectionRepository.save(entity);
