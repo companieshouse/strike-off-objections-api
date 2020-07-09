@@ -131,7 +131,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Attachments returned successfully",
+            "description": "Attachments returned successfully. Note that if no attachments are associated with an objection then an empty list will be returned.",
             "schema": {
               "type": "array",
               "items": {
