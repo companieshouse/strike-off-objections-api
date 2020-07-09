@@ -121,7 +121,7 @@ public class ObjectionController {
 
             apiLogger.errorContext(
                     requestId,
-                    "Objection not found",
+                    OBJECTION_NOT_FOUND,
                     e,
                     logMap
             );
@@ -163,7 +163,7 @@ public class ObjectionController {
 
             apiLogger.errorContext(
                     requestId,
-                    "Objection not found",
+                    OBJECTION_NOT_FOUND,
                     e,
                     logMap
             );
