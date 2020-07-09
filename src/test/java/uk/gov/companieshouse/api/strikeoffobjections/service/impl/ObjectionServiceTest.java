@@ -102,7 +102,7 @@ class ObjectionServiceTest {
     }
 
     @Test
-    void patchObjectionDoesNotExistTest() throws Exception {
+    void patchObjectionDoesNotExistTest() {
         ObjectionPatch objectionPatch = new ObjectionPatch();
         objectionPatch.setReason(REASON);
         objectionPatch.setStatus(ObjectionStatus.OPEN);
@@ -128,7 +128,7 @@ class ObjectionServiceTest {
     }
 
     @Test
-    void getAttachmentsWhenObjectionDoesNotExistTest() throws Exception {
+    void getAttachmentsWhenObjectionDoesNotExistTest() {
         when(objectionRepository.findById(any())).thenReturn(Optional.empty());
 
         assertThrows(ObjectionNotFoundException.class, () -> objectionService.getAttachments(REQUEST_ID, COMPANY_NUMBER, OBJECTION_ID));
@@ -140,7 +140,7 @@ class ObjectionServiceTest {
     public void willThrowServiceExceptionIfUploadErrors() throws Exception {
         when(fileTransferApiClient.upload(anyString(), any(MultipartFile.class))).thenReturn(Utils.getUnsuccessfulUploadResponse());
         try {
-            objectionService.addAttachment(OBJECTION_ID, Utils.mockMultipartFile());
+            objectionService.addAttachment(REQUEST_ID, Utils.mockMultipartFile());
             fail();
         } catch(ServiceException e) {
             assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.toString(), e.getMessage());
@@ -152,7 +152,7 @@ class ObjectionServiceTest {
         when(fileTransferApiClient.upload(anyString(), any(MultipartFile.class)))
                 .thenThrow(new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR));
         try {
-            objectionService.addAttachment(OBJECTION_ID, Utils.mockMultipartFile());
+            objectionService.addAttachment(REQUEST_ID, Utils.mockMultipartFile());
             fail();
         } catch(HttpServerErrorException e) {
             assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.toString(), e.getMessage());
@@ -164,7 +164,7 @@ class ObjectionServiceTest {
         when(fileTransferApiClient.upload(anyString(), any(MultipartFile.class)))
                 .thenThrow(new HttpClientErrorException(HttpStatus.BAD_REQUEST));
         try {
-            objectionService.addAttachment(OBJECTION_ID, Utils.mockMultipartFile());
+            objectionService.addAttachment(REQUEST_ID, Utils.mockMultipartFile());
             fail();
         } catch(HttpClientErrorException e) {
             assertEquals(HttpStatus.BAD_REQUEST.toString(), e.getMessage());
@@ -179,7 +179,7 @@ class ObjectionServiceTest {
                 .thenReturn(response);
 
         assertThrows(ServiceException.class, () ->
-                objectionService.addAttachment(OBJECTION_ID, Utils.mockMultipartFile()));
+                objectionService.addAttachment(REQUEST_ID, Utils.mockMultipartFile()));
 
     }
 }

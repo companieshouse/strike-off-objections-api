@@ -195,7 +195,7 @@ public class ObjectionController {
         );
 
         try {
-            ServiceResult<String> result = objectionService.addAttachment(objectionId, file);
+            ServiceResult<String> result = objectionService.addAttachment(requestId, file);
             return new ResponseEntity(result.getData(), HttpStatus.OK);
         } catch(ServiceException e) {
 

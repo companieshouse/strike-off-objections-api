@@ -85,8 +85,8 @@ public class ObjectionService implements IObjectionService {
     }
 
     @Override
-    public ServiceResult<String> addAttachment(String objectionId, MultipartFile file) throws ServiceException {
-        FileTransferApiClientResponse response = fileTransferApiClient.upload(objectionId, file);
+    public ServiceResult<String> addAttachment(String requestId, MultipartFile file) throws ServiceException {
+        FileTransferApiClientResponse response = fileTransferApiClient.upload(requestId, file);
 
         HttpStatus responseHttpStatus = response.getHttpStatus();
         if (responseHttpStatus != null && responseHttpStatus.isError()) {
