@@ -25,6 +25,7 @@ import uk.gov.companieshouse.api.strikeoffobjections.utils.Utils;
 import uk.gov.companieshouse.service.ServiceException;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -138,7 +139,33 @@ class ObjectionServiceTest {
         assertNotNull(entityAttachment.get().getId());
 
         verify(objectionRepository).save(existingObjection);
-        verify(objectionRepository).findById(OBJECTION_ID);
+        verify(objectionRepository, times(1)).findById(OBJECTION_ID);
+    }
+
+    @Test
+    public void willNotOverrideAlreadyExistingAttachments() throws Exception {
+        Objection existingObjection = new Objection();
+        existingObjection.setId(OBJECTION_ID);
+        when(fileTransferApiClient.upload(anyString(), any(MultipartFile.class))).thenReturn(Utils.getSuccessfulUploadResponse());
+        Attachment attachment = new Attachment();
+        attachment.setSize(1L);
+        attachment.setContentType("text/plain");
+        attachment.setName("testFile");
+        attachment.setId("12345a");
+        List<Attachment> attachmentsList = new ArrayList<>();
+        attachmentsList.add(attachment);
+        existingObjection.setAttachments(attachmentsList);
+
+        when(objectionRepository.findById(any())).thenReturn(Optional.of(existingObjection));
+
+        objectionService.addAttachment(
+                 REQUEST_ID, OBJECTION_ID, Utils.mockMultipartFile(), ACCESS_URL);
+
+        List<Attachment> objectionAttachments = existingObjection.getAttachments();
+
+        assertEquals(2, objectionAttachments.size());
+        assertEquals("testFile", objectionAttachments.get(0).getName());
+        assertEquals(Utils.ORIGINAL_FILE_NAME, objectionAttachments.get(1).getName());
     }
 
     @Test
