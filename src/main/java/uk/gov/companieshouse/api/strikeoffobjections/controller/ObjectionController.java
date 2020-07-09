@@ -29,6 +29,7 @@ import uk.gov.companieshouse.service.ServiceResult;
 import uk.gov.companieshouse.service.rest.response.ChResponseBody;
 import uk.gov.companieshouse.service.rest.response.PluggableResponseEntityFactory;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -179,11 +180,12 @@ public class ObjectionController {
     }
 
     @PostMapping("/{objectionId}/attachments")
-    public ResponseEntity<String> uploadAttachmentToObjection (
+    public ResponseEntity uploadAttachmentToObjection (
             @RequestParam("file") MultipartFile file,
             @PathVariable("companyNumber") String companyNumber,
             @PathVariable String objectionId,
-            @RequestHeader(value = ERIC_REQUEST_ID_HEADER) String requestId) {
+            @RequestHeader(value = ERIC_REQUEST_ID_HEADER) String requestId,
+            HttpServletRequest servletRequest) {
 
         Map<String, Object> logMap = new HashMap<>();
         logMap.put(LOG_COMPANY_NUMBER_KEY, companyNumber);
@@ -196,8 +198,8 @@ public class ObjectionController {
         );
 
         try {
-            ServiceResult<String> result = objectionService.addAttachment(requestId, file);
-            return new ResponseEntity(result.getData(), HttpStatus.OK);
+            objectionService.addAttachment(requestId, objectionId, file, servletRequest.getRequestURI());
+            return new ResponseEntity(HttpStatus.NO_CONTENT);
         } catch(ServiceException e) {
 
             apiLogger.errorContext(
@@ -217,6 +219,15 @@ public class ObjectionController {
                     logMap
             );
             return ResponseEntity.status(e.getStatusCode()).build();
+        } catch (ObjectionNotFoundException e) {
+            apiLogger.errorContext(
+                    requestId,
+                    OBJECTION_NOT_FOUND,
+                    e,
+                    logMap
+            );
+
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } finally {
             apiLogger.infoContext(
                      requestId,

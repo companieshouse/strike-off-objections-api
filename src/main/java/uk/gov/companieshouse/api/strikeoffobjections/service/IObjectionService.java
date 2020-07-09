@@ -7,7 +7,6 @@ import uk.gov.companieshouse.api.strikeoffobjections.exception.ObjectionNotFound
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Attachment;
 import uk.gov.companieshouse.api.strikeoffobjections.model.patch.ObjectionPatch;
 import uk.gov.companieshouse.service.ServiceException;
-import uk.gov.companieshouse.service.ServiceResult;
 
 public interface IObjectionService {
     String createObjection(String requestId, String companyNumber) throws Exception;
@@ -18,5 +17,5 @@ public interface IObjectionService {
     List<Attachment> getAttachments(String requestId, String companyNumber,String objectionId)
             throws ObjectionNotFoundException;
 
-    ServiceResult<String> addAttachment(String requestId, MultipartFile file) throws ServiceException;
+    void addAttachment(String requestId, String objectionId, MultipartFile file, String attachmentsUri) throws ServiceException, ObjectionNotFoundException;
 }

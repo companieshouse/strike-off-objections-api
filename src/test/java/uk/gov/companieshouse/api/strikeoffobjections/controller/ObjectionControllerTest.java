@@ -26,6 +26,7 @@ import uk.gov.companieshouse.service.links.Links;
 import uk.gov.companieshouse.service.rest.response.ChResponseBody;
 import uk.gov.companieshouse.service.rest.response.PluggableResponseEntityFactory;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 
 import static com.mongodb.client.model.Filters.eq;
@@ -50,6 +51,7 @@ class ObjectionControllerTest {
     private static final String REQUEST_ID = "87654321";
     private static final String OBJECTION_ID = "87651234";
     private static final String REASON = "REASON";
+    private static final String ACCESS_URL = "/dummyUrl";
 
     @Mock
     IObjectionService objectionService;
@@ -62,6 +64,9 @@ class ObjectionControllerTest {
 
     @Mock
     private AttachmentMapper attachmentMapper;
+
+    @Mock
+    private HttpServletRequest servletRequest;
 
     @InjectMocks
     ObjectionController objectionController;
@@ -172,15 +177,25 @@ class ObjectionControllerTest {
     }
 
     @Test
-    public void willReturn415FromInvalidUpload() throws ServiceException, IOException {
+    public void willReturnNoContentIfSuccessful() throws ServiceException, IOException, ObjectionNotFoundException {
         HttpClientErrorException expectedException =
                 new HttpClientErrorException(HttpStatus.UNSUPPORTED_MEDIA_TYPE);
+        when(servletRequest.getRequestURI()).thenReturn(ACCESS_URL);
+        ResponseEntity entity = objectionController.uploadAttachmentToObjection(Utils.mockMultipartFile(),
+                COMPANY_NUMBER, OBJECTION_ID, REQUEST_ID, servletRequest);
 
-        when(objectionService.addAttachment(anyString(), any(MultipartFile.class))
-                ).thenThrow(expectedException);
+        assertEquals(HttpStatus.NO_CONTENT, entity.getStatusCode());
+    }
+
+    @Test
+    public void willReturn415FromInvalidUpload() throws ServiceException, IOException, ObjectionNotFoundException {
+        HttpClientErrorException expectedException =
+                new HttpClientErrorException(HttpStatus.UNSUPPORTED_MEDIA_TYPE);
+        when(servletRequest.getRequestURI()).thenReturn(ACCESS_URL);
+        doThrow(expectedException).when(objectionService).addAttachment(anyString(), anyString(), any(MultipartFile.class), anyString());
 
         ResponseEntity entity = objectionController.uploadAttachmentToObjection(Utils.mockMultipartFile(),
-                "123","1234", "a123");
+                COMPANY_NUMBER, OBJECTION_ID, REQUEST_ID, servletRequest);
 
         assertEquals(HttpStatus.UNSUPPORTED_MEDIA_TYPE, entity.getStatusCode());
     }

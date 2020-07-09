@@ -10,6 +10,7 @@ import uk.gov.companieshouse.api.strikeoffobjections.common.LogConstants;
 import uk.gov.companieshouse.api.strikeoffobjections.exception.ObjectionNotFoundException;
 import uk.gov.companieshouse.api.strikeoffobjections.file.FileTransferApiClient;
 import uk.gov.companieshouse.api.strikeoffobjections.file.FileTransferApiClientResponse;
+import uk.gov.companieshouse.api.strikeoffobjections.file.ObjectionsLinkKeys;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Attachment;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Objection;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.ObjectionStatus;
@@ -18,8 +19,9 @@ import uk.gov.companieshouse.api.strikeoffobjections.model.patch.ObjectionPatch;
 import uk.gov.companieshouse.api.strikeoffobjections.repository.ObjectionRepository;
 import uk.gov.companieshouse.api.strikeoffobjections.service.IObjectionService;
 import uk.gov.companieshouse.service.ServiceException;
-import uk.gov.companieshouse.service.ServiceResult;
+import uk.gov.companieshouse.service.links.Links;
 
+import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -85,19 +87,47 @@ public class ObjectionService implements IObjectionService {
     }
 
     @Override
-    public ServiceResult<String> addAttachment(String requestId, MultipartFile file) throws ServiceException {
-        FileTransferApiClientResponse response = fileTransferApiClient.upload(requestId, file);
+    public void addAttachment(String requestId, String objectionId, MultipartFile file, String attachmentsUri)
+            throws ServiceException, ObjectionNotFoundException {
 
+        FileTransferApiClientResponse response = fileTransferApiClient.upload(requestId, file);
         HttpStatus responseHttpStatus = response.getHttpStatus();
         if (responseHttpStatus != null && responseHttpStatus.isError()) {
             throw new ServiceException(responseHttpStatus.toString());
         }
-        String fileId = response.getFileId();
-        if (StringUtils.isBlank(fileId)) {
+        String attachmentId = response.getFileId();
+        if (StringUtils.isBlank(attachmentId)) {
             throw new ServiceException("No file id returned from file upload");
         } else {
-            return ServiceResult.accepted(fileId);
+            Attachment attachment = createAttachment(file, attachmentId);
+            Objection objection = objectionRepository.findById(objectionId).orElseThrow(
+                    () -> new ObjectionNotFoundException(String.format("Objection with id: %s, not found", objectionId))
+            );
+            objection.addAttachment(attachment);
+
+            Links links = createLinks(attachmentsUri, attachmentId);
+            attachment.setLinks(links);
+
+            objectionRepository.save(objection);
         }
+    }
+
+    private Links createLinks(String attachmentsUri, String attachmentId) {
+        String linkToSelf = attachmentsUri + "/" + attachmentId;
+        Links links = new Links();
+        links.setLink(ObjectionsLinkKeys.SELF, linkToSelf);
+        links.setLink(ObjectionsLinkKeys.DOWNLOAD, linkToSelf + "/download");
+        return links;
+    }
+
+    private Attachment createAttachment(@NotNull MultipartFile file, String attachmentId) {
+        Attachment attachment = new Attachment();
+        attachment.setId(attachmentId);
+        String filename = file.getOriginalFilename();
+        attachment.setName(filename);
+        attachment.setSize(file.getSize());
+        attachment.setContentType(file.getContentType());
+        return attachment;
     }
 
     @Override
