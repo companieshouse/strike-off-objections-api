@@ -8,6 +8,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.multipart.MultipartFile;
 import uk.gov.companieshouse.api.strikeoffobjections.common.ApiLogger;
 import uk.gov.companieshouse.api.strikeoffobjections.exception.ObjectionNotFoundException;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Attachment;
@@ -16,16 +18,23 @@ import uk.gov.companieshouse.api.strikeoffobjections.model.patch.ObjectionPatch;
 import uk.gov.companieshouse.api.strikeoffobjections.model.response.AttachmentResponseDTO;
 import uk.gov.companieshouse.api.strikeoffobjections.model.response.ObjectionResponseDTO;
 import uk.gov.companieshouse.api.strikeoffobjections.service.IObjectionService;
+import uk.gov.companieshouse.api.strikeoffobjections.utils.Utils;
+import uk.gov.companieshouse.service.ServiceException;
 import uk.gov.companieshouse.service.ServiceResult;
 import uk.gov.companieshouse.service.links.CoreLinkKeys;
 import uk.gov.companieshouse.service.links.Links;
 import uk.gov.companieshouse.service.rest.response.ChResponseBody;
 import uk.gov.companieshouse.service.rest.response.PluggableResponseEntityFactory;
 
+import java.io.IOException;
+
+import static com.mongodb.client.model.Filters.eq;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import static org.mockito.Mockito.times;
@@ -116,11 +125,11 @@ class ObjectionControllerTest {
         when(objectionService.getAttachments(REQUEST_ID, COMPANY_NUMBER, OBJECTION_ID)).thenReturn(attachments);
         when(pluggableResponseEntityFactory.createResponse(any(ServiceResult.class))).thenReturn(
                 ResponseEntity.status(HttpStatus.CREATED).body(ChResponseBody.createNormalBody(attachments)));
-        
+
         ResponseEntity<ChResponseBody<List<AttachmentResponseDTO>>> response = objectionController.getAttachments(COMPANY_NUMBER, OBJECTION_ID, REQUEST_ID);
 
         verify(attachmentMapper, times(1)).attachmentEntityToAttachmentResponseDTO(attachment);
-        
+
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
 
         assertNotNull(response.getBody());
@@ -138,7 +147,7 @@ class ObjectionControllerTest {
 
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     }
-    
+
     @Test
     void testMapper() {
         //given
@@ -148,17 +157,31 @@ class ObjectionControllerTest {
         Links links = new Links();
         links.setLink(CoreLinkKeys.SELF, "link to SELF");
         attachment.setLinks(links);
-     
+
         //when
         AttachmentMapper mapper = Mappers.getMapper(AttachmentMapper.class);
 
         AttachmentResponseDTO attachmentDTO = mapper.attachmentEntityToAttachmentResponseDTO(attachment);
-     
+
         //then
         assertNotNull(attachmentDTO);
         assertEquals("xyz", attachmentDTO.getName());
         assertEquals(5, attachmentDTO.getSize());
         assertEquals("link to SELF", attachmentDTO.getLinks().getLink(CoreLinkKeys.SELF));
 
+    }
+
+    @Test
+    public void willReturn415FromInvalidUpload() throws ServiceException, IOException {
+        HttpClientErrorException expectedException =
+                new HttpClientErrorException(HttpStatus.UNSUPPORTED_MEDIA_TYPE);
+
+        when(objectionService.addAttachment(anyString(), any(MultipartFile.class))
+                ).thenThrow(expectedException);
+
+        ResponseEntity entity = objectionController.uploadAttachmentToObjection(Utils.mockMultipartFile(),
+                "123","1234", "a123");
+
+        assertEquals(HttpStatus.UNSUPPORTED_MEDIA_TYPE, entity.getStatusCode());
     }
 }

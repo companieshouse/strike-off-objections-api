@@ -6,14 +6,23 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.client.RestClientException;
+import org.springframework.web.multipart.MultipartFile;
 import uk.gov.companieshouse.api.strikeoffobjections.common.ApiLogger;
 import uk.gov.companieshouse.api.strikeoffobjections.exception.ObjectionNotFoundException;
+import uk.gov.companieshouse.api.strikeoffobjections.file.FileTransferApiClient;
+import uk.gov.companieshouse.api.strikeoffobjections.file.FileTransferApiClientResponse;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Attachment;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Objection;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.ObjectionStatus;
 import uk.gov.companieshouse.api.strikeoffobjections.model.patcher.ObjectionPatcher;
 import uk.gov.companieshouse.api.strikeoffobjections.model.patch.ObjectionPatch;
 import uk.gov.companieshouse.api.strikeoffobjections.repository.ObjectionRepository;
+import uk.gov.companieshouse.api.strikeoffobjections.utils.Utils;
+import uk.gov.companieshouse.service.ServiceException;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -22,6 +31,8 @@ import java.util.function.Supplier;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -47,6 +58,9 @@ class ObjectionServiceTest {
 
     @Mock
     ObjectionPatcher objectionPatcher;
+
+    @Mock
+    private FileTransferApiClient fileTransferApiClient;
 
     @InjectMocks
     ObjectionService objectionService;
@@ -88,7 +102,7 @@ class ObjectionServiceTest {
     }
 
     @Test
-    void patchObjectionDoesNotExistTest() throws Exception {
+    void patchObjectionDoesNotExistTest() {
         ObjectionPatch objectionPatch = new ObjectionPatch();
         objectionPatch.setReason(REASON);
         objectionPatch.setStatus(ObjectionStatus.OPEN);
@@ -114,11 +128,58 @@ class ObjectionServiceTest {
     }
 
     @Test
-    void getAttachmentsWhenObjectionDoesNotExistTest() throws Exception {
+    void getAttachmentsWhenObjectionDoesNotExistTest() {
         when(objectionRepository.findById(any())).thenReturn(Optional.empty());
 
         assertThrows(ObjectionNotFoundException.class, () -> objectionService.getAttachments(REQUEST_ID, COMPANY_NUMBER, OBJECTION_ID));
 
         verify(objectionRepository, times(0)).save(any());
+    }
+
+    @Test
+    public void willThrowServiceExceptionIfUploadErrors() throws Exception {
+        when(fileTransferApiClient.upload(anyString(), any(MultipartFile.class))).thenReturn(Utils.getUnsuccessfulUploadResponse());
+        try {
+            objectionService.addAttachment(REQUEST_ID, Utils.mockMultipartFile());
+            fail();
+        } catch(ServiceException e) {
+            assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.toString(), e.getMessage());
+        }
+    }
+
+    @Test
+    public void willPropagateServerRuntimeExceptions() throws Exception {
+        when(fileTransferApiClient.upload(anyString(), any(MultipartFile.class)))
+                .thenThrow(new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR));
+        try {
+            objectionService.addAttachment(REQUEST_ID, Utils.mockMultipartFile());
+            fail();
+        } catch(HttpServerErrorException e) {
+            assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.toString(), e.getMessage());
+        }
+    }
+
+    @Test
+    public void willPropagateClientRuntimeExceptions() throws Exception {
+        when(fileTransferApiClient.upload(anyString(), any(MultipartFile.class)))
+                .thenThrow(new HttpClientErrorException(HttpStatus.BAD_REQUEST));
+        try {
+            objectionService.addAttachment(REQUEST_ID, Utils.mockMultipartFile());
+            fail();
+        } catch(HttpClientErrorException e) {
+            assertEquals(HttpStatus.BAD_REQUEST.toString(), e.getMessage());
+        }
+    }
+
+    @Test
+    public void willThrowServiceExceptions() {
+        FileTransferApiClientResponse response = new FileTransferApiClientResponse();
+        response.setFileId("");
+                when(fileTransferApiClient.upload(anyString(), any(MultipartFile.class)))
+                .thenReturn(response);
+
+        assertThrows(ServiceException.class, () ->
+                objectionService.addAttachment(REQUEST_ID, Utils.mockMultipartFile()));
+
     }
 }
