@@ -4,10 +4,12 @@ import org.junit.platform.commons.util.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+
 import org.springframework.web.multipart.MultipartFile;
 import uk.gov.companieshouse.api.strikeoffobjections.common.ApiLogger;
 import uk.gov.companieshouse.api.strikeoffobjections.common.LogConstants;
 import uk.gov.companieshouse.api.strikeoffobjections.exception.ObjectionNotFoundException;
+import uk.gov.companieshouse.api.strikeoffobjections.model.entity.CreatedBy;
 import uk.gov.companieshouse.api.strikeoffobjections.file.FileTransferApiClient;
 import uk.gov.companieshouse.api.strikeoffobjections.file.FileTransferApiClientResponse;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Attachment;
@@ -35,29 +37,35 @@ public class ObjectionService implements IObjectionService {
     private Supplier<LocalDateTime> dateTimeSupplier;
     private ObjectionPatcher objectionPatcher;
     private FileTransferApiClient fileTransferApiClient;
+    private ERICHeaderParser ericHeaderParser;
 
     @Autowired
     public ObjectionService(ObjectionRepository objectionRepository,
-                            ApiLogger logger,
-                            Supplier<LocalDateTime> dateTimeSupplier,
-                            ObjectionPatcher objectionPatcher,
-                            FileTransferApiClient fileTransferApiClient) {
+            ApiLogger logger,
+            Supplier<LocalDateTime> dateTimeSupplier,
+            ObjectionPatcher objectionPatcher,
+            FileTransferApiClient fileTransferApiClient,
+            ERICHeaderParser ericHeaderParser) {
         this.objectionRepository = objectionRepository;
         this.logger = logger;
         this.dateTimeSupplier = dateTimeSupplier;
         this.objectionPatcher = objectionPatcher;
         this.fileTransferApiClient = fileTransferApiClient;
+        this.ericHeaderParser = ericHeaderParser;
     }
 
     @Override
-    public String createObjection(String requestId, String companyNumber) throws Exception{
+    public String createObjection(String requestId, String companyNumber, String ericUserId, String ericUserDetails) throws Exception{
         Map<String, Object> logMap = new HashMap<>();
         logMap.put(LogConstants.COMPANY_NUMBER.getValue(), companyNumber);
         logger.infoContext(requestId, "Creating objection", logMap);
 
+        final String userEmailAddress = ericHeaderParser.getEmailAddress(ericUserDetails);
+        
         Objection entity = new Objection.Builder()
                 .withCompanyNumber(companyNumber)
                 .withCreatedOn(dateTimeSupplier.get())
+                .withCreatedBy(new CreatedBy(ericUserId, userEmailAddress))
                 .withHttpRequestId(requestId)
                 .withStatus(ObjectionStatus.OPEN)
                 .build();

@@ -10,7 +10,7 @@ import uk.gov.companieshouse.service.ServiceException;
 import uk.gov.companieshouse.service.ServiceResult;
 
 public interface IObjectionService {
-    String createObjection(String requestId, String companyNumber) throws Exception;
+    String createObjection(String requestId, String companyNumber, String ericUserId, String ericUserDetails) throws Exception;
 
     void patchObjection(String requestId, String companyNumber,String objectionId, ObjectionPatch objectionPatch)
             throws ObjectionNotFoundException;

@@ -16,9 +16,7 @@ public class ObjectionTest {
     @Test
     public void enityBuilderTest() {
 
-       CreatedBy createdBy = new CreatedBy();
-       createdBy.setId("1");
-       createdBy.setEmail("jBloggs@ch.gov.uk");
+       CreatedBy createdBy = new CreatedBy("1", "jBloggs@ch.gov.uk");
 
        Map<String, String> linksMap = new HashMap<>();
        linksMap.put("download", "/abc/download");

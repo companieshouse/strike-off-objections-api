@@ -41,6 +41,8 @@ public class ObjectionController {
     private static final String LOG_COMPANY_NUMBER_KEY = LogConstants.COMPANY_NUMBER.getValue();
     private static final String LOG_OBJECTION_ID_KEY = LogConstants.OBJECTION_ID.getValue();
     private static final String ERIC_REQUEST_ID_HEADER = "X-Request-Id";
+    private static final String ERIC_IDENTITY = "ERIC-identity";
+    private static final String ERIC_AUTHORISED_USER = "ERIC-Authorised-User";
     public static final String OBJECTION_NOT_FOUND = "Objection not found";
 
     private PluggableResponseEntityFactory responseEntityFactory;
@@ -63,7 +65,9 @@ public class ObjectionController {
     @PostMapping
     public ResponseEntity<ChResponseBody<ObjectionResponseDTO>> createObjection(
             @PathVariable("companyNumber") String companyNumber,
-            @RequestHeader(value = ERIC_REQUEST_ID_HEADER) String requestId
+            @RequestHeader(value = ERIC_REQUEST_ID_HEADER) String requestId,
+            @RequestHeader(value = ERIC_IDENTITY) String ericUserId,
+            @RequestHeader(value = ERIC_AUTHORISED_USER) String ericUserDetails
     ) {
         Map<String, Object> logMap = new HashMap<>();
         logMap.put(LOG_COMPANY_NUMBER_KEY, companyNumber);
@@ -75,7 +79,7 @@ public class ObjectionController {
         );
 
         try {
-            String objectionId = objectionService.createObjection(requestId, companyNumber);
+            String objectionId = objectionService.createObjection(requestId, companyNumber, ericUserId, ericUserDetails);
             ObjectionResponseDTO response = new ObjectionResponseDTO(objectionId);
             return responseEntityFactory.createResponse(ServiceResult.created(response));
         } catch (Exception e) {

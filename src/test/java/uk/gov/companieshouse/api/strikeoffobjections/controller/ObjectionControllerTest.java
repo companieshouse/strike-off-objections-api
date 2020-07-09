@@ -48,6 +48,8 @@ class ObjectionControllerTest {
 
     private static final String COMPANY_NUMBER = "12345678";
     private static final String REQUEST_ID = "87654321";
+    private static final String AUTH_ID = "22334455";
+    private static final String AUTH_USER = "demo@ch.gov.uk; forename=demoForename; surname=demoSurname";
     private static final String OBJECTION_ID = "87651234";
     private static final String REASON = "REASON";
 
@@ -69,10 +71,10 @@ class ObjectionControllerTest {
     @Test
     void createObjectionTest() throws Exception {
         ObjectionResponseDTO objectionResponse = new ObjectionResponseDTO(OBJECTION_ID);
-        when(objectionService.createObjection(REQUEST_ID, COMPANY_NUMBER)).thenReturn(OBJECTION_ID);
+        when(objectionService.createObjection(REQUEST_ID, COMPANY_NUMBER, AUTH_ID, AUTH_USER)).thenReturn(OBJECTION_ID);
         when(pluggableResponseEntityFactory.createResponse(any(ServiceResult.class))).thenReturn(
                 ResponseEntity.status(HttpStatus.CREATED).body(ChResponseBody.createNormalBody(objectionResponse)));
-        ResponseEntity<ChResponseBody<ObjectionResponseDTO>> response = objectionController.createObjection(COMPANY_NUMBER, REQUEST_ID);
+        ResponseEntity<ChResponseBody<ObjectionResponseDTO>> response = objectionController.createObjection(COMPANY_NUMBER, REQUEST_ID, AUTH_ID, AUTH_USER);
 
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
 
@@ -85,12 +87,13 @@ class ObjectionControllerTest {
 
     @Test
     void createObjectionExceptionTest() throws Exception {
-        when(objectionService.createObjection(REQUEST_ID, COMPANY_NUMBER)).thenThrow(new Exception("ERROR MESSAGE"));
+        when(objectionService.createObjection(REQUEST_ID, COMPANY_NUMBER, AUTH_ID, AUTH_USER))
+                .thenThrow(new Exception("ERROR MESSAGE"));
         when(pluggableResponseEntityFactory.createEmptyInternalServerError()).thenReturn(
                 ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build()
         );
 
-        ResponseEntity<ChResponseBody<ObjectionResponseDTO>> response = objectionController.createObjection(COMPANY_NUMBER, REQUEST_ID);
+        ResponseEntity<ChResponseBody<ObjectionResponseDTO>> response = objectionController.createObjection(COMPANY_NUMBER, REQUEST_ID, AUTH_ID, AUTH_USER);
 
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
 
