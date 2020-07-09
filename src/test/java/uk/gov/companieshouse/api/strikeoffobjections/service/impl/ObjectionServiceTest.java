@@ -65,6 +65,7 @@ class ObjectionServiceTest {
         assertEquals(OBJECTION_ID, returnedId);
         assertEquals(MOCKED_TIME_STAMP, acObjection.getValue().getCreatedOn());
         assertEquals(COMPANY_NUMBER, acObjection.getValue().getCompanyNumber());
+        assertEquals(ObjectionStatus.OPEN, acObjection.getValue().getStatus());
     }
 
     @Test
@@ -75,7 +76,7 @@ class ObjectionServiceTest {
         objection.setId(OBJECTION_ID);
         ObjectionPatch objectionPatch = new ObjectionPatch();
         objectionPatch.setReason(REASON);
-        objectionPatch.setStatus(ObjectionStatus.OPEN);
+        objectionPatch.setStatus(ObjectionStatus.PROCESSED);
         when(objectionRepository.findById(any())).thenReturn(Optional.of(existingObjection));
         when(objectionPatcher.patchObjection(any(), any(), any())).thenReturn(objection);
 
