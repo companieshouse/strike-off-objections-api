@@ -33,7 +33,7 @@ import java.util.function.Supplier;
 @Service
 public class ObjectionService implements IObjectionService {
 
-    private static String OBJECTION_NOT_FOUND_MESSAGE = "Objection with id: %s, not found";
+    private static final String OBJECTION_NOT_FOUND_MESSAGE = "Objection with id: %s, not found";
 
     private ObjectionRepository objectionRepository;
     private ApiLogger logger;
