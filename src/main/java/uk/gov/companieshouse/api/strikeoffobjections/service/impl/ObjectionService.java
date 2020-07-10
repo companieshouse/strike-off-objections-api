@@ -33,6 +33,8 @@ import java.util.function.Supplier;
 @Service
 public class ObjectionService implements IObjectionService {
 
+    private static String OBJECTION_NOT_FOUND_MESSAGE = "Objection with id: %s, not found";
+
     private ObjectionRepository objectionRepository;
     private ApiLogger logger;
     private Supplier<LocalDateTime> dateTimeSupplier;
@@ -83,7 +85,7 @@ public class ObjectionService implements IObjectionService {
             objectionRepository.save(objection);
         } else {
             logger.infoContext(requestId, "Objection does not exist", logMap);
-            throw new ObjectionNotFoundException(String.format("Objection with id: %s, not found", objectionId));
+            throw new ObjectionNotFoundException(String.format(OBJECTION_NOT_FOUND_MESSAGE, objectionId));
         }
     }
 
@@ -106,7 +108,7 @@ public class ObjectionService implements IObjectionService {
         } else {
             Attachment attachment = createAttachment(file, attachmentId);
             Objection objection = objectionRepository.findById(objectionId).orElseThrow(
-                    () -> new ObjectionNotFoundException(String.format("Objection with id: %s, not found", objectionId))
+                    () -> new ObjectionNotFoundException(String.format(OBJECTION_NOT_FOUND_MESSAGE, objectionId))
             );
             objection.addAttachment(attachment);
 
@@ -150,7 +152,7 @@ public class ObjectionService implements IObjectionService {
             return objection.get().getAttachments();
         } else {
             logger.infoContext(requestId, "Objection does not exist", logMap);
-            throw new ObjectionNotFoundException(String.format("Objection with id: %s, not found", objectionId));
+            throw new ObjectionNotFoundException(String.format(OBJECTION_NOT_FOUND_MESSAGE, objectionId));
         }
     }
 }
