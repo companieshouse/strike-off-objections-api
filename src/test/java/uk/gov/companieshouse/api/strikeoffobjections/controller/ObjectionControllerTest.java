@@ -161,8 +161,10 @@ class ObjectionControllerTest {
     void testMapper() {
         //given
         Attachment attachment = new Attachment();
+        attachment.setId("123-456");
         attachment.setName("xyz");
         attachment.setSize(5);
+        attachment.setContentType("TEXT");
         Links links = new Links();
         links.setLink(CoreLinkKeys.SELF, "link to SELF");
         attachment.setLinks(links);
@@ -174,7 +176,9 @@ class ObjectionControllerTest {
 
         //then
         assertNotNull(attachmentDTO);
+        assertEquals("123-456", attachmentDTO.getId());
         assertEquals("xyz", attachmentDTO.getName());
+        assertEquals("TEXT", attachmentDTO.getContentType());
         assertEquals(5, attachmentDTO.getSize());
         assertEquals("link to SELF", attachmentDTO.getLinks().getLink(CoreLinkKeys.SELF));
     }
