@@ -180,7 +180,7 @@ public class ObjectionController {
     }
 
     @PostMapping("/{objectionId}/attachments")
-    public ResponseEntity uploadAttachmentToObjection (
+    public ResponseEntity<String> uploadAttachmentToObjection (
             @RequestParam("file") MultipartFile file,
             @PathVariable("companyNumber") String companyNumber,
             @PathVariable String objectionId,
@@ -198,8 +198,8 @@ public class ObjectionController {
         );
 
         try {
-            objectionService.addAttachment(requestId, objectionId, file, servletRequest.getRequestURI());
-            return new ResponseEntity(HttpStatus.NO_CONTENT);
+            ServiceResult<String> result = objectionService.addAttachment(requestId, objectionId, file, servletRequest.getRequestURI());
+            return new ResponseEntity(result.getData(), HttpStatus.CREATED);
         } catch(ServiceException e) {
 
             apiLogger.errorContext(

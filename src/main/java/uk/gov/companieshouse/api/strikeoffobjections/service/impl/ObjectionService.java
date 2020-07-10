@@ -19,6 +19,7 @@ import uk.gov.companieshouse.api.strikeoffobjections.model.patch.ObjectionPatch;
 import uk.gov.companieshouse.api.strikeoffobjections.repository.ObjectionRepository;
 import uk.gov.companieshouse.api.strikeoffobjections.service.IObjectionService;
 import uk.gov.companieshouse.service.ServiceException;
+import uk.gov.companieshouse.service.ServiceResult;
 import uk.gov.companieshouse.service.links.Links;
 
 import javax.validation.constraints.NotNull;
@@ -87,10 +88,14 @@ public class ObjectionService implements IObjectionService {
     }
 
     @Override
-    public void addAttachment(String requestId, String objectionId, MultipartFile file, String attachmentsUri)
+    public ServiceResult<String> addAttachment(String requestId, String objectionId, MultipartFile file, String attachmentsUri)
             throws ServiceException, ObjectionNotFoundException {
-
+        Map<String, Object> logMap = new HashMap<>();
+        logMap.put(LogConstants.OBJECTION_ID.getValue(), objectionId);
+        logger.infoContext(requestId, "Uploading attachments", logMap);
         FileTransferApiClientResponse response = fileTransferApiClient.upload(requestId, file);
+        logger.infoContext(requestId, "Finished uploading attachments", logMap);
+
         HttpStatus responseHttpStatus = response.getHttpStatus();
         if (responseHttpStatus != null && responseHttpStatus.isError()) {
             throw new ServiceException(responseHttpStatus.toString());
@@ -109,6 +114,8 @@ public class ObjectionService implements IObjectionService {
             attachment.setLinks(links);
 
             objectionRepository.save(objection);
+
+            return ServiceResult.accepted(attachmentId);
         }
     }
 

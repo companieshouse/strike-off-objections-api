@@ -23,6 +23,7 @@ import uk.gov.companieshouse.api.strikeoffobjections.model.patch.ObjectionPatch;
 import uk.gov.companieshouse.api.strikeoffobjections.repository.ObjectionRepository;
 import uk.gov.companieshouse.api.strikeoffobjections.utils.Utils;
 import uk.gov.companieshouse.service.ServiceException;
+import uk.gov.companieshouse.service.ServiceResult;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -124,7 +125,9 @@ class ObjectionServiceTest {
         existingObjection.setId(OBJECTION_ID);
         when(fileTransferApiClient.upload(anyString(), any(MultipartFile.class))).thenReturn(Utils.getSuccessfulUploadResponse());
         when(objectionRepository.findById(any())).thenReturn(Optional.of(existingObjection));
-        objectionService.addAttachment(REQUEST_ID, OBJECTION_ID, Utils.mockMultipartFile(), ACCESS_URL);
+        ServiceResult<String> attachmentIdResult =
+                objectionService.addAttachment(REQUEST_ID, OBJECTION_ID, Utils.mockMultipartFile(), ACCESS_URL);
+        assertEquals(Utils.ORIGINAL_FILE_NAME, attachmentIdResult.getData());
         Optional<Attachment> entityAttachment = existingObjection
                 .getAttachments()
                 .stream()
@@ -151,18 +154,20 @@ class ObjectionServiceTest {
         attachment.setSize(1L);
         attachment.setContentType("text/plain");
         attachment.setName("testFile");
-        attachment.setId("12345a");
+        String newId = "12345a";
+        attachment.setId(newId);
         List<Attachment> attachmentsList = new ArrayList<>();
         attachmentsList.add(attachment);
         existingObjection.setAttachments(attachmentsList);
 
         when(objectionRepository.findById(any())).thenReturn(Optional.of(existingObjection));
 
-        objectionService.addAttachment(
+        ServiceResult<String> attachmentIdResult = objectionService.addAttachment(
                  REQUEST_ID, OBJECTION_ID, Utils.mockMultipartFile(), ACCESS_URL);
 
         List<Attachment> objectionAttachments = existingObjection.getAttachments();
 
+        assertEquals(newId, attachmentIdResult.getData());
         assertEquals(2, objectionAttachments.size());
         assertEquals("testFile", objectionAttachments.get(0).getName());
         assertEquals(Utils.ORIGINAL_FILE_NAME, objectionAttachments.get(1).getName());
