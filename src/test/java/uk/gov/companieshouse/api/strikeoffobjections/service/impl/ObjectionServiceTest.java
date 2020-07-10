@@ -127,7 +127,7 @@ class ObjectionServiceTest {
         when(objectionRepository.findById(any())).thenReturn(Optional.of(existingObjection));
         ServiceResult<String> attachmentIdResult =
                 objectionService.addAttachment(REQUEST_ID, OBJECTION_ID, Utils.mockMultipartFile(), ACCESS_URL);
-        assertEquals(Utils.ORIGINAL_FILE_NAME, attachmentIdResult.getData());
+        assertEquals(Utils.UPLOAD_ID, attachmentIdResult.getData());
         Optional<Attachment> entityAttachment = existingObjection
                 .getAttachments()
                 .stream()
@@ -149,7 +149,10 @@ class ObjectionServiceTest {
     public void willNotOverrideAlreadyExistingAttachments() throws Exception {
         Objection existingObjection = new Objection();
         existingObjection.setId(OBJECTION_ID);
-        when(fileTransferApiClient.upload(anyString(), any(MultipartFile.class))).thenReturn(Utils.getSuccessfulUploadResponse());
+
+        when(fileTransferApiClient.upload(anyString(), any(MultipartFile.class)))
+                .thenReturn(Utils.getSuccessfulUploadResponse());
+
         Attachment attachment = new Attachment();
         attachment.setSize(1L);
         attachment.setContentType("text/plain");
@@ -167,7 +170,6 @@ class ObjectionServiceTest {
 
         List<Attachment> objectionAttachments = existingObjection.getAttachments();
 
-        assertEquals(newId, attachmentIdResult.getData());
         assertEquals(2, objectionAttachments.size());
         assertEquals("testFile", objectionAttachments.get(0).getName());
         assertEquals(Utils.ORIGINAL_FILE_NAME, objectionAttachments.get(1).getName());

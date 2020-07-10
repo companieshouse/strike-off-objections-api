@@ -13,7 +13,7 @@ import java.nio.file.Files;
 public class Utils {
 
     public static final String ORIGINAL_FILE_NAME = "original.png";
-    private static final String UPLOAD_ID = "5agf-g6hh";
+    public static final String UPLOAD_ID = "5agf-g6hh";
 
     public static MultipartFile mockMultipartFile() throws IOException {
         String fileName = "testMultipart.txt";
