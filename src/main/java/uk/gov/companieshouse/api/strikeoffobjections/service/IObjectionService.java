@@ -18,5 +18,5 @@ public interface IObjectionService {
     List<Attachment> getAttachments(String requestId, String companyNumber,String objectionId)
             throws ObjectionNotFoundException;
 
-    ServiceResult<String> addAttachment(String requestId, MultipartFile file) throws ServiceException;
+    ServiceResult<String> addAttachment(String requestId, String objectionId, MultipartFile file, String attachmentsUri) throws ServiceException, ObjectionNotFoundException;
 }

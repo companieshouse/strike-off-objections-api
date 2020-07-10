@@ -9,6 +9,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.multipart.MultipartFile;
 import uk.gov.companieshouse.api.strikeoffobjections.common.ApiLogger;
 import uk.gov.companieshouse.api.strikeoffobjections.exception.ObjectionNotFoundException;
@@ -26,6 +27,7 @@ import uk.gov.companieshouse.service.links.Links;
 import uk.gov.companieshouse.service.rest.response.ChResponseBody;
 import uk.gov.companieshouse.service.rest.response.PluggableResponseEntityFactory;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 
 import static com.mongodb.client.model.Filters.eq;
@@ -52,6 +54,7 @@ class ObjectionControllerTest {
     private static final String AUTH_USER = "demo@ch.gov.uk; forename=demoForename; surname=demoSurname";
     private static final String OBJECTION_ID = "87651234";
     private static final String REASON = "REASON";
+    private static final String ACCESS_URL = "/dummyUrl";
 
     @Mock
     IObjectionService objectionService;
@@ -64,6 +67,9 @@ class ObjectionControllerTest {
 
     @Mock
     private AttachmentMapper attachmentMapper;
+
+    @Mock
+    private HttpServletRequest servletRequest;
 
     @InjectMocks
     ObjectionController objectionController;
@@ -171,20 +177,57 @@ class ObjectionControllerTest {
         assertEquals("xyz", attachmentDTO.getName());
         assertEquals(5, attachmentDTO.getSize());
         assertEquals("link to SELF", attachmentDTO.getLinks().getLink(CoreLinkKeys.SELF));
-
     }
 
     @Test
-    public void willReturn415FromInvalidUpload() throws ServiceException, IOException {
-        HttpClientErrorException expectedException =
-                new HttpClientErrorException(HttpStatus.UNSUPPORTED_MEDIA_TYPE);
+    public void willReturnCreatedIfSuccessful() throws ServiceException, IOException, ObjectionNotFoundException {
+        when(servletRequest.getRequestURI()).thenReturn(ACCESS_URL);
+        when(objectionService.addAttachment(anyString(), anyString(), any(MultipartFile.class), anyString()))
+                .thenReturn(ServiceResult.accepted("abc"));
+        ResponseEntity entity = objectionController.uploadAttachmentToObjection(Utils.mockMultipartFile(),
+                COMPANY_NUMBER, OBJECTION_ID, REQUEST_ID, servletRequest);
 
-        when(objectionService.addAttachment(anyString(), any(MultipartFile.class))
-                ).thenThrow(expectedException);
+        assertEquals(HttpStatus.CREATED, entity.getStatusCode());
+    }
+
+    @Test
+    public void willReturn404IfInvalidRequestSuppliedPostRequest() throws Exception {
+        ObjectionNotFoundException objectionNotFoundException = new ObjectionNotFoundException("exception error");
+        when(servletRequest.getRequestURI()).thenReturn("url");
+        when(objectionService.addAttachment(anyString(), anyString(), any(MultipartFile.class), anyString()))
+                .thenThrow(objectionNotFoundException);
 
         ResponseEntity entity = objectionController.uploadAttachmentToObjection(Utils.mockMultipartFile(),
-                "123","1234", "a123");
+                COMPANY_NUMBER, OBJECTION_ID, REQUEST_ID, servletRequest);
+
+        assertEquals(HttpStatus.NOT_FOUND, entity.getStatusCode());
+    }
+
+    @Test
+    public void willReturn415FromInvalidUpload() throws ServiceException, IOException, ObjectionNotFoundException {
+        HttpClientErrorException expectedException =
+                new HttpClientErrorException(HttpStatus.UNSUPPORTED_MEDIA_TYPE);
+        when(servletRequest.getRequestURI()).thenReturn(ACCESS_URL);
+        when(objectionService.addAttachment(anyString(), anyString(), any(MultipartFile.class), anyString()))
+                .thenThrow(expectedException);
+
+        ResponseEntity entity = objectionController.uploadAttachmentToObjection(Utils.mockMultipartFile(),
+                COMPANY_NUMBER, OBJECTION_ID, REQUEST_ID, servletRequest);
 
         assertEquals(HttpStatus.UNSUPPORTED_MEDIA_TYPE, entity.getStatusCode());
+    }
+
+    @Test
+    public void willReturn500FromFileTransferServerError() throws ServiceException, IOException, ObjectionNotFoundException {
+        HttpServerErrorException expectedException =
+                new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR);
+        when(servletRequest.getRequestURI()).thenReturn("url");
+        when(objectionService.addAttachment(anyString(), anyString(), any(MultipartFile.class), anyString()))
+                .thenThrow(expectedException);
+
+        ResponseEntity entity = objectionController.uploadAttachmentToObjection(Utils.mockMultipartFile(),
+                COMPANY_NUMBER, OBJECTION_ID, REQUEST_ID, servletRequest);
+
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, entity.getStatusCode());
     }
 }

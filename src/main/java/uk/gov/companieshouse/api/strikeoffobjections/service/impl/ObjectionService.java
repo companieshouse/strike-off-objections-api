@@ -12,6 +12,7 @@ import uk.gov.companieshouse.api.strikeoffobjections.exception.ObjectionNotFound
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.CreatedBy;
 import uk.gov.companieshouse.api.strikeoffobjections.file.FileTransferApiClient;
 import uk.gov.companieshouse.api.strikeoffobjections.file.FileTransferApiClientResponse;
+import uk.gov.companieshouse.api.strikeoffobjections.file.ObjectionsLinkKeys;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Attachment;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Objection;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.ObjectionStatus;
@@ -21,7 +22,9 @@ import uk.gov.companieshouse.api.strikeoffobjections.repository.ObjectionReposit
 import uk.gov.companieshouse.api.strikeoffobjections.service.IObjectionService;
 import uk.gov.companieshouse.service.ServiceException;
 import uk.gov.companieshouse.service.ServiceResult;
+import uk.gov.companieshouse.service.links.Links;
 
+import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -31,6 +34,8 @@ import java.util.function.Supplier;
 
 @Service
 public class ObjectionService implements IObjectionService {
+
+    private static final String OBJECTION_NOT_FOUND_MESSAGE = "Objection with id: %s, not found";
 
     private ObjectionRepository objectionRepository;
     private ApiLogger logger;
@@ -88,24 +93,58 @@ public class ObjectionService implements IObjectionService {
             objectionRepository.save(objection);
         } else {
             logger.infoContext(requestId, "Objection does not exist", logMap);
-            throw new ObjectionNotFoundException(String.format("Objection with id: %s, not found", objectionId));
+            throw new ObjectionNotFoundException(String.format(OBJECTION_NOT_FOUND_MESSAGE, objectionId));
         }
     }
 
     @Override
-    public ServiceResult<String> addAttachment(String requestId, MultipartFile file) throws ServiceException {
+    public ServiceResult<String> addAttachment(String requestId, String objectionId, MultipartFile file, String attachmentsUri)
+            throws ServiceException, ObjectionNotFoundException {
+        Map<String, Object> logMap = new HashMap<>();
+        logMap.put(LogConstants.OBJECTION_ID.getValue(), objectionId);
+        logger.infoContext(requestId, "Uploading attachments", logMap);
         FileTransferApiClientResponse response = fileTransferApiClient.upload(requestId, file);
+        logger.infoContext(requestId, "Finished uploading attachments", logMap);
 
         HttpStatus responseHttpStatus = response.getHttpStatus();
         if (responseHttpStatus != null && responseHttpStatus.isError()) {
             throw new ServiceException(responseHttpStatus.toString());
         }
-        String fileId = response.getFileId();
-        if (StringUtils.isBlank(fileId)) {
+        String attachmentId = response.getFileId();
+        if (StringUtils.isBlank(attachmentId)) {
             throw new ServiceException("No file id returned from file upload");
         } else {
-            return ServiceResult.accepted(fileId);
+            Attachment attachment = createAttachment(file, attachmentId);
+            Objection objection = objectionRepository.findById(objectionId).orElseThrow(
+                    () -> new ObjectionNotFoundException(String.format(OBJECTION_NOT_FOUND_MESSAGE, objectionId))
+            );
+            objection.addAttachment(attachment);
+
+            Links links = createLinks(attachmentsUri, attachmentId);
+            attachment.setLinks(links);
+
+            objectionRepository.save(objection);
+
+            return ServiceResult.accepted(attachmentId);
         }
+    }
+
+    private Links createLinks(String attachmentsUri, String attachmentId) {
+        String linkToSelf = attachmentsUri + "/" + attachmentId;
+        Links links = new Links();
+        links.setLink(ObjectionsLinkKeys.SELF, linkToSelf);
+        links.setLink(ObjectionsLinkKeys.DOWNLOAD, linkToSelf + "/download");
+        return links;
+    }
+
+    private Attachment createAttachment(@NotNull MultipartFile file, String attachmentId) {
+        Attachment attachment = new Attachment();
+        attachment.setId(attachmentId);
+        String filename = file.getOriginalFilename();
+        attachment.setName(filename);
+        attachment.setSize(file.getSize());
+        attachment.setContentType(file.getContentType());
+        return attachment;
     }
 
     @Override
@@ -121,7 +160,7 @@ public class ObjectionService implements IObjectionService {
             return objection.get().getAttachments();
         } else {
             logger.infoContext(requestId, "Objection does not exist", logMap);
-            throw new ObjectionNotFoundException(String.format("Objection with id: %s, not found", objectionId));
+            throw new ObjectionNotFoundException(String.format(OBJECTION_NOT_FOUND_MESSAGE, objectionId));
         }
     }
 }
