@@ -163,7 +163,8 @@ public class ObjectionController {
             List<AttachmentResponseDTO> attachmentResponseDTOs = attachments.stream()
                     .map(attachmentMapper::attachmentEntityToAttachmentResponseDTO).collect(Collectors.toList());
 
-            return responseEntityFactory.createResponse(ServiceResult.created(attachmentResponseDTOs));
+
+            return responseEntityFactory.createResponse(ServiceResult.found(attachmentResponseDTOs));
         } catch (ObjectionNotFoundException e) {
 
             apiLogger.errorContext(
