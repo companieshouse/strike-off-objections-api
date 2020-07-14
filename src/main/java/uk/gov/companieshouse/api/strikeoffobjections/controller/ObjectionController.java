@@ -44,7 +44,7 @@ public class ObjectionController {
     private static final String ERIC_REQUEST_ID_HEADER = "X-Request-Id";
     private static final String ERIC_IDENTITY = "ERIC-identity";
     private static final String ERIC_AUTHORISED_USER = "ERIC-Authorised-User";
-    public static final String OBJECTION_NOT_FOUND = "Objection not found";
+    private static final String OBJECTION_NOT_FOUND = "Objection not found";
 
     private PluggableResponseEntityFactory responseEntityFactory;
     private IObjectionService objectionService;
@@ -184,7 +184,7 @@ public class ObjectionController {
     }
 
     @PostMapping("/{objectionId}/attachments")
-    public ResponseEntity<String> uploadAttachmentToObjection (
+    public ResponseEntity<ObjectionResponseDTO> uploadAttachmentToObjection (
             @RequestParam("file") MultipartFile file,
             @PathVariable("companyNumber") String companyNumber,
             @PathVariable String objectionId,
@@ -203,7 +203,8 @@ public class ObjectionController {
 
         try {
             ServiceResult<String> result = objectionService.addAttachment(requestId, objectionId, file, servletRequest.getRequestURI());
-            return new ResponseEntity(result.getData(), HttpStatus.CREATED);
+            ObjectionResponseDTO objectionResponseDTO = new ObjectionResponseDTO(result.getData());
+            return new ResponseEntity<>(objectionResponseDTO, HttpStatus.CREATED);
         } catch(ServiceException e) {
 
             apiLogger.errorContext(
