@@ -276,7 +276,7 @@ class ObjectionServiceTest {
     }
 
     @Test
-    void getAttachmentTestNoObjection() {
+    void getAttachmentTestWhenObjectionDoesNotExist() {
 
         when(objectionRepository.findById(any())).thenReturn(Optional.empty());
 
@@ -290,7 +290,7 @@ class ObjectionServiceTest {
     }
 
     @Test
-    void getAttachmentTestAttachmentDoesNotExit() {
+    void getAttachmentTestAttachmentDoesNotExist() {
 
         Objection objection = new Objection();
         when(objectionRepository.findById(any())).thenReturn(Optional.of(objection));

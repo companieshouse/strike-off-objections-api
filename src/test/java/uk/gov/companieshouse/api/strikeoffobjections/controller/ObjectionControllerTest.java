@@ -268,7 +268,7 @@ class ObjectionControllerTest {
     }
 
     @Test
-    public void getAttachmentObjectionNotFoundTest() throws ObjectionNotFoundException, AttachmentNotFoundException {
+    public void getAttachmentWhenObjectionNotFoundTest() throws ObjectionNotFoundException, AttachmentNotFoundException {
         doThrow(new ObjectionNotFoundException("Message")).when(objectionService).getAttachment(any(), any(), any(), any());
         ResponseEntity response = objectionController.getAttachment(COMPANY_NUMBER, OBJECTION_ID, ATTACHMENT_ID, REQUEST_ID);
 
@@ -277,7 +277,7 @@ class ObjectionControllerTest {
     }
 
     @Test
-    public void getAttachmentAttachmentNotFoundTest() throws ObjectionNotFoundException, AttachmentNotFoundException {
+    public void getAttachmentWhenAttachmentNotFoundTest() throws ObjectionNotFoundException, AttachmentNotFoundException {
         doThrow(new AttachmentNotFoundException("Message")).when(objectionService).getAttachment(any(), any(), any(), any());
         ResponseEntity response = objectionController.getAttachment(COMPANY_NUMBER, OBJECTION_ID, ATTACHMENT_ID, REQUEST_ID);
 
