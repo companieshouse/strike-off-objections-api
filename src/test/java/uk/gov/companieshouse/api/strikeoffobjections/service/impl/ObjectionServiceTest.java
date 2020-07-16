@@ -11,6 +11,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.multipart.MultipartFile;
 import uk.gov.companieshouse.api.strikeoffobjections.common.ApiLogger;
+import uk.gov.companieshouse.api.strikeoffobjections.exception.AttachmentNotFoundException;
 import uk.gov.companieshouse.api.strikeoffobjections.exception.ObjectionNotFoundException;
 import uk.gov.companieshouse.api.strikeoffobjections.file.FileTransferApiClient;
 import uk.gov.companieshouse.api.strikeoffobjections.file.FileTransferApiClientResponse;
@@ -52,6 +53,7 @@ class ObjectionServiceTest {
     private static final String E_MAIL = "demo@ch.gov.uk";
     private static final String AUTH_USER = E_MAIL + "; forename=demoForename; surname=demoSurname";
     private static final String OBJECTION_ID = "87651234";
+    private static final String ATTACHMENT_ID = "12348765";
     private static final String REASON = "REASON";
     private static final String ACCESS_URL = "/dummyUrl";
     private static final LocalDateTime MOCKED_TIME_STAMP = LocalDateTime.of(2020, 2,2, 0, 0);
@@ -252,5 +254,53 @@ class ObjectionServiceTest {
         assertThrows(ServiceException.class, () ->
                 objectionService.addAttachment(REQUEST_ID, OBJECTION_ID, Utils.mockMultipartFile(), ACCESS_URL));
 
+    }
+
+    @Test
+    void getAttachmentTest() throws ObjectionNotFoundException, AttachmentNotFoundException {
+        Objection existingObjection = new Objection();
+        existingObjection.setId(OBJECTION_ID);
+        Attachment attachment = new Attachment();
+        attachment.setId(ATTACHMENT_ID);
+        existingObjection.addAttachment(attachment);
+        when(objectionRepository.findById(any())).thenReturn(Optional.of(existingObjection));
+
+        Attachment returnedAttachment = objectionService.getAttachment(
+                REQUEST_ID,
+                COMPANY_NUMBER,
+                OBJECTION_ID,
+                ATTACHMENT_ID
+        );
+
+        assertEquals(attachment, returnedAttachment);
+    }
+
+    @Test
+    void getAttachmentTestNoObjection() {
+
+        when(objectionRepository.findById(any())).thenReturn(Optional.empty());
+
+        assertThrows(ObjectionNotFoundException.class, () -> objectionService.getAttachment(
+                REQUEST_ID,
+                COMPANY_NUMBER,
+                OBJECTION_ID,
+                ATTACHMENT_ID
+                )
+        );
+    }
+
+    @Test
+    void getAttachmentTestAttachmentDoesNotExit() {
+
+        Objection objection = new Objection();
+        when(objectionRepository.findById(any())).thenReturn(Optional.of(objection));
+
+        assertThrows(AttachmentNotFoundException.class, () -> objectionService.getAttachment(
+                REQUEST_ID,
+                COMPANY_NUMBER,
+                OBJECTION_ID,
+                ATTACHMENT_ID
+                )
+        );
     }
 }

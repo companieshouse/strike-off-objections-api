@@ -4,7 +4,7 @@ public enum LogConstants {
 
     COMPANY_NUMBER("company_number"),
     OBJECTION_ID("objection_id"),
-    REASON("reason");
+    ATTACHMENT_ID("attachment_id");
 
     private String value;
 

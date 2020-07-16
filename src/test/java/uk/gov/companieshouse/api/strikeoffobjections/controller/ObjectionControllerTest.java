@@ -12,6 +12,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.multipart.MultipartFile;
 import uk.gov.companieshouse.api.strikeoffobjections.common.ApiLogger;
+import uk.gov.companieshouse.api.strikeoffobjections.exception.AttachmentNotFoundException;
 import uk.gov.companieshouse.api.strikeoffobjections.exception.ObjectionNotFoundException;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Attachment;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.ObjectionStatus;
@@ -53,6 +54,7 @@ class ObjectionControllerTest {
     private static final String AUTH_ID = "22334455";
     private static final String AUTH_USER = "demo@ch.gov.uk; forename=demoForename; surname=demoSurname";
     private static final String OBJECTION_ID = "87651234";
+    private static final String ATTACHMENT_ID = "12348765";
     private static final String REASON = "REASON";
     private static final String ACCESS_URL = "/dummyUrl";
 
@@ -233,5 +235,53 @@ class ObjectionControllerTest {
                 COMPANY_NUMBER, OBJECTION_ID, REQUEST_ID, servletRequest);
 
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, entity.getStatusCode());
+    }
+
+    @Test
+    public void getAttachmentTest() throws ObjectionNotFoundException, AttachmentNotFoundException {
+        Attachment attachment = new Attachment();
+        attachment.setId(ATTACHMENT_ID);
+        AttachmentResponseDTO responseDTO = new AttachmentResponseDTO();
+        responseDTO.setId(ATTACHMENT_ID);
+        when(objectionService.getAttachment(REQUEST_ID, COMPANY_NUMBER, OBJECTION_ID, ATTACHMENT_ID))
+                .thenReturn(attachment);
+        when(attachmentMapper.attachmentEntityToAttachmentResponseDTO(attachment)).thenReturn(responseDTO);
+        when(pluggableResponseEntityFactory.createResponse(any(ServiceResult.class))).thenReturn(
+                ResponseEntity.status(HttpStatus.OK).body(ChResponseBody.createNormalBody(responseDTO)));
+
+        ResponseEntity<ChResponseBody<AttachmentResponseDTO>> response = objectionController.getAttachment(
+                COMPANY_NUMBER,
+                OBJECTION_ID,
+                ATTACHMENT_ID,
+                REQUEST_ID
+        );
+
+        verify(attachmentMapper, times(1)).attachmentEntityToAttachmentResponseDTO(attachment);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+
+        assertNotNull(response.getBody());
+        ChResponseBody<AttachmentResponseDTO> responseBody = response.getBody();
+
+        assertNotNull(responseBody.getSuccessBody());
+        assertEquals(responseDTO, responseBody.getSuccessBody());
+    }
+
+    @Test
+    public void getAttachmentObjectionNotFoundTest() throws ObjectionNotFoundException, AttachmentNotFoundException {
+        doThrow(new ObjectionNotFoundException("Message")).when(objectionService).getAttachment(any(), any(), any(), any());
+        ResponseEntity response = objectionController.getAttachment(COMPANY_NUMBER, OBJECTION_ID, ATTACHMENT_ID, REQUEST_ID);
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+
+    }
+
+    @Test
+    public void getAttachmentAttachmentNotFoundTest() throws ObjectionNotFoundException, AttachmentNotFoundException {
+        doThrow(new AttachmentNotFoundException("Message")).when(objectionService).getAttachment(any(), any(), any(), any());
+        ResponseEntity response = objectionController.getAttachment(COMPANY_NUMBER, OBJECTION_ID, ATTACHMENT_ID, REQUEST_ID);
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+
     }
 }
