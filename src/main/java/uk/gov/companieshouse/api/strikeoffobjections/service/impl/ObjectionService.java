@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import uk.gov.companieshouse.api.strikeoffobjections.common.ApiLogger;
 import uk.gov.companieshouse.api.strikeoffobjections.common.LogConstants;
+import uk.gov.companieshouse.api.strikeoffobjections.exception.AttachmentNotFoundException;
 import uk.gov.companieshouse.api.strikeoffobjections.exception.ObjectionNotFoundException;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.CreatedBy;
 import uk.gov.companieshouse.api.strikeoffobjections.file.FileTransferApiClient;
@@ -36,6 +37,7 @@ import java.util.function.Supplier;
 public class ObjectionService implements IObjectionService {
 
     private static final String OBJECTION_NOT_FOUND_MESSAGE = "Objection with id: %s, not found";
+    private static final String ATTACHMENT_NOT_FOUND_MESSAGE = "Attachment with id: %s, not found";
 
     private ObjectionRepository objectionRepository;
     private ApiLogger logger;
@@ -127,6 +129,23 @@ public class ObjectionService implements IObjectionService {
 
             return ServiceResult.accepted(attachmentId);
         }
+    }
+
+    @Override
+    public Attachment getAttachment(
+            String requestId,
+            String companyNumber,
+            String objectionId,
+            String attachmentId
+    ) throws ObjectionNotFoundException, AttachmentNotFoundException {
+        Objection objection = objectionRepository.findById(objectionId).orElseThrow(
+                () -> new ObjectionNotFoundException(String.format(OBJECTION_NOT_FOUND_MESSAGE, objectionId))
+        );
+
+        List<Attachment> attachments = objection.getAttachments();
+        return attachments.parallelStream().filter(o -> attachmentId.equals(o.getId())).findFirst().orElseThrow(
+                () -> new AttachmentNotFoundException(String.format(ATTACHMENT_NOT_FOUND_MESSAGE, attachmentId))
+        );
     }
 
     private Links createLinks(String attachmentsUri, String attachmentId) {

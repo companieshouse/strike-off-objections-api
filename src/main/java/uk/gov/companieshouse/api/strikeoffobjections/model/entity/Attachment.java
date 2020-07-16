@@ -4,6 +4,7 @@ import org.springframework.data.mongodb.core.mapping.Field;
 import uk.gov.companieshouse.service.links.Links;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 public class Attachment implements Serializable {
 
@@ -58,4 +59,20 @@ public class Attachment implements Serializable {
         this.size = size;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Attachment that = (Attachment) o;
+        return getSize() == that.getSize() &&
+                Objects.equals(getId(), that.getId()) &&
+                Objects.equals(getLinks(), that.getLinks()) &&
+                Objects.equals(getName(), that.getName()) &&
+                Objects.equals(getContentType(), that.getContentType());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getId(), getLinks(), getName(), getContentType(), getSize());
+    }
 }

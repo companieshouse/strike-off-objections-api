@@ -18,6 +18,7 @@ import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.multipart.MultipartFile;
 import uk.gov.companieshouse.api.strikeoffobjections.common.ApiLogger;
 import uk.gov.companieshouse.api.strikeoffobjections.common.LogConstants;
+import uk.gov.companieshouse.api.strikeoffobjections.exception.AttachmentNotFoundException;
 import uk.gov.companieshouse.api.strikeoffobjections.exception.ObjectionNotFoundException;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Attachment;
 import uk.gov.companieshouse.api.strikeoffobjections.model.patch.ObjectionPatch;
@@ -41,10 +42,12 @@ public class ObjectionController {
 
     private static final String LOG_COMPANY_NUMBER_KEY = LogConstants.COMPANY_NUMBER.getValue();
     private static final String LOG_OBJECTION_ID_KEY = LogConstants.OBJECTION_ID.getValue();
+    private static final String LOG_ATTACHMENT_ID = LogConstants.ATTACHMENT_ID.getValue();
     private static final String ERIC_REQUEST_ID_HEADER = "X-Request-Id";
     private static final String ERIC_IDENTITY = "ERIC-identity";
     private static final String ERIC_AUTHORISED_USER = "ERIC-Authorised-User";
     private static final String OBJECTION_NOT_FOUND = "Objection not found";
+    private static final String ATTACHMENT_NOT_FOUND = "Attachment not found";
 
     private PluggableResponseEntityFactory responseEntityFactory;
     private IObjectionService objectionService;
@@ -61,6 +64,56 @@ public class ObjectionController {
         this.objectionService = objectionService;
         this.apiLogger = apiLogger;
         this.attachmentMapper = attachmentMapper;
+    }
+
+    @GetMapping("/{objectionId}/attachments/{attachmentId}")
+    public ResponseEntity<ChResponseBody<AttachmentResponseDTO>> getAttachment(
+            @PathVariable("companyNumber") String companyNumber,
+            @PathVariable("objectionId") String objectionId,
+            @PathVariable("attachmentId") String attachmentId,
+            @RequestHeader(value = ERIC_REQUEST_ID_HEADER) String requestId
+    ) {
+        Map<String, Object> logMap = new HashMap<>();
+        logMap.put(LOG_COMPANY_NUMBER_KEY, companyNumber);
+        logMap.put(LOG_OBJECTION_ID_KEY, objectionId);
+        logMap.put(LOG_ATTACHMENT_ID, attachmentId);
+
+        apiLogger.infoContext(
+                requestId,
+                "GET /{objectionId}/attachments/{attachmentId} request received",
+                logMap
+        );
+
+        try{
+            Attachment attachment = objectionService.getAttachment(requestId, companyNumber, objectionId, attachmentId);
+            AttachmentResponseDTO responseDTO = attachmentMapper.attachmentEntityToAttachmentResponseDTO(attachment);
+
+            return responseEntityFactory.createResponse(ServiceResult.found(responseDTO));
+        } catch (ObjectionNotFoundException e) {
+            apiLogger.errorContext(
+                    requestId,
+                    OBJECTION_NOT_FOUND,
+                    e,
+                    logMap
+            );
+
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } catch (AttachmentNotFoundException e) {
+            apiLogger.errorContext(
+                    requestId,
+                    ATTACHMENT_NOT_FOUND,
+                    e,
+                    logMap
+            );
+
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } finally {
+            apiLogger.infoContext(
+                    requestId,
+                    "Finished GET /{objectionId}/attachments/{attachmentId} request",
+                    logMap
+            );
+        }
     }
 
     @PostMapping
