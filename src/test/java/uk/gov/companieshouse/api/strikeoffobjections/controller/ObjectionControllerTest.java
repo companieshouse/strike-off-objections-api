@@ -31,7 +31,6 @@ import uk.gov.companieshouse.service.rest.response.PluggableResponseEntityFactor
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 
-import static com.mongodb.client.model.Filters.eq;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
@@ -41,7 +40,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 
 import java.util.ArrayList;
 import java.util.List;

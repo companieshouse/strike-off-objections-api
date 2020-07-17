@@ -298,9 +298,9 @@ public class ObjectionController {
 
     @DeleteMapping("/{objectionId}/attachments/{attachmentId}")
     public ResponseEntity deleteAttachment(
-            @PathVariable("companyNumber") String companyNumber,
-            @PathVariable("objectionId") String objectionId,
-            @PathVariable("attachmentId") String attachmentId,
+            @PathVariable String companyNumber,
+            @PathVariable String objectionId,
+            @PathVariable String attachmentId,
             @RequestHeader(value = ERIC_REQUEST_ID_HEADER) String requestId
     ) {
         Map<String, Object> logMap = new HashMap<>();
