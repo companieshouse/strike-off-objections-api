@@ -182,4 +182,24 @@ public class ObjectionService implements IObjectionService {
             throw new ObjectionNotFoundException(String.format(OBJECTION_NOT_FOUND_MESSAGE, objectionId));
         }
     }
+
+    @Override
+    public void deleteAttachment(String requestId, String companyNumber, String objectionId, String attachmentId)
+            throws ObjectionNotFoundException, AttachmentNotFoundException {
+
+        Objection objection = objectionRepository.findById(objectionId).orElseThrow(
+                () -> new ObjectionNotFoundException(String.format(OBJECTION_NOT_FOUND_MESSAGE, objectionId))
+        );
+
+        List<Attachment> attachments = objection.getAttachments();
+        Attachment attachment = attachments.parallelStream().filter(o -> attachmentId.equals(o.getId())).findFirst().orElseThrow(
+                () -> new AttachmentNotFoundException(String.format(ATTACHMENT_NOT_FOUND_MESSAGE, attachmentId))
+        );
+
+        attachments.remove(attachment);
+
+        objection.setAttachments(attachments);
+
+        objectionRepository.save(objection);
+    }
 }

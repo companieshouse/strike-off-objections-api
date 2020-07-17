@@ -3,6 +3,7 @@ package uk.gov.companieshouse.api.strikeoffobjections.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -290,6 +291,55 @@ public class ObjectionController {
             apiLogger.infoContext(
                      requestId,
                     "Finished POST /{objectionId}/attachments request",
+                    logMap
+            );
+        }
+    }
+
+    @DeleteMapping("/{objectionId}/attachments/{attachmentId}")
+    public ResponseEntity deleteAttachment(
+            @PathVariable("companyNumber") String companyNumber,
+            @PathVariable("objectionId") String objectionId,
+            @PathVariable("attachmentId") String attachmentId,
+            @RequestHeader(value = ERIC_REQUEST_ID_HEADER) String requestId
+    ) {
+        Map<String, Object> logMap = new HashMap<>();
+        logMap.put(LOG_COMPANY_NUMBER_KEY, companyNumber);
+        logMap.put(LOG_OBJECTION_ID_KEY, objectionId);
+        logMap.put(LOG_ATTACHMENT_ID, attachmentId);
+
+        apiLogger.infoContext(
+                requestId,
+                "DELETE /{objectionId}/attachments/{attachmentId} request received",
+                logMap
+        );
+
+        try {
+            objectionService.deleteAttachment(requestId, companyNumber, objectionId, attachmentId);
+
+            return ResponseEntity.noContent().build();
+        } catch (ObjectionNotFoundException e) {
+            apiLogger.errorContext(
+                    requestId,
+                    OBJECTION_NOT_FOUND,
+                    e,
+                    logMap
+            );
+
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } catch (AttachmentNotFoundException e) {
+            apiLogger.errorContext(
+                    requestId,
+                    ATTACHMENT_NOT_FOUND,
+                    e,
+                    logMap
+            );
+
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } finally {
+            apiLogger.infoContext(
+                    requestId,
+                    "Finished DELETE /{objectionId}/attachments/{attachmentId} request",
                     logMap
             );
         }

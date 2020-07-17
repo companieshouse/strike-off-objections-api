@@ -284,4 +284,35 @@ class ObjectionControllerTest {
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
 
     }
+
+    @Test
+    public void deleteAttachmentTest() {
+
+        ResponseEntity response = objectionController.deleteAttachment(
+                COMPANY_NUMBER,
+                OBJECTION_ID,
+                ATTACHMENT_ID,
+                REQUEST_ID
+        );
+
+        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
+    }
+
+    @Test
+    public void deleteAttachmentWhenObjectionNotFoundTest() throws ObjectionNotFoundException, AttachmentNotFoundException {
+        doThrow(new ObjectionNotFoundException("Message")).when(objectionService).deleteAttachment(any(), any(), any(), any());
+        ResponseEntity response = objectionController.deleteAttachment(COMPANY_NUMBER, OBJECTION_ID, ATTACHMENT_ID, REQUEST_ID);
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+
+    }
+
+    @Test
+    public void deleteAttachmentWhenAttachmentNotFoundTest() throws ObjectionNotFoundException, AttachmentNotFoundException {
+        doThrow(new AttachmentNotFoundException("Message")).when(objectionService).deleteAttachment(any(), any(), any(), any());
+        ResponseEntity response = objectionController.deleteAttachment(COMPANY_NUMBER, OBJECTION_ID, ATTACHMENT_ID, REQUEST_ID);
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+
+    }
 }
