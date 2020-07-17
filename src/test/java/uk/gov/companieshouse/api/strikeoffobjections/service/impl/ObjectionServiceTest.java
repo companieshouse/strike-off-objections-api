@@ -303,4 +303,53 @@ class ObjectionServiceTest {
                 )
         );
     }
+
+    @Test
+    void deleteAttachmentTest() throws ObjectionNotFoundException, AttachmentNotFoundException {
+        Objection existingObjection = new Objection();
+        existingObjection.setId(OBJECTION_ID);
+        Attachment attachment = new Attachment();
+        attachment.setId(ATTACHMENT_ID);
+        existingObjection.addAttachment(attachment);
+        when(objectionRepository.findById(any())).thenReturn(Optional.of(existingObjection));
+
+        objectionService.deleteAttachment(
+                REQUEST_ID,
+                COMPANY_NUMBER,
+                OBJECTION_ID,
+                ATTACHMENT_ID
+        );
+
+        verify(objectionRepository, times(1)).save(existingObjection);
+        assertFalse(existingObjection.getAttachments().contains(attachment));
+    }
+
+    @Test
+    void deleteAttachmentTestWhenObjectionDoesNotExist() {
+
+        when(objectionRepository.findById(any())).thenReturn(Optional.empty());
+
+        assertThrows(ObjectionNotFoundException.class, () -> objectionService.deleteAttachment(
+                REQUEST_ID,
+                COMPANY_NUMBER,
+                OBJECTION_ID,
+                ATTACHMENT_ID
+                )
+        );
+    }
+
+    @Test
+    void deleteAttachmentTestAttachmentDoesNotExist() {
+
+        Objection objection = new Objection();
+        when(objectionRepository.findById(any())).thenReturn(Optional.of(objection));
+
+        assertThrows(AttachmentNotFoundException.class, () -> objectionService.deleteAttachment(
+                REQUEST_ID,
+                COMPANY_NUMBER,
+                OBJECTION_ID,
+                ATTACHMENT_ID
+                )
+        );
+    }
 }
