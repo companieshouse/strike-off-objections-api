@@ -5,6 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.multipart.MultipartFile;
 import uk.gov.companieshouse.api.strikeoffobjections.common.ApiLogger;
 import uk.gov.companieshouse.api.strikeoffobjections.common.LogConstants;
@@ -196,10 +198,41 @@ public class ObjectionService implements IObjectionService {
                 () -> new AttachmentNotFoundException(String.format(ATTACHMENT_NOT_FOUND_MESSAGE, attachmentId))
         );
 
-        attachments.remove(attachment);
+        boolean successfulDelete = deleteFromS3(requestId, companyNumber, objectionId, attachmentId);
 
-        objection.setAttachments(attachments);
+        if(successfulDelete) {
+            attachments.remove(attachment);
 
-        objectionRepository.save(objection);
+            objection.setAttachments(attachments);
+
+            objectionRepository.save(objection);
+        }
+    }
+
+    private boolean deleteFromS3(String requestId, String companyNumber, String objectionId, String attachmentId) {
+        Map<String, Object> logMap = new HashMap<>();
+        logMap.put(LogConstants.COMPANY_NUMBER.getValue(), companyNumber);
+        logMap.put(LogConstants.OBJECTION_ID.getValue(), objectionId);
+        final String errorMessage = "Unable to delete attachment %s, status code %s";
+        final String errorMessageShort = "Unable to delete attachment %s";
+        try {
+            FileTransferApiClientResponse response = fileTransferApiClient.delete(requestId, attachmentId);
+            if (response == null || response.getHttpStatus() == null) {
+                logger.infoContext(requestId, String.format(errorMessageShort,
+                        attachmentId), logMap);
+                return false;
+            } else {
+                if (response.getHttpStatus().isError()) {
+                    logger.infoContext(requestId, String.format(errorMessage,
+                            attachmentId, response.getHttpStatus()), logMap);
+                    return false;
+                }
+            }
+        } catch (HttpClientErrorException | HttpServerErrorException e) {
+            logger.errorContext(requestId, String.format(errorMessage,
+                    attachmentId, e.getStatusCode()), e, logMap);
+            return false;
+        }
+        return true;
     }
 }

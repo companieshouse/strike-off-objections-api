@@ -6,14 +6,39 @@ import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 import uk.gov.companieshouse.api.strikeoffobjections.file.FileTransferApiClientResponse;
+import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Attachment;
+import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Objection;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Utils {
 
     public static final String ORIGINAL_FILE_NAME = "original.png";
     public static final String UPLOAD_ID = "5agf-g6hh";
+
+    public static Objection getTestObjection(String id) {
+        Objection objection = new Objection();
+        objection.setId(id);
+        return objection;
+    }
+
+    public static List<Attachment> getTestAttachments(String isContained) {
+        List<Attachment> attachments = new ArrayList<Attachment>();
+        attachments.add(buildTestAttchemnt("123", "test1.txt"));
+        attachments.add(buildTestAttchemnt(isContained, "test2.txt"));
+        attachments.add(buildTestAttchemnt("abc", "test3.txt"));
+        return attachments;
+    }
+
+    public static Attachment buildTestAttchemnt(String id, String name) {
+        Attachment attachment = new Attachment();
+        attachment.setId(id);
+        attachment.setName(name);
+        return attachment;
+    }
 
     public static MultipartFile mockMultipartFile() throws IOException {
         String fileName = "testMultipart.txt";
@@ -28,7 +53,13 @@ public class Utils {
         return fileTransferApiClientResponse;
     }
 
-    public static FileTransferApiClientResponse getUnsuccessfulUploadResponse() {
+    public static FileTransferApiClientResponse getSuccessfulDeleteResponse() {
+        FileTransferApiClientResponse fileTransferApiClientResponse = new FileTransferApiClientResponse();
+        fileTransferApiClientResponse.setHttpStatus(HttpStatus.NO_CONTENT);
+        return fileTransferApiClientResponse;
+    }
+
+    public static FileTransferApiClientResponse getUnsuccessfulFileTransferApiResponse() {
         FileTransferApiClientResponse fileTransferApiClientResponse = new FileTransferApiClientResponse();
         fileTransferApiClientResponse.setHttpStatus(HttpStatus.INTERNAL_SERVER_ERROR);
         return fileTransferApiClientResponse;
