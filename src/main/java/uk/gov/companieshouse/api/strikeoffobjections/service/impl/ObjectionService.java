@@ -227,6 +227,7 @@ public class ObjectionService implements IObjectionService {
         }
     }
 
+    // TODO OBJ-141 repetitive logging in codebase, needs centralized handler that allows for different parameters.
     private Map<String, Object> buildLogMap(String companyNumber, String objectionId, String attachmentId) {
         Map<String, Object> logMap = new HashMap<>();
         if(StringUtils.isNotBlank(companyNumber)) {
