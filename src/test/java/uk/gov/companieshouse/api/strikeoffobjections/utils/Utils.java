@@ -27,13 +27,13 @@ public class Utils {
 
     public static List<Attachment> getTestAttachments(String isContained) {
         List<Attachment> attachments = new ArrayList<Attachment>();
-        attachments.add(buildTestAttchemnt("123", "test1.txt"));
-        attachments.add(buildTestAttchemnt(isContained, "test2.txt"));
-        attachments.add(buildTestAttchemnt("abc", "test3.txt"));
+        attachments.add(buildTestAttachment("123", "test1.txt"));
+        attachments.add(buildTestAttachment(isContained, "test2.txt"));
+        attachments.add(buildTestAttachment("abc", "test3.txt"));
         return attachments;
     }
 
-    public static Attachment buildTestAttchemnt(String id, String name) {
+    public static Attachment buildTestAttachment(String id, String name) {
         Attachment attachment = new Attachment();
         attachment.setId(id);
         attachment.setName(name);
