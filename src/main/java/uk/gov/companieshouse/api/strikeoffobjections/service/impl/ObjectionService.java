@@ -40,8 +40,8 @@ public class ObjectionService implements IObjectionService {
 
     private static final String OBJECTION_NOT_FOUND_MESSAGE = "Objection with id: %s, not found";
     private static final String ATTACHMENT_NOT_FOUND_MESSAGE = "Attachment with id: %s, not found";
-    private static final String DELETE_ERROR_MESSAGE = "Unable to delete attachment %s, status code %s";
-    private static final String DELETE_ERROR_MESSAGE_SHORT = "Unable to delete attachment %s";
+    private static final String DELETE_ATTACHMENT_MESSAGE = "Unable to delete attachment %s, status code %s";
+    private static final String DELETE_ATTACHMENT_MESSAGE_SHORT = "Unable to delete attachment %s";
 
     private ObjectionRepository objectionRepository;
     private ApiLogger logger;
@@ -209,19 +209,19 @@ public class ObjectionService implements IObjectionService {
         try {
             FileTransferApiClientResponse response = fileTransferApiClient.delete(requestId, attachmentId);
             if (response == null || response.getHttpStatus() == null) {
-                String message = String.format(DELETE_ERROR_MESSAGE_SHORT, attachmentId);
+                String message = String.format(DELETE_ATTACHMENT_MESSAGE_SHORT, attachmentId);
                 logger.infoContext(requestId, message, logMap);
                 throw new ServiceException(message);
             } else {
                 if (response.getHttpStatus().isError()) {
-                    String message = String.format(DELETE_ERROR_MESSAGE,
+                    String message = String.format(DELETE_ATTACHMENT_MESSAGE,
                             attachmentId, response.getHttpStatus());
                     logger.infoContext(requestId, message, logMap);
                     throw new ServiceException(message);
                 }
             }
         } catch (HttpClientErrorException | HttpServerErrorException e) {
-            String message = String.format(DELETE_ERROR_MESSAGE, attachmentId, e.getStatusCode());
+            String message = String.format(DELETE_ATTACHMENT_MESSAGE, attachmentId, e.getStatusCode());
             logger.errorContext(requestId, message, e, logMap);
             throw new ServiceException(message);
         }
