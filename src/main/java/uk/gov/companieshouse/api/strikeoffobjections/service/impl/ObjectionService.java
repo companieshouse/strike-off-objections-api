@@ -67,7 +67,7 @@ public class ObjectionService implements IObjectionService {
 
     @Override
     public String createObjection(String requestId, String companyNumber, String ericUserId, String ericUserDetails) throws Exception{
-        Map<String, Object> logMap = buildLogMap(companyNumber, null);
+        Map<String, Object> logMap = buildLogMap(companyNumber, null, null);
         logger.infoContext(requestId, "Creating objection", logMap);
 
         final String userEmailAddress = ericHeaderParser.getEmailAddress(ericUserDetails);
@@ -86,7 +86,7 @@ public class ObjectionService implements IObjectionService {
 
     @Override
     public void patchObjection(String requestId, String companyNumber, String objectionId, ObjectionPatch objectionPatch) throws ObjectionNotFoundException {
-        Map<String, Object> logMap = buildLogMap(companyNumber, objectionId);
+        Map<String, Object> logMap = buildLogMap(companyNumber, objectionId, null);
         logger.infoContext(requestId, "Checking for existing objection", logMap);
 
         Optional<Objection> existingObjection = objectionRepository.findById(objectionId);
@@ -103,7 +103,7 @@ public class ObjectionService implements IObjectionService {
     @Override
     public ServiceResult<String> addAttachment(String requestId, String objectionId, MultipartFile file, String attachmentsUri)
             throws ServiceException, ObjectionNotFoundException {
-        Map<String, Object> logMap = buildLogMap(null, objectionId);
+        Map<String, Object> logMap = buildLogMap(null, objectionId, null);
         logger.infoContext(requestId, "Uploading attachments", logMap);
         FileTransferApiClientResponse response = fileTransferApiClient.upload(requestId, file);
         logger.infoContext(requestId, "Finished uploading attachments", logMap);
@@ -168,7 +168,7 @@ public class ObjectionService implements IObjectionService {
 
     @Override
     public List<Attachment> getAttachments(String requestId, String companyNumber, String objectionId) throws ObjectionNotFoundException {
-        Map<String, Object> logMap = buildLogMap(companyNumber, objectionId);
+        Map<String, Object> logMap = buildLogMap(companyNumber, objectionId, null);
         logger.infoContext(requestId, "Finding the objection", logMap);
 
         Optional<Objection> objection = objectionRepository.findById(objectionId);
@@ -182,7 +182,7 @@ public class ObjectionService implements IObjectionService {
     }
 
     @Override
-    public void deleteAttachment(String requestId, String companyNumber, String objectionId, String attachmentId)
+    public void deleteAttachment(String requestId, String objectionId, String attachmentId)
             throws ObjectionNotFoundException, AttachmentNotFoundException, ServiceException {
 
         Objection objection = objectionRepository.findById(objectionId).orElseThrow(
@@ -194,7 +194,7 @@ public class ObjectionService implements IObjectionService {
                 () -> new AttachmentNotFoundException(String.format(ATTACHMENT_NOT_FOUND_MESSAGE, attachmentId))
         );
 
-        Map<String, Object> logMap = buildLogMap(companyNumber, objectionId);
+        Map<String, Object> logMap = buildLogMap(null, objectionId, attachmentId);
         deleteFromS3(requestId, attachmentId, logMap);
 
         attachments.remove(attachment);
@@ -227,13 +227,16 @@ public class ObjectionService implements IObjectionService {
         }
     }
 
-    private Map<String, Object> buildLogMap(String companyNumber, String objectionId) {
+    private Map<String, Object> buildLogMap(String companyNumber, String objectionId, String attachmentId) {
         Map<String, Object> logMap = new HashMap<>();
         if(StringUtils.isNotBlank(companyNumber)) {
             logMap.put(LogConstants.COMPANY_NUMBER.getValue(), companyNumber);
         }
         if(StringUtils.isNotBlank(objectionId)) {
             logMap.put(LogConstants.OBJECTION_ID.getValue(), objectionId);
+        }
+        if(StringUtils.isNotBlank(attachmentId)) {
+            logMap.put(LogConstants.ATTACHMENT_ID.getValue(), attachmentId);
         }
         return logMap;
     }

@@ -299,7 +299,7 @@ class ObjectionControllerTest {
     @Test
     public void deleteAttachmentWhenObjectionNotFoundTest()
             throws ObjectionNotFoundException, AttachmentNotFoundException, ServiceException {
-        doThrow(new ObjectionNotFoundException("Message")).when(objectionService).deleteAttachment(any(), any(), any(), any());
+        doThrow(new ObjectionNotFoundException("Message")).when(objectionService).deleteAttachment(any(), any(), any());
         ResponseEntity response = objectionController.deleteAttachment(COMPANY_NUMBER, OBJECTION_ID, ATTACHMENT_ID, REQUEST_ID);
 
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
@@ -309,7 +309,7 @@ class ObjectionControllerTest {
     @Test
     public void deleteAttachmentWhenAttachmentNotFoundTest()
             throws ObjectionNotFoundException, AttachmentNotFoundException, ServiceException {
-        doThrow(new AttachmentNotFoundException("Message")).when(objectionService).deleteAttachment(any(), any(), any(), any());
+        doThrow(new AttachmentNotFoundException("Message")).when(objectionService).deleteAttachment(any(), any(), any());
         ResponseEntity response = objectionController.deleteAttachment(COMPANY_NUMBER, OBJECTION_ID, ATTACHMENT_ID, REQUEST_ID);
 
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
@@ -319,7 +319,7 @@ class ObjectionControllerTest {
     @Test
     public void deleteAttachmentWhenUnableToDelete()
             throws ObjectionNotFoundException, AttachmentNotFoundException, ServiceException {
-        doThrow(new ServiceException("Message")).when(objectionService).deleteAttachment(any(), any(), any(), any());
+        doThrow(new ServiceException("Message")).when(objectionService).deleteAttachment(any(), any(), any());
         ResponseEntity response = objectionController.deleteAttachment(COMPANY_NUMBER, OBJECTION_ID, ATTACHMENT_ID, REQUEST_ID);
 
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());

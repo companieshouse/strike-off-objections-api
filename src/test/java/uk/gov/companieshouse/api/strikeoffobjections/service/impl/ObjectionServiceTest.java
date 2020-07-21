@@ -317,7 +317,6 @@ class ObjectionServiceTest {
         when(fileTransferApiClient.delete(REQUEST_ID, ATTACHMENT_ID)).thenReturn(Utils.getSuccessfulDeleteResponse());
         objectionService.deleteAttachment(
                 REQUEST_ID,
-                COMPANY_NUMBER,
                 OBJECTION_ID,
                 ATTACHMENT_ID
         );
@@ -333,7 +332,6 @@ class ObjectionServiceTest {
         when(objectionRepository.findById(any())).thenReturn(Optional.empty());
         assertThrows(ObjectionNotFoundException.class, () -> objectionService.deleteAttachment(
                 REQUEST_ID,
-                COMPANY_NUMBER,
                 OBJECTION_ID,
                 ATTACHMENT_ID
                 )
@@ -346,7 +344,6 @@ class ObjectionServiceTest {
         when(objectionRepository.findById(any())).thenReturn(Optional.of(objection));
         assertThrows(AttachmentNotFoundException.class, () -> objectionService.deleteAttachment(
                 REQUEST_ID,
-                COMPANY_NUMBER,
                 OBJECTION_ID,
                 ATTACHMENT_ID
                 )
@@ -369,7 +366,6 @@ class ObjectionServiceTest {
 
         assertThrows(ServiceException.class, () -> objectionService.deleteAttachment(
                 REQUEST_ID,
-                COMPANY_NUMBER,
                 OBJECTION_ID,
                 ATTACHMENT_ID
             )
@@ -401,7 +397,6 @@ class ObjectionServiceTest {
 
         assertThrows(ServiceException.class, () -> objectionService.deleteAttachment(
                 REQUEST_ID,
-                COMPANY_NUMBER,
                 OBJECTION_ID,
                 ATTACHMENT_ID
             )
@@ -431,7 +426,6 @@ class ObjectionServiceTest {
 
         assertThrows(ServiceException.class, () -> objectionService.deleteAttachment(
                 REQUEST_ID,
-                COMPANY_NUMBER,
                 OBJECTION_ID,
                 ATTACHMENT_ID
             )
@@ -461,7 +455,6 @@ class ObjectionServiceTest {
 
         assertThrows(ServiceException.class, () -> objectionService.deleteAttachment(
                 REQUEST_ID,
-                COMPANY_NUMBER,
                 OBJECTION_ID,
                 ATTACHMENT_ID
             )
@@ -493,7 +486,6 @@ class ObjectionServiceTest {
 
         assertThrows(ServiceException.class, () -> objectionService.deleteAttachment(
                 REQUEST_ID,
-                COMPANY_NUMBER,
                 OBJECTION_ID,
                 ATTACHMENT_ID
             )

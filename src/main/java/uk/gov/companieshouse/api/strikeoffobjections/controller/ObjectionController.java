@@ -316,7 +316,7 @@ public class ObjectionController {
         );
 
         try {
-            objectionService.deleteAttachment(requestId, companyNumber, objectionId, attachmentId);
+            objectionService.deleteAttachment(requestId, objectionId, attachmentId);
 
             return ResponseEntity.noContent().build();
         } catch (ObjectionNotFoundException e) {
