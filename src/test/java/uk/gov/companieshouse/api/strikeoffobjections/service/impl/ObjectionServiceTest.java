@@ -307,7 +307,7 @@ class ObjectionServiceTest {
     }
 
     @Test
-    void deleteAttachmentTest() throws ObjectionNotFoundException, AttachmentNotFoundException {
+    void deleteAttachmentTest() throws ObjectionNotFoundException, AttachmentNotFoundException, ServiceException {
         Objection existingObjection = new Objection();
         existingObjection.setId(OBJECTION_ID);
         Attachment attachment = new Attachment();
@@ -354,8 +354,7 @@ class ObjectionServiceTest {
     }
 
     @Test
-    void deleteAttachmentHandleClientExceptionFromS3()
-            throws ObjectionNotFoundException, AttachmentNotFoundException {
+    void deleteAttachmentHandleClientExceptionFromS3() {
         Objection objection = Utils.getTestObjection(OBJECTION_ID);
         Utils.getTestAttachments(ATTACHMENT_ID).stream().forEach(
             attachment -> {
@@ -368,11 +367,12 @@ class ObjectionServiceTest {
         when(objectionRepository.findById(objection.getId()))
                 .thenReturn(Optional.of(objection));
 
-        objectionService.deleteAttachment(
+        assertThrows(ServiceException.class, () -> objectionService.deleteAttachment(
                 REQUEST_ID,
                 COMPANY_NUMBER,
                 OBJECTION_ID,
                 ATTACHMENT_ID
+            )
         );
 
         verify(objectionRepository, never()).save(objection);
@@ -385,8 +385,7 @@ class ObjectionServiceTest {
     }
 
     @Test
-    void deleteAttachmentHandleServiceExceptionFromS3()
-            throws ObjectionNotFoundException, AttachmentNotFoundException {
+    void deleteAttachmentHandleServiceExceptionFromS3() {
 
         Objection objection = Utils.getTestObjection(OBJECTION_ID);
         Utils.getTestAttachments(ATTACHMENT_ID).stream().forEach(
@@ -400,11 +399,12 @@ class ObjectionServiceTest {
         when(objectionRepository.findById(objection.getId()))
                 .thenReturn(Optional.of(objection));
 
-        objectionService.deleteAttachment(
+        assertThrows(ServiceException.class, () -> objectionService.deleteAttachment(
                 REQUEST_ID,
                 COMPANY_NUMBER,
                 OBJECTION_ID,
                 ATTACHMENT_ID
+            )
         );
         verify(objectionRepository, never()).save(objection);
         verify(fileTransferApiClient, times(1)).delete(REQUEST_ID, ATTACHMENT_ID);
@@ -416,8 +416,7 @@ class ObjectionServiceTest {
     }
 
     @Test
-    public void deleteAttachmentHandleHttpErrorCodeInFileTransferResponse()
-            throws ObjectionNotFoundException, AttachmentNotFoundException {
+    public void deleteAttachmentHandleHttpErrorCodeInFileTransferResponse() {
         Objection objection = Utils.getTestObjection(OBJECTION_ID);
         Utils.getTestAttachments(ATTACHMENT_ID).stream().forEach(
             attachment -> {
@@ -430,11 +429,12 @@ class ObjectionServiceTest {
         when(objectionRepository.findById(objection.getId()))
                 .thenReturn(Optional.of(objection));
 
-        objectionService.deleteAttachment(
+        assertThrows(ServiceException.class, () -> objectionService.deleteAttachment(
                 REQUEST_ID,
                 COMPANY_NUMBER,
                 OBJECTION_ID,
                 ATTACHMENT_ID
+            )
         );
 
         verify(objectionRepository, never()).save(objection);
@@ -446,8 +446,7 @@ class ObjectionServiceTest {
     }
 
     @Test
-    public void deleteAttachmentHandleNullApiResponseOnDeleteAttachment()
-            throws ObjectionNotFoundException, AttachmentNotFoundException {
+    public void deleteAttachmentHandleNullApiResponseOnDeleteAttachment() {
         Objection objection = Utils.getTestObjection(OBJECTION_ID);
         Utils.getTestAttachments(ATTACHMENT_ID).stream().forEach(
             attachment -> {
@@ -460,11 +459,12 @@ class ObjectionServiceTest {
         when(objectionRepository.findById(objection.getId()))
                 .thenReturn(Optional.of(objection));
 
-        objectionService.deleteAttachment(
+        assertThrows(ServiceException.class, () -> objectionService.deleteAttachment(
                 REQUEST_ID,
                 COMPANY_NUMBER,
                 OBJECTION_ID,
                 ATTACHMENT_ID
+            )
         );
 
         verify(objectionRepository, never()).save(objection);
@@ -476,8 +476,7 @@ class ObjectionServiceTest {
     }
 
     @Test
-    public void deleteAttachmentHandleNullHttpStatusApiResponseOnDeleteAttachment()
-            throws ObjectionNotFoundException, AttachmentNotFoundException {
+    public void deleteAttachmentHandleNullHttpStatusApiResponseOnDeleteAttachment() {
         Objection objection = Utils.getTestObjection(OBJECTION_ID);
         Utils.getTestAttachments(ATTACHMENT_ID).stream().forEach(
             attachment -> {
@@ -492,11 +491,12 @@ class ObjectionServiceTest {
         when(objectionRepository.findById(objection.getId()))
                 .thenReturn(Optional.of(objection));
 
-        objectionService.deleteAttachment(
+        assertThrows(ServiceException.class, () -> objectionService.deleteAttachment(
                 REQUEST_ID,
                 COMPANY_NUMBER,
                 OBJECTION_ID,
                 ATTACHMENT_ID
+            )
         );
 
         verify(objectionRepository, never()).save(objection);

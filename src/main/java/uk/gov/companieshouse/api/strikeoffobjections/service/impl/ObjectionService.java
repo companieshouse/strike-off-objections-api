@@ -40,6 +40,9 @@ public class ObjectionService implements IObjectionService {
 
     private static final String OBJECTION_NOT_FOUND_MESSAGE = "Objection with id: %s, not found";
     private static final String ATTACHMENT_NOT_FOUND_MESSAGE = "Attachment with id: %s, not found";
+    private  static final String UNABLE_TO_DELETE_ATTACHMENT = "Unable to delete attachment";
+    private static final String DELETE_ERROR_MESSAGE = "Unable to delete attachment %s, status code %s";
+    private static final String DELETE_ERROR_MESSAGE_SHORT = "Unable to delete attachment %s";
 
     private ObjectionRepository objectionRepository;
     private ApiLogger logger;
@@ -65,8 +68,7 @@ public class ObjectionService implements IObjectionService {
 
     @Override
     public String createObjection(String requestId, String companyNumber, String ericUserId, String ericUserDetails) throws Exception{
-        Map<String, Object> logMap = new HashMap<>();
-        logMap.put(LogConstants.COMPANY_NUMBER.getValue(), companyNumber);
+        Map<String, Object> logMap = buildLogMap(companyNumber, null);
         logger.infoContext(requestId, "Creating objection", logMap);
 
         final String userEmailAddress = ericHeaderParser.getEmailAddress(ericUserDetails);
@@ -85,9 +87,7 @@ public class ObjectionService implements IObjectionService {
 
     @Override
     public void patchObjection(String requestId, String companyNumber, String objectionId, ObjectionPatch objectionPatch) throws ObjectionNotFoundException {
-        Map<String, Object> logMap = new HashMap<>();
-        logMap.put(LogConstants.COMPANY_NUMBER.getValue(), companyNumber);
-        logMap.put(LogConstants.OBJECTION_ID.getValue(), objectionId);
+        Map<String, Object> logMap = buildLogMap(companyNumber, objectionId);
         logger.infoContext(requestId, "Checking for existing objection", logMap);
 
         Optional<Objection> existingObjection = objectionRepository.findById(objectionId);
@@ -104,8 +104,7 @@ public class ObjectionService implements IObjectionService {
     @Override
     public ServiceResult<String> addAttachment(String requestId, String objectionId, MultipartFile file, String attachmentsUri)
             throws ServiceException, ObjectionNotFoundException {
-        Map<String, Object> logMap = new HashMap<>();
-        logMap.put(LogConstants.OBJECTION_ID.getValue(), objectionId);
+        Map<String, Object> logMap = buildLogMap(null, objectionId);
         logger.infoContext(requestId, "Uploading attachments", logMap);
         FileTransferApiClientResponse response = fileTransferApiClient.upload(requestId, file);
         logger.infoContext(requestId, "Finished uploading attachments", logMap);
@@ -170,9 +169,7 @@ public class ObjectionService implements IObjectionService {
 
     @Override
     public List<Attachment> getAttachments(String requestId, String companyNumber, String objectionId) throws ObjectionNotFoundException {
-        Map<String, Object> logMap = new HashMap<>();
-        logMap.put(LogConstants.COMPANY_NUMBER.getValue(), companyNumber);
-        logMap.put(LogConstants.OBJECTION_ID.getValue(), objectionId);
+        Map<String, Object> logMap = buildLogMap(companyNumber, objectionId);
         logger.infoContext(requestId, "Finding the objection", logMap);
 
         Optional<Objection> objection = objectionRepository.findById(objectionId);
@@ -187,7 +184,7 @@ public class ObjectionService implements IObjectionService {
 
     @Override
     public void deleteAttachment(String requestId, String companyNumber, String objectionId, String attachmentId)
-            throws ObjectionNotFoundException, AttachmentNotFoundException {
+            throws ObjectionNotFoundException, AttachmentNotFoundException, ServiceException {
 
         Objection objection = objectionRepository.findById(objectionId).orElseThrow(
                 () -> new ObjectionNotFoundException(String.format(OBJECTION_NOT_FOUND_MESSAGE, objectionId))
@@ -198,7 +195,8 @@ public class ObjectionService implements IObjectionService {
                 () -> new AttachmentNotFoundException(String.format(ATTACHMENT_NOT_FOUND_MESSAGE, attachmentId))
         );
 
-        boolean successfulDelete = deleteFromS3(requestId, companyNumber, objectionId, attachmentId);
+        Map<String, Object> logMap = buildLogMap(companyNumber, objectionId);
+        boolean successfulDelete = deleteFromS3(requestId, attachmentId, logMap);
 
         if(successfulDelete) {
             attachments.remove(attachment);
@@ -206,33 +204,41 @@ public class ObjectionService implements IObjectionService {
             objection.setAttachments(attachments);
 
             objectionRepository.save(objection);
+        } else {
+            throw new ServiceException(UNABLE_TO_DELETE_ATTACHMENT);
         }
     }
 
-    private boolean deleteFromS3(String requestId, String companyNumber, String objectionId, String attachmentId) {
-        Map<String, Object> logMap = new HashMap<>();
-        logMap.put(LogConstants.COMPANY_NUMBER.getValue(), companyNumber);
-        logMap.put(LogConstants.OBJECTION_ID.getValue(), objectionId);
-        final String errorMessage = "Unable to delete attachment %s, status code %s";
-        final String errorMessageShort = "Unable to delete attachment %s";
+    private boolean deleteFromS3(String requestId, String attachmentId, Map<String, Object>  logMap) {
         try {
             FileTransferApiClientResponse response = fileTransferApiClient.delete(requestId, attachmentId);
             if (response == null || response.getHttpStatus() == null) {
-                logger.infoContext(requestId, String.format(errorMessageShort,
+                logger.infoContext(requestId, String.format(DELETE_ERROR_MESSAGE_SHORT,
                         attachmentId), logMap);
                 return false;
             } else {
                 if (response.getHttpStatus().isError()) {
-                    logger.infoContext(requestId, String.format(errorMessage,
+                    logger.infoContext(requestId, String.format(DELETE_ERROR_MESSAGE,
                             attachmentId, response.getHttpStatus()), logMap);
                     return false;
                 }
             }
         } catch (HttpClientErrorException | HttpServerErrorException e) {
-            logger.errorContext(requestId, String.format(errorMessage,
+            logger.errorContext(requestId, String.format(DELETE_ERROR_MESSAGE,
                     attachmentId, e.getStatusCode()), e, logMap);
             return false;
         }
         return true;
+    }
+
+    private Map<String, Object> buildLogMap(String companyNumber, String objectionId) {
+        Map<String, Object> logMap = new HashMap<>();
+        if(StringUtils.isNotBlank(companyNumber)) {
+            logMap.put(LogConstants.COMPANY_NUMBER.getValue(), companyNumber);
+        }
+        if(StringUtils.isNotBlank(objectionId)) {
+            logMap.put(LogConstants.OBJECTION_ID.getValue(), objectionId);
+        }
+        return logMap;
     }
 }

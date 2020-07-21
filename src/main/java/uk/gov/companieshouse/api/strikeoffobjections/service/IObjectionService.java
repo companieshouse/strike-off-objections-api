@@ -26,5 +26,5 @@ public interface IObjectionService {
             throws ServiceException, ObjectionNotFoundException;
 
     void deleteAttachment(String requestId, String companyNumber, String objectionId, String attachmentId)
-            throws ObjectionNotFoundException, AttachmentNotFoundException;
+            throws ObjectionNotFoundException, AttachmentNotFoundException, ServiceException;
 }

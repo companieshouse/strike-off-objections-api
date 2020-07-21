@@ -49,6 +49,7 @@ public class ObjectionController {
     private static final String ERIC_AUTHORISED_USER = "ERIC-Authorised-User";
     private static final String OBJECTION_NOT_FOUND = "Objection not found";
     private static final String ATTACHMENT_NOT_FOUND = "Attachment not found";
+    public static final String COULD_NOT_DELETE = "Could not delete attachment";
 
     private PluggableResponseEntityFactory responseEntityFactory;
     private IObjectionService objectionService;
@@ -336,6 +337,17 @@ public class ObjectionController {
             );
 
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+
+        } catch(ServiceException e) {
+
+            apiLogger.errorContext(
+                    requestId,
+                    COULD_NOT_DELETE,
+                    e,
+                    logMap
+            );
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+
         } finally {
             apiLogger.infoContext(
                     requestId,

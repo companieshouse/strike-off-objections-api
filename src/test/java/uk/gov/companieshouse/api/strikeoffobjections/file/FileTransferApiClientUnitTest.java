@@ -56,7 +56,7 @@ public class FileTransferApiClientUnitTest {
     }
 
     @Test
-    public void testUpload_success() {
+    public void testUploadSuccess() {
         final ResponseEntity<FileTransferApiResponse> apiResponse = apiSuccessResponse();
 
         when(restTemplate.postForEntity(eq(DUMMY_URL), any(), eq(FileTransferApiResponse.class)))
@@ -69,7 +69,7 @@ public class FileTransferApiClientUnitTest {
     }
 
     @Test
-    public void testUpload_ApiReturnsError() {
+    public void testUploadApiReturnsError() {
         final ResponseEntity<FileTransferApiResponse> apiErrorResponse = apiErrorResponse();
 
         when(restTemplate.postForEntity(eq(DUMMY_URL), any(), eq(FileTransferApiResponse.class))).thenReturn(apiErrorResponse);
@@ -82,7 +82,7 @@ public class FileTransferApiClientUnitTest {
     }
 
     @Test
-    public void testUpload_GenericExceptionResponse() {
+    public void testUploadGenericExceptionResponse() {
         final RestClientException exception = new RestClientException(EXCEPTION_MESSAGE);
 
         when(restTemplate.postForEntity(eq(DUMMY_URL), any(), eq(FileTransferApiResponse.class))).thenThrow(exception);
@@ -94,7 +94,7 @@ public class FileTransferApiClientUnitTest {
     }
 
     @Test
-    public void testDelete_success() {
+    public void testDeleteSuccess() {
         final ResponseEntity<String> apiResponse = new ResponseEntity<>("", HttpStatus.NO_CONTENT);
         when(restTemplate.exchange(eq(DELETE_URL), eq(HttpMethod.DELETE), any(), eq(String.class)))
                 .thenReturn(apiResponse);
@@ -103,7 +103,7 @@ public class FileTransferApiClientUnitTest {
     }
 
     @Test
-    public void testDelete_ApiReturnsError() {
+    public void testDeleteApiReturnsError() {
         final ResponseEntity<String> apiResponse = new ResponseEntity<>("", HttpStatus.INTERNAL_SERVER_ERROR);
 
         when(restTemplate.exchange(eq(DELETE_URL), eq(HttpMethod.DELETE), any(), eq(String.class)))
@@ -116,7 +116,7 @@ public class FileTransferApiClientUnitTest {
     }
 
     @Test
-    public void testDelete_GenericExceptionResponse() {
+    public void testDeleteGenericExceptionResponse() {
         final RestClientException exception = new RestClientException(EXCEPTION_MESSAGE);
 
         when(restTemplate.exchange(eq(DELETE_URL), eq(HttpMethod.DELETE), any(), eq(String.class))).thenThrow(exception);
