@@ -40,7 +40,6 @@ public class ObjectionService implements IObjectionService {
 
     private static final String OBJECTION_NOT_FOUND_MESSAGE = "Objection with id: %s, not found";
     private static final String ATTACHMENT_NOT_FOUND_MESSAGE = "Attachment with id: %s, not found";
-    private  static final String UNABLE_TO_DELETE_ATTACHMENT = "Unable to delete attachment";
     private static final String DELETE_ERROR_MESSAGE = "Unable to delete attachment %s, status code %s";
     private static final String DELETE_ERROR_MESSAGE_SHORT = "Unable to delete attachment %s";
 
@@ -196,39 +195,36 @@ public class ObjectionService implements IObjectionService {
         );
 
         Map<String, Object> logMap = buildLogMap(companyNumber, objectionId);
-        boolean successfulDelete = deleteFromS3(requestId, attachmentId, logMap);
+        deleteFromS3(requestId, attachmentId, logMap);
 
-        if(successfulDelete) {
-            attachments.remove(attachment);
+        attachments.remove(attachment);
 
-            objection.setAttachments(attachments);
+        objection.setAttachments(attachments);
 
-            objectionRepository.save(objection);
-        } else {
-            throw new ServiceException(UNABLE_TO_DELETE_ATTACHMENT);
-        }
+        objectionRepository.save(objection);
+
     }
 
-    private boolean deleteFromS3(String requestId, String attachmentId, Map<String, Object>  logMap) {
+    private void deleteFromS3(String requestId, String attachmentId, Map<String, Object>  logMap) throws ServiceException {
         try {
             FileTransferApiClientResponse response = fileTransferApiClient.delete(requestId, attachmentId);
             if (response == null || response.getHttpStatus() == null) {
-                logger.infoContext(requestId, String.format(DELETE_ERROR_MESSAGE_SHORT,
-                        attachmentId), logMap);
-                return false;
+                String message = String.format(DELETE_ERROR_MESSAGE_SHORT, attachmentId);
+                logger.infoContext(requestId, message, logMap);
+                throw new ServiceException(message);
             } else {
                 if (response.getHttpStatus().isError()) {
-                    logger.infoContext(requestId, String.format(DELETE_ERROR_MESSAGE,
-                            attachmentId, response.getHttpStatus()), logMap);
-                    return false;
+                    String message = String.format(DELETE_ERROR_MESSAGE,
+                            attachmentId, response.getHttpStatus());
+                    logger.infoContext(requestId, message, logMap);
+                    throw new ServiceException(message);
                 }
             }
         } catch (HttpClientErrorException | HttpServerErrorException e) {
-            logger.errorContext(requestId, String.format(DELETE_ERROR_MESSAGE,
-                    attachmentId, e.getStatusCode()), e, logMap);
-            return false;
+            String message = String.format(DELETE_ERROR_MESSAGE, attachmentId, e.getStatusCode());
+            logger.errorContext(requestId, message, e, logMap);
+            throw new ServiceException(message);
         }
-        return true;
     }
 
     private Map<String, Object> buildLogMap(String companyNumber, String objectionId) {
