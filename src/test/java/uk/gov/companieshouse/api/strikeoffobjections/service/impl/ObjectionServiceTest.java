@@ -131,6 +131,30 @@ class ObjectionServiceTest {
     }
 
     @Test
+    void getObjectionWhenObjectionExistsTest() throws Exception {
+        Objection objection = new Objection();
+        objection.setId(OBJECTION_ID);
+        when(objectionRepository.findById(any())).thenReturn(Optional.of(objection));
+
+        Objection returnedObjection = objectionService.getObjection(REQUEST_ID, OBJECTION_ID);
+
+        assertEquals(objection, returnedObjection);
+        verify(objectionRepository, times(1)).findById(OBJECTION_ID);
+    }
+
+    @Test
+    void getObjectionWhenObjectionDoesNotExistTest() {
+        Objection objection = new Objection();
+        objection.setId(OBJECTION_ID);
+        when(objectionRepository.findById(any())).thenReturn(Optional.empty());
+
+        assertThrows(ObjectionNotFoundException.class,
+                () -> objectionService.getObjection(REQUEST_ID, OBJECTION_ID));
+
+        verify(objectionRepository, times(1)).findById(OBJECTION_ID);
+    }
+
+    @Test
     public void canAddAnAttachment() throws Exception {
         Objection existingObjection = new Objection();
         existingObjection.setId(OBJECTION_ID);

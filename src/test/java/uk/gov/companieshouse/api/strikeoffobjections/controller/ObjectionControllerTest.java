@@ -15,6 +15,7 @@ import uk.gov.companieshouse.api.strikeoffobjections.common.ApiLogger;
 import uk.gov.companieshouse.api.strikeoffobjections.exception.AttachmentNotFoundException;
 import uk.gov.companieshouse.api.strikeoffobjections.exception.ObjectionNotFoundException;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Attachment;
+import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Objection;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.ObjectionStatus;
 import uk.gov.companieshouse.api.strikeoffobjections.model.patch.ObjectionPatch;
 import uk.gov.companieshouse.api.strikeoffobjections.model.response.AttachmentResponseDTO;
@@ -64,6 +65,9 @@ class ObjectionControllerTest {
 
     @Mock
     PluggableResponseEntityFactory pluggableResponseEntityFactory;
+
+    @Mock
+    private ObjectionMapper objectionMapper;
 
     @Mock
     private AttachmentMapper attachmentMapper;
@@ -124,6 +128,29 @@ class ObjectionControllerTest {
         ResponseEntity response = objectionController.patchObjection(COMPANY_NUMBER, OBJECTION_ID, objectionPatch, REQUEST_ID);
 
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+    }
+
+    @Test
+    void getObjectionTest() throws Exception {
+        Objection objection = new Objection();
+        objection.setId(OBJECTION_ID);
+        objection.setStatus(ObjectionStatus.OPEN);
+        ObjectionResponseDTO objectionDTO = new ObjectionResponseDTO();
+        objectionDTO.setId(OBJECTION_ID);
+        objectionDTO.setStatus(ObjectionStatus.OPEN);
+        when(objectionMapper.objectionEntityToObjectionResponseDTO(objection)).thenReturn(objectionDTO);
+        when(objectionService.getObjection(any(), any())).thenReturn(objection);
+        when(pluggableResponseEntityFactory.createResponse(any(ServiceResult.class))).thenReturn(
+                ResponseEntity.status(HttpStatus.OK).body(ChResponseBody.createNormalBody(objectionDTO)));
+
+        ResponseEntity<ChResponseBody<ObjectionResponseDTO>> response =
+                objectionController.getObjection(COMPANY_NUMBER, OBJECTION_ID, REQUEST_ID);
+        ChResponseBody<ObjectionResponseDTO> responseBody = response.getBody();
+        ObjectionResponseDTO responseDTO = responseBody.getSuccessBody();
+
+        verify(objectionMapper, times(1)).objectionEntityToObjectionResponseDTO(objection);
+
+        assertEquals(objection.getId(), responseDTO.getId());
     }
 
     @Test

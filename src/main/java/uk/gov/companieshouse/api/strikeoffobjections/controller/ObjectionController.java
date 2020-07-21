@@ -22,6 +22,7 @@ import uk.gov.companieshouse.api.strikeoffobjections.common.LogConstants;
 import uk.gov.companieshouse.api.strikeoffobjections.exception.AttachmentNotFoundException;
 import uk.gov.companieshouse.api.strikeoffobjections.exception.ObjectionNotFoundException;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Attachment;
+import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Objection;
 import uk.gov.companieshouse.api.strikeoffobjections.model.patch.ObjectionPatch;
 import uk.gov.companieshouse.api.strikeoffobjections.model.response.AttachmentResponseDTO;
 import uk.gov.companieshouse.api.strikeoffobjections.model.response.ObjectionResponseDTO;
@@ -54,16 +55,19 @@ public class ObjectionController {
     private IObjectionService objectionService;
 
     private ApiLogger apiLogger;
+    private ObjectionMapper objectionMapper;
     private AttachmentMapper attachmentMapper;
 
     @Autowired
     public ObjectionController(PluggableResponseEntityFactory responseEntityFactory,
             IObjectionService objectionService,
             ApiLogger apiLogger,
+            ObjectionMapper objectionMapper,
             AttachmentMapper attachmentMapper) {
         this.responseEntityFactory = responseEntityFactory;
         this.objectionService = objectionService;
         this.apiLogger = apiLogger;
+        this.objectionMapper = objectionMapper;
         this.attachmentMapper = attachmentMapper;
     }
 
@@ -190,6 +194,45 @@ public class ObjectionController {
             apiLogger.infoContext(
                     requestId,
                     "Finished PATCH /{objectionId} request",
+                    logMap
+            );
+        }
+    }
+
+    @GetMapping("/{objectionId}")
+    public ResponseEntity<ChResponseBody<ObjectionResponseDTO>> getObjection(
+            @PathVariable("companyNumber") String companyNumber,
+            @PathVariable("objectionId") String objectionId,
+            @RequestHeader(value = ERIC_REQUEST_ID_HEADER) String requestId
+    ) {
+        Map<String, Object> logMap = new HashMap<>();
+        logMap.put(LOG_COMPANY_NUMBER_KEY, companyNumber);
+        logMap.put(LOG_OBJECTION_ID_KEY, objectionId);
+
+        apiLogger.infoContext(
+                requestId,
+                "GET /{objectionId} request received",
+                logMap
+        );
+
+        try {
+            Objection objection = objectionService.getObjection(requestId, objectionId);
+            ObjectionResponseDTO responseDTO =
+                    objectionMapper.objectionEntityToObjectionResponseDTO(objection);
+            return responseEntityFactory.createResponse(ServiceResult.found(responseDTO));
+        } catch (ObjectionNotFoundException e) {
+            apiLogger.errorContext(
+                    requestId,
+                    OBJECTION_NOT_FOUND,
+                    e,
+                    logMap
+            );
+
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } finally {
+            apiLogger.infoContext(
+                    requestId,
+                    "Finished GET /{objectionId} request",
                     logMap
             );
         }
