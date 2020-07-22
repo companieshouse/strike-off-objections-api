@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +23,7 @@ public class FileTransferApiClient {
     private static final String UPLOAD = "upload";
     private static final String CONTENT_DISPOSITION_VALUE = "form-data; name=%s; filename=%s";
     private static final String NULL_RESPONSE_MESSAGE = "null response from file transfer api url";
+    private static final String DELETE_URI = "%s/%s";
 
     @Autowired
     private ApiLogger logger;
@@ -129,5 +131,26 @@ public class FileTransferApiClient {
         LinkedMultiValueMap<String, Object> multipartReqMap = new LinkedMultiValueMap<>();
         multipartReqMap.add(UPLOAD, fileHttpEntity);
         return multipartReqMap;
+    }
+
+    /**
+     * Delete a file from S3 via the file-transfer-api
+     * @param fileId of document to be deleted
+     * @return FileTransferApiClientResponse containing the http status
+     */
+    public FileTransferApiClientResponse delete(String requestId, String fileId) {
+        String deleteUrl = String.format(DELETE_URI, fileTransferApiURL, fileId);
+        return makeApiCall(
+            requestId,
+            () -> {
+                HttpEntity<Void> request = new HttpEntity<>(createApiKeyHeader());
+                return restTemplate.exchange(deleteUrl, HttpMethod.DELETE, request, String.class);
+            },
+            responseEntity -> {
+                FileTransferApiClientResponse response = new FileTransferApiClientResponse();
+                response.setHttpStatus(responseEntity.getStatusCode());
+                return response;
+            }
+        );
     }
 }

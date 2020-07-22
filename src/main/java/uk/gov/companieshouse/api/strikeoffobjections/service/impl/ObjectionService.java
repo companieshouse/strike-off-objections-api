@@ -5,6 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.multipart.MultipartFile;
 import uk.gov.companieshouse.api.strikeoffobjections.common.ApiLogger;
 import uk.gov.companieshouse.api.strikeoffobjections.common.LogConstants;
@@ -38,6 +40,8 @@ public class ObjectionService implements IObjectionService {
 
     private static final String OBJECTION_NOT_FOUND_MESSAGE = "Objection with id: %s, not found";
     private static final String ATTACHMENT_NOT_FOUND_MESSAGE = "Attachment with id: %s, not found";
+    private static final String ATTACHMENT_NOT_DELETED = "Unable to delete attachment %s, status code %s";
+    private static final String ATTACHMENT_NOT_DELETED_SHORT = "Unable to delete attachment %s";
 
     private ObjectionRepository objectionRepository;
     private ApiLogger logger;
@@ -63,8 +67,7 @@ public class ObjectionService implements IObjectionService {
 
     @Override
     public String createObjection(String requestId, String companyNumber, String ericUserId, String ericUserDetails) throws Exception{
-        Map<String, Object> logMap = new HashMap<>();
-        logMap.put(LogConstants.COMPANY_NUMBER.getValue(), companyNumber);
+        Map<String, Object> logMap = buildLogMap(companyNumber, null, null);
         logger.infoContext(requestId, "Creating objection", logMap);
 
         final String userEmailAddress = ericHeaderParser.getEmailAddress(ericUserDetails);
@@ -83,9 +86,7 @@ public class ObjectionService implements IObjectionService {
 
     @Override
     public void patchObjection(String requestId, String companyNumber, String objectionId, ObjectionPatch objectionPatch) throws ObjectionNotFoundException {
-        Map<String, Object> logMap = new HashMap<>();
-        logMap.put(LogConstants.COMPANY_NUMBER.getValue(), companyNumber);
-        logMap.put(LogConstants.OBJECTION_ID.getValue(), objectionId);
+        Map<String, Object> logMap = buildLogMap(companyNumber, objectionId, null);
         logger.infoContext(requestId, "Checking for existing objection", logMap);
 
         Optional<Objection> existingObjection = objectionRepository.findById(objectionId);
@@ -109,8 +110,7 @@ public class ObjectionService implements IObjectionService {
     @Override
     public ServiceResult<String> addAttachment(String requestId, String objectionId, MultipartFile file, String attachmentsUri)
             throws ServiceException, ObjectionNotFoundException {
-        Map<String, Object> logMap = new HashMap<>();
-        logMap.put(LogConstants.OBJECTION_ID.getValue(), objectionId);
+        Map<String, Object> logMap = buildLogMap(null, objectionId, null);
         logger.infoContext(requestId, "Uploading attachments", logMap);
         FileTransferApiClientResponse response = fileTransferApiClient.upload(requestId, file);
         logger.infoContext(requestId, "Finished uploading attachments", logMap);
@@ -175,9 +175,7 @@ public class ObjectionService implements IObjectionService {
 
     @Override
     public List<Attachment> getAttachments(String requestId, String companyNumber, String objectionId) throws ObjectionNotFoundException {
-        Map<String, Object> logMap = new HashMap<>();
-        logMap.put(LogConstants.COMPANY_NUMBER.getValue(), companyNumber);
-        logMap.put(LogConstants.OBJECTION_ID.getValue(), objectionId);
+        Map<String, Object> logMap = buildLogMap(companyNumber, objectionId, null);
         logger.infoContext(requestId, "Finding the objection", logMap);
 
         Optional<Objection> objection = objectionRepository.findById(objectionId);
@@ -191,8 +189,8 @@ public class ObjectionService implements IObjectionService {
     }
 
     @Override
-    public void deleteAttachment(String requestId, String companyNumber, String objectionId, String attachmentId)
-            throws ObjectionNotFoundException, AttachmentNotFoundException {
+    public void deleteAttachment(String requestId, String objectionId, String attachmentId)
+            throws ObjectionNotFoundException, AttachmentNotFoundException, ServiceException {
 
         Objection objection = objectionRepository.findById(objectionId).orElseThrow(
                 () -> new ObjectionNotFoundException(String.format(OBJECTION_NOT_FOUND_MESSAGE, objectionId))
@@ -203,10 +201,51 @@ public class ObjectionService implements IObjectionService {
                 () -> new AttachmentNotFoundException(String.format(ATTACHMENT_NOT_FOUND_MESSAGE, attachmentId))
         );
 
+        Map<String, Object> logMap = buildLogMap(null, objectionId, attachmentId);
+        deleteFromS3(requestId, attachmentId, logMap);
+
         attachments.remove(attachment);
 
         objection.setAttachments(attachments);
 
         objectionRepository.save(objection);
+
+    }
+
+    private void deleteFromS3(String requestId, String attachmentId, Map<String, Object>  logMap) throws ServiceException {
+        try {
+            FileTransferApiClientResponse response = fileTransferApiClient.delete(requestId, attachmentId);
+            if (response == null || response.getHttpStatus() == null) {
+                String message = String.format(ATTACHMENT_NOT_DELETED_SHORT, attachmentId);
+                logger.infoContext(requestId, message, logMap);
+                throw new ServiceException(message);
+            } else {
+                if (response.getHttpStatus().isError()) {
+                    String message = String.format(ATTACHMENT_NOT_DELETED,
+                            attachmentId, response.getHttpStatus());
+                    logger.infoContext(requestId, message, logMap);
+                    throw new ServiceException(message);
+                }
+            }
+        } catch (HttpClientErrorException | HttpServerErrorException e) {
+            String message = String.format(ATTACHMENT_NOT_DELETED, attachmentId, e.getStatusCode());
+            logger.errorContext(requestId, message, e, logMap);
+            throw new ServiceException(message);
+        }
+    }
+
+    // TODO OBJ-141 repetitive logging in codebase, needs centralized handler that allows for different parameters.
+    private Map<String, Object> buildLogMap(String companyNumber, String objectionId, String attachmentId) {
+        Map<String, Object> logMap = new HashMap<>();
+        if(StringUtils.isNotBlank(companyNumber)) {
+            logMap.put(LogConstants.COMPANY_NUMBER.getValue(), companyNumber);
+        }
+        if(StringUtils.isNotBlank(objectionId)) {
+            logMap.put(LogConstants.OBJECTION_ID.getValue(), objectionId);
+        }
+        if(StringUtils.isNotBlank(attachmentId)) {
+            logMap.put(LogConstants.ATTACHMENT_ID.getValue(), attachmentId);
+        }
+        return logMap;
     }
 }
