@@ -154,6 +154,15 @@ class ObjectionControllerTest {
     }
 
     @Test
+    void getObjectionObjectionNotFoundTest() throws Exception {
+        doThrow(new ObjectionNotFoundException("Message")).when(objectionService).getObjection(any(), any());
+        ResponseEntity response = objectionController.getObjection(COMPANY_NUMBER, OBJECTION_ID,
+                REQUEST_ID);
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+    }
+
+    @Test
     void getAttachmentsTest() throws Exception {
         List<Attachment> attachments = new ArrayList<Attachment>();
         Attachment attachment = new Attachment();

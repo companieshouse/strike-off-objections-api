@@ -50,6 +50,7 @@ public class ObjectionController {
     private static final String ERIC_AUTHORISED_USER = "ERIC-Authorised-User";
     private static final String OBJECTION_NOT_FOUND = "Objection not found";
     private static final String ATTACHMENT_NOT_FOUND = "Attachment not found";
+    private static final String ERROR_500 = "Internal server error";
 
     private PluggableResponseEntityFactory responseEntityFactory;
     private IObjectionService objectionService;
@@ -229,6 +230,15 @@ public class ObjectionController {
             );
 
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            apiLogger.errorContext(
+                    requestId,
+                    ERROR_500,
+                    e,
+                    logMap
+            );
+
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         } finally {
             apiLogger.infoContext(
                     requestId,
