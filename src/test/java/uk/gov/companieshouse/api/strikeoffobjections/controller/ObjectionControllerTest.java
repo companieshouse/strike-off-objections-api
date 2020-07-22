@@ -163,6 +163,15 @@ class ObjectionControllerTest {
     }
 
     @Test
+    void getObjectionUnexpectedExceptionThrownTest() throws Exception {
+        doThrow(new NullPointerException()).when(objectionService).getObjection(any(), any());
+        ResponseEntity response = objectionController.getObjection(COMPANY_NUMBER, OBJECTION_ID,
+                REQUEST_ID);
+
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+    }
+
+    @Test
     void getAttachmentsTest() throws Exception {
         List<Attachment> attachments = new ArrayList<Attachment>();
         Attachment attachment = new Attachment();
