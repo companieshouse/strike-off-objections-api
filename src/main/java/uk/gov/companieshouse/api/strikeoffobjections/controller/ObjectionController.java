@@ -22,6 +22,7 @@ import uk.gov.companieshouse.api.strikeoffobjections.common.LogConstants;
 import uk.gov.companieshouse.api.strikeoffobjections.exception.AttachmentNotFoundException;
 import uk.gov.companieshouse.api.strikeoffobjections.exception.ObjectionNotFoundException;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Attachment;
+import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Objection;
 import uk.gov.companieshouse.api.strikeoffobjections.model.patch.ObjectionPatch;
 import uk.gov.companieshouse.api.strikeoffobjections.model.response.AttachmentResponseDTO;
 import uk.gov.companieshouse.api.strikeoffobjections.model.response.ObjectionResponseDTO;
@@ -49,22 +50,26 @@ public class ObjectionController {
     private static final String ERIC_AUTHORISED_USER = "ERIC-Authorised-User";
     private static final String OBJECTION_NOT_FOUND = "Objection not found";
     private static final String ATTACHMENT_NOT_FOUND = "Attachment not found";
+    private static final String ERROR_500 = "Internal server error";
     public static final String COULD_NOT_DELETE = "Could not delete attachment";
 
     private PluggableResponseEntityFactory responseEntityFactory;
     private IObjectionService objectionService;
 
     private ApiLogger apiLogger;
+    private ObjectionMapper objectionMapper;
     private AttachmentMapper attachmentMapper;
 
     @Autowired
     public ObjectionController(PluggableResponseEntityFactory responseEntityFactory,
             IObjectionService objectionService,
             ApiLogger apiLogger,
+            ObjectionMapper objectionMapper,
             AttachmentMapper attachmentMapper) {
         this.responseEntityFactory = responseEntityFactory;
         this.objectionService = objectionService;
         this.apiLogger = apiLogger;
+        this.objectionMapper = objectionMapper;
         this.attachmentMapper = attachmentMapper;
     }
 
@@ -191,6 +196,54 @@ public class ObjectionController {
             apiLogger.infoContext(
                     requestId,
                     "Finished PATCH /{objectionId} request",
+                    logMap
+            );
+        }
+    }
+
+    @GetMapping("/{objectionId}")
+    public ResponseEntity<ChResponseBody<ObjectionResponseDTO>> getObjection(
+            @PathVariable("companyNumber") String companyNumber,
+            @PathVariable("objectionId") String objectionId,
+            @RequestHeader(value = ERIC_REQUEST_ID_HEADER) String requestId
+    ) {
+        Map<String, Object> logMap = new HashMap<>();
+        logMap.put(LOG_COMPANY_NUMBER_KEY, companyNumber);
+        logMap.put(LOG_OBJECTION_ID_KEY, objectionId);
+
+        apiLogger.infoContext(
+                requestId,
+                "GET /{objectionId} request received",
+                logMap
+        );
+
+        try {
+            Objection objection = objectionService.getObjection(requestId, objectionId);
+            ObjectionResponseDTO responseDTO =
+                    objectionMapper.objectionEntityToObjectionResponseDTO(objection);
+            return responseEntityFactory.createResponse(ServiceResult.found(responseDTO));
+        } catch (ObjectionNotFoundException e) {
+            apiLogger.errorContext(
+                    requestId,
+                    OBJECTION_NOT_FOUND,
+                    e,
+                    logMap
+            );
+
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            apiLogger.errorContext(
+                    requestId,
+                    ERROR_500,
+                    e,
+                    logMap
+            );
+
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        } finally {
+            apiLogger.infoContext(
+                    requestId,
+                    "Finished GET /{objectionId} request",
                     logMap
             );
         }

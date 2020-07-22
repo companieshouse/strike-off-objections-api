@@ -101,6 +101,13 @@ public class ObjectionService implements IObjectionService {
     }
 
     @Override
+    public Objection getObjection(String requestId, String objectionId) throws ObjectionNotFoundException {
+        return objectionRepository.findById(objectionId).orElseThrow(
+                () -> new ObjectionNotFoundException(String.format(OBJECTION_NOT_FOUND_MESSAGE, objectionId))
+        );
+    }
+
+    @Override
     public ServiceResult<String> addAttachment(String requestId, String objectionId, MultipartFile file, String attachmentsUri)
             throws ServiceException, ObjectionNotFoundException {
         Map<String, Object> logMap = buildLogMap(null, objectionId, null);
