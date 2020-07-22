@@ -164,7 +164,7 @@ class ObjectionControllerTest {
 
     @Test
     void getObjectionUnexpectedExceptionThrownTest() throws Exception {
-        doThrow(new NullPointerException()).when(objectionService).getObjection(any(), any());
+        doThrow(new RuntimeException()).when(objectionService).getObjection(any(), any());
         ResponseEntity response = objectionController.getObjection(COMPANY_NUMBER, OBJECTION_ID,
                 REQUEST_ID);
 
