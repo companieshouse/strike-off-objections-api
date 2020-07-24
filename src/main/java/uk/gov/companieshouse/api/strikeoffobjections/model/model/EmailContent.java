@@ -1,11 +1,14 @@
 package uk.gov.companieshouse.api.strikeoffobjections.model.model;
 
+import java.io.Serializable;
 import java.util.Map;
 
-public class Email {
+public class EmailContent implements Serializable {
+
+    private static final long serialVersionUID = -6001637978376665258L;
 
     public static final class Builder {
-        private String appId;
+        private String originatingAppId;
         private String messageId;
         private String messageType;
         private Map<String, Object> data;
@@ -15,50 +18,50 @@ public class Email {
         public Builder() {
         }
 
-        public Builder appId(String val) {
-            appId = val;
+        public Builder withOriginatingAppId(String val) {
+            originatingAppId = val;
             return this;
         }
 
-        public Builder messageId(String val) {
+        public Builder withMessageId(String val) {
             messageId = val;
             return this;
         }
 
-        public Builder messageType(String val) {
+        public Builder withMessageType(String val) {
             messageType = val;
             return this;
         }
 
-        public Builder data(Map<String, Object> val) {
+        public Builder withData(Map<String, Object> val) {
             data = val;
             return this;
         }
 
-        public Builder emailAddress(String val) {
+        public Builder withEmailAddress(String val) {
             emailAddress = val;
             return this;
         }
 
-        public Builder createdAt(String val) {
+        public Builder withCreatedAt(String val) {
             createdAt = val;
             return this;
         }
 
-        public Email build() {
-            return new Email(this);
+        public EmailContent build() {
+            return new EmailContent(this);
         }
     }
-    
-    private final String appId;
+
+    private final String originatingAppId;
     private final String messageId;
     private final String messageType;
     private final Map<String, Object> data;
     private final String emailAddress;
     private final String createdAt;
 
-    private Email(Builder builder) {
-        this.appId = builder.appId;
+    private EmailContent(Builder builder) {
+        this.originatingAppId = builder.originatingAppId;
         this.messageId = builder.messageId;
         this.messageType = builder.messageType;
         this.data = builder.data;
@@ -66,8 +69,8 @@ public class Email {
         this.createdAt = builder.createdAt;
     }
 
-    public String getAppId() {
-        return appId;
+    public String getOriginatingAppId() {
+        return originatingAppId;
     }
 
     public String getMessageId() {
