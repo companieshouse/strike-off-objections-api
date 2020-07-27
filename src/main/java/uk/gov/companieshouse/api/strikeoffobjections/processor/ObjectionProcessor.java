@@ -24,6 +24,7 @@ public class ObjectionProcessor {
 
     /**
      * Process the specified Objection
+     * Only processes if status is SUBMITTED
      *
      * @param httpRequestId http request id used for logging
      * @param objectionId   id of the objection to process
@@ -38,11 +39,11 @@ public class ObjectionProcessor {
 
         // update status to processing
 
-        // do chips sending
+        // TODO OBJ-139/OBJ-20 do chips sending
 
-        // update status to chips sent
+        // TODO update status to chips sent
 
-        // do email sending
+        // TODO OBJ-113 do email sending
 
         // update status to processed
 
