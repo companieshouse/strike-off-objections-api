@@ -24,8 +24,9 @@ public class ObjectionProcessor {
 
     /**
      * Process the specified Objection
+     *
      * @param httpRequestId http request id used for logging
-     * @param objectionId id of the objection to process
+     * @param objectionId   id of the objection to process
      * @throws ObjectionNotFoundException if objectionId not found in database
      */
     public void process(String httpRequestId, String objectionId) throws ObjectionNotFoundException {

@@ -179,7 +179,8 @@ public class ObjectionController {
             @PathVariable("companyNumber") String companyNumber,
             @PathVariable("objectionId") String objectionId,
             @RequestBody ObjectionPatch objectionPatch,
-            @RequestHeader(value = ERIC_REQUEST_ID_HEADER) String requestId) {
+            @RequestHeader(value = ERIC_REQUEST_ID_HEADER) String requestId
+    ) {
 
         Map<String, Object> logMap = new HashMap<>();
         logMap.put(LOG_COMPANY_NUMBER_KEY, companyNumber);
