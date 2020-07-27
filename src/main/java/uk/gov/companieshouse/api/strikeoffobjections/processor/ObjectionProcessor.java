@@ -32,12 +32,12 @@ public class ObjectionProcessor {
      */
     public void process(String httpRequestId, String objectionId) throws ObjectionNotFoundException {
 
-        // if status != submitted, return (or throw ?)
+        // TODO if status != submitted, return (or throw ?)
 
         // get objection
         Objection objection = objectionService.getObjection(httpRequestId, objectionId);
 
-        // update status to processing
+        // TODO update status to processing
 
         // TODO OBJ-139/OBJ-20 do chips sending
 
@@ -45,7 +45,7 @@ public class ObjectionProcessor {
 
         // TODO OBJ-113 do email sending
 
-        // update status to processed
+        // TODO update status to processed
 
     }
 }
