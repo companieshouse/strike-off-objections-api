@@ -1,5 +1,7 @@
 package uk.gov.companieshouse.api.strikeoffobjections.model.model;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
@@ -16,8 +18,10 @@ class EmailContentTest {
     private static final String EMAIL_ADDRESS = "test@test.com";
     private static final String CREATED_AT = "CREATED_AT";
 
+    private final ObjectMapper objectMapper = new ObjectMapper();
+
     @Test
-    void emailBuilderTest() {
+    void emailBuilderTest() throws JsonProcessingException {
         EmailContent emailContent = new EmailContent.Builder()
                 .withOriginatingAppId(ORIGINATING_APP_ID)
                 .withEmailAddress(EMAIL_ADDRESS)
@@ -30,7 +34,7 @@ class EmailContentTest {
         assertEquals(emailContent.getOriginatingAppId(), ORIGINATING_APP_ID);
         assertEquals(emailContent.getMessageId(), MESSAGE_ID);
         assertEquals(emailContent.getMessageType(), MESSAGE_TYPE);
-        assertEquals(emailContent.getData(), DATA);
+        assertEquals(emailContent.getData(), objectMapper.writeValueAsString(DATA));
         assertEquals(emailContent.getEmailAddress(), EMAIL_ADDRESS);
         assertEquals(emailContent.getCreatedAt(), CREATED_AT);
     }

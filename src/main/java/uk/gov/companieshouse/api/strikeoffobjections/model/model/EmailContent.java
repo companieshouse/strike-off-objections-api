@@ -1,5 +1,8 @@
 package uk.gov.companieshouse.api.strikeoffobjections.model.model;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.io.Serializable;
 import java.util.Map;
 
@@ -11,9 +14,11 @@ public class EmailContent implements Serializable {
         private String originatingAppId;
         private String messageId;
         private String messageType;
-        private Map<String, Object> data;
+        private String data;
         private String emailAddress;
         private String createdAt;
+
+        private final ObjectMapper objectMapper = new ObjectMapper();
 
         public Builder() {
         }
@@ -33,8 +38,8 @@ public class EmailContent implements Serializable {
             return this;
         }
 
-        public Builder withData(Map<String, Object> val) {
-            data = val;
+        public Builder withData(Map<String, Object> val) throws JsonProcessingException {
+            data = objectMapper.writeValueAsString(val);
             return this;
         }
 
@@ -56,7 +61,7 @@ public class EmailContent implements Serializable {
     private final String originatingAppId;
     private final String messageId;
     private final String messageType;
-    private final Map<String, Object> data;
+    private final String data;
     private final String emailAddress;
     private final String createdAt;
 
@@ -81,7 +86,7 @@ public class EmailContent implements Serializable {
         return messageType;
     }
 
-    public Map<String, Object> getData() {
+    public String getData() {
         return data;
     }
 

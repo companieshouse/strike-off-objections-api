@@ -1,5 +1,7 @@
 package uk.gov.companieshouse.api.strikeoffobjections.utils;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import org.apache.avro.Schema;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
@@ -8,11 +10,17 @@ import org.springframework.web.multipart.MultipartFile;
 import uk.gov.companieshouse.api.strikeoffobjections.file.FileTransferApiClientResponse;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Attachment;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Objection;
+import uk.gov.companieshouse.api.strikeoffobjections.model.model.EmailContent;
 
+import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 public class Utils {
 
@@ -63,5 +71,37 @@ public class Utils {
         FileTransferApiClientResponse fileTransferApiClientResponse = new FileTransferApiClientResponse();
         fileTransferApiClientResponse.setHttpStatus(HttpStatus.INTERNAL_SERVER_ERROR);
         return fileTransferApiClientResponse;
+    }
+
+
+    public static EmailContent buildEmailDocument(String appId, String messageId, String messageType,
+                                                  Map<String, Object> data, String recipient,
+                                                  String createdAt) throws JsonProcessingException {
+        EmailContent emailContent = new EmailContent.Builder()
+            .withOriginatingAppId(appId)
+            .withMessageId(messageId)
+            .withMessageType(messageType)
+            .withData(data)
+            .withEmailAddress(recipient)
+            .withCreatedAt(createdAt)
+            .build();
+
+        return emailContent;
+    }
+
+    public static Map<String, Object> getDummyEmailData() {
+        Map<String, Object> data = new HashMap<>();
+        data.put("to", "example@test.co.uk");
+        data.put("subject", "Test objection submitted");
+        data.put("company_name", "TEST COMPANY");
+        data.put("company_number", "00001111");
+        data.put("reason", "Testing this");
+        return data;
+    }
+
+    public static Schema getDummySchema(URL url) throws IOException {
+        String avroSchemaPath = Objects.requireNonNull(url).getFile();
+        Schema.Parser parser = new Schema.Parser();
+        return parser.parse(new File(avroSchemaPath));
     }
 }
