@@ -14,7 +14,7 @@ public class EmailContent implements Serializable {
         private String originatingAppId;
         private String messageId;
         private String messageType;
-        private String data;
+        private Map<String, Object> data;
         private String emailAddress;
         private String createdAt;
 
@@ -38,8 +38,8 @@ public class EmailContent implements Serializable {
             return this;
         }
 
-        public Builder withData(Map<String, Object> val) throws JsonProcessingException {
-            data = objectMapper.writeValueAsString(val);
+        public Builder withData(Map<String, Object> val) {
+            data = val;
             return this;
         }
 
@@ -53,23 +53,25 @@ public class EmailContent implements Serializable {
             return this;
         }
 
-        public EmailContent build() {
-            return new EmailContent(this);
+        public EmailContent build() throws JsonProcessingException {
+            EmailContent emailContent = new EmailContent(this);
+            String dataString = objectMapper.writeValueAsString(data);
+            emailContent.setData(dataString);
+            return emailContent;
         }
     }
 
     private final String originatingAppId;
     private final String messageId;
     private final String messageType;
-    private final String data;
     private final String emailAddress;
     private final String createdAt;
+    private String data;
 
     private EmailContent(Builder builder) {
         this.originatingAppId = builder.originatingAppId;
         this.messageId = builder.messageId;
         this.messageType = builder.messageType;
-        this.data = builder.data;
         this.emailAddress = builder.emailAddress;
         this.createdAt = builder.createdAt;
     }
@@ -86,15 +88,19 @@ public class EmailContent implements Serializable {
         return messageType;
     }
 
-    public String getData() {
-        return data;
-    }
-
     public String getEmailAddress() {
         return emailAddress;
     }
 
     public String getCreatedAt() {
         return createdAt;
+    }
+
+    public String getData() {
+        return data;
+    }
+
+    public void setData(String data) {
+        this.data = data;
     }
 }
