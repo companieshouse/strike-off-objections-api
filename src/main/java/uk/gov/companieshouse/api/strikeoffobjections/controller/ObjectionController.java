@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.multipart.MultipartFile;
@@ -23,9 +22,11 @@ import uk.gov.companieshouse.api.strikeoffobjections.exception.AttachmentNotFoun
 import uk.gov.companieshouse.api.strikeoffobjections.exception.ObjectionNotFoundException;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Attachment;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Objection;
+import uk.gov.companieshouse.api.strikeoffobjections.model.entity.ObjectionStatus;
 import uk.gov.companieshouse.api.strikeoffobjections.model.patch.ObjectionPatch;
 import uk.gov.companieshouse.api.strikeoffobjections.model.response.AttachmentResponseDTO;
 import uk.gov.companieshouse.api.strikeoffobjections.model.response.ObjectionResponseDTO;
+import uk.gov.companieshouse.api.strikeoffobjections.processor.ObjectionProcessor;
 import uk.gov.companieshouse.api.strikeoffobjections.service.IObjectionService;
 import uk.gov.companieshouse.service.ServiceException;
 import uk.gov.companieshouse.service.ServiceResult;
@@ -51,10 +52,11 @@ public class ObjectionController {
     private static final String OBJECTION_NOT_FOUND = "Objection not found";
     private static final String ATTACHMENT_NOT_FOUND = "Attachment not found";
     private static final String ERROR_500 = "Internal server error";
-    public static final String COULD_NOT_DELETE = "Could not delete attachment";
+    private static final String COULD_NOT_DELETE = "Could not delete attachment";
 
     private PluggableResponseEntityFactory responseEntityFactory;
     private IObjectionService objectionService;
+    private ObjectionProcessor objectionProcessor;
 
     private ApiLogger apiLogger;
     private ObjectionMapper objectionMapper;
@@ -62,15 +64,17 @@ public class ObjectionController {
 
     @Autowired
     public ObjectionController(PluggableResponseEntityFactory responseEntityFactory,
-            IObjectionService objectionService,
-            ApiLogger apiLogger,
-            ObjectionMapper objectionMapper,
-            AttachmentMapper attachmentMapper) {
+                               IObjectionService objectionService,
+                               ApiLogger apiLogger,
+                               ObjectionMapper objectionMapper,
+                               AttachmentMapper attachmentMapper,
+                               ObjectionProcessor objectionProcessor) {
         this.responseEntityFactory = responseEntityFactory;
         this.objectionService = objectionService;
         this.apiLogger = apiLogger;
         this.objectionMapper = objectionMapper;
         this.attachmentMapper = attachmentMapper;
+        this.objectionProcessor = objectionProcessor;
     }
 
     @GetMapping("/{objectionId}/attachments/{attachmentId}")
@@ -91,7 +95,7 @@ public class ObjectionController {
                 logMap
         );
 
-        try{
+        try {
             Attachment attachment = objectionService.getAttachment(requestId, companyNumber, objectionId, attachmentId);
             AttachmentResponseDTO responseDTO = attachmentMapper.attachmentEntityToAttachmentResponseDTO(attachment);
 
@@ -161,13 +165,22 @@ public class ObjectionController {
         }
     }
 
+    /**
+     * Updates Objection data and will process the objection if status set to SUBMITTED
+     *
+     * @param companyNumber  the company number
+     * @param objectionId    id of objection record in database
+     * @param objectionPatch data to apply to the objection
+     * @param requestId      http request id used for logging
+     * @return ResponseEntity the api response
+     */
     @PatchMapping("/{objectionId}")
     public ResponseEntity patchObjection(
             @PathVariable("companyNumber") String companyNumber,
             @PathVariable("objectionId") String objectionId,
             @RequestBody ObjectionPatch objectionPatch,
-            @RequestHeader(value = ERIC_REQUEST_ID_HEADER) String requestId
-    ) {
+            @RequestHeader(value = ERIC_REQUEST_ID_HEADER) String requestId) {
+
         Map<String, Object> logMap = new HashMap<>();
         logMap.put(LOG_COMPANY_NUMBER_KEY, companyNumber);
         logMap.put(LOG_OBJECTION_ID_KEY, objectionId);
@@ -181,9 +194,13 @@ public class ObjectionController {
         try {
             objectionService.patchObjection(requestId, companyNumber, objectionId, objectionPatch);
 
+            // if incoming status is Submitted, process the objection
+            if (objectionPatch != null && ObjectionStatus.SUBMITTED == objectionPatch.getStatus()) {
+                objectionProcessor.process(requestId, objectionId);
+            }
+
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } catch (ObjectionNotFoundException e) {
-
             apiLogger.errorContext(
                     requestId,
                     OBJECTION_NOT_FOUND,
@@ -273,7 +290,6 @@ public class ObjectionController {
 
             return responseEntityFactory.createResponse(ServiceResult.found(attachmentResponseDTOs));
         } catch (ObjectionNotFoundException e) {
-
             apiLogger.errorContext(
                     requestId,
                     OBJECTION_NOT_FOUND,
@@ -343,7 +359,7 @@ public class ObjectionController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } finally {
             apiLogger.infoContext(
-                     requestId,
+                    requestId,
                     "Finished POST /{objectionId}/attachments request",
                     logMap
             );
@@ -391,8 +407,7 @@ public class ObjectionController {
 
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 
-        } catch(ServiceException e) {
-
+        } catch (ServiceException e) {
             apiLogger.errorContext(
                     requestId,
                     COULD_NOT_DELETE,

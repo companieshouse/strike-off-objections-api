@@ -20,6 +20,7 @@ import uk.gov.companieshouse.api.strikeoffobjections.model.entity.ObjectionStatu
 import uk.gov.companieshouse.api.strikeoffobjections.model.patch.ObjectionPatch;
 import uk.gov.companieshouse.api.strikeoffobjections.model.response.AttachmentResponseDTO;
 import uk.gov.companieshouse.api.strikeoffobjections.model.response.ObjectionResponseDTO;
+import uk.gov.companieshouse.api.strikeoffobjections.processor.ObjectionProcessor;
 import uk.gov.companieshouse.api.strikeoffobjections.service.IObjectionService;
 import uk.gov.companieshouse.api.strikeoffobjections.utils.Utils;
 import uk.gov.companieshouse.service.ServiceException;
@@ -36,7 +37,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.only;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -58,13 +61,16 @@ class ObjectionControllerTest {
     private static final String ACCESS_URL = "/dummyUrl";
 
     @Mock
-    IObjectionService objectionService;
+    private IObjectionService objectionService;
 
     @Mock
-    ApiLogger apiLogger;
+    private ObjectionProcessor objectionProcessor;
 
     @Mock
-    PluggableResponseEntityFactory pluggableResponseEntityFactory;
+    private ApiLogger apiLogger;
+
+    @Mock
+    private PluggableResponseEntityFactory pluggableResponseEntityFactory;
 
     @Mock
     private ObjectionMapper objectionMapper;
@@ -76,7 +82,7 @@ class ObjectionControllerTest {
     private HttpServletRequest servletRequest;
 
     @InjectMocks
-    ObjectionController objectionController;
+    private ObjectionController objectionController;
 
     @Test
     void createObjectionTest() throws Exception {
@@ -110,7 +116,7 @@ class ObjectionControllerTest {
     }
 
     @Test
-    void  patchObjectionTest() throws  Exception {
+    void patchObjectionTest() {
         ObjectionPatch objectionPatch = new ObjectionPatch();
         objectionPatch.setReason(REASON);
         objectionPatch.setStatus(ObjectionStatus.OPEN);
@@ -120,7 +126,7 @@ class ObjectionControllerTest {
     }
 
     @Test
-    void  patchObjectionNotFoundExceptionTest() throws  Exception {
+    void patchObjectionNotFoundExceptionTest() throws Exception {
         ObjectionPatch objectionPatch = new ObjectionPatch();
         objectionPatch.setReason(REASON);
         objectionPatch.setStatus(ObjectionStatus.OPEN);
@@ -128,6 +134,35 @@ class ObjectionControllerTest {
         ResponseEntity response = objectionController.patchObjection(COMPANY_NUMBER, OBJECTION_ID, objectionPatch, REQUEST_ID);
 
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+    }
+
+    @Test
+    void patchObjectionSubmittedTest() throws ObjectionNotFoundException {
+        ObjectionPatch objectionPatch = new ObjectionPatch();
+        objectionPatch.setReason(REASON);
+        objectionPatch.setStatus(ObjectionStatus.SUBMITTED);
+        ResponseEntity response = objectionController.patchObjection(COMPANY_NUMBER, OBJECTION_ID, objectionPatch, REQUEST_ID);
+
+        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
+        verify(objectionProcessor, only()).process(eq(REQUEST_ID), eq(OBJECTION_ID));
+    }
+
+    @Test
+    void patchObjectionSubmittedNotFoundExceptionTest() throws ObjectionNotFoundException {
+        ObjectionPatch objectionPatch = new ObjectionPatch();
+        objectionPatch.setReason(REASON);
+        objectionPatch.setStatus(ObjectionStatus.SUBMITTED);
+        doThrow(new ObjectionNotFoundException("Message")).when(objectionProcessor).process(anyString(), anyString());
+        ResponseEntity response = objectionController.patchObjection(COMPANY_NUMBER, OBJECTION_ID, objectionPatch, REQUEST_ID);
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+    }
+
+    @Test
+    void patchObjectionNullTest() {
+        ResponseEntity response = objectionController.patchObjection(COMPANY_NUMBER, OBJECTION_ID, null, REQUEST_ID);
+
+        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
     }
 
     @Test

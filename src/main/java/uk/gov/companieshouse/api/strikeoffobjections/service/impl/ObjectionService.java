@@ -66,7 +66,7 @@ public class ObjectionService implements IObjectionService {
     }
 
     @Override
-    public String createObjection(String requestId, String companyNumber, String ericUserId, String ericUserDetails) throws Exception{
+    public String createObjection(String requestId, String companyNumber, String ericUserId, String ericUserDetails) {
         Map<String, Object> logMap = buildLogMap(companyNumber, null, null);
         logger.infoContext(requestId, "Creating objection", logMap);
 
@@ -122,20 +122,20 @@ public class ObjectionService implements IObjectionService {
         String attachmentId = response.getFileId();
         if (StringUtils.isBlank(attachmentId)) {
             throw new ServiceException("No file id returned from file upload");
-        } else {
-            Attachment attachment = createAttachment(file, attachmentId);
-            Objection objection = objectionRepository.findById(objectionId).orElseThrow(
-                    () -> new ObjectionNotFoundException(String.format(OBJECTION_NOT_FOUND_MESSAGE, objectionId))
-            );
-            objection.addAttachment(attachment);
-
-            Links links = createLinks(attachmentsUri, attachmentId);
-            attachment.setLinks(links);
-
-            objectionRepository.save(objection);
-
-            return ServiceResult.accepted(attachmentId);
         }
+
+        Attachment attachment = createAttachment(file, attachmentId);
+        Objection objection = objectionRepository.findById(objectionId).orElseThrow(
+                () -> new ObjectionNotFoundException(String.format(OBJECTION_NOT_FOUND_MESSAGE, objectionId))
+        );
+        objection.addAttachment(attachment);
+
+        Links links = createLinks(attachmentsUri, attachmentId);
+        attachment.setLinks(links);
+
+        objectionRepository.save(objection);
+
+        return ServiceResult.accepted(attachmentId);
     }
 
     @Override
@@ -219,14 +219,14 @@ public class ObjectionService implements IObjectionService {
                 String message = String.format(ATTACHMENT_NOT_DELETED_SHORT, attachmentId);
                 logger.infoContext(requestId, message, logMap);
                 throw new ServiceException(message);
-            } else {
-                if (response.getHttpStatus().isError()) {
-                    String message = String.format(ATTACHMENT_NOT_DELETED,
-                            attachmentId, response.getHttpStatus());
-                    logger.infoContext(requestId, message, logMap);
-                    throw new ServiceException(message);
-                }
             }
+            if (response.getHttpStatus().isError()) {
+                String message = String.format(ATTACHMENT_NOT_DELETED,
+                        attachmentId, response.getHttpStatus());
+                logger.infoContext(requestId, message, logMap);
+                throw new ServiceException(message);
+            }
+
         } catch (HttpClientErrorException | HttpServerErrorException e) {
             String message = String.format(ATTACHMENT_NOT_DELETED, attachmentId, e.getStatusCode());
             logger.errorContext(requestId, message, e, logMap);
