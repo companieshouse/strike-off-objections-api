@@ -1,4 +1,4 @@
-package uk.gov.companieshouse.api.strikeoffobjections.model.model;
+package uk.gov.companieshouse.api.strikeoffobjections.model.email;
 
 import java.io.Serializable;
 import java.util.Map;
