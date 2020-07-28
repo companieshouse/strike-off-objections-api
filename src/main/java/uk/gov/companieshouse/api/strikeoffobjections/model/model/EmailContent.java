@@ -1,6 +1,7 @@
 package uk.gov.companieshouse.api.strikeoffobjections.model.model;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.Map;
 
 public class EmailContent implements Serializable {
@@ -13,10 +14,7 @@ public class EmailContent implements Serializable {
         private String messageType;
         private Map<String, Object> data;
         private String emailAddress;
-        private String createdAt;
-
-        public Builder() {
-        }
+        private LocalDateTime createdAt;
 
         public Builder withOriginatingAppId(String val) {
             originatingAppId = val;
@@ -43,7 +41,7 @@ public class EmailContent implements Serializable {
             return this;
         }
 
-        public Builder withCreatedAt(String val) {
+        public Builder withCreatedAt(LocalDateTime val) {
             createdAt = val;
             return this;
         }
@@ -58,7 +56,7 @@ public class EmailContent implements Serializable {
     private final String messageType;
     private final Map<String, Object> data;
     private final String emailAddress;
-    private final String createdAt;
+    private final LocalDateTime createdAt;
 
     private EmailContent(Builder builder) {
         this.originatingAppId = builder.originatingAppId;
@@ -89,7 +87,8 @@ public class EmailContent implements Serializable {
         return emailAddress;
     }
 
-    public String getCreatedAt() {
+    public LocalDateTime getCreatedAt() {
         return createdAt;
     }
+
 }
