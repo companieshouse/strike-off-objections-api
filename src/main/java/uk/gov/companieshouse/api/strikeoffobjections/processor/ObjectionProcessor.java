@@ -8,7 +8,7 @@ import uk.gov.companieshouse.api.strikeoffobjections.service.IObjectionService;
 
 /**
  * Processes an Objection
- * Will only process Objection is status = SUBMITTED
+ * Will only process Objection if status = SUBMITTED
  * Calls Chips to place stop against company
  * Sends email
  */
@@ -32,7 +32,7 @@ public class ObjectionProcessor {
      */
     public void process(String httpRequestId, String objectionId) throws ObjectionNotFoundException {
 
-        // TODO if status != submitted, return (or throw ?)
+        // TODO if status != submitted, throw an exception
 
         // get objection
         Objection objection = objectionService.getObjection(httpRequestId, objectionId);
