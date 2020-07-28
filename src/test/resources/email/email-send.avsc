@@ -1,0 +1,31 @@
+{
+	"type": "record",
+	"namespace": "email",
+	"name": "email_send",
+	"fields": [
+		{
+			"name": "app_id",
+			"type": "string"
+		},
+		{
+			"name": "message_id",
+			"type": "string"
+		},
+		{
+			"name": "message_type",
+			"type": "string"
+		},
+		{
+			"name": "data",
+			"type": "string"
+		},
+		{
+			"name": "email_address",
+			"type": "string"
+		},
+		{
+			"name": "created_at",
+			"type": "string"
+		}
+	]
+}

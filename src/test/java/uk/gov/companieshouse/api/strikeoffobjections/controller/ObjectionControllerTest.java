@@ -110,7 +110,7 @@ class ObjectionControllerTest {
     }
 
     @Test
-    void  patchObjectionTest() throws  Exception {
+    void  patchObjectionTest() throws Exception {
         ObjectionPatch objectionPatch = new ObjectionPatch();
         objectionPatch.setReason(REASON);
         objectionPatch.setStatus(ObjectionStatus.OPEN);
