@@ -34,6 +34,11 @@ class ObjectionProcessorTest {
 
     @Test
     void processTest() throws ObjectionNotFoundException, InvalidObjectionStatusException {
+        Objection dummyObjection = Utils.getTestObjection(OBJECTION_ID);
+        dummyObjection.setStatus(ObjectionStatus.SUBMITTED);
+
+        when(objectionService.getObjection(HTTP_REQUEST_ID, OBJECTION_ID)).thenReturn(dummyObjection);
+
         objectionProcessor.process(HTTP_REQUEST_ID, OBJECTION_ID);
 
         verify(objectionService, times(1)).getObjection(HTTP_REQUEST_ID, OBJECTION_ID);
