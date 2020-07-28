@@ -27,6 +27,7 @@ import uk.gov.companieshouse.api.strikeoffobjections.model.patch.ObjectionPatch;
 import uk.gov.companieshouse.api.strikeoffobjections.model.response.AttachmentResponseDTO;
 import uk.gov.companieshouse.api.strikeoffobjections.model.response.ObjectionResponseDTO;
 import uk.gov.companieshouse.api.strikeoffobjections.processor.ObjectionProcessor;
+import uk.gov.companieshouse.api.strikeoffobjections.processor.InvalidObjectionStatusException;
 import uk.gov.companieshouse.api.strikeoffobjections.service.IObjectionService;
 import uk.gov.companieshouse.service.ServiceException;
 import uk.gov.companieshouse.service.ServiceResult;
@@ -53,6 +54,7 @@ public class ObjectionController {
     private static final String ATTACHMENT_NOT_FOUND = "Attachment not found";
     private static final String ERROR_500 = "Internal server error";
     private static final String COULD_NOT_DELETE = "Could not delete attachment";
+    private static final String OBJECTION_NOT_PROCESSED = "Objection not processed";
 
     private PluggableResponseEntityFactory responseEntityFactory;
     private IObjectionService objectionService;
@@ -210,6 +212,27 @@ public class ObjectionController {
             );
 
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+
+        } catch (InvalidObjectionStatusException iose) {
+            apiLogger.errorContext(
+                    requestId,
+                    OBJECTION_NOT_PROCESSED,
+                    iose,
+                    logMap
+            );
+
+            return new ResponseEntity<>(HttpStatus.UNPROCESSABLE_ENTITY);
+
+        } catch (Exception e) {
+            apiLogger.errorContext(
+                    requestId,
+                    e.getMessage(),
+                    e,
+                    logMap
+            );
+
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+
         } finally {
             apiLogger.infoContext(
                     requestId,
