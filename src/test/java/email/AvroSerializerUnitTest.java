@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.gov.companieshouse.api.strikeoffobjections.common.FormatUtils;
 import uk.gov.companieshouse.api.strikeoffobjections.email.AvroSerializer;
 import uk.gov.companieshouse.api.strikeoffobjections.model.model.EmailContent;
 import uk.gov.companieshouse.api.strikeoffobjections.utils.Utils;
@@ -32,13 +33,13 @@ public class AvroSerializerUnitTest {
             throws IOException {
         Schema schema = Utils.getDummySchema(this.getClass().getClassLoader().getResource(
                 "email/email-send.avsc"));
-        EmailContent emailContent = Utils.buildEmailDocument(
+        EmailContent emailContent = Utils.buildEmailContent(
                 EMAIL_TEMPLATE_APP_ID,
                 MESSAGE_ID,
                 EMAIL_TEMPLATE_MESSAGE_TYPE,
                 Utils.getDummyEmailData(),
                 RECIPIENT,
-                CREATED_AT.toString());
+                CREATED_AT);
         byte[] byteArray = avroSerializer.serialize(emailContent, schema);
         String result = new String(byteArray);
         assertTrue(result.contains(EMAIL_TEMPLATE_APP_ID));
@@ -50,7 +51,7 @@ public class AvroSerializerUnitTest {
         assertTrue(result.contains(Utils.getDummyEmailData().get("company_number").toString()));
         assertTrue(result.contains(Utils.getDummyEmailData().get("reason").toString()));
         assertTrue(result.contains(RECIPIENT));
-        assertTrue(result.contains(CREATED_AT.toString()));
+        assertTrue(result.contains(FormatUtils.formatTimestamp(CREATED_AT)));
     }
 
 }

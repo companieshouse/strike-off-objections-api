@@ -8,7 +8,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.gov.companieshouse.api.strikeoffobjections.common.FormatUtils;
 import uk.gov.companieshouse.api.strikeoffobjections.email.AvroSerializer;
 import uk.gov.companieshouse.api.strikeoffobjections.email.KafkaEmailClient;
 import uk.gov.companieshouse.api.strikeoffobjections.model.model.EmailContent;
@@ -56,13 +55,13 @@ public class KafkaEmailClientUnitTest {
 
     @BeforeEach
     public void setup() throws IOException {
-        emailContent = Utils.buildEmailDocument(
+        emailContent = Utils.buildEmailContent(
                 EMAIL_NO_LONGER_REQUIRED_TEMPLATE_APP_ID,
                 MESSAGE_ID,
                 NO_LONGER_REQUIRED_TEMPLATE_MESSAGE_TYPE,
                 Utils.getDummyEmailData(),
                 CUSTOMER_EMAIL,
-                FormatUtils.formatTimestamp(CREATED_AT));
+                CREATED_AT);
 
         testSchema = Utils.getDummySchema(this.getClass().getClassLoader().getResource(
                 "email/email-send.avsc"));
@@ -74,7 +73,7 @@ public class KafkaEmailClientUnitTest {
         when(producer.sendAndReturnFuture(any())).thenReturn(MOCKED_FUTURE);
         kafkaEmailClient = new KafkaEmailClient(producer,
                 avroSerializer, testSchema);
-        kafkaEmailClient.sendEmailToKafka(CREATED_AT, emailContent);
+        kafkaEmailClient.sendEmailToKafka(emailContent);
         verify(MOCKED_FUTURE, times(1)).get();
     }
 
@@ -85,7 +84,7 @@ public class KafkaEmailClientUnitTest {
         kafkaEmailClient = new KafkaEmailClient(producer,
                 faultyAvroSerializer, testSchema);
         assertThrows(ServiceException.class, () -> {
-            kafkaEmailClient.sendEmailToKafka(CREATED_AT, emailContent);
+            kafkaEmailClient.sendEmailToKafka(emailContent);
         });
     }
 
@@ -97,7 +96,7 @@ public class KafkaEmailClientUnitTest {
                 avroSerializer, testSchema);
         doThrow(ExecutionException.class).when(FAULTY_MOCKED_FUTURE).get();
         assertThrows(ServiceException.class, () -> {
-            kafkaEmailClient.sendEmailToKafka(CREATED_AT, emailContent);
+            kafkaEmailClient.sendEmailToKafka(emailContent);
         });
     }
 }

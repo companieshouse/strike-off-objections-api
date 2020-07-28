@@ -1,9 +1,7 @@
 package uk.gov.companieshouse.api.strikeoffobjections.model.model;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.Map;
 
 public class EmailContent implements Serializable {
@@ -16,9 +14,7 @@ public class EmailContent implements Serializable {
         private String messageType;
         private Map<String, Object> data;
         private String emailAddress;
-        private String createdAt;
-
-        private final ObjectMapper objectMapper = new ObjectMapper();
+        private LocalDateTime createdAt;
 
         public Builder() {
         }
@@ -48,30 +44,28 @@ public class EmailContent implements Serializable {
             return this;
         }
 
-        public Builder withCreatedAt(String val) {
+        public Builder withCreatedAt(LocalDateTime val) {
             createdAt = val;
             return this;
         }
 
-        public EmailContent build() throws JsonProcessingException {
-            EmailContent emailContent = new EmailContent(this);
-            String dataString = objectMapper.writeValueAsString(data);
-            emailContent.setData(dataString);
-            return emailContent;
+        public EmailContent build() {
+            return new EmailContent(this);
         }
     }
 
     private final String originatingAppId;
     private final String messageId;
     private final String messageType;
+    private final Map<String, Object> data;
     private final String emailAddress;
-    private final String createdAt;
-    private String data;
+    private final LocalDateTime createdAt;
 
     private EmailContent(Builder builder) {
         this.originatingAppId = builder.originatingAppId;
         this.messageId = builder.messageId;
         this.messageType = builder.messageType;
+        this.data = builder.data;
         this.emailAddress = builder.emailAddress;
         this.createdAt = builder.createdAt;
     }
@@ -88,19 +82,16 @@ public class EmailContent implements Serializable {
         return messageType;
     }
 
+    public Map<String, Object> getData() {
+        return data;
+    }
+
     public String getEmailAddress() {
         return emailAddress;
     }
 
-    public String getCreatedAt() {
+    public LocalDateTime getCreatedAt() {
         return createdAt;
     }
 
-    public String getData() {
-        return data;
-    }
-
-    public void setData(String data) {
-        this.data = data;
-    }
 }

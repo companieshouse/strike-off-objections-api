@@ -35,14 +35,14 @@ public class KafkaEmailClient {
         this.schema = schema;
     }
 
-    public void sendEmailToKafka(LocalDateTime currentTimestamp, EmailContent emailContent)
+    public void sendEmailToKafka(EmailContent emailContent)
             throws ServiceException {
         try {
             Message message = new Message();
             byte[] serializedData = avroSerializer.serialize(emailContent, schema);
             message.setValue(serializedData);
             message.setTopic(emailSendQueueTopic);
-            message.setTimestamp(currentTimestamp.atZone(ZoneId.systemDefault()).toEpochSecond());
+            message.setTimestamp(emailContent.getCreatedAt().atZone(ZoneId.systemDefault()).toEpochSecond());
             Future<RecordMetadata> future = producer.sendAndReturnFuture(message);
             future.get();
         } catch (IOException | ExecutionException e) {

@@ -16,6 +16,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -74,9 +75,9 @@ public class Utils {
     }
 
 
-    public static EmailContent buildEmailDocument(String appId, String messageId, String messageType,
-                                                  Map<String, Object> data, String recipient,
-                                                  String createdAt) throws JsonProcessingException {
+    public static EmailContent buildEmailContent(String appId, String messageId, String messageType,
+                                                 Map<String, Object> data, String recipient,
+                                                 LocalDateTime createdAt) throws JsonProcessingException {
         EmailContent emailContent = new EmailContent.Builder()
             .withOriginatingAppId(appId)
             .withMessageId(messageId)
