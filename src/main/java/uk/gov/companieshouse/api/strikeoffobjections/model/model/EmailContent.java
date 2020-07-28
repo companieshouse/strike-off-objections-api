@@ -16,9 +16,6 @@ public class EmailContent implements Serializable {
         private String emailAddress;
         private LocalDateTime createdAt;
 
-        public Builder() {
-        }
-
         public Builder withOriginatingAppId(String val) {
             originatingAppId = val;
             return this;
