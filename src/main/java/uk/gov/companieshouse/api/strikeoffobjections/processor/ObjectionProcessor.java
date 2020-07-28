@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import uk.gov.companieshouse.api.strikeoffobjections.common.ApiLogger;
 import uk.gov.companieshouse.api.strikeoffobjections.common.LogConstants;
+import uk.gov.companieshouse.api.strikeoffobjections.exception.InvalidObjectionStatusException;
 import uk.gov.companieshouse.api.strikeoffobjections.exception.ObjectionNotFoundException;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Objection;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.ObjectionStatus;
@@ -47,6 +48,10 @@ public class ObjectionProcessor {
      */
     public void process(String httpRequestId, String objectionId)
             throws ObjectionNotFoundException, InvalidObjectionStatusException {
+
+        Map<String, Object> logMap = new HashMap<>();
+        logMap.put(LOG_OBJECTION_ID_KEY, objectionId);
+        apiLogger.infoContext(httpRequestId, "Starting objection processing", logMap);
 
         Objection objection = getObjectionForProcessing(httpRequestId, objectionId);
 

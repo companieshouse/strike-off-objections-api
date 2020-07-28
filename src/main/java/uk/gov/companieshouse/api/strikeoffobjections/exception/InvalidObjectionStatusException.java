@@ -1,4 +1,4 @@
-package uk.gov.companieshouse.api.strikeoffobjections.processor;
+package uk.gov.companieshouse.api.strikeoffobjections.exception;
 
 /**
  * Thrown when the Objection status is in an invalid state
