@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 import uk.gov.companieshouse.api.strikeoffobjections.email.KafkaRestClient;
 
+import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
@@ -36,8 +37,9 @@ public class KafkaRestClientUnitTest {
 
     @Test
     public void testExchangeHasBeenCalled() {
-        restClient.getSchema(schemaRegistryUrl, emailSchemaUri);
+        byte[] schema = restClient.getSchema(schemaRegistryUrl, emailSchemaUri);
         verify(restTemplate, times(1)).exchange(eq(schemaRegistryUrl + emailSchemaUri), eq(HttpMethod.GET), any(),
                 eq(byte[].class));
+        assertEquals(response.getBody(), schema);
     }
 }
