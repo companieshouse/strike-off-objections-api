@@ -12,6 +12,7 @@ import uk.gov.companieshouse.api.strikeoffobjections.model.entity.ObjectionStatu
 import uk.gov.companieshouse.api.strikeoffobjections.service.IObjectionService;
 import uk.gov.companieshouse.api.strikeoffobjections.utils.Utils;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -45,7 +46,7 @@ class ObjectionProcessorTest {
     }
 
     @Test
-    void processThrowsNotFoundTest() throws ObjectionNotFoundException {
+    void processThrowsObjectionNotFoundExceptionTest() throws ObjectionNotFoundException {
         when(objectionService.getObjection(HTTP_REQUEST_ID, OBJECTION_ID))
                 .thenThrow(new ObjectionNotFoundException("not found"));
 
