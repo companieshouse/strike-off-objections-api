@@ -7,6 +7,7 @@ import uk.gov.companieshouse.api.model.company.CompanyProfileApi;
 import uk.gov.companieshouse.api.strikeoffobjections.common.ApiLogger;
 import uk.gov.companieshouse.api.strikeoffobjections.email.KafkaEmailClient;
 import uk.gov.companieshouse.api.strikeoffobjections.model.email.EmailContent;
+import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Objection;
 import uk.gov.companieshouse.api.strikeoffobjections.service.ICompanyProfileService;
 import uk.gov.companieshouse.api.strikeoffobjections.service.IEmailService;
 import uk.gov.companieshouse.service.ServiceException;
@@ -53,9 +54,7 @@ public class EmailService implements IEmailService {
             String requestId,
             String ericAuthorisedUser,
             String companyNumber,
-            String objectionId,
-            List<String> attachmentNames
-
+            Objection objection
     ) throws ServiceException {
         CompanyProfileApi companyProfile = companyProfileService.getCompanyProfile(requestId, companyNumber);
 
@@ -67,8 +66,9 @@ public class EmailService implements IEmailService {
         data.put("full_name", fullName);
         data.put("company_name", companyName);
         data.put("company_number", companyNumber);
-        data.put("objection_id", objectionId);
-        data.put("attachment_names", attachmentNames);
+        data.put("objection_id", objection.getId());
+        data.put("reason", objection.getReason());
+        data.put("attachments", objection.getAttachments());
 
         EmailContent emailContent = new EmailContent.Builder()
                 .withOriginatingAppId(originatingAppId)
