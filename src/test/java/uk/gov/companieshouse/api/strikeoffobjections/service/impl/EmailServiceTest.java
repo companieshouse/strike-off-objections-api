@@ -32,8 +32,8 @@ class EmailServiceTest {
     private static final String COMPANY_NUMBER = "COMPANY_NUMBER";
     private static final LocalDateTime LOCAL_DATE_TIME = LocalDateTime.of(2020, 12, 10, 8, 0);
     private static final String OBJECTION_ID = "OBJECTION_ID";
-    private static final String E_MAIL = "demo@ch.gov.uk";
-    private static final String AUTH_USER = E_MAIL + "; forename=demoForename; surname=demoSurname";
+    private static final String EMAIL = "demo@ch.gov.uk";
+    private static final String AUTH_USER = EMAIL + "; forename=demoForename; surname=demoSurname";
     private static final String FULL_NAME = "demoForename demoSurname";
     private static final List<String> ATTACHMENT_NAMES = Arrays.asList("Attachment 1", "Attachment 2");
 
@@ -60,7 +60,7 @@ class EmailServiceTest {
         when(companyProfileService.getCompanyProfile(REQUEST_ID, COMPANY_NUMBER))
                 .thenReturn(Utils.getMockCompanyProfile(COMPANY_NUMBER));
         when(dateTimeSupplier.get()).thenReturn(LOCAL_DATE_TIME);
-        when(ericHeaderParser.getEmailAddress(AUTH_USER)).thenReturn(E_MAIL);
+        when(ericHeaderParser.getEmailAddress(AUTH_USER)).thenReturn(EMAIL);
         when(ericHeaderParser.getFullName(AUTH_USER)).thenReturn(FULL_NAME);
 
         emailService.sendObjectionSubmittedCustomerEmail(
@@ -76,7 +76,7 @@ class EmailServiceTest {
 
         EmailContent emailContent = emailContentArgumentCaptor.getValue();
 
-        assertEquals(E_MAIL, emailContent.getEmailAddress());
+        assertEquals(EMAIL, emailContent.getEmailAddress());
 
         Map<String, Object> data = emailContent.getData();
 

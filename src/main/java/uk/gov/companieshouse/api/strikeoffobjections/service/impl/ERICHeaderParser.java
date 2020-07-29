@@ -39,16 +39,25 @@ public class ERICHeaderParser {
         if (ericAuthorisedUser != null) {
             List<String> values = Arrays.asList(ericAuthorisedUser.split(DELIMITER));
             values.parallelStream().forEach(
-                    v -> {
-                        if (v.contains("forename=")) {
-                            foreName.set(v.substring(10));
-                        } else if (v.contains("surname=")) {
-                            surname.set(v.substring(9));
+                    value -> {
+                        if (value.contains("forename")) {
+                            foreName.set(value.substring(value.lastIndexOf('=') + 1));
+                        } else if (value.contains("surname")) {
+                            surname.set(value.substring(value.lastIndexOf('=') + 1));
                         }
                     }
             );
         }
 
-        return foreName.get() + " " + surname.get();
+        String fullName ="";
+
+        if (foreName.get() != null) {
+            fullName = fullName.concat(foreName.get() + " ");
+        }
+
+        if(surname.get() != null) {
+            fullName = fullName.concat(surname.get());
+        }
+        return fullName;
     }
 }
