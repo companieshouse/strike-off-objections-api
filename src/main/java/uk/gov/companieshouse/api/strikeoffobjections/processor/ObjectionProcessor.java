@@ -54,7 +54,7 @@ public class ObjectionProcessor {
 
         Map<String, Object> logMap = new HashMap<>();
         logMap.put(LOG_OBJECTION_ID_KEY, objection.getId());
-        apiLogger.infoContext(httpRequestId, "Starting objection processing", logMap);
+        apiLogger.debugContext(httpRequestId, "Starting objection processing", logMap);
 
         validateObjectionStatus(objection, httpRequestId);
 

@@ -163,7 +163,8 @@ public class ObjectionController {
     }
 
     /**
-     * Updates Objection data and will process the objection if status set to SUBMITTED
+     * Updates Objection data and will process the objection if status
+     * updated from OPEN to SUBMITTED
      *
      * @param companyNumber  the company number
      * @param objectionId    id of objection record in database

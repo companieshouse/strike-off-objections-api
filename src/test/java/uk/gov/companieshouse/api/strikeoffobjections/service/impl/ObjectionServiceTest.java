@@ -163,7 +163,7 @@ class ObjectionServiceTest {
     }
 
     @Test
-    void patchObjectionSubmittedThrowsInvalidObjectionStatusExceptionTest() throws Exception {
+    void patchObjectionPropagatesProcessInvalidStatusExceptionTest() throws Exception {
         Objection existingObjection = new Objection();
         existingObjection.setId(OBJECTION_ID);
         existingObjection.setStatus(ObjectionStatus.OPEN);
@@ -207,7 +207,7 @@ class ObjectionServiceTest {
     }
 
     @Test
-    void patchObjectionWithIncorrectSubmittedStatusTest() throws Exception {
+    void patchObjectionWithIncorrectSubmittedStatusTest() {
         Objection existingObjection = new Objection();
         existingObjection.setId(OBJECTION_ID);
         existingObjection.setStatus(ObjectionStatus.PROCESSED);
@@ -299,7 +299,7 @@ class ObjectionServiceTest {
 
         when(objectionRepository.findById(any())).thenReturn(Optional.of(existingObjection));
 
-        ServiceResult<String> attachmentIdResult = objectionService.addAttachment(
+        objectionService.addAttachment(
                  REQUEST_ID, OBJECTION_ID, Utils.mockMultipartFile(), ACCESS_URL);
 
         List<Attachment> objectionAttachments = existingObjection.getAttachments();
@@ -324,7 +324,7 @@ class ObjectionServiceTest {
     }
 
     @Test
-    void getAttachmentsWhenObjectionDoesNotExistTest() throws Exception {
+    void getAttachmentsWhenObjectionDoesNotExistTest() {
         when(objectionRepository.findById(any())).thenReturn(Optional.empty());
 
         assertThrows(ObjectionNotFoundException.class, () -> objectionService.getAttachments(REQUEST_ID, COMPANY_NUMBER, OBJECTION_ID));
@@ -474,11 +474,7 @@ class ObjectionServiceTest {
     @Test
     void deleteAttachmentHandleClientExceptionFromS3() {
         Objection objection = Utils.getTestObjection(OBJECTION_ID);
-        Utils.getTestAttachments(ATTACHMENT_ID).stream().forEach(
-            attachment -> {
-                objection.addAttachment(attachment);
-            }
-        );
+        Utils.getTestAttachments(ATTACHMENT_ID).forEach(objection::addAttachment);
 
         HttpServerErrorException clientException = new HttpServerErrorException(HttpStatus.BAD_REQUEST);
         when(fileTransferApiClient.delete(REQUEST_ID, ATTACHMENT_ID)).thenThrow(clientException);
@@ -505,11 +501,7 @@ class ObjectionServiceTest {
     void deleteAttachmentHandleServiceExceptionFromS3() {
 
         Objection objection = Utils.getTestObjection(OBJECTION_ID);
-        Utils.getTestAttachments(ATTACHMENT_ID).stream().forEach(
-            attachment -> {
-                objection.addAttachment(attachment);
-            }
-        );
+        Utils.getTestAttachments(ATTACHMENT_ID).forEach(objection::addAttachment);
 
         HttpServerErrorException serviceException = new HttpServerErrorException(HttpStatus.GATEWAY_TIMEOUT);
         when(fileTransferApiClient.delete(REQUEST_ID, ATTACHMENT_ID)).thenThrow(serviceException);
@@ -534,11 +526,7 @@ class ObjectionServiceTest {
     @Test
     void deleteAttachmentHandleHttpErrorCodeInFileTransferResponse() {
         Objection objection = Utils.getTestObjection(OBJECTION_ID);
-        Utils.getTestAttachments(ATTACHMENT_ID).stream().forEach(
-            attachment -> {
-                objection.addAttachment(attachment);
-            }
-        );
+        Utils.getTestAttachments(ATTACHMENT_ID).forEach(objection::addAttachment);
 
         when(fileTransferApiClient.delete(REQUEST_ID, ATTACHMENT_ID)).thenReturn(Utils.getUnsuccessfulFileTransferApiResponse());
 
@@ -563,11 +551,7 @@ class ObjectionServiceTest {
     @Test
     void deleteAttachmentHandleNullApiResponseOnDeleteAttachment() {
         Objection objection = Utils.getTestObjection(OBJECTION_ID);
-        Utils.getTestAttachments(ATTACHMENT_ID).stream().forEach(
-            attachment -> {
-                objection.addAttachment(attachment);
-            }
-        );
+        Utils.getTestAttachments(ATTACHMENT_ID).forEach(objection::addAttachment);
 
         when(fileTransferApiClient.delete(REQUEST_ID, ATTACHMENT_ID)).thenReturn(null);
 
@@ -592,11 +576,7 @@ class ObjectionServiceTest {
     @Test
     void deleteAttachmentHandleNullHttpStatusApiResponseOnDeleteAttachment() {
         Objection objection = Utils.getTestObjection(OBJECTION_ID);
-        Utils.getTestAttachments(ATTACHMENT_ID).stream().forEach(
-            attachment -> {
-                objection.addAttachment(attachment);
-            }
-        );
+        Utils.getTestAttachments(ATTACHMENT_ID).forEach(objection::addAttachment);
 
         FileTransferApiClientResponse response = new FileTransferApiClientResponse();
         response.setHttpStatus(null);
