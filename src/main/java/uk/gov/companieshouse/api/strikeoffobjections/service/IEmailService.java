@@ -10,4 +10,11 @@ public interface IEmailService {
             String companyNumber,
             Objection objection
     ) throws ServiceException;
+
+    void sendObjectionSubmittedDissolutionTeamEmail(
+            String requestId,
+            String ericAuthorisedUser,
+            String companyNumber,
+            Objection objection
+    ) throws ServiceException;
 }
