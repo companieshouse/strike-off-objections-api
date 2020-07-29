@@ -1,12 +1,9 @@
 package uk.gov.companieshouse.api.strikeoffobjections.model.email;
 
-import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Map;
 
-public class EmailContent implements Serializable {
-
-    private static final long serialVersionUID = -6001637978376665258L;
+public class EmailContent {
 
     public static final class Builder {
         private String originatingAppId;

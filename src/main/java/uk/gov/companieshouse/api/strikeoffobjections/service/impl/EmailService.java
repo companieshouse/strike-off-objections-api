@@ -21,7 +21,7 @@ import java.util.function.Supplier;
 @Service
 public class EmailService implements IEmailService {
 
-    @Value("${EMAIL_SUBMITTED_EXTERNAL_TEMPLATE_APP_ID}")
+    @Value("${EMAIL_SENDER_APP_ID}")
     private String originatingAppId;
 
     @Value(("${EMAIL_SUBMITTED_EXTERNAL_TEMPLATE_MESSAGE_TYPE}"))
