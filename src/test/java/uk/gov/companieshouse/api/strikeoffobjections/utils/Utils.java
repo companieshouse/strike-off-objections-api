@@ -7,10 +7,11 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
+import uk.gov.companieshouse.api.model.company.CompanyProfileApi;
 import uk.gov.companieshouse.api.strikeoffobjections.file.FileTransferApiClientResponse;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Attachment;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Objection;
-import uk.gov.companieshouse.api.strikeoffobjections.model.model.EmailContent;
+import uk.gov.companieshouse.api.strikeoffobjections.model.email.EmailContent;
 
 import java.io.File;
 import java.io.IOException;
@@ -77,8 +78,8 @@ public class Utils {
 
     public static EmailContent buildEmailContent(String appId, String messageId, String messageType,
                                                  Map<String, Object> data, String recipient,
-                                                 LocalDateTime createdAt) throws JsonProcessingException {
-        EmailContent emailContent = new EmailContent.Builder()
+                                                 LocalDateTime createdAt) {
+        return new EmailContent.Builder()
             .withOriginatingAppId(appId)
             .withMessageId(messageId)
             .withMessageType(messageType)
@@ -86,8 +87,6 @@ public class Utils {
             .withEmailAddress(recipient)
             .withCreatedAt(createdAt)
             .build();
-
-        return emailContent;
     }
 
     public static Map<String, Object> getDummyEmailData() {
@@ -104,5 +103,13 @@ public class Utils {
         String avroSchemaPath = Objects.requireNonNull(url).getFile();
         Schema.Parser parser = new Schema.Parser();
         return parser.parse(new File(avroSchemaPath));
+    }
+
+    public static CompanyProfileApi getMockCompanyProfile(String companyNumber) {
+        CompanyProfileApi companyProfileApi = new CompanyProfileApi();
+        companyProfileApi.setCompanyNumber(companyNumber);
+        companyProfileApi.setCompanyName("Company: " + companyNumber);
+
+        return companyProfileApi;
     }
 }

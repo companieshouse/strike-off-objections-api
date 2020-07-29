@@ -10,7 +10,7 @@ import org.apache.avro.io.BinaryEncoder;
 import org.apache.avro.io.EncoderFactory;
 import org.springframework.stereotype.Component;
 import uk.gov.companieshouse.api.strikeoffobjections.common.FormatUtils;
-import uk.gov.companieshouse.api.strikeoffobjections.model.model.EmailContent;
+import uk.gov.companieshouse.api.strikeoffobjections.model.email.EmailContent;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

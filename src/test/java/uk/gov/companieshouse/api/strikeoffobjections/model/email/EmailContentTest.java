@@ -1,4 +1,4 @@
-package uk.gov.companieshouse.api.strikeoffobjections.model.model;
+package uk.gov.companieshouse.api.strikeoffobjections.model.email;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.jupiter.api.Test;
