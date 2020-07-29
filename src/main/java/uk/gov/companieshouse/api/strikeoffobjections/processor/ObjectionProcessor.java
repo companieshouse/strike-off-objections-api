@@ -5,17 +5,15 @@ import org.springframework.stereotype.Component;
 import uk.gov.companieshouse.api.strikeoffobjections.common.ApiLogger;
 import uk.gov.companieshouse.api.strikeoffobjections.common.LogConstants;
 import uk.gov.companieshouse.api.strikeoffobjections.exception.InvalidObjectionStatusException;
-import uk.gov.companieshouse.api.strikeoffobjections.exception.ObjectionNotFoundException;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Objection;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.ObjectionStatus;
-import uk.gov.companieshouse.api.strikeoffobjections.service.IObjectionService;
 
 import java.util.HashMap;
 import java.util.Map;
 
 /**
  * Processes an Objection
- *
+ * <p>
  * Will only process Objection if status = SUBMITTED
  * Calls Chips to place stop against company
  * Sends email
@@ -27,13 +25,10 @@ public class ObjectionProcessor {
             "Objection %s has status %s. Cannot process unless status = SUBMITTED";
     private static final String LOG_OBJECTION_ID_KEY = LogConstants.OBJECTION_ID.getValue();
 
-    private IObjectionService objectionService;
     private ApiLogger apiLogger;
 
     @Autowired
-    public ObjectionProcessor(IObjectionService objectionService,
-                              ApiLogger apiLogger) {
-        this.objectionService = objectionService;
+    public ObjectionProcessor(ApiLogger apiLogger) {
         this.apiLogger = apiLogger;
     }
 
@@ -41,19 +36,27 @@ public class ObjectionProcessor {
      * Process the specified Objection
      * Only processes if status is SUBMITTED
      *
+     * @param objection     the objection to process
      * @param httpRequestId http request id used for logging
-     * @param objectionId   id of the objection to process
-     * @throws ObjectionNotFoundException      if objectionId not found in database
      * @throws InvalidObjectionStatusException if the Objection is not currently in status SUBMITTED when this is called
      */
-    public void process(String httpRequestId, String objectionId)
-            throws ObjectionNotFoundException, InvalidObjectionStatusException {
+    public void process(Objection objection, String httpRequestId)
+            throws InvalidObjectionStatusException {
+
+        if (objection == null) {
+            throw new IllegalArgumentException(
+                    "Objection arg missing from ObjectionProcessor.process(Objection, String)");
+        }
+        if (httpRequestId == null) {
+            throw new IllegalArgumentException(
+                    "httpRequestId arg missing from ObjectionProcessor.process(Objection, String)");
+        }
 
         Map<String, Object> logMap = new HashMap<>();
-        logMap.put(LOG_OBJECTION_ID_KEY, objectionId);
+        logMap.put(LOG_OBJECTION_ID_KEY, objection.getId());
         apiLogger.infoContext(httpRequestId, "Starting objection processing", logMap);
 
-        Objection objection = getObjectionForProcessing(httpRequestId, objectionId);
+        validateObjectionStatus(objection, httpRequestId);
 
         // TODO update status to processing
 
@@ -67,24 +70,19 @@ public class ObjectionProcessor {
 
     }
 
-    private Objection getObjectionForProcessing(String httpRequestId, String objectionId)
-            throws ObjectionNotFoundException, InvalidObjectionStatusException {
+    private void validateObjectionStatus(Objection objection, String httpRequestId)
+            throws InvalidObjectionStatusException {
 
-        // get objection
-        Objection objection = objectionService.getObjection(httpRequestId, objectionId);
-
-        // if status not = submitted, throw exception
+        // if status not SUBMITTED, throw exception
         if (objection != null && ObjectionStatus.SUBMITTED != objection.getStatus()) {
             InvalidObjectionStatusException statusException = new InvalidObjectionStatusException(
-                    String.format(INVALID_START_STATUS_MSG, objectionId, objection.getStatus()));
+                    String.format(INVALID_START_STATUS_MSG, objection.getId(), objection.getStatus()));
 
             Map<String, Object> logMap = new HashMap<>();
-            logMap.put(LOG_OBJECTION_ID_KEY, objectionId);
+            logMap.put(LOG_OBJECTION_ID_KEY, objection.getId());
             apiLogger.errorContext(httpRequestId, statusException.getMessage(), statusException, logMap);
 
             throw statusException;
         }
-
-        return objection;
     }
 }

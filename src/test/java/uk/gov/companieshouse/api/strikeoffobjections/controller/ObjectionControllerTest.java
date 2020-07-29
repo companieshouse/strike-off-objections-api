@@ -13,6 +13,7 @@ import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.multipart.MultipartFile;
 import uk.gov.companieshouse.api.strikeoffobjections.common.ApiLogger;
 import uk.gov.companieshouse.api.strikeoffobjections.exception.AttachmentNotFoundException;
+import uk.gov.companieshouse.api.strikeoffobjections.exception.InvalidObjectionStatusException;
 import uk.gov.companieshouse.api.strikeoffobjections.exception.ObjectionNotFoundException;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Attachment;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Objection;
@@ -20,8 +21,6 @@ import uk.gov.companieshouse.api.strikeoffobjections.model.entity.ObjectionStatu
 import uk.gov.companieshouse.api.strikeoffobjections.model.patch.ObjectionPatch;
 import uk.gov.companieshouse.api.strikeoffobjections.model.response.AttachmentResponseDTO;
 import uk.gov.companieshouse.api.strikeoffobjections.model.response.ObjectionResponseDTO;
-import uk.gov.companieshouse.api.strikeoffobjections.exception.InvalidObjectionStatusException;
-import uk.gov.companieshouse.api.strikeoffobjections.processor.ObjectionProcessor;
 import uk.gov.companieshouse.api.strikeoffobjections.service.IObjectionService;
 import uk.gov.companieshouse.api.strikeoffobjections.utils.Utils;
 import uk.gov.companieshouse.service.ServiceException;
@@ -40,9 +39,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.only;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -61,9 +58,6 @@ class ObjectionControllerTest {
 
     @Mock
     private IObjectionService objectionService;
-
-    @Mock
-    private ObjectionProcessor objectionProcessor;
 
     @Mock
     private ApiLogger apiLogger;
@@ -135,47 +129,27 @@ class ObjectionControllerTest {
     }
 
     @Test
-    void patchObjectionSubmittedTest() throws ObjectionNotFoundException, InvalidObjectionStatusException {
-        ObjectionPatch objectionPatch = new ObjectionPatch();
-        objectionPatch.setReason(REASON);
-        objectionPatch.setStatus(ObjectionStatus.SUBMITTED);
-        ResponseEntity response = objectionController.patchObjection(COMPANY_NUMBER, OBJECTION_ID, objectionPatch, REQUEST_ID);
-
-        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
-        verify(objectionProcessor, only()).process(eq(REQUEST_ID), eq(OBJECTION_ID));
-    }
-
-    @Test
-    void patchObjectionSubmittedNotFoundExceptionTest()
-            throws ObjectionNotFoundException, InvalidObjectionStatusException {
-        ObjectionPatch objectionPatch = new ObjectionPatch();
-        objectionPatch.setReason(REASON);
-        objectionPatch.setStatus(ObjectionStatus.SUBMITTED);
-        doThrow(new ObjectionNotFoundException("Message")).when(objectionProcessor).process(anyString(), anyString());
-        ResponseEntity response = objectionController.patchObjection(COMPANY_NUMBER, OBJECTION_ID, objectionPatch, REQUEST_ID);
-
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-    }
-
-    @Test
     void patchObjectionSubmittedInvalidObjectionStatusExceptionTest()
-            throws ObjectionNotFoundException, InvalidObjectionStatusException {
+            throws InvalidObjectionStatusException, ObjectionNotFoundException {
         ObjectionPatch objectionPatch = new ObjectionPatch();
         objectionPatch.setReason(REASON);
         objectionPatch.setStatus(ObjectionStatus.SUBMITTED);
-        doThrow(new InvalidObjectionStatusException("Message")).when(objectionProcessor).process(anyString(), anyString());
+
+        doThrow(new InvalidObjectionStatusException("Message")).when(objectionService).patchObjection(any(), any(), any(), any());
+
         ResponseEntity response = objectionController.patchObjection(COMPANY_NUMBER, OBJECTION_ID, objectionPatch, REQUEST_ID);
 
         assertEquals(HttpStatus.UNPROCESSABLE_ENTITY, response.getStatusCode());
     }
 
     @Test
-    void patchObjectionSubmittedGenericExceptionTest()
+    void patchObjectionGenericExceptionTest()
             throws ObjectionNotFoundException, InvalidObjectionStatusException {
         ObjectionPatch objectionPatch = new ObjectionPatch();
         objectionPatch.setReason(REASON);
         objectionPatch.setStatus(ObjectionStatus.SUBMITTED);
-        doThrow(new RuntimeException("Message")).when(objectionProcessor).process(anyString(), anyString());
+        doThrow(new RuntimeException("Message")).when(objectionService).patchObjection(any(), any(), any(), any());
+
         ResponseEntity response = objectionController.patchObjection(COMPANY_NUMBER, OBJECTION_ID, objectionPatch, REQUEST_ID);
 
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());

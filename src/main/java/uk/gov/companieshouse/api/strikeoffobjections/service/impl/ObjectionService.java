@@ -10,6 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 import uk.gov.companieshouse.api.strikeoffobjections.common.ApiLogger;
 import uk.gov.companieshouse.api.strikeoffobjections.common.LogConstants;
 import uk.gov.companieshouse.api.strikeoffobjections.exception.AttachmentNotFoundException;
+import uk.gov.companieshouse.api.strikeoffobjections.exception.InvalidObjectionStatusException;
 import uk.gov.companieshouse.api.strikeoffobjections.exception.ObjectionNotFoundException;
 import uk.gov.companieshouse.api.strikeoffobjections.file.FileTransferApiClient;
 import uk.gov.companieshouse.api.strikeoffobjections.file.FileTransferApiClientResponse;
@@ -20,6 +21,7 @@ import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Objection;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.ObjectionStatus;
 import uk.gov.companieshouse.api.strikeoffobjections.model.patch.ObjectionPatch;
 import uk.gov.companieshouse.api.strikeoffobjections.model.patcher.ObjectionPatcher;
+import uk.gov.companieshouse.api.strikeoffobjections.processor.ObjectionProcessor;
 import uk.gov.companieshouse.api.strikeoffobjections.repository.ObjectionRepository;
 import uk.gov.companieshouse.api.strikeoffobjections.service.IObjectionService;
 import uk.gov.companieshouse.service.ServiceException;
@@ -41,6 +43,7 @@ public class ObjectionService implements IObjectionService {
     private static final String ATTACHMENT_NOT_FOUND_MESSAGE = "Attachment with id: %s, not found";
     private static final String ATTACHMENT_NOT_DELETED = "Unable to delete attachment %s, status code %s";
     private static final String ATTACHMENT_NOT_DELETED_SHORT = "Unable to delete attachment %s";
+    private static final String INVALID_PATCH_STATUS = "Unable to patch status to %s for Objection id: %s";
 
     private ObjectionRepository objectionRepository;
     private ApiLogger logger;
@@ -48,6 +51,7 @@ public class ObjectionService implements IObjectionService {
     private ObjectionPatcher objectionPatcher;
     private FileTransferApiClient fileTransferApiClient;
     private ERICHeaderParser ericHeaderParser;
+    private ObjectionProcessor objectionProcessor;
 
     @Autowired
     public ObjectionService(ObjectionRepository objectionRepository,
@@ -55,13 +59,15 @@ public class ObjectionService implements IObjectionService {
                             Supplier<LocalDateTime> dateTimeSupplier,
                             ObjectionPatcher objectionPatcher,
                             FileTransferApiClient fileTransferApiClient,
-                            ERICHeaderParser ericHeaderParser) {
+                            ERICHeaderParser ericHeaderParser,
+                            ObjectionProcessor objectionProcessor) {
         this.objectionRepository = objectionRepository;
         this.logger = logger;
         this.dateTimeSupplier = dateTimeSupplier;
         this.objectionPatcher = objectionPatcher;
         this.fileTransferApiClient = fileTransferApiClient;
         this.ericHeaderParser = ericHeaderParser;
+        this.objectionProcessor = objectionProcessor;
     }
 
     @Override
@@ -87,18 +93,47 @@ public class ObjectionService implements IObjectionService {
     public void patchObjection(String requestId,
                                String companyNumber,
                                String objectionId,
-                               ObjectionPatch objectionPatch) throws ObjectionNotFoundException {
+                               ObjectionPatch objectionPatch) throws ObjectionNotFoundException, InvalidObjectionStatusException {
         Map<String, Object> logMap = buildLogMap(companyNumber, objectionId, null);
-        logger.infoContext(requestId, "Checking for existing objection", logMap);
+        logger.debugContext(requestId, "Checking for existing objection", logMap);
 
-        Optional<Objection> existingObjection = objectionRepository.findById(objectionId);
-        if (existingObjection.isPresent()) {
-            logger.infoContext(requestId, "Objection exists, patching", logMap);
-            Objection objection = objectionPatcher.patchObjection(objectionPatch, requestId, existingObjection.get());
-            objectionRepository.save(objection);
-        } else {
+        Optional<Objection> existingObjectionOptional = objectionRepository.findById(objectionId);
+
+        if (!existingObjectionOptional.isPresent()) {
             logger.infoContext(requestId, "Objection does not exist", logMap);
             throw new ObjectionNotFoundException(String.format(OBJECTION_NOT_FOUND_MESSAGE, objectionId));
+        }
+
+        Objection existingObjection = existingObjectionOptional.get();
+
+        validateStatusChange(objectionPatch, existingObjection, requestId, companyNumber);
+
+        logger.debugContext(requestId, "Objection exists, patching", logMap);
+        ObjectionStatus previousStatus = existingObjection.getStatus();
+        Objection objection = objectionPatcher.patchObjection(objectionPatch, requestId, existingObjection);
+        objectionRepository.save(objection);
+
+        // if changing status to SUBMITTED from OPEN, process the objection
+        if (ObjectionStatus.SUBMITTED == objectionPatch.getStatus() && ObjectionStatus.OPEN == previousStatus) {
+            objectionProcessor.process(objection, requestId);
+        }
+    }
+
+    private void validateStatusChange(ObjectionPatch objectionPatch,
+                                      Objection existingObjection,
+                                      String requestId,
+                                      String companyNumber) throws InvalidObjectionStatusException {
+        // TODO OBJ-177 Implement a status manager that will do the throwing if status change not allowed
+        if (ObjectionStatus.SUBMITTED == objectionPatch.getStatus() && ObjectionStatus.OPEN != existingObjection.getStatus()) {
+            String objectionId = existingObjection.getId();
+
+            InvalidObjectionStatusException statusException = new InvalidObjectionStatusException(
+                    String.format(INVALID_PATCH_STATUS, objectionPatch.getStatus(), objectionId));
+
+            Map<String, Object> logMap = buildLogMap(companyNumber, objectionId, null);
+            logger.errorContext(requestId, statusException.getMessage(), statusException, logMap);
+
+            throw statusException;
         }
     }
 

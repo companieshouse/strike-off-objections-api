@@ -22,11 +22,9 @@ import uk.gov.companieshouse.api.strikeoffobjections.exception.AttachmentNotFoun
 import uk.gov.companieshouse.api.strikeoffobjections.exception.ObjectionNotFoundException;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Attachment;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Objection;
-import uk.gov.companieshouse.api.strikeoffobjections.model.entity.ObjectionStatus;
 import uk.gov.companieshouse.api.strikeoffobjections.model.patch.ObjectionPatch;
 import uk.gov.companieshouse.api.strikeoffobjections.model.response.AttachmentResponseDTO;
 import uk.gov.companieshouse.api.strikeoffobjections.model.response.ObjectionResponseDTO;
-import uk.gov.companieshouse.api.strikeoffobjections.processor.ObjectionProcessor;
 import uk.gov.companieshouse.api.strikeoffobjections.exception.InvalidObjectionStatusException;
 import uk.gov.companieshouse.api.strikeoffobjections.service.IObjectionService;
 import uk.gov.companieshouse.service.ServiceException;
@@ -58,7 +56,6 @@ public class ObjectionController {
 
     private PluggableResponseEntityFactory responseEntityFactory;
     private IObjectionService objectionService;
-    private ObjectionProcessor objectionProcessor;
 
     private ApiLogger apiLogger;
     private ObjectionMapper objectionMapper;
@@ -69,14 +66,12 @@ public class ObjectionController {
                                IObjectionService objectionService,
                                ApiLogger apiLogger,
                                ObjectionMapper objectionMapper,
-                               AttachmentMapper attachmentMapper,
-                               ObjectionProcessor objectionProcessor) {
+                               AttachmentMapper attachmentMapper) {
         this.responseEntityFactory = responseEntityFactory;
         this.objectionService = objectionService;
         this.apiLogger = apiLogger;
         this.objectionMapper = objectionMapper;
         this.attachmentMapper = attachmentMapper;
-        this.objectionProcessor = objectionProcessor;
     }
 
     @GetMapping("/{objectionId}/attachments/{attachmentId}")
@@ -196,11 +191,6 @@ public class ObjectionController {
 
         try {
             objectionService.patchObjection(requestId, companyNumber, objectionId, objectionPatch);
-
-            // if incoming status is Submitted, process the objection
-            if (objectionPatch != null && ObjectionStatus.SUBMITTED == objectionPatch.getStatus()) {
-                objectionProcessor.process(requestId, objectionId);
-            }
 
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } catch (ObjectionNotFoundException e) {

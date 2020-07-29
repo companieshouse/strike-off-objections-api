@@ -12,6 +12,7 @@ import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.multipart.MultipartFile;
 import uk.gov.companieshouse.api.strikeoffobjections.common.ApiLogger;
 import uk.gov.companieshouse.api.strikeoffobjections.exception.AttachmentNotFoundException;
+import uk.gov.companieshouse.api.strikeoffobjections.exception.InvalidObjectionStatusException;
 import uk.gov.companieshouse.api.strikeoffobjections.exception.ObjectionNotFoundException;
 import uk.gov.companieshouse.api.strikeoffobjections.file.FileTransferApiClient;
 import uk.gov.companieshouse.api.strikeoffobjections.file.FileTransferApiClientResponse;
@@ -21,6 +22,7 @@ import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Objection;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.ObjectionStatus;
 import uk.gov.companieshouse.api.strikeoffobjections.model.patcher.ObjectionPatcher;
 import uk.gov.companieshouse.api.strikeoffobjections.model.patch.ObjectionPatch;
+import uk.gov.companieshouse.api.strikeoffobjections.processor.ObjectionProcessor;
 import uk.gov.companieshouse.api.strikeoffobjections.repository.ObjectionRepository;
 import uk.gov.companieshouse.api.strikeoffobjections.utils.Utils;
 import uk.gov.companieshouse.service.ServiceException;
@@ -40,9 +42,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.only;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.mockito.ArgumentMatchers.any;
 
@@ -61,16 +66,16 @@ class ObjectionServiceTest {
     private static final LocalDateTime MOCKED_TIME_STAMP = LocalDateTime.of(2020, 2,2, 0, 0);
 
     @Mock
-    ApiLogger apiLogger;
+    private ApiLogger apiLogger;
 
     @Mock
-    ObjectionRepository objectionRepository;
+    private ObjectionRepository objectionRepository;
 
     @Mock
-    Supplier<LocalDateTime> localDateTimeSupplier;
+    private Supplier<LocalDateTime> localDateTimeSupplier;
 
     @Mock
-    ObjectionPatcher objectionPatcher;
+    private ObjectionPatcher objectionPatcher;
 
     @Mock
     private FileTransferApiClient fileTransferApiClient;
@@ -78,11 +83,14 @@ class ObjectionServiceTest {
     @Mock
     private ERICHeaderParser ericHeaderParser;
 
+    @Mock
+    private ObjectionProcessor objectionProcessor;
+
     @InjectMocks
-    ObjectionService objectionService;
+    private ObjectionService objectionService;
 
     @Test
-    void createObjectionTest() throws Exception {
+    void createObjectionTest() {
         Objection returnedEntity = new Objection.Builder()
                 .withCompanyNumber(COMPANY_NUMBER)
                 .build();
@@ -121,7 +129,7 @@ class ObjectionServiceTest {
     }
 
     @Test
-    void patchObjectionDoesNotExistTest() throws Exception {
+    void patchObjectionDoesNotExistTest() {
         ObjectionPatch objectionPatch = new ObjectionPatch();
         objectionPatch.setReason(REASON);
         objectionPatch.setStatus(ObjectionStatus.OPEN);
@@ -130,6 +138,95 @@ class ObjectionServiceTest {
         assertThrows(ObjectionNotFoundException.class, () -> objectionService.patchObjection(REQUEST_ID, COMPANY_NUMBER, OBJECTION_ID, objectionPatch));
 
         verify(objectionRepository, times(0)).save(any());
+    }
+
+    @Test
+    void patchObjectionSubmittedTest() throws Exception {
+        Objection existingObjection = new Objection();
+        existingObjection.setId(OBJECTION_ID);
+        existingObjection.setStatus(ObjectionStatus.OPEN);
+
+        Objection objection = new Objection();
+        objection.setId(OBJECTION_ID);
+
+        ObjectionPatch objectionPatch = new ObjectionPatch();
+        objectionPatch.setReason(REASON);
+        objectionPatch.setStatus(ObjectionStatus.SUBMITTED);
+
+        when(objectionRepository.findById(any())).thenReturn(Optional.of(existingObjection));
+        when(objectionPatcher.patchObjection(any(), any(), any())).thenReturn(objection);
+
+        objectionService.patchObjection(REQUEST_ID, COMPANY_NUMBER, OBJECTION_ID, objectionPatch);
+
+        verify(objectionRepository, times(1)).save(objection);
+        verify(objectionProcessor, only()).process(objection, REQUEST_ID);
+    }
+
+    @Test
+    void patchObjectionSubmittedThrowsInvalidObjectionStatusExceptionTest() throws Exception {
+        Objection existingObjection = new Objection();
+        existingObjection.setId(OBJECTION_ID);
+        existingObjection.setStatus(ObjectionStatus.OPEN);
+
+        Objection objection = new Objection();
+        objection.setId(OBJECTION_ID);
+
+        ObjectionPatch objectionPatch = new ObjectionPatch();
+        objectionPatch.setReason(REASON);
+        objectionPatch.setStatus(ObjectionStatus.SUBMITTED);
+
+        when(objectionRepository.findById(any())).thenReturn(Optional.of(existingObjection));
+        when(objectionPatcher.patchObjection(any(), any(), any())).thenReturn(objection);
+        doThrow(new InvalidObjectionStatusException("Invalid")).when(objectionProcessor).process(any(), any());
+
+        assertThrows(InvalidObjectionStatusException.class,
+                () -> objectionService.patchObjection(REQUEST_ID, COMPANY_NUMBER, OBJECTION_ID, objectionPatch));
+
+        verify(objectionRepository, times(1)).save(objection);
+        verify(objectionProcessor, only()).process(objection, REQUEST_ID);
+    }
+
+    @Test
+    void patchObjectionWithNoStatusTest() throws Exception {
+        Objection existingObjection = new Objection();
+        existingObjection.setId(OBJECTION_ID);
+
+        Objection objection = new Objection();
+        objection.setId(OBJECTION_ID);
+
+        ObjectionPatch objectionPatch = new ObjectionPatch();
+        objectionPatch.setReason(REASON);
+
+        when(objectionRepository.findById(any())).thenReturn(Optional.of(existingObjection));
+        when(objectionPatcher.patchObjection(any(), any(), any())).thenReturn(objection);
+
+        objectionService.patchObjection(REQUEST_ID, COMPANY_NUMBER, OBJECTION_ID, objectionPatch);
+
+        verify(objectionRepository, times(1)).save(objection);
+        verifyNoInteractions(objectionProcessor);
+    }
+
+    @Test
+    void patchObjectionWithIncorrectSubmittedStatusTest() throws Exception {
+        Objection existingObjection = new Objection();
+        existingObjection.setId(OBJECTION_ID);
+        existingObjection.setStatus(ObjectionStatus.PROCESSED);
+
+        Objection objection = new Objection();
+        objection.setId(OBJECTION_ID);
+
+        ObjectionPatch objectionPatch = new ObjectionPatch();
+        objectionPatch.setReason(REASON);
+        objectionPatch.setStatus(ObjectionStatus.SUBMITTED);
+
+        when(objectionRepository.findById(any())).thenReturn(Optional.of(existingObjection));
+
+        assertThrows(InvalidObjectionStatusException.class,
+                () -> objectionService.patchObjection(REQUEST_ID, COMPANY_NUMBER, OBJECTION_ID, objectionPatch));
+
+        verify(objectionRepository, never()).save(objection);
+        verifyNoInteractions(objectionPatcher);
+        verifyNoInteractions(objectionProcessor);
     }
 
     @Test
@@ -157,7 +254,7 @@ class ObjectionServiceTest {
     }
 
     @Test
-    public void canAddAnAttachment() throws Exception {
+    void canAddAnAttachment() throws Exception {
         Objection existingObjection = new Objection();
         existingObjection.setId(OBJECTION_ID);
         when(fileTransferApiClient.upload(anyString(), any(MultipartFile.class))).thenReturn(Utils.getSuccessfulUploadResponse());
@@ -183,7 +280,7 @@ class ObjectionServiceTest {
     }
 
     @Test
-    public void willNotOverrideAlreadyExistingAttachments() throws Exception {
+    void willNotOverrideAlreadyExistingAttachments() throws Exception {
         Objection existingObjection = new Objection();
         existingObjection.setId(OBJECTION_ID);
 
@@ -236,7 +333,7 @@ class ObjectionServiceTest {
     }
 
     @Test
-    public void willThrowServiceExceptionIfUploadErrors() throws Exception {
+    void willThrowServiceExceptionIfUploadErrors() throws Exception {
         when(fileTransferApiClient.upload(anyString(), any(MultipartFile.class))).thenReturn(Utils.getUnsuccessfulFileTransferApiResponse());
         try {
             objectionService.addAttachment(REQUEST_ID, OBJECTION_ID, Utils.mockMultipartFile(), ACCESS_URL);
@@ -247,7 +344,7 @@ class ObjectionServiceTest {
     }
 
     @Test
-    public void willPropagateServerRuntimeExceptions() throws Exception {
+    void willPropagateServerRuntimeExceptions() throws Exception {
         when(fileTransferApiClient.upload(anyString(), any(MultipartFile.class)))
                 .thenThrow(new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR));
         try {
@@ -259,7 +356,7 @@ class ObjectionServiceTest {
     }
 
     @Test
-    public void willPropagateClientRuntimeExceptions() throws Exception {
+    void willPropagateClientRuntimeExceptions() throws Exception {
         when(fileTransferApiClient.upload(anyString(), any(MultipartFile.class)))
                 .thenThrow(new HttpClientErrorException(HttpStatus.BAD_REQUEST));
         try {
@@ -271,7 +368,7 @@ class ObjectionServiceTest {
     }
 
     @Test
-    public void willThrowServiceExceptions() {
+    void willThrowServiceExceptions() {
         FileTransferApiClientResponse response = new FileTransferApiClientResponse();
         response.setFileId("");
                 when(fileTransferApiClient.upload(anyString(), any(MultipartFile.class)))
@@ -435,7 +532,7 @@ class ObjectionServiceTest {
     }
 
     @Test
-    public void deleteAttachmentHandleHttpErrorCodeInFileTransferResponse() {
+    void deleteAttachmentHandleHttpErrorCodeInFileTransferResponse() {
         Objection objection = Utils.getTestObjection(OBJECTION_ID);
         Utils.getTestAttachments(ATTACHMENT_ID).stream().forEach(
             attachment -> {
@@ -464,7 +561,7 @@ class ObjectionServiceTest {
     }
 
     @Test
-    public void deleteAttachmentHandleNullApiResponseOnDeleteAttachment() {
+    void deleteAttachmentHandleNullApiResponseOnDeleteAttachment() {
         Objection objection = Utils.getTestObjection(OBJECTION_ID);
         Utils.getTestAttachments(ATTACHMENT_ID).stream().forEach(
             attachment -> {
@@ -493,7 +590,7 @@ class ObjectionServiceTest {
     }
 
     @Test
-    public void deleteAttachmentHandleNullHttpStatusApiResponseOnDeleteAttachment() {
+    void deleteAttachmentHandleNullHttpStatusApiResponseOnDeleteAttachment() {
         Objection objection = Utils.getTestObjection(OBJECTION_ID);
         Utils.getTestAttachments(ATTACHMENT_ID).stream().forEach(
             attachment -> {
