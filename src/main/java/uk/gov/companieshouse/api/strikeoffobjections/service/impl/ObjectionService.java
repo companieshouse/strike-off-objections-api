@@ -89,11 +89,22 @@ public class ObjectionService implements IObjectionService {
         return savedEntity.getId();
     }
 
+    /**
+     * Update the Objection data with the provided patch data
+     * Triggers the processing of the Objection if status is changed
+     * from OPEN to SUBMITTED
+     * @param requestId the http request id
+     * @param companyNumber the company number
+     * @param objectionId id of the objection
+     * @param objectionPatch the data to add to the Objection
+     * @throws ObjectionNotFoundException if objection not found
+     * @throws InvalidObjectionStatusException if status change is not allowed
+     */
     @Override
-    public void patchObjection(String requestId,
-                               String companyNumber,
-                               String objectionId,
-                               ObjectionPatch objectionPatch) throws ObjectionNotFoundException, InvalidObjectionStatusException {
+    public void patchObjection(String objectionId,
+                               ObjectionPatch objectionPatch,
+                               String requestId,
+                               String companyNumber) throws ObjectionNotFoundException, InvalidObjectionStatusException {
         Map<String, Object> logMap = buildLogMap(companyNumber, objectionId, null);
         logger.debugContext(requestId, "Checking for existing objection", logMap);
 
@@ -106,7 +117,7 @@ public class ObjectionService implements IObjectionService {
 
         Objection existingObjection = existingObjectionOptional.get();
 
-        validateStatusChange(objectionPatch, existingObjection, requestId, companyNumber);
+        validatePatchStatusChange(objectionPatch, existingObjection, requestId, companyNumber);
 
         logger.debugContext(requestId, "Objection exists, patching", logMap);
         ObjectionStatus previousStatus = existingObjection.getStatus();
@@ -119,10 +130,10 @@ public class ObjectionService implements IObjectionService {
         }
     }
 
-    private void validateStatusChange(ObjectionPatch objectionPatch,
-                                      Objection existingObjection,
-                                      String requestId,
-                                      String companyNumber) throws InvalidObjectionStatusException {
+    private void validatePatchStatusChange(ObjectionPatch objectionPatch,
+                                           Objection existingObjection,
+                                           String requestId,
+                                           String companyNumber) throws InvalidObjectionStatusException {
         // TODO OBJ-177 Implement a status manager that will do the throwing if status change not allowed
         if (ObjectionStatus.SUBMITTED == objectionPatch.getStatus() && ObjectionStatus.OPEN != existingObjection.getStatus()) {
             String objectionId = existingObjection.getId();

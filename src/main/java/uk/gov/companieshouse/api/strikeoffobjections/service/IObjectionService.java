@@ -15,7 +15,7 @@ import uk.gov.companieshouse.service.ServiceResult;
 public interface IObjectionService {
     String createObjection(String requestId, String companyNumber, String ericUserId, String ericUserDetails);
 
-    void patchObjection(String requestId, String companyNumber,String objectionId, ObjectionPatch objectionPatch)
+    void patchObjection(String objectionId, ObjectionPatch objectionPatch, String requestId, String companyNumber)
             throws ObjectionNotFoundException, InvalidObjectionStatusException;
 
     Objection getObjection(String requestId, String objectionId)

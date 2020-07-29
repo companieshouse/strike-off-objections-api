@@ -191,7 +191,7 @@ public class ObjectionController {
         );
 
         try {
-            objectionService.patchObjection(requestId, companyNumber, objectionId, objectionPatch);
+            objectionService.patchObjection(objectionId, objectionPatch, requestId, companyNumber);
 
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } catch (ObjectionNotFoundException e) {
