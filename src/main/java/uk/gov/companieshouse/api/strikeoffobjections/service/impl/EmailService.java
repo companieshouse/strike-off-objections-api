@@ -14,7 +14,6 @@ import uk.gov.companieshouse.service.ServiceException;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Supplier;
@@ -59,11 +58,9 @@ public class EmailService implements IEmailService {
         CompanyProfileApi companyProfile = companyProfileService.getCompanyProfile(requestId, companyNumber);
 
         String companyName = companyProfile.getCompanyName();
-        String fullName = ericHeaderParser.getFullName(ericAuthorisedUser);
         String emailAddress = ericHeaderParser.getEmailAddress(ericAuthorisedUser);
         Map<String, Object> data = new HashMap<>();
 
-        data.put("full_name", fullName);
         data.put("company_name", companyName);
         data.put("company_number", companyNumber);
         data.put("objection_id", objection.getId());

@@ -36,7 +36,6 @@ class EmailServiceTest {
     private static final String OBJECTION_ID = "OBJECTION_ID";
     private static final String EMAIL = "demo@ch.gov.uk";
     private static final String AUTH_USER = EMAIL + "; forename=demoForename; surname=demoSurname";
-    private static final String FULL_NAME = "demoForename demoSurname";
     private static final String REASON = "THIS IS A REASON";
 
     @Mock
@@ -63,7 +62,6 @@ class EmailServiceTest {
                 .thenReturn(Utils.getMockCompanyProfile(COMPANY_NUMBER));
         when(dateTimeSupplier.get()).thenReturn(LOCAL_DATE_TIME);
         when(ericHeaderParser.getEmailAddress(AUTH_USER)).thenReturn(EMAIL);
-        when(ericHeaderParser.getFullName(AUTH_USER)).thenReturn(FULL_NAME);
 
         Attachment attachment1 = new Attachment();
         Attachment attachment2 = new Attachment();
@@ -94,7 +92,6 @@ class EmailServiceTest {
 
         Map<String, Object> data = emailContent.getData();
 
-        assertTrue(data.containsValue(FULL_NAME));
         assertTrue(data.containsValue(COMPANY_NUMBER));
         assertTrue(data.containsValue("Company: " + COMPANY_NUMBER));
         assertTrue(data.containsValue(OBJECTION_ID));
