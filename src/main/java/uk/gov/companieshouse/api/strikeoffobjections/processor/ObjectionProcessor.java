@@ -61,7 +61,7 @@ public class ObjectionProcessor {
 
         // TODO update status to chips sent
 
-        // TODO OBJ-113 do email sending
+        // TODO OBJ-157 do email sending
 
         // TODO update status to processed
 

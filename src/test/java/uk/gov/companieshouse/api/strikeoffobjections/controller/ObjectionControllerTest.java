@@ -84,7 +84,7 @@ class ObjectionControllerTest {
     private ObjectionController objectionController;
 
     @Test
-    void createObjectionTest() throws Exception {
+    void createObjectionTest() {
         ObjectionResponseDTO objectionResponse = new ObjectionResponseDTO(OBJECTION_ID);
         when(objectionService.createObjection(REQUEST_ID, COMPANY_NUMBER, AUTH_ID, AUTH_USER)).thenReturn(OBJECTION_ID);
         when(pluggableResponseEntityFactory.createResponse(any(ServiceResult.class))).thenReturn(
@@ -101,9 +101,9 @@ class ObjectionControllerTest {
     }
 
     @Test
-    void createObjectionExceptionTest() throws Exception {
+    void createObjectionExceptionTest() {
         when(objectionService.createObjection(REQUEST_ID, COMPANY_NUMBER, AUTH_ID, AUTH_USER))
-                .thenThrow(new Exception("ERROR MESSAGE"));
+                .thenThrow(new RuntimeException("ERROR MESSAGE"));
         when(pluggableResponseEntityFactory.createEmptyInternalServerError()).thenReturn(
                 ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build()
         );
@@ -111,7 +111,6 @@ class ObjectionControllerTest {
         ResponseEntity<ChResponseBody<ObjectionResponseDTO>> response = objectionController.createObjection(COMPANY_NUMBER, REQUEST_ID, AUTH_ID, AUTH_USER);
 
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
-
     }
 
     @Test
