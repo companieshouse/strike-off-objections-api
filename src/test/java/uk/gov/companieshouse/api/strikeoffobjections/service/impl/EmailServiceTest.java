@@ -9,6 +9,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.companieshouse.api.strikeoffobjections.common.ApiLogger;
 import uk.gov.companieshouse.api.strikeoffobjections.email.KafkaEmailClient;
 import uk.gov.companieshouse.api.strikeoffobjections.model.email.EmailContent;
+import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Attachment;
+import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Objection;
 import uk.gov.companieshouse.api.strikeoffobjections.service.ICompanyProfileService;
 import uk.gov.companieshouse.api.strikeoffobjections.utils.Utils;
 import uk.gov.companieshouse.service.ServiceException;
@@ -35,7 +37,7 @@ class EmailServiceTest {
     private static final String EMAIL = "demo@ch.gov.uk";
     private static final String AUTH_USER = EMAIL + "; forename=demoForename; surname=demoSurname";
     private static final String FULL_NAME = "demoForename demoSurname";
-    private static final List<String> ATTACHMENT_NAMES = Arrays.asList("Attachment 1", "Attachment 2");
+    private static final String REASON = "THIS IS A REASON";
 
     @Mock
     private ApiLogger apiLogger;
@@ -63,12 +65,24 @@ class EmailServiceTest {
         when(ericHeaderParser.getEmailAddress(AUTH_USER)).thenReturn(EMAIL);
         when(ericHeaderParser.getFullName(AUTH_USER)).thenReturn(FULL_NAME);
 
+        Attachment attachment1 = new Attachment();
+        Attachment attachment2 = new Attachment();
+        attachment1.setName("Name 1");
+        attachment2.setName("Name 2");
+
+        List<Attachment> attachments = Arrays.asList(
+                attachment1, attachment2
+        );
+
+        Objection objection = new Objection();
+        objection.setReason(REASON);
+        objection.setId(OBJECTION_ID);
+        objection.setAttachments(attachments);
         emailService.sendObjectionSubmittedCustomerEmail(
                 REQUEST_ID,
                 AUTH_USER,
                 COMPANY_NUMBER,
-                OBJECTION_ID,
-                ATTACHMENT_NAMES
+                objection
         );
 
         ArgumentCaptor<EmailContent> emailContentArgumentCaptor = ArgumentCaptor.forClass(EmailContent.class);
@@ -84,7 +98,7 @@ class EmailServiceTest {
         assertTrue(data.containsValue(COMPANY_NUMBER));
         assertTrue(data.containsValue("Company: " + COMPANY_NUMBER));
         assertTrue(data.containsValue(OBJECTION_ID));
-        assertTrue(data.containsValue(ATTACHMENT_NAMES));
+        assertTrue(data.containsValue(attachments));
 
     }
 }
