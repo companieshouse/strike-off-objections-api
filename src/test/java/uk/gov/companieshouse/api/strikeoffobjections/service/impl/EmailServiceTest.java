@@ -31,8 +31,10 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class EmailServiceTest {
 
+    private static final String EMAIL_SUBJECT = "{{ COMPANY_NUMBER }}: email sent";
     private static final String REQUEST_ID = "REQUEST_ID";
     private static final String COMPANY_NUMBER = "COMPANY_NUMBER";
+    private static final String FORMATTED_EMAIL_SUBJECT = COMPANY_NUMBER + ": email sent";
     private static final LocalDateTime LOCAL_DATE_TIME = LocalDateTime.of(2020, 12, 10, 8, 0);
     private static final String OBJECTION_ID = "OBJECTION_ID";
     private static final String EMAIL = "example@test.co.uk";
@@ -56,6 +58,7 @@ class EmailServiceTest {
 
     @Test
     void sendObjectionSubmittedCustomerEmail() throws ServiceException {
+        emailService.setEmailSubject(EMAIL_SUBJECT);
         when(companyProfileService.getCompanyProfile(COMPANY_NUMBER, REQUEST_ID))
                 .thenReturn(Utils.getDummyCompanyProfile(COMPANY_NUMBER));
         when(dateTimeSupplier.get()).thenReturn(LOCAL_DATE_TIME);
@@ -95,8 +98,9 @@ class EmailServiceTest {
         assertTrue(data.containsValue("Company: " + COMPANY_NUMBER));
         assertTrue(data.containsValue(OBJECTION_ID));
         assertTrue(data.containsValue(attachments));
+        assertTrue(data.containsKey("to"));
         assertTrue(data.containsValue(EMAIL));
         assertTrue(data.containsKey("subject"));
-
+        assertTrue(data.containsValue(FORMATTED_EMAIL_SUBJECT));
     }
 }

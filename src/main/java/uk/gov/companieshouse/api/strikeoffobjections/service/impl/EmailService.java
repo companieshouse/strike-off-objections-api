@@ -21,7 +21,8 @@ import java.util.function.Supplier;
 @Service
 public class EmailService implements IEmailService {
 
-    private static final String EXTERNAL_EMAIL_SUBJECT = "%s: Objection Application Submitted";
+    @Value("${EMAIL_SUBJECT}")
+    private String emailSubject;
 
     @Value("${EMAIL_SENDER_APP_ID}")
     private String originatingAppId;
@@ -47,6 +48,13 @@ public class EmailService implements IEmailService {
         this.dateTimeSupplier = dateTimeSupplier;
     }
 
+    /**
+     * Used for unit tests
+     **/
+    public void setEmailSubject(String emailSubject) {
+        this.emailSubject = emailSubject;
+    }
+
     @Override
     public void sendObjectionSubmittedCustomerEmail(
             Objection objection,
@@ -60,7 +68,8 @@ public class EmailService implements IEmailService {
         String emailAddress = objection.getCreatedBy().getEmail();
         Map<String, Object> data = new HashMap<>();
 
-        data.put("subject", String.format(EXTERNAL_EMAIL_SUBJECT, companyNumber));
+        String subject = emailSubject.replace("{{ COMPANY_NUMBER }}", companyNumber);
+        data.put("subject", subject);
         data.put("to", emailAddress);
         data.put("company_name", companyName);
         data.put("company_number", companyNumber);
