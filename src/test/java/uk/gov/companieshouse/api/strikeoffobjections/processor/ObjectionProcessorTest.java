@@ -28,7 +28,7 @@ class ObjectionProcessorTest {
 
     @Test
     void processTest() {
-        Objection dummyObjection = Utils.getTestObjection(OBJECTION_ID, "", null);
+        Objection dummyObjection = Utils.getTestObjection(OBJECTION_ID);
         dummyObjection.setStatus(ObjectionStatus.SUBMITTED);
 
         assertDoesNotThrow(() -> objectionProcessor.process(dummyObjection, HTTP_REQUEST_ID));
@@ -36,7 +36,7 @@ class ObjectionProcessorTest {
 
     @Test
     void processThrowsInvalidObjectionStatusTest() {
-        Objection dummyObjection = Utils.getTestObjection(OBJECTION_ID, "", null);
+        Objection dummyObjection = Utils.getTestObjection(OBJECTION_ID);
         dummyObjection.setStatus(ObjectionStatus.OPEN);
 
         assertThrows(InvalidObjectionStatusException.class,

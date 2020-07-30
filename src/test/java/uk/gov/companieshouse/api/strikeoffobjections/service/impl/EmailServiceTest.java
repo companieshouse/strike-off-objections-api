@@ -71,8 +71,10 @@ class EmailServiceTest {
                 .thenReturn(Utils.getDummyCompanyProfile(COMPANY_NUMBER, ""));
         when(dateTimeSupplier.get()).thenReturn(LOCAL_DATE_TIME);
         when(ericHeaderParser.getEmailAddress(AUTH_USER)).thenReturn(EMAIL);
+
+        Objection objection = Utils.getTestObjection(OBJECTION_ID);
         List<Attachment> attachments = Utils.getTestAttachments();
-        Objection objection = Utils.getTestObjection(OBJECTION_ID, REASON, attachments);
+        attachments.forEach(objection::addAttachment);
 
         emailService.sendObjectionSubmittedCustomerEmail(
                 REQUEST_ID,
@@ -102,8 +104,9 @@ class EmailServiceTest {
         when(companyProfileService.getCompanyProfile(COMPANY_NUMBER, REQUEST_ID))
                 .thenReturn(Utils.getDummyCompanyProfile(COMPANY_NUMBER, "wales"));
         when(config.getEmailRecipientsCardiff()).thenReturn(EMAIL_RECIPIENTS_CARDIFF_TEST);
-        List<Attachment> attachments = Utils.getTestAttachments();
-        Objection objection = Utils.getTestObjection(OBJECTION_ID, REASON, attachments);
+
+        Objection objection = Utils.getTestObjection(OBJECTION_ID);
+        Utils.getTestAttachments().forEach(objection::addAttachment);
 
         emailService.sendObjectionSubmittedDissolutionTeamEmail(
                 REQUEST_ID,
@@ -122,7 +125,8 @@ class EmailServiceTest {
                 .thenReturn(Utils.getDummyCompanyProfile(COMPANY_NUMBER, "scotland"));
         when(config.getEmailRecipientsEdinburgh()).thenReturn(EMAIL_RECIPIENTS_EDINBURGH_TEST);
         List<Attachment> attachments = Utils.getTestAttachments();
-        Objection objection = Utils.getTestObjection(OBJECTION_ID, REASON, attachments);
+        Objection objection = Utils.getTestObjection(OBJECTION_ID);
+        Utils.getTestAttachments().forEach(objection::addAttachment);
 
         emailService.sendObjectionSubmittedDissolutionTeamEmail(
                 REQUEST_ID,
@@ -141,7 +145,8 @@ class EmailServiceTest {
                 .thenReturn(Utils.getDummyCompanyProfile(COMPANY_NUMBER, "northern-ireland"));
         when(config.getEmailRecipientsBelfast()).thenReturn(EMAIL_RECIPIENTS_BELFAST_TEST);
         List<Attachment> attachments = Utils.getTestAttachments();
-        Objection objection = Utils.getTestObjection(OBJECTION_ID, REASON, attachments);
+        Objection objection = Utils.getTestObjection(OBJECTION_ID);
+        Utils.getTestAttachments().forEach(objection::addAttachment);
 
         emailService.sendObjectionSubmittedDissolutionTeamEmail(
                 REQUEST_ID,

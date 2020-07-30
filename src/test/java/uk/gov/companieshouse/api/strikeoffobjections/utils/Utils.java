@@ -30,13 +30,9 @@ public class Utils {
     public static final String ORIGINAL_FILE_NAME = "original.png";
     public static final String UPLOAD_ID = "5agf-g6hh";
 
-    public static Objection getTestObjection(String objectionId,
-                                             String reason,
-                                             List<Attachment> attachments) {
+    public static Objection getTestObjection(String objectionId) {
         Objection objection = new Objection();
-        objection.setReason(reason);
         objection.setId(objectionId);
-        objection.setAttachments(attachments);
         return objection;
     }
 
