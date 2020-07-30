@@ -117,7 +117,7 @@ public class EmailService implements IEmailService {
         return data;
     }
 
-    private String[] getDissolutionTeamRecipients(String jurisdiction) {
+    protected String[] getDissolutionTeamRecipients(String jurisdiction) {
         switch(jurisdiction) {
             case "england":
             case "wales":

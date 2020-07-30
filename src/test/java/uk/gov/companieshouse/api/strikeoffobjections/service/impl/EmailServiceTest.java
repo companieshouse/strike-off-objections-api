@@ -65,13 +65,9 @@ class EmailServiceTest {
     @InjectMocks
     private EmailService emailService;
 
-    @BeforeEach
-    void startMocks() {
-        when(dateTimeSupplier.get()).thenReturn(LOCAL_DATE_TIME);
-    }
-
     @Test
     void sendObjectionSubmittedCustomerEmail() throws ServiceException {
+        when(dateTimeSupplier.get()).thenReturn(LOCAL_DATE_TIME);
         when(companyProfileService.getCompanyProfile(REQUEST_ID, COMPANY_NUMBER))
                 .thenReturn(Utils.getMockCompanyProfile(COMPANY_NUMBER, ""));
         when(ericHeaderParser.getEmailAddress(AUTH_USER)).thenReturn(EMAIL);
@@ -102,6 +98,7 @@ class EmailServiceTest {
 
     @Test
     void sendObjectionSubmittedDissolutonEmailsWalesJurisdiction() throws ServiceException {
+        when(dateTimeSupplier.get()).thenReturn(LOCAL_DATE_TIME);
         when(companyProfileService.getCompanyProfile(REQUEST_ID, COMPANY_NUMBER))
                 .thenReturn(Utils.getMockCompanyProfile(COMPANY_NUMBER, "wales"));
         when(config.getEmailRecipientsCardiff()).thenReturn(EMAIL_RECIPIENTS_CARDIFF_TEST);
@@ -120,6 +117,7 @@ class EmailServiceTest {
 
     @Test
     void sendObjectionSubmittedDissolutonEmailsScotlandJurisdiction() throws ServiceException {
+        when(dateTimeSupplier.get()).thenReturn(LOCAL_DATE_TIME);
         when(companyProfileService.getCompanyProfile(REQUEST_ID, COMPANY_NUMBER))
                 .thenReturn(Utils.getMockCompanyProfile(COMPANY_NUMBER, "scotland"));
         when(config.getEmailRecipientsEdinburgh()).thenReturn(EMAIL_RECIPIENTS_EDINBURGH_TEST);
@@ -138,6 +136,7 @@ class EmailServiceTest {
 
     @Test
     void sendObjectionSubmittedDissolutonEmailsNIJurisdiction() throws ServiceException {
+        when(dateTimeSupplier.get()).thenReturn(LOCAL_DATE_TIME);
         when(companyProfileService.getCompanyProfile(REQUEST_ID, COMPANY_NUMBER))
                 .thenReturn(Utils.getMockCompanyProfile(COMPANY_NUMBER, "northern-ireland"));
         when(config.getEmailRecipientsBelfast()).thenReturn(EMAIL_RECIPIENTS_BELFAST_TEST);
@@ -152,5 +151,43 @@ class EmailServiceTest {
 
         ArgumentCaptor<EmailContent> emailContentArgumentCaptor = ArgumentCaptor.forClass(EmailContent.class);
         verify(kafkaEmailClient, times(2)).sendEmailToKafka(emailContentArgumentCaptor.capture());
+    }
+
+    @Test
+    public void testRegionalEmailAddresses() {
+        when(config.getEmailRecipientsCardiff()).thenReturn(EMAIL_RECIPIENTS_CARDIFF_TEST);
+        when(config.getEmailRecipientsEdinburgh()).thenReturn(EMAIL_RECIPIENTS_EDINBURGH_TEST);
+        when(config.getEmailRecipientsBelfast()).thenReturn(EMAIL_RECIPIENTS_BELFAST_TEST);
+        String[] recipients;
+        recipients = emailService.getDissolutionTeamRecipients("england");
+        assertEquals("COTIndividual@companieshouse.gov.uk",recipients[0]);
+        assertEquals("COTExttest@companieshouse.gov.uk",recipients[1]);
+        assertEquals("dissolution@companieshouse.gov.uk",recipients[2]);
+
+        recipients = emailService.getDissolutionTeamRecipients("wales");
+        assertEquals("COTIndividual@companieshouse.gov.uk",recipients[0]);
+        assertEquals("COTExttest@companieshouse.gov.uk",recipients[1]);
+        assertEquals("dissolution@companieshouse.gov.uk",recipients[2]);
+
+        recipients = emailService.getDissolutionTeamRecipients("england-wales");
+        assertEquals("COTIndividual@companieshouse.gov.uk",recipients[0]);
+        assertEquals("COTExttest@companieshouse.gov.uk",recipients[1]);
+        assertEquals("dissolution@companieshouse.gov.uk",recipients[2]);
+
+        recipients = emailService.getDissolutionTeamRecipients("scotland");
+        assertEquals("edinIndividual@companieshouse.gov.uk",recipients[0]);
+        assertEquals("edintest@companieshouse.gov.uk",recipients[1]);
+
+        recipients = emailService.getDissolutionTeamRecipients("northern-ireland");
+        assertEquals("belfastIndividual@companieshouse.gov.uk",recipients[0]);
+        assertEquals("belfastExttest@companieshouse.gov.uk",recipients[1]);
+
+        recipients = emailService.getDissolutionTeamRecipients("united-kingdom");
+        assertEquals("COTIndividual@companieshouse.gov.uk",recipients[0]);
+        assertEquals("COTExttest@companieshouse.gov.uk",recipients[1]);
+
+        recipients = emailService.getDissolutionTeamRecipients("something-else");
+        assertEquals("COTIndividual@companieshouse.gov.uk",recipients[0]);
+        assertEquals("COTExttest@companieshouse.gov.uk",recipients[1]);
     }
 }
