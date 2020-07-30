@@ -21,6 +21,8 @@ import java.util.function.Supplier;
 @Service
 public class EmailService implements IEmailService {
 
+    private static final String EXTERNAL_EMAIL_SUBJECT = "%s: Objection Application Submitted";
+
     @Value("${EMAIL_SENDER_APP_ID}")
     private String originatingAppId;
 
@@ -58,6 +60,8 @@ public class EmailService implements IEmailService {
         String emailAddress = objection.getCreatedBy().getEmail();
         Map<String, Object> data = new HashMap<>();
 
+        data.put("subject", String.format(EXTERNAL_EMAIL_SUBJECT, companyNumber));
+        data.put("to", emailAddress);
         data.put("company_name", companyName);
         data.put("company_number", companyNumber);
         data.put("objection_id", objection.getId());

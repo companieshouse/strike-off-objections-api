@@ -35,7 +35,7 @@ class EmailServiceTest {
     private static final String COMPANY_NUMBER = "COMPANY_NUMBER";
     private static final LocalDateTime LOCAL_DATE_TIME = LocalDateTime.of(2020, 12, 10, 8, 0);
     private static final String OBJECTION_ID = "OBJECTION_ID";
-    private static final String EMAIL = "demo@ch.gov.uk";
+    private static final String EMAIL = "example@test.co.uk";
     private static final String USER_ID = "32324";
     private static final String REASON = "THIS IS A REASON";
 
@@ -95,6 +95,8 @@ class EmailServiceTest {
         assertTrue(data.containsValue("Company: " + COMPANY_NUMBER));
         assertTrue(data.containsValue(OBJECTION_ID));
         assertTrue(data.containsValue(attachments));
+        assertTrue(data.containsValue(EMAIL));
+        assertTrue(data.containsKey("subject"));
 
     }
 }
