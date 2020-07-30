@@ -31,7 +31,7 @@ public class CompanyProfileService implements ICompanyProfileService {
     /**
      * Calls the API SDK Manager Java library in order to retrieve the company (profile) details.
      */
-    public CompanyProfileApi getCompanyProfile(String requestId, String companyNumber) throws ServiceException {
+    public CompanyProfileApi getCompanyProfile(String companyNumber, String requestId) throws ServiceException {
         try {
             Map<String, Object> logMap = new HashMap<>();
             logMap.put(LOG_COMPANY_NUMBER_KEY, companyNumber);

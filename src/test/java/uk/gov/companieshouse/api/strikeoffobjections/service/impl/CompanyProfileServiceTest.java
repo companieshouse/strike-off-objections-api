@@ -49,11 +49,11 @@ class CompanyProfileServiceTest {
     @InjectMocks
     private CompanyProfileService companyProfileService;
 
-    private CompanyProfileApi mockCompanyProfile;
+    private CompanyProfileApi dummyCompanyProfile;
 
     @BeforeEach
     void init() {
-        mockCompanyProfile = Utils.getMockCompanyProfile(COMPANY_NUMBER);
+        dummyCompanyProfile = Utils.getDummyCompanyProfile(COMPANY_NUMBER);
     }
 
     @Test
@@ -62,11 +62,11 @@ class CompanyProfileServiceTest {
         when(apiClient.company()).thenReturn(companyResourceHandler);
         when(companyResourceHandler.get("/company/" + COMPANY_NUMBER)).thenReturn(companyGet);
         when(companyGet.execute()).thenReturn(apiResponse);
-        when(apiResponse.getData()).thenReturn(mockCompanyProfile);
+        when(apiResponse.getData()).thenReturn(dummyCompanyProfile);
 
-        CompanyProfileApi returnedCompanyProfile = companyProfileService.getCompanyProfile(REQUEST_ID, COMPANY_NUMBER);
+        CompanyProfileApi returnedCompanyProfile = companyProfileService.getCompanyProfile(COMPANY_NUMBER, REQUEST_ID);
 
-        assertEquals(mockCompanyProfile, returnedCompanyProfile);
+        assertEquals(dummyCompanyProfile, returnedCompanyProfile);
     }
 
     @Test
@@ -79,7 +79,7 @@ class CompanyProfileServiceTest {
 
         assertThrows(
                 ServiceException.class,
-                () -> companyProfileService.getCompanyProfile(REQUEST_ID, COMPANY_NUMBER)
+                () -> companyProfileService.getCompanyProfile(COMPANY_NUMBER, REQUEST_ID)
         );
     }
 }
