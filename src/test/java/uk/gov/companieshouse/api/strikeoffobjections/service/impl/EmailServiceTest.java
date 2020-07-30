@@ -6,6 +6,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 import uk.gov.companieshouse.api.strikeoffobjections.common.ApiLogger;
 import uk.gov.companieshouse.api.strikeoffobjections.email.KafkaEmailClient;
 import uk.gov.companieshouse.api.strikeoffobjections.model.email.EmailContent;
@@ -31,11 +32,13 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class EmailServiceTest {
 
+    private static final String EMAIL_SUBJECT = "{{ COMPANY_NUMBER }}: email sent";
     private static final String REQUEST_ID = "REQUEST_ID";
     private static final String COMPANY_NUMBER = "COMPANY_NUMBER";
+    private static final String FORMATTED_EMAIL_SUBJECT = COMPANY_NUMBER + ": email sent";
     private static final LocalDateTime LOCAL_DATE_TIME = LocalDateTime.of(2020, 12, 10, 8, 0);
     private static final String OBJECTION_ID = "OBJECTION_ID";
-    private static final String EMAIL = "demo@ch.gov.uk";
+    private static final String EMAIL = "example@test.co.uk";
     private static final String USER_ID = "32324";
     private static final String REASON = "THIS IS A REASON";
 
@@ -56,6 +59,7 @@ class EmailServiceTest {
 
     @Test
     void sendObjectionSubmittedCustomerEmail() throws ServiceException {
+        ReflectionTestUtils.setField(emailService, "emailSubject", EMAIL_SUBJECT);
         when(companyProfileService.getCompanyProfile(COMPANY_NUMBER, REQUEST_ID))
                 .thenReturn(Utils.getDummyCompanyProfile(COMPANY_NUMBER));
         when(dateTimeSupplier.get()).thenReturn(LOCAL_DATE_TIME);
@@ -95,6 +99,9 @@ class EmailServiceTest {
         assertTrue(data.containsValue("Company: " + COMPANY_NUMBER));
         assertTrue(data.containsValue(OBJECTION_ID));
         assertTrue(data.containsValue(attachments));
-
+        assertTrue(data.containsKey("to"));
+        assertTrue(data.containsValue(EMAIL));
+        assertTrue(data.containsKey("subject"));
+        assertTrue(data.containsValue(FORMATTED_EMAIL_SUBJECT));
     }
 }

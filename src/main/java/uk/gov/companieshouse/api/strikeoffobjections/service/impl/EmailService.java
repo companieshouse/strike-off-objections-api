@@ -21,6 +21,9 @@ import java.util.function.Supplier;
 @Service
 public class EmailService implements IEmailService {
 
+    @Value("${EMAIL_SUBJECT}")
+    private String emailSubject;
+
     @Value("${EMAIL_SENDER_APP_ID}")
     private String originatingAppId;
 
@@ -58,6 +61,9 @@ public class EmailService implements IEmailService {
         String emailAddress = objection.getCreatedBy().getEmail();
         Map<String, Object> data = new HashMap<>();
 
+        String subject = emailSubject.replace("{{ COMPANY_NUMBER }}", companyNumber);
+        data.put("subject", subject);
+        data.put("to", emailAddress);
         data.put("company_name", companyName);
         data.put("company_number", companyNumber);
         data.put("objection_id", objection.getId());
