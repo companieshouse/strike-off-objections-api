@@ -121,7 +121,7 @@ public class Utils {
         return parser.parse(new File(avroSchemaPath));
     }
 
-    public static CompanyProfileApi getMockCompanyProfile(String companyNumber, String jurisdiction) {
+    public static CompanyProfileApi getDummyCompanyProfile(String companyNumber, String jurisdiction) {
         CompanyProfileApi companyProfileApi = new CompanyProfileApi();
         companyProfileApi.setCompanyNumber(companyNumber);
         companyProfileApi.setCompanyName("Company: " + companyNumber);

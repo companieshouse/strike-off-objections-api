@@ -67,9 +67,9 @@ class EmailServiceTest {
 
     @Test
     void sendObjectionSubmittedCustomerEmail() throws ServiceException {
+        when(companyProfileService.getCompanyProfile(COMPANY_NUMBER, REQUEST_ID))
+                .thenReturn(Utils.getDummyCompanyProfile(COMPANY_NUMBER, ""));
         when(dateTimeSupplier.get()).thenReturn(LOCAL_DATE_TIME);
-        when(companyProfileService.getCompanyProfile(REQUEST_ID, COMPANY_NUMBER))
-                .thenReturn(Utils.getMockCompanyProfile(COMPANY_NUMBER, ""));
         when(ericHeaderParser.getEmailAddress(AUTH_USER)).thenReturn(EMAIL);
         List<Attachment> attachments = Utils.getTestAttachments();
         Objection objection = Utils.getTestObjection(OBJECTION_ID, REASON, attachments);
@@ -99,8 +99,8 @@ class EmailServiceTest {
     @Test
     void sendObjectionSubmittedDissolutonEmailsWalesJurisdiction() throws ServiceException {
         when(dateTimeSupplier.get()).thenReturn(LOCAL_DATE_TIME);
-        when(companyProfileService.getCompanyProfile(REQUEST_ID, COMPANY_NUMBER))
-                .thenReturn(Utils.getMockCompanyProfile(COMPANY_NUMBER, "wales"));
+        when(companyProfileService.getCompanyProfile(COMPANY_NUMBER, REQUEST_ID))
+                .thenReturn(Utils.getDummyCompanyProfile(COMPANY_NUMBER, "wales"));
         when(config.getEmailRecipientsCardiff()).thenReturn(EMAIL_RECIPIENTS_CARDIFF_TEST);
         List<Attachment> attachments = Utils.getTestAttachments();
         Objection objection = Utils.getTestObjection(OBJECTION_ID, REASON, attachments);
@@ -118,8 +118,8 @@ class EmailServiceTest {
     @Test
     void sendObjectionSubmittedDissolutonEmailsScotlandJurisdiction() throws ServiceException {
         when(dateTimeSupplier.get()).thenReturn(LOCAL_DATE_TIME);
-        when(companyProfileService.getCompanyProfile(REQUEST_ID, COMPANY_NUMBER))
-                .thenReturn(Utils.getMockCompanyProfile(COMPANY_NUMBER, "scotland"));
+        when(companyProfileService.getCompanyProfile(COMPANY_NUMBER, REQUEST_ID))
+                .thenReturn(Utils.getDummyCompanyProfile(COMPANY_NUMBER, "scotland"));
         when(config.getEmailRecipientsEdinburgh()).thenReturn(EMAIL_RECIPIENTS_EDINBURGH_TEST);
         List<Attachment> attachments = Utils.getTestAttachments();
         Objection objection = Utils.getTestObjection(OBJECTION_ID, REASON, attachments);
@@ -137,8 +137,8 @@ class EmailServiceTest {
     @Test
     void sendObjectionSubmittedDissolutonEmailsNIJurisdiction() throws ServiceException {
         when(dateTimeSupplier.get()).thenReturn(LOCAL_DATE_TIME);
-        when(companyProfileService.getCompanyProfile(REQUEST_ID, COMPANY_NUMBER))
-                .thenReturn(Utils.getMockCompanyProfile(COMPANY_NUMBER, "northern-ireland"));
+        when(companyProfileService.getCompanyProfile(COMPANY_NUMBER, REQUEST_ID))
+                .thenReturn(Utils.getDummyCompanyProfile(COMPANY_NUMBER, "northern-ireland"));
         when(config.getEmailRecipientsBelfast()).thenReturn(EMAIL_RECIPIENTS_BELFAST_TEST);
         List<Attachment> attachments = Utils.getTestAttachments();
         Objection objection = Utils.getTestObjection(OBJECTION_ID, REASON, attachments);

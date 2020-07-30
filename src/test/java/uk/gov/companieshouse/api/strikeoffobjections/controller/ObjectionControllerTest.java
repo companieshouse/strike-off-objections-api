@@ -13,6 +13,7 @@ import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.multipart.MultipartFile;
 import uk.gov.companieshouse.api.strikeoffobjections.common.ApiLogger;
 import uk.gov.companieshouse.api.strikeoffobjections.exception.AttachmentNotFoundException;
+import uk.gov.companieshouse.api.strikeoffobjections.exception.InvalidObjectionStatusException;
 import uk.gov.companieshouse.api.strikeoffobjections.exception.ObjectionNotFoundException;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Attachment;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Objection;
@@ -31,19 +32,17 @@ import uk.gov.companieshouse.service.rest.response.PluggableResponseEntityFactor
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-
-import static org.mockito.Mockito.times;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @ExtendWith(MockitoExtension.class)
 class ObjectionControllerTest {
@@ -58,13 +57,13 @@ class ObjectionControllerTest {
     private static final String ACCESS_URL = "/dummyUrl";
 
     @Mock
-    IObjectionService objectionService;
+    private IObjectionService objectionService;
 
     @Mock
-    ApiLogger apiLogger;
+    private ApiLogger apiLogger;
 
     @Mock
-    PluggableResponseEntityFactory pluggableResponseEntityFactory;
+    private PluggableResponseEntityFactory pluggableResponseEntityFactory;
 
     @Mock
     private ObjectionMapper objectionMapper;
@@ -76,10 +75,10 @@ class ObjectionControllerTest {
     private HttpServletRequest servletRequest;
 
     @InjectMocks
-    ObjectionController objectionController;
+    private ObjectionController objectionController;
 
     @Test
-    void createObjectionTest() throws Exception {
+    void createObjectionTest() {
         ObjectionResponseDTO objectionResponse = new ObjectionResponseDTO(OBJECTION_ID);
         when(objectionService.createObjection(REQUEST_ID, COMPANY_NUMBER, AUTH_ID, AUTH_USER)).thenReturn(OBJECTION_ID);
         when(pluggableResponseEntityFactory.createResponse(any(ServiceResult.class))).thenReturn(
@@ -96,9 +95,9 @@ class ObjectionControllerTest {
     }
 
     @Test
-    void createObjectionExceptionTest() throws Exception {
+    void createObjectionExceptionTest() {
         when(objectionService.createObjection(REQUEST_ID, COMPANY_NUMBER, AUTH_ID, AUTH_USER))
-                .thenThrow(new Exception("ERROR MESSAGE"));
+                .thenThrow(new RuntimeException("ERROR MESSAGE"));
         when(pluggableResponseEntityFactory.createEmptyInternalServerError()).thenReturn(
                 ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build()
         );
@@ -106,11 +105,10 @@ class ObjectionControllerTest {
         ResponseEntity<ChResponseBody<ObjectionResponseDTO>> response = objectionController.createObjection(COMPANY_NUMBER, REQUEST_ID, AUTH_ID, AUTH_USER);
 
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
-
     }
 
     @Test
-    void  patchObjectionTest() throws Exception {
+    void patchObjectionTest() {
         ObjectionPatch objectionPatch = new ObjectionPatch();
         objectionPatch.setReason(REASON);
         objectionPatch.setStatus(ObjectionStatus.OPEN);
@@ -120,7 +118,7 @@ class ObjectionControllerTest {
     }
 
     @Test
-    void  patchObjectionNotFoundExceptionTest() throws  Exception {
+    void patchObjectionNotFoundExceptionTest() throws Exception {
         ObjectionPatch objectionPatch = new ObjectionPatch();
         objectionPatch.setReason(REASON);
         objectionPatch.setStatus(ObjectionStatus.OPEN);
@@ -128,6 +126,40 @@ class ObjectionControllerTest {
         ResponseEntity response = objectionController.patchObjection(COMPANY_NUMBER, OBJECTION_ID, objectionPatch, REQUEST_ID);
 
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+    }
+
+    @Test
+    void patchObjectionSubmittedInvalidObjectionStatusExceptionTest()
+            throws InvalidObjectionStatusException, ObjectionNotFoundException {
+        ObjectionPatch objectionPatch = new ObjectionPatch();
+        objectionPatch.setReason(REASON);
+        objectionPatch.setStatus(ObjectionStatus.SUBMITTED);
+
+        doThrow(new InvalidObjectionStatusException("Message")).when(objectionService).patchObjection(any(), any(), any(), any());
+
+        ResponseEntity response = objectionController.patchObjection(COMPANY_NUMBER, OBJECTION_ID, objectionPatch, REQUEST_ID);
+
+        assertEquals(HttpStatus.UNPROCESSABLE_ENTITY, response.getStatusCode());
+    }
+
+    @Test
+    void patchObjectionGenericExceptionTest()
+            throws ObjectionNotFoundException, InvalidObjectionStatusException {
+        ObjectionPatch objectionPatch = new ObjectionPatch();
+        objectionPatch.setReason(REASON);
+        objectionPatch.setStatus(ObjectionStatus.SUBMITTED);
+        doThrow(new RuntimeException("Message")).when(objectionService).patchObjection(any(), any(), any(), any());
+
+        ResponseEntity response = objectionController.patchObjection(COMPANY_NUMBER, OBJECTION_ID, objectionPatch, REQUEST_ID);
+
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+    }
+
+    @Test
+    void patchObjectionNullTest() {
+        ResponseEntity response = objectionController.patchObjection(COMPANY_NUMBER, OBJECTION_ID, null, REQUEST_ID);
+
+        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
     }
 
     @Test

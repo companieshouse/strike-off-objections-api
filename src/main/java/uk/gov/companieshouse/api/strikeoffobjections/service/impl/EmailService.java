@@ -54,7 +54,8 @@ public class EmailService implements IEmailService {
             Objection objection
     ) throws ServiceException {
 
-        CompanyProfileApi companyProfile = companyProfileService.getCompanyProfile(requestId, companyNumber);
+        CompanyProfileApi companyProfile = companyProfileService.getCompanyProfile(companyNumber, requestId);
+
         String companyName = companyProfile.getCompanyName();
         Map<String, Object> data = constructEmailDataMap(companyName, companyNumber, objection);
 
@@ -74,7 +75,7 @@ public class EmailService implements IEmailService {
             Objection objection
     ) throws ServiceException {
 
-        CompanyProfileApi companyProfile = companyProfileService.getCompanyProfile(requestId, companyNumber);
+        CompanyProfileApi companyProfile = companyProfileService.getCompanyProfile(companyNumber, requestId);
         String companyName = companyProfile.getCompanyName();
         Map<String, Object> data = constructEmailDataMap(companyName, companyNumber, objection);
 
