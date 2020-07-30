@@ -1,7 +1,6 @@
 package uk.gov.companieshouse.api.strikeoffobjections.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import uk.gov.companieshouse.api.model.company.CompanyProfileApi;
 import uk.gov.companieshouse.api.strikeoffobjections.common.ApiLogger;
@@ -50,18 +49,18 @@ public class EmailService implements IEmailService {
     public void sendObjectionSubmittedCustomerEmail (
             String requestId,
             String ericAuthorisedUser,
-            String companyNumber,
+            CompanyProfileApi companyProfile,
             Objection objection
     ) throws ServiceException {
 
-        CompanyProfileApi companyProfile = companyProfileService.getCompanyProfile(companyNumber, requestId);
-
-        String companyName = companyProfile.getCompanyName();
-        Map<String, Object> data = constructEmailDataMap(companyName, companyNumber, objection);
+        Map<String, Object> data = constructEmailDataMap(
+                companyProfile.getCompanyName(),
+                companyProfile.getCompanyNumber(),
+                objection);
 
         String emailAddress = ericHeaderParser.getEmailAddress(ericAuthorisedUser);
         EmailContent emailContent = constructEmailContent(EmailType.CUSTOMER,
-                requestId, emailAddress, data);
+                emailAddress, data);
 
         logger.debugContext(requestId, "Calling Kafka client to send customer email");
         kafkaEmailClient.sendEmailToKafka(emailContent);
@@ -71,18 +70,19 @@ public class EmailService implements IEmailService {
     @Override
     public void sendObjectionSubmittedDissolutionTeamEmail(
             String requestId,
-            String companyNumber,
+            CompanyProfileApi companyProfile,
             Objection objection
     ) throws ServiceException {
 
-        CompanyProfileApi companyProfile = companyProfileService.getCompanyProfile(companyNumber, requestId);
-        String companyName = companyProfile.getCompanyName();
-        Map<String, Object> data = constructEmailDataMap(companyName, companyNumber, objection);
+        Map<String, Object> data = constructEmailDataMap(
+                companyProfile.getCompanyName(),
+                companyProfile.getCompanyNumber(),
+                objection);
 
         for (String emailAddress : getDissolutionTeamRecipients(companyProfile.getJurisdiction())) {
             EmailContent emailContent = constructEmailContent(EmailType.DISSOLUTION_TEAM,
-                    requestId, emailAddress, data);
-            logger.debugContext(requestId, String.format("Calling Kafka client to send dissolution team emailto %s",
+                    emailAddress, data);
+            logger.debugContext(requestId, String.format("Calling Kafka client to send dissolution team email to %s",
                     emailAddress));
             kafkaEmailClient.sendEmailToKafka(emailContent);
             logger.debugContext(requestId, "Successfully called Kafka client");
@@ -90,7 +90,6 @@ public class EmailService implements IEmailService {
     }
 
     private EmailContent constructEmailContent(EmailType emailType,
-                                               String requestId,
                                                String emailAddress,
                                                Map<String, Object> data) {
 
@@ -121,7 +120,9 @@ public class EmailService implements IEmailService {
     protected String[] getDissolutionTeamRecipients(String jurisdiction) {
         switch(jurisdiction) {
             case "england":
+                return emailConfig.getEmailRecipientsCardiff().split(",");
             case "wales":
+                return emailConfig.getEmailRecipientsCardiff().split(",");
             case "england-wales":
                 return emailConfig.getEmailRecipientsCardiff().split(",");
             case "scotland":

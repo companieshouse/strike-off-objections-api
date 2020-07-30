@@ -1,6 +1,5 @@
 package uk.gov.companieshouse.api.strikeoffobjections.service.impl;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -37,12 +36,10 @@ class EmailServiceTest {
     private static final String OBJECTION_ID = "OBJECTION_ID";
     private static final String EMAIL = "demo@ch.gov.uk";
     private static final String AUTH_USER = EMAIL + "; forename=demoForename; surname=demoSurname";
-    private static final String REASON = "THIS IS A REASON";
 
-    private static final String EMAIL_RECIPIENTS_CARDIFF_TEST =
-            "COTIndividual@companieshouse.gov.uk,COTExttest@companieshouse.gov.uk,dissolution@companieshouse.gov.uk";
-    private static final String EMAIL_RECIPIENTS_EDINBURGH_TEST = "edinIndividual@companieshouse.gov.uk,edintest@companieshouse.gov.uk";
-    private static final String EMAIL_RECIPIENTS_BELFAST_TEST = "belfastIndividual@companieshouse.gov.uk,belfastExttest@companieshouse.gov.uk";
+    private static final String EMAIL_RECIPIENTS_CARDIFF_TEST = "test1@cardiff.gov.uk,test2@cardiff.gov.uk,test3@cardiff.gov.uk";
+    private static final String EMAIL_RECIPIENTS_EDINBURGH_TEST = "test1@endinburgh.gov.uk,test2@endinburgh.gov.uk";
+    private static final String EMAIL_RECIPIENTS_BELFAST_TEST = "test1@belfast.gov.uk,test2@belfast.gov.uk";
 
     @Mock
     private EmailConfig config;
@@ -67,8 +64,6 @@ class EmailServiceTest {
 
     @Test
     void sendObjectionSubmittedCustomerEmail() throws ServiceException {
-        when(companyProfileService.getCompanyProfile(COMPANY_NUMBER, REQUEST_ID))
-                .thenReturn(Utils.getDummyCompanyProfile(COMPANY_NUMBER, "wales"));
         when(dateTimeSupplier.get()).thenReturn(LOCAL_DATE_TIME);
         when(ericHeaderParser.getEmailAddress(AUTH_USER)).thenReturn(EMAIL);
 
@@ -79,7 +74,7 @@ class EmailServiceTest {
         emailService.sendObjectionSubmittedCustomerEmail(
                 REQUEST_ID,
                 AUTH_USER,
-                COMPANY_NUMBER,
+                Utils.getDummyCompanyProfile(COMPANY_NUMBER, "wales"),
                 objection
         );
 
@@ -99,18 +94,15 @@ class EmailServiceTest {
     }
 
     @Test
-    void sendObjectionSubmittedDissolutonEmailsWalesJurisdiction() throws ServiceException {
+    void sendObjectionSubmittedDissolutionEmailsWalesJurisdiction() throws ServiceException {
         when(dateTimeSupplier.get()).thenReturn(LOCAL_DATE_TIME);
-        when(companyProfileService.getCompanyProfile(COMPANY_NUMBER, REQUEST_ID))
-                .thenReturn(Utils.getDummyCompanyProfile(COMPANY_NUMBER, "wales"));
         when(config.getEmailRecipientsCardiff()).thenReturn(EMAIL_RECIPIENTS_CARDIFF_TEST);
-
         Objection objection = Utils.getTestObjection(OBJECTION_ID);
         Utils.getTestAttachments().forEach(objection::addAttachment);
 
         emailService.sendObjectionSubmittedDissolutionTeamEmail(
                 REQUEST_ID,
-                COMPANY_NUMBER,
+                Utils.getDummyCompanyProfile(COMPANY_NUMBER, "wales"),
                 objection
         );
 
@@ -119,18 +111,15 @@ class EmailServiceTest {
     }
 
     @Test
-    void sendObjectionSubmittedDissolutonEmailsScotlandJurisdiction() throws ServiceException {
+    void sendObjectionSubmittedDissolutionEmailsScotlandJurisdiction() throws ServiceException {
         when(dateTimeSupplier.get()).thenReturn(LOCAL_DATE_TIME);
-        when(companyProfileService.getCompanyProfile(COMPANY_NUMBER, REQUEST_ID))
-                .thenReturn(Utils.getDummyCompanyProfile(COMPANY_NUMBER, "scotland"));
         when(config.getEmailRecipientsEdinburgh()).thenReturn(EMAIL_RECIPIENTS_EDINBURGH_TEST);
-        List<Attachment> attachments = Utils.getTestAttachments();
         Objection objection = Utils.getTestObjection(OBJECTION_ID);
         Utils.getTestAttachments().forEach(objection::addAttachment);
 
         emailService.sendObjectionSubmittedDissolutionTeamEmail(
                 REQUEST_ID,
-                COMPANY_NUMBER,
+                Utils.getDummyCompanyProfile(COMPANY_NUMBER, "scotland"),
                 objection
         );
 
@@ -139,18 +128,15 @@ class EmailServiceTest {
     }
 
     @Test
-    void sendObjectionSubmittedDissolutonEmailsNIJurisdiction() throws ServiceException {
+    void sendObjectionSubmittedDissolutionEmailsNIJurisdiction() throws ServiceException {
         when(dateTimeSupplier.get()).thenReturn(LOCAL_DATE_TIME);
-        when(companyProfileService.getCompanyProfile(COMPANY_NUMBER, REQUEST_ID))
-                .thenReturn(Utils.getDummyCompanyProfile(COMPANY_NUMBER, "northern-ireland"));
         when(config.getEmailRecipientsBelfast()).thenReturn(EMAIL_RECIPIENTS_BELFAST_TEST);
-        List<Attachment> attachments = Utils.getTestAttachments();
         Objection objection = Utils.getTestObjection(OBJECTION_ID);
         Utils.getTestAttachments().forEach(objection::addAttachment);
 
         emailService.sendObjectionSubmittedDissolutionTeamEmail(
                 REQUEST_ID,
-                COMPANY_NUMBER,
+                Utils.getDummyCompanyProfile(COMPANY_NUMBER, "northern-ireland"),
                 objection
         );
 
@@ -165,34 +151,36 @@ class EmailServiceTest {
         when(config.getEmailRecipientsBelfast()).thenReturn(EMAIL_RECIPIENTS_BELFAST_TEST);
         String[] recipients;
         recipients = emailService.getDissolutionTeamRecipients("england");
-        assertEquals("COTIndividual@companieshouse.gov.uk",recipients[0]);
-        assertEquals("COTExttest@companieshouse.gov.uk",recipients[1]);
-        assertEquals("dissolution@companieshouse.gov.uk",recipients[2]);
+        assertEquals("test1@cardiff.gov.uk", recipients[0]);
+        assertEquals("test2@cardiff.gov.uk", recipients[1]);
+        assertEquals("test3@cardiff.gov.uk", recipients[2]);
 
         recipients = emailService.getDissolutionTeamRecipients("wales");
-        assertEquals("COTIndividual@companieshouse.gov.uk",recipients[0]);
-        assertEquals("COTExttest@companieshouse.gov.uk",recipients[1]);
-        assertEquals("dissolution@companieshouse.gov.uk",recipients[2]);
+        assertEquals("test1@cardiff.gov.uk", recipients[0]);
+        assertEquals("test2@cardiff.gov.uk", recipients[1]);
+        assertEquals("test3@cardiff.gov.uk", recipients[2]);
 
         recipients = emailService.getDissolutionTeamRecipients("england-wales");
-        assertEquals("COTIndividual@companieshouse.gov.uk",recipients[0]);
-        assertEquals("COTExttest@companieshouse.gov.uk",recipients[1]);
-        assertEquals("dissolution@companieshouse.gov.uk",recipients[2]);
+        assertEquals("test1@cardiff.gov.uk", recipients[0]);
+        assertEquals("test2@cardiff.gov.uk", recipients[1]);
+        assertEquals("test3@cardiff.gov.uk", recipients[2]);
 
         recipients = emailService.getDissolutionTeamRecipients("scotland");
-        assertEquals("edinIndividual@companieshouse.gov.uk",recipients[0]);
-        assertEquals("edintest@companieshouse.gov.uk",recipients[1]);
+        assertEquals("test1@endinburgh.gov.uk", recipients[0]);
+        assertEquals("test2@endinburgh.gov.uk", recipients[1]);
 
         recipients = emailService.getDissolutionTeamRecipients("northern-ireland");
-        assertEquals("belfastIndividual@companieshouse.gov.uk",recipients[0]);
-        assertEquals("belfastExttest@companieshouse.gov.uk",recipients[1]);
+        assertEquals("test1@belfast.gov.uk", recipients[0]);
+        assertEquals("test2@belfast.gov.uk", recipients[1]);
 
         recipients = emailService.getDissolutionTeamRecipients("united-kingdom");
-        assertEquals("COTIndividual@companieshouse.gov.uk",recipients[0]);
-        assertEquals("COTExttest@companieshouse.gov.uk",recipients[1]);
+        assertEquals("test1@cardiff.gov.uk", recipients[0]);
+        assertEquals("test2@cardiff.gov.uk", recipients[1]);
+        assertEquals("test3@cardiff.gov.uk", recipients[2]);
 
         recipients = emailService.getDissolutionTeamRecipients("something-else");
-        assertEquals("COTIndividual@companieshouse.gov.uk",recipients[0]);
-        assertEquals("COTExttest@companieshouse.gov.uk",recipients[1]);
+        assertEquals("test1@cardiff.gov.uk", recipients[0]);
+        assertEquals("test2@cardiff.gov.uk", recipients[1]);
+        assertEquals("test3@cardiff.gov.uk", recipients[2]);
     }
 }
