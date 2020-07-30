@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.web.multipart.MultipartFile;
 import uk.gov.companieshouse.api.strikeoffobjections.exception.AttachmentNotFoundException;
+import uk.gov.companieshouse.api.strikeoffobjections.exception.InvalidObjectionStatusException;
 import uk.gov.companieshouse.api.strikeoffobjections.exception.ObjectionNotFoundException;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Attachment;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Objection;
@@ -12,10 +13,10 @@ import uk.gov.companieshouse.service.ServiceException;
 import uk.gov.companieshouse.service.ServiceResult;
 
 public interface IObjectionService {
-    String createObjection(String requestId, String companyNumber, String ericUserId, String ericUserDetails) throws Exception;
+    String createObjection(String requestId, String companyNumber, String ericUserId, String ericUserDetails);
 
-    void patchObjection(String requestId, String companyNumber,String objectionId, ObjectionPatch objectionPatch)
-            throws ObjectionNotFoundException;
+    void patchObjection(String objectionId, ObjectionPatch objectionPatch, String requestId, String companyNumber)
+            throws ObjectionNotFoundException, InvalidObjectionStatusException;
 
     Objection getObjection(String requestId, String objectionId)
             throws ObjectionNotFoundException;

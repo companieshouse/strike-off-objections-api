@@ -85,7 +85,7 @@
         }
       },
       "patch": {
-        "summary": "Updates the strike-off objection identified by objectionId with the values provided",
+        "summary": "Updates the strike-off objection identified by objectionId with the values provided. If status set to SUBMITTED, this will trigger the Objection processing.",
         "produces": [
           "application/json"
         ],
@@ -107,6 +107,9 @@
           },
           "404": {
             "description": "objection not found"
+          },
+          "422": {
+            "description": "Unable to process objection"
           }
         }
       }
