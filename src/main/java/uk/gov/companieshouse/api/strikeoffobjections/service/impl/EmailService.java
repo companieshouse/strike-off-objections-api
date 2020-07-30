@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import uk.gov.companieshouse.api.model.company.CompanyProfileApi;
 import uk.gov.companieshouse.api.strikeoffobjections.common.ApiLogger;
+import uk.gov.companieshouse.api.strikeoffobjections.email.EmailConfig;
 import uk.gov.companieshouse.api.strikeoffobjections.email.KafkaEmailClient;
 import uk.gov.companieshouse.api.strikeoffobjections.model.email.EmailContent;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Objection;
@@ -21,24 +22,7 @@ import java.util.function.Supplier;
 @Service
 public class EmailService implements IEmailService {
 
-    @Value("${EMAIL_SENDER_APP_ID}")
-    private String originatingAppId;
-
-    @Value(("${EMAIL_SUBMITTED_EXTERNAL_TEMPLATE_MESSAGE_TYPE}"))
-    private String submittedCustomerEmailType;
-
-    @Value(("${EMAIL_SUBMITTED_INTERNAL_TEMPLATE_MESSAGE_TYPE}"))
-    private String submittedDissolutionTeamEmailType;
-
-    @Value(("${EMAIL_RECIPIENTS_CARDIFF}"))
-    private String emailRecipientsCardiff;
-
-    @Value(("${EMAIL_RECIPIENTS_EDINBURGH}"))
-    private String emailRecipientsEdinburgh;
-
-    @Value(("${EMAIL_RECIPIENTS_BELFAST}"))
-    private String emailRecipientsBelfast;
-
+    private EmailConfig emailConfig;
     private ApiLogger logger;
     private ICompanyProfileService companyProfileService;
     private KafkaEmailClient kafkaEmailClient;
@@ -47,12 +31,14 @@ public class EmailService implements IEmailService {
 
     @Autowired
     public EmailService(
+            EmailConfig emailConfig,
             ApiLogger logger,
             ICompanyProfileService companyProfileService,
             KafkaEmailClient kafkaEmailClient,
             Supplier<LocalDateTime> dateTimeSupplier,
             ERICHeaderParser ericHeaderParser
     ) {
+        this.emailConfig = emailConfig;
         this.logger = logger;
         this.companyProfileService = companyProfileService;
         this.kafkaEmailClient = kafkaEmailClient;
@@ -82,9 +68,8 @@ public class EmailService implements IEmailService {
     }
 
     @Override
-    public void sendObjectionSubmittedDissolutionTeamEmail (
+    public void sendObjectionSubmittedDissolutionTeamEmail(
             String requestId,
-            String ericAuthorisedUser,
             String companyNumber,
             Objection objection
     ) throws ServiceException {
@@ -95,14 +80,12 @@ public class EmailService implements IEmailService {
 
         for (String emailAddress : getDissolutionTeamRecipients(companyProfile.getJurisdiction())) {
             EmailContent emailContent = constructEmailContent(EmailType.DISSOLUTION_TEAM,
-                    requestId, ericAuthorisedUser, data);
-
+                    requestId, emailAddress, data);
             logger.debugContext(requestId, String.format("Calling Kafka client to send dissolution team emailto %s",
                     emailAddress));
             kafkaEmailClient.sendEmailToKafka(emailContent);
             logger.debugContext(requestId, "Successfully called Kafka client");
         }
-
     }
 
     private EmailContent constructEmailContent(EmailType emailType,
@@ -110,11 +93,11 @@ public class EmailService implements IEmailService {
                                                String emailAddress,
                                                Map<String, Object> data) {
 
-        String typeOfEmail = (emailType == EmailType.CUSTOMER)? submittedCustomerEmailType
-                : submittedDissolutionTeamEmailType;
+        String typeOfEmail = (emailType == EmailType.CUSTOMER)? emailConfig.getSubmittedCustomerEmailType()
+                : emailConfig.getSubmittedDissolutionTeamEmailType();
 
         return new EmailContent.Builder()
-                .withOriginatingAppId(originatingAppId)
+                .withOriginatingAppId(emailConfig.getOriginatingAppId())
                 .withCreatedAt(dateTimeSupplier.get())
                 .withMessageType(typeOfEmail)
                 .withMessageId(UUID.randomUUID().toString())
@@ -134,18 +117,18 @@ public class EmailService implements IEmailService {
         return data;
     }
 
-    protected String[] getDissolutionTeamRecipients(String jurisdiction) {
+    private String[] getDissolutionTeamRecipients(String jurisdiction) {
         switch(jurisdiction) {
             case "england":
             case "wales":
             case "england-wales":
-                return emailRecipientsCardiff.split(",");
+                return emailConfig.getEmailRecipientsCardiff().split(",");
             case "scotland":
-                return emailRecipientsEdinburgh.split(",");
+                return emailConfig.getEmailRecipientsEdinburgh().split(",");
             case "northern-ireland":
-                return emailRecipientsBelfast.split(",");
+                return emailConfig.getEmailRecipientsBelfast().split(",");
             default:
-                return emailRecipientsCardiff.split(",");
+                return emailConfig.getEmailRecipientsCardiff().split(",");
         }
     }
 }

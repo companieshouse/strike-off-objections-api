@@ -19,6 +19,7 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,16 +30,31 @@ public class Utils {
     public static final String ORIGINAL_FILE_NAME = "original.png";
     public static final String UPLOAD_ID = "5agf-g6hh";
 
-    public static Objection getTestObjection(String id) {
+    public static Objection getTestObjection(String objectionId,
+                                             String reason,
+                                             List<Attachment> attachments) {
         Objection objection = new Objection();
-        objection.setId(id);
+        objection.setReason(reason);
+        objection.setId(objectionId);
+        objection.setAttachments(attachments);
         return objection;
     }
 
-    public static List<Attachment> getTestAttachments(String isContained) {
+    public static List<Attachment> getTestAttachments(){
+        Attachment attachment1 = new Attachment();
+        Attachment attachment2 = new Attachment();
+        attachment1.setName("Name 1");
+        attachment2.setName("Name 2");
+
+        return Arrays.asList(
+                attachment1, attachment2
+        );
+    }
+
+    public static List<Attachment> getTestAttachmentsContainingKey(String keyContained) {
         List<Attachment> attachments = new ArrayList<Attachment>();
         attachments.add(buildTestAttachment("123", "test1.txt"));
-        attachments.add(buildTestAttachment(isContained, "test2.txt"));
+        attachments.add(buildTestAttachment(keyContained, "test2.txt"));
         attachments.add(buildTestAttachment("abc", "test3.txt"));
         return attachments;
     }
@@ -105,11 +121,11 @@ public class Utils {
         return parser.parse(new File(avroSchemaPath));
     }
 
-    public static CompanyProfileApi getMockCompanyProfile(String companyNumber) {
+    public static CompanyProfileApi getMockCompanyProfile(String companyNumber, String jurisdiction) {
         CompanyProfileApi companyProfileApi = new CompanyProfileApi();
         companyProfileApi.setCompanyNumber(companyNumber);
         companyProfileApi.setCompanyName("Company: " + companyNumber);
-
+        companyProfileApi.setJurisdiction(jurisdiction);
         return companyProfileApi;
     }
 }

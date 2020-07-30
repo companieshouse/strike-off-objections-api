@@ -1,5 +1,6 @@
 package uk.gov.companieshouse.api.strikeoffobjections.service.impl;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -7,6 +8,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.companieshouse.api.strikeoffobjections.common.ApiLogger;
+import uk.gov.companieshouse.api.strikeoffobjections.email.EmailConfig;
 import uk.gov.companieshouse.api.strikeoffobjections.email.KafkaEmailClient;
 import uk.gov.companieshouse.api.strikeoffobjections.model.email.EmailContent;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Attachment;
@@ -16,7 +18,6 @@ import uk.gov.companieshouse.api.strikeoffobjections.utils.Utils;
 import uk.gov.companieshouse.service.ServiceException;
 
 import java.time.LocalDateTime;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
@@ -38,6 +39,14 @@ class EmailServiceTest {
     private static final String AUTH_USER = EMAIL + "; forename=demoForename; surname=demoSurname";
     private static final String REASON = "THIS IS A REASON";
 
+    private static final String EMAIL_RECIPIENTS_CARDIFF_TEST =
+            "COTIndividual@companieshouse.gov.uk,COTExttest@companieshouse.gov.uk,dissolution@companieshouse.gov.uk";
+    private static final String EMAIL_RECIPIENTS_EDINBURGH_TEST = "edinIndividual@companieshouse.gov.uk,edintest@companieshouse.gov.uk";
+    private static final String EMAIL_RECIPIENTS_BELFAST_TEST = "belfastIndividual@companieshouse.gov.uk,belfastExttest@companieshouse.gov.uk";
+
+    @Mock
+    private EmailConfig config;
+
     @Mock
     private ApiLogger apiLogger;
 
@@ -56,26 +65,19 @@ class EmailServiceTest {
     @InjectMocks
     private EmailService emailService;
 
+    @BeforeEach
+    void startMocks() {
+        when(dateTimeSupplier.get()).thenReturn(LOCAL_DATE_TIME);
+    }
+
     @Test
     void sendObjectionSubmittedCustomerEmail() throws ServiceException {
         when(companyProfileService.getCompanyProfile(REQUEST_ID, COMPANY_NUMBER))
-                .thenReturn(Utils.getMockCompanyProfile(COMPANY_NUMBER));
-        when(dateTimeSupplier.get()).thenReturn(LOCAL_DATE_TIME);
+                .thenReturn(Utils.getMockCompanyProfile(COMPANY_NUMBER, ""));
         when(ericHeaderParser.getEmailAddress(AUTH_USER)).thenReturn(EMAIL);
+        List<Attachment> attachments = Utils.getTestAttachments();
+        Objection objection = Utils.getTestObjection(OBJECTION_ID, REASON, attachments);
 
-        Attachment attachment1 = new Attachment();
-        Attachment attachment2 = new Attachment();
-        attachment1.setName("Name 1");
-        attachment2.setName("Name 2");
-
-        List<Attachment> attachments = Arrays.asList(
-                attachment1, attachment2
-        );
-
-        Objection objection = new Objection();
-        objection.setReason(REASON);
-        objection.setId(OBJECTION_ID);
-        objection.setAttachments(attachments);
         emailService.sendObjectionSubmittedCustomerEmail(
                 REQUEST_ID,
                 AUTH_USER,
@@ -96,6 +98,59 @@ class EmailServiceTest {
         assertTrue(data.containsValue("Company: " + COMPANY_NUMBER));
         assertTrue(data.containsValue(OBJECTION_ID));
         assertTrue(data.containsValue(attachments));
+    }
 
+    @Test
+    void sendObjectionSubmittedDissolutonEmailsWalesJurisdiction() throws ServiceException {
+        when(companyProfileService.getCompanyProfile(REQUEST_ID, COMPANY_NUMBER))
+                .thenReturn(Utils.getMockCompanyProfile(COMPANY_NUMBER, "wales"));
+        when(config.getEmailRecipientsCardiff()).thenReturn(EMAIL_RECIPIENTS_CARDIFF_TEST);
+        List<Attachment> attachments = Utils.getTestAttachments();
+        Objection objection = Utils.getTestObjection(OBJECTION_ID, REASON, attachments);
+
+        emailService.sendObjectionSubmittedDissolutionTeamEmail(
+                REQUEST_ID,
+                COMPANY_NUMBER,
+                objection
+        );
+
+        ArgumentCaptor<EmailContent> emailContentArgumentCaptor = ArgumentCaptor.forClass(EmailContent.class);
+        verify(kafkaEmailClient, times(3)).sendEmailToKafka(emailContentArgumentCaptor.capture());
+    }
+
+    @Test
+    void sendObjectionSubmittedDissolutonEmailsScotlandJurisdiction() throws ServiceException {
+        when(companyProfileService.getCompanyProfile(REQUEST_ID, COMPANY_NUMBER))
+                .thenReturn(Utils.getMockCompanyProfile(COMPANY_NUMBER, "scotland"));
+        when(config.getEmailRecipientsEdinburgh()).thenReturn(EMAIL_RECIPIENTS_EDINBURGH_TEST);
+        List<Attachment> attachments = Utils.getTestAttachments();
+        Objection objection = Utils.getTestObjection(OBJECTION_ID, REASON, attachments);
+
+        emailService.sendObjectionSubmittedDissolutionTeamEmail(
+                REQUEST_ID,
+                COMPANY_NUMBER,
+                objection
+        );
+
+        ArgumentCaptor<EmailContent> emailContentArgumentCaptor = ArgumentCaptor.forClass(EmailContent.class);
+        verify(kafkaEmailClient, times(2)).sendEmailToKafka(emailContentArgumentCaptor.capture());
+    }
+
+    @Test
+    void sendObjectionSubmittedDissolutonEmailsNIJurisdiction() throws ServiceException {
+        when(companyProfileService.getCompanyProfile(REQUEST_ID, COMPANY_NUMBER))
+                .thenReturn(Utils.getMockCompanyProfile(COMPANY_NUMBER, "northern-ireland"));
+        when(config.getEmailRecipientsBelfast()).thenReturn(EMAIL_RECIPIENTS_BELFAST_TEST);
+        List<Attachment> attachments = Utils.getTestAttachments();
+        Objection objection = Utils.getTestObjection(OBJECTION_ID, REASON, attachments);
+
+        emailService.sendObjectionSubmittedDissolutionTeamEmail(
+                REQUEST_ID,
+                COMPANY_NUMBER,
+                objection
+        );
+
+        ArgumentCaptor<EmailContent> emailContentArgumentCaptor = ArgumentCaptor.forClass(EmailContent.class);
+        verify(kafkaEmailClient, times(2)).sendEmailToKafka(emailContentArgumentCaptor.capture());
     }
 }

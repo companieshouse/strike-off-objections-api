@@ -13,7 +13,6 @@ public interface IEmailService {
 
     void sendObjectionSubmittedDissolutionTeamEmail(
             String requestId,
-            String ericAuthorisedUser,
             String companyNumber,
             Objection objection
     ) throws ServiceException;
