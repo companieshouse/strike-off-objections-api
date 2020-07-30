@@ -23,7 +23,6 @@ public class EmailService implements IEmailService {
 
     private EmailConfig emailConfig;
     private ApiLogger logger;
-    private ICompanyProfileService companyProfileService;
     private KafkaEmailClient kafkaEmailClient;
     private Supplier<LocalDateTime> dateTimeSupplier;
     private ERICHeaderParser ericHeaderParser;
@@ -32,14 +31,12 @@ public class EmailService implements IEmailService {
     public EmailService(
             EmailConfig emailConfig,
             ApiLogger logger,
-            ICompanyProfileService companyProfileService,
             KafkaEmailClient kafkaEmailClient,
             Supplier<LocalDateTime> dateTimeSupplier,
             ERICHeaderParser ericHeaderParser
     ) {
         this.emailConfig = emailConfig;
         this.logger = logger;
-        this.companyProfileService = companyProfileService;
         this.kafkaEmailClient = kafkaEmailClient;
         this.dateTimeSupplier = dateTimeSupplier;
         this.ericHeaderParser = ericHeaderParser;

@@ -48,9 +48,6 @@ class EmailServiceTest {
     private ApiLogger apiLogger;
 
     @Mock
-    private ICompanyProfileService companyProfileService;
-
-    @Mock
     private KafkaEmailClient kafkaEmailClient;
 
     @Mock
