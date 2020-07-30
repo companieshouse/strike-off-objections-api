@@ -10,6 +10,7 @@ import uk.gov.companieshouse.api.strikeoffobjections.common.ApiLogger;
 import uk.gov.companieshouse.api.strikeoffobjections.email.KafkaEmailClient;
 import uk.gov.companieshouse.api.strikeoffobjections.model.email.EmailContent;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Attachment;
+import uk.gov.companieshouse.api.strikeoffobjections.model.entity.CreatedBy;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Objection;
 import uk.gov.companieshouse.api.strikeoffobjections.service.ICompanyProfileService;
 import uk.gov.companieshouse.api.strikeoffobjections.utils.Utils;
@@ -35,7 +36,7 @@ class EmailServiceTest {
     private static final LocalDateTime LOCAL_DATE_TIME = LocalDateTime.of(2020, 12, 10, 8, 0);
     private static final String OBJECTION_ID = "OBJECTION_ID";
     private static final String EMAIL = "demo@ch.gov.uk";
-    private static final String AUTH_USER = EMAIL + "; forename=demoForename; surname=demoSurname";
+    private static final String USER_ID = "32324";
     private static final String REASON = "THIS IS A REASON";
 
     @Mock
@@ -50,9 +51,6 @@ class EmailServiceTest {
     @Mock
     private Supplier<LocalDateTime> dateTimeSupplier;
 
-    @Mock
-    private ERICHeaderParser ericHeaderParser;
-
     @InjectMocks
     private EmailService emailService;
 
@@ -61,7 +59,6 @@ class EmailServiceTest {
         when(companyProfileService.getCompanyProfile(COMPANY_NUMBER, REQUEST_ID))
                 .thenReturn(Utils.getDummyCompanyProfile(COMPANY_NUMBER));
         when(dateTimeSupplier.get()).thenReturn(LOCAL_DATE_TIME);
-        when(ericHeaderParser.getEmailAddress(AUTH_USER)).thenReturn(EMAIL);
 
         Attachment attachment1 = new Attachment();
         Attachment attachment2 = new Attachment();
@@ -76,11 +73,13 @@ class EmailServiceTest {
         objection.setReason(REASON);
         objection.setId(OBJECTION_ID);
         objection.setAttachments(attachments);
+        objection.setCompanyNumber(COMPANY_NUMBER);
+        CreatedBy createdBy = new CreatedBy(USER_ID, EMAIL);
+        objection.setCreatedBy(createdBy);
+
         emailService.sendObjectionSubmittedCustomerEmail(
-                REQUEST_ID,
-                AUTH_USER,
-                COMPANY_NUMBER,
-                objection
+                objection,
+                REQUEST_ID
         );
 
         ArgumentCaptor<EmailContent> emailContentArgumentCaptor = ArgumentCaptor.forClass(EmailContent.class);

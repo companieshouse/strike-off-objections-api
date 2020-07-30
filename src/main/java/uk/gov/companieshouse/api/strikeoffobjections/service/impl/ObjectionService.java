@@ -104,7 +104,10 @@ public class ObjectionService implements IObjectionService {
     public void patchObjection(String objectionId,
                                ObjectionPatch objectionPatch,
                                String requestId,
-                               String companyNumber) throws ObjectionNotFoundException, InvalidObjectionStatusException {
+                               String companyNumber)
+            throws ObjectionNotFoundException,
+                   InvalidObjectionStatusException,
+                   ServiceException {
         Map<String, Object> logMap = buildLogMap(companyNumber, objectionId, null);
         logger.debugContext(requestId, "Checking for existing objection", logMap);
 
