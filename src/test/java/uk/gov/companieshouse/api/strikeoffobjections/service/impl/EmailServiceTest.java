@@ -58,8 +58,8 @@ class EmailServiceTest {
 
     @Test
     void sendObjectionSubmittedCustomerEmail() throws ServiceException {
-        when(companyProfileService.getCompanyProfile(REQUEST_ID, COMPANY_NUMBER))
-                .thenReturn(Utils.getMockCompanyProfile(COMPANY_NUMBER));
+        when(companyProfileService.getCompanyProfile(COMPANY_NUMBER, REQUEST_ID))
+                .thenReturn(Utils.getDummyCompanyProfile(COMPANY_NUMBER));
         when(dateTimeSupplier.get()).thenReturn(LOCAL_DATE_TIME);
         when(ericHeaderParser.getEmailAddress(AUTH_USER)).thenReturn(EMAIL);
 

@@ -55,7 +55,7 @@ public class EmailService implements IEmailService {
             String companyNumber,
             Objection objection
     ) throws ServiceException {
-        CompanyProfileApi companyProfile = companyProfileService.getCompanyProfile(requestId, companyNumber);
+        CompanyProfileApi companyProfile = companyProfileService.getCompanyProfile(companyNumber, requestId);
 
         String companyName = companyProfile.getCompanyName();
         String emailAddress = ericHeaderParser.getEmailAddress(ericAuthorisedUser);
