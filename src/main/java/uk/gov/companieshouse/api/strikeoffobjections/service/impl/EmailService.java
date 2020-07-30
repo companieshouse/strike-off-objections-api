@@ -48,13 +48,6 @@ public class EmailService implements IEmailService {
         this.dateTimeSupplier = dateTimeSupplier;
     }
 
-    /**
-     * Used for unit tests
-     **/
-    public void setEmailSubject(String emailSubject) {
-        this.emailSubject = emailSubject;
-    }
-
     @Override
     public void sendObjectionSubmittedCustomerEmail(
             Objection objection,
