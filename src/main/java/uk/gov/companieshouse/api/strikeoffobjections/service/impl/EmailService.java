@@ -2,7 +2,6 @@ package uk.gov.companieshouse.api.strikeoffobjections.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import uk.gov.companieshouse.api.model.company.CompanyProfileApi;
 import uk.gov.companieshouse.api.strikeoffobjections.common.ApiLogger;
 import uk.gov.companieshouse.api.strikeoffobjections.email.EmailConfig;
 import uk.gov.companieshouse.api.strikeoffobjections.email.KafkaEmailClient;
