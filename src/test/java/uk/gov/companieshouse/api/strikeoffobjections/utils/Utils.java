@@ -1,6 +1,5 @@
 package uk.gov.companieshouse.api.strikeoffobjections.utils;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.avro.Schema;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;

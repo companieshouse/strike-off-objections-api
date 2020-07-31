@@ -61,15 +61,16 @@ public class EmailService implements IEmailService {
 
     @Override
     public void sendObjectionSubmittedDissolutionTeamEmail(
-            CompanyProfileApi companyProfile,
+            String companyName,
+            String jurisdiction,
             Objection objection,
             String requestId
     ) throws ServiceException {
 
 
-        for (String emailAddress : getDissolutionTeamRecipients(companyProfile.getJurisdiction())) {
+        for (String emailAddress : getDissolutionTeamRecipients(jurisdiction)) {
             Map<String, Object> data = constructEmailDataMap(
-                    companyProfile.getCompanyName(),
+                    companyName,
                     objection,
                     emailAddress);
             EmailContent emailContent = constructEmailContent(EmailType.DISSOLUTION_TEAM,

@@ -6,15 +6,12 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.test.util.ReflectionTestUtils;
 import uk.gov.companieshouse.api.strikeoffobjections.common.ApiLogger;
 import uk.gov.companieshouse.api.strikeoffobjections.email.EmailConfig;
 import uk.gov.companieshouse.api.strikeoffobjections.email.KafkaEmailClient;
 import uk.gov.companieshouse.api.strikeoffobjections.model.email.EmailContent;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Attachment;
-import uk.gov.companieshouse.api.strikeoffobjections.model.entity.CreatedBy;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Objection;
-import uk.gov.companieshouse.api.strikeoffobjections.service.ICompanyProfileService;
 import uk.gov.companieshouse.api.strikeoffobjections.utils.Utils;
 import uk.gov.companieshouse.service.ServiceException;
 
@@ -32,7 +29,6 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class EmailServiceTest {
 
-    private static final String EMAIL_SUBJECT = "{{ COMPANY_NUMBER }}: email sent";
     private static final String REQUEST_ID = "REQUEST_ID";
     private static final String COMPANY_NUMBER = "COMPANY_NUMBER";
     private static final String COMPANY_NAME = "Company: " + COMPANY_NUMBER;
@@ -46,6 +42,10 @@ class EmailServiceTest {
     private static final String EMAIL_RECIPIENTS_CARDIFF_TEST = "test1@cardiff.gov.uk,test2@cardiff.gov.uk,test3@cardiff.gov.uk";
     private static final String EMAIL_RECIPIENTS_EDINBURGH_TEST = "test1@edinburgh.gov.uk,test2@edinburgh.gov.uk";
     private static final String EMAIL_RECIPIENTS_BELFAST_TEST = "test1@belfast.gov.uk,test2@belfast.gov.uk";
+
+    private static final String JURISDICTION_WALES = "wales";
+    private static final String JURISDICTION_SCOTLAND = "scotland";
+    private static final String JURISDICTION_NORTHERN_IRELAND = "northern-ireland";
 
     @Mock
     private EmailConfig config;
@@ -64,7 +64,6 @@ class EmailServiceTest {
 
     @Test
     void sendObjectionSubmittedCustomerEmail() throws ServiceException {
-        when(config.getEmailSubject()).thenReturn(FORMATTED_EMAIL_SUBJECT);
         when(config.getEmailSubject()).thenReturn(FORMATTED_EMAIL_SUBJECT);
         when(dateTimeSupplier.get()).thenReturn(LOCAL_DATE_TIME);
 
@@ -107,7 +106,8 @@ class EmailServiceTest {
         Utils.getTestAttachments().forEach(objection::addAttachment);
 
         emailService.sendObjectionSubmittedDissolutionTeamEmail(
-                Utils.getDummyCompanyProfile(COMPANY_NUMBER, "wales"),
+                COMPANY_NAME,
+                JURISDICTION_WALES ,
                 objection,
                 REQUEST_ID
         );
@@ -130,7 +130,8 @@ class EmailServiceTest {
         Utils.getTestAttachments().forEach(objection::addAttachment);
 
         emailService.sendObjectionSubmittedDissolutionTeamEmail(
-                Utils.getDummyCompanyProfile(COMPANY_NUMBER, "scotland"),
+                COMPANY_NAME,
+                JURISDICTION_SCOTLAND,
                 objection,
                 REQUEST_ID
         );
@@ -152,7 +153,8 @@ class EmailServiceTest {
         Utils.getTestAttachments().forEach(objection::addAttachment);
 
         emailService.sendObjectionSubmittedDissolutionTeamEmail(
-                Utils.getDummyCompanyProfile(COMPANY_NUMBER, "northern-ireland"),
+                COMPANY_NAME,
+                JURISDICTION_NORTHERN_IRELAND,
                 objection,
                 REQUEST_ID
         );
@@ -176,7 +178,7 @@ class EmailServiceTest {
         assertEquals("test2@cardiff.gov.uk", recipients[1]);
         assertEquals("test3@cardiff.gov.uk", recipients[2]);
 
-        recipients = emailService.getDissolutionTeamRecipients("wales");
+        recipients = emailService.getDissolutionTeamRecipients(JURISDICTION_WALES);
         assertEquals("test1@cardiff.gov.uk", recipients[0]);
         assertEquals("test2@cardiff.gov.uk", recipients[1]);
         assertEquals("test3@cardiff.gov.uk", recipients[2]);
@@ -186,11 +188,11 @@ class EmailServiceTest {
         assertEquals("test2@cardiff.gov.uk", recipients[1]);
         assertEquals("test3@cardiff.gov.uk", recipients[2]);
 
-        recipients = emailService.getDissolutionTeamRecipients("scotland");
+        recipients = emailService.getDissolutionTeamRecipients(JURISDICTION_SCOTLAND );
         assertEquals("test1@edinburgh.gov.uk", recipients[0]);
         assertEquals("test2@edinburgh.gov.uk", recipients[1]);
 
-        recipients = emailService.getDissolutionTeamRecipients("northern-ireland");
+        recipients = emailService.getDissolutionTeamRecipients(JURISDICTION_NORTHERN_IRELAND);
         assertEquals("test1@belfast.gov.uk", recipients[0]);
         assertEquals("test2@belfast.gov.uk", recipients[1]);
 
