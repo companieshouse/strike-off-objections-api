@@ -21,6 +21,9 @@ import java.util.function.Supplier;
 @Service
 public class EmailService implements IEmailService {
 
+    @Value("${EMAIL_SUBJECT}")
+    private String emailSubject;
+
     @Value("${EMAIL_SENDER_APP_ID}")
     private String originatingAppId;
 
@@ -31,36 +34,36 @@ public class EmailService implements IEmailService {
     private ICompanyProfileService companyProfileService;
     private KafkaEmailClient kafkaEmailClient;
     private Supplier<LocalDateTime> dateTimeSupplier;
-    private ERICHeaderParser ericHeaderParser;
 
     @Autowired
     public EmailService(
             ApiLogger logger,
             ICompanyProfileService companyProfileService,
             KafkaEmailClient kafkaEmailClient,
-            Supplier<LocalDateTime> dateTimeSupplier,
-            ERICHeaderParser ericHeaderParser
+            Supplier<LocalDateTime> dateTimeSupplier
     ) {
         this.logger = logger;
         this.companyProfileService = companyProfileService;
         this.kafkaEmailClient = kafkaEmailClient;
         this.dateTimeSupplier = dateTimeSupplier;
-        this.ericHeaderParser = ericHeaderParser;
     }
 
     @Override
-    public void sendObjectionSubmittedCustomerEmail (
-            String requestId,
-            String ericAuthorisedUser,
-            String companyNumber,
-            Objection objection
+    public void sendObjectionSubmittedCustomerEmail(
+            Objection objection,
+            String requestId
     ) throws ServiceException {
+        String companyNumber = objection.getCompanyNumber();
+
         CompanyProfileApi companyProfile = companyProfileService.getCompanyProfile(companyNumber, requestId);
 
         String companyName = companyProfile.getCompanyName();
-        String emailAddress = ericHeaderParser.getEmailAddress(ericAuthorisedUser);
+        String emailAddress = objection.getCreatedBy().getEmail();
         Map<String, Object> data = new HashMap<>();
 
+        String subject = emailSubject.replace("{{ COMPANY_NUMBER }}", companyNumber);
+        data.put("subject", subject);
+        data.put("to", emailAddress);
         data.put("company_name", companyName);
         data.put("company_number", companyNumber);
         data.put("objection_id", objection.getId());

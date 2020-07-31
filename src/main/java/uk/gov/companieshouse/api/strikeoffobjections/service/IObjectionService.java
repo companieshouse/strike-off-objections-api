@@ -16,7 +16,7 @@ public interface IObjectionService {
     String createObjection(String requestId, String companyNumber, String ericUserId, String ericUserDetails);
 
     void patchObjection(String objectionId, ObjectionPatch objectionPatch, String requestId, String companyNumber)
-            throws ObjectionNotFoundException, InvalidObjectionStatusException;
+            throws ObjectionNotFoundException, InvalidObjectionStatusException, ServiceException;
 
     Objection getObjection(String requestId, String objectionId)
             throws ObjectionNotFoundException;

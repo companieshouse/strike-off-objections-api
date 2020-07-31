@@ -130,7 +130,7 @@ class ObjectionControllerTest {
 
     @Test
     void patchObjectionSubmittedInvalidObjectionStatusExceptionTest()
-            throws InvalidObjectionStatusException, ObjectionNotFoundException {
+            throws InvalidObjectionStatusException, ObjectionNotFoundException, ServiceException {
         ObjectionPatch objectionPatch = new ObjectionPatch();
         objectionPatch.setReason(REASON);
         objectionPatch.setStatus(ObjectionStatus.SUBMITTED);
@@ -144,7 +144,7 @@ class ObjectionControllerTest {
 
     @Test
     void patchObjectionGenericExceptionTest()
-            throws ObjectionNotFoundException, InvalidObjectionStatusException {
+            throws ObjectionNotFoundException, InvalidObjectionStatusException, ServiceException {
         ObjectionPatch objectionPatch = new ObjectionPatch();
         objectionPatch.setReason(REASON);
         objectionPatch.setStatus(ObjectionStatus.SUBMITTED);
