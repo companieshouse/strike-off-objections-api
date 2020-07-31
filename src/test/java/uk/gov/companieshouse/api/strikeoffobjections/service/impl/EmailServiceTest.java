@@ -6,19 +6,16 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.test.util.ReflectionTestUtils;
 import uk.gov.companieshouse.api.strikeoffobjections.common.ApiLogger;
+import uk.gov.companieshouse.api.strikeoffobjections.email.EmailConfig;
 import uk.gov.companieshouse.api.strikeoffobjections.email.KafkaEmailClient;
 import uk.gov.companieshouse.api.strikeoffobjections.model.email.EmailContent;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Attachment;
-import uk.gov.companieshouse.api.strikeoffobjections.model.entity.CreatedBy;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Objection;
-import uk.gov.companieshouse.api.strikeoffobjections.service.ICompanyProfileService;
 import uk.gov.companieshouse.api.strikeoffobjections.utils.Utils;
 import uk.gov.companieshouse.service.ServiceException;
 
 import java.time.LocalDateTime;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
@@ -31,22 +28,30 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class EmailServiceTest {
 
-    private static final String EMAIL_SUBJECT = "{{ COMPANY_NUMBER }}: email sent";
     private static final String REQUEST_ID = "REQUEST_ID";
     private static final String COMPANY_NUMBER = "COMPANY_NUMBER";
+    private static final String COMPANY_NAME = "Company: " + COMPANY_NUMBER;
     private static final String FORMATTED_EMAIL_SUBJECT = COMPANY_NUMBER + ": email sent";
     private static final LocalDateTime LOCAL_DATE_TIME = LocalDateTime.of(2020, 12, 10, 8, 0);
     private static final String SUBMITTED_DATE = "10 December 2020";
     private static final String OBJECTION_ID = "OBJECTION_ID";
-    private static final String EMAIL = "example@test.co.uk";
+    private static final String EMAIL = "demo@ch.gov.uk";
     private static final String USER_ID = "32324";
     private static final String REASON = "THIS IS A REASON";
 
-    @Mock
-    private ApiLogger apiLogger;
+    private static final String EMAIL_RECIPIENTS_CARDIFF_TEST = "test1@cardiff.gov.uk,test2@cardiff.gov.uk,test3@cardiff.gov.uk";
+    private static final String EMAIL_RECIPIENTS_EDINBURGH_TEST = "test1@edinburgh.gov.uk,test2@edinburgh.gov.uk";
+    private static final String EMAIL_RECIPIENTS_BELFAST_TEST = "test1@belfast.gov.uk,test2@belfast.gov.uk";
+
+    private static final String JURISDICTION_WALES = "wales";
+    private static final String JURISDICTION_SCOTLAND = "scotland";
+    private static final String JURISDICTION_NORTHERN_IRELAND = "northern-ireland";
 
     @Mock
-    private ICompanyProfileService companyProfileService;
+    private EmailConfig config;
+
+    @Mock
+    private ApiLogger apiLogger;
 
     @Mock
     private KafkaEmailClient kafkaEmailClient;
@@ -59,31 +64,18 @@ class EmailServiceTest {
 
     @Test
     void sendObjectionSubmittedCustomerEmail() throws ServiceException {
-        ReflectionTestUtils.setField(emailService, "emailSubject", EMAIL_SUBJECT);
-        when(companyProfileService.getCompanyProfile(COMPANY_NUMBER, REQUEST_ID))
-                .thenReturn(Utils.getDummyCompanyProfile(COMPANY_NUMBER));
+        when(config.getEmailSubject()).thenReturn(FORMATTED_EMAIL_SUBJECT);
         when(dateTimeSupplier.get()).thenReturn(LOCAL_DATE_TIME);
 
-        Attachment attachment1 = new Attachment();
-        Attachment attachment2 = new Attachment();
-        attachment1.setName("Name 1");
-        attachment2.setName("Name 2");
+        Objection objection = Utils.getTestObjection(
+                OBJECTION_ID, REASON, COMPANY_NUMBER, USER_ID, EMAIL, LOCAL_DATE_TIME);
+        List<Attachment> attachments = Utils.getTestAttachments();
+        attachments.forEach(objection::addAttachment);
 
-        List<Attachment> attachments = Arrays.asList(
-                attachment1, attachment2
-        );
-
-        Objection objection = new Objection();
-        objection.setReason(REASON);
-        objection.setId(OBJECTION_ID);
-        objection.setAttachments(attachments);
-        objection.setCompanyNumber(COMPANY_NUMBER);
-        CreatedBy createdBy = new CreatedBy(USER_ID, EMAIL);
-        objection.setCreatedBy(createdBy);
-        objection.setCreatedOn(LOCAL_DATE_TIME);
 
         emailService.sendObjectionSubmittedCustomerEmail(
                 objection,
+                COMPANY_NAME,
                 REQUEST_ID
         );
 
@@ -103,5 +95,118 @@ class EmailServiceTest {
         assertEquals("Company: " + COMPANY_NUMBER, data.get("company_name"));
         assertEquals(COMPANY_NUMBER, data.get("company_number"));
         assertEquals(attachments, data.get("attachments"));
+    }
+
+    @Test
+    void sendObjectionSubmittedDissolutionEmailsWalesJurisdiction() throws ServiceException {
+        when(dateTimeSupplier.get()).thenReturn(LOCAL_DATE_TIME);
+        when(config.getEmailSubject()).thenReturn(FORMATTED_EMAIL_SUBJECT);
+        when(config.getEmailRecipientsCardiff()).thenReturn(EMAIL_RECIPIENTS_CARDIFF_TEST);
+        Objection objection = Utils.getTestObjection(
+                OBJECTION_ID, REASON, COMPANY_NUMBER, USER_ID, EMAIL, LOCAL_DATE_TIME);
+        Utils.getTestAttachments().forEach(objection::addAttachment);
+
+        emailService.sendObjectionSubmittedDissolutionTeamEmail(
+                COMPANY_NAME,
+                JURISDICTION_WALES ,
+                objection,
+                REQUEST_ID
+        );
+
+        ArgumentCaptor<EmailContent> emailContentArgumentCaptor = ArgumentCaptor.forClass(EmailContent.class);
+        verify(kafkaEmailClient, times(3)).sendEmailToKafka(emailContentArgumentCaptor.capture());
+
+        List<EmailContent> emailContentList = emailContentArgumentCaptor.getAllValues();
+        assertEquals("test1@cardiff.gov.uk", emailContentList.get(0).getEmailAddress());
+        assertEquals("test2@cardiff.gov.uk", emailContentList.get(1).getEmailAddress());
+        assertEquals("test3@cardiff.gov.uk", emailContentList.get(2).getEmailAddress());
+    }
+
+    @Test
+    void sendObjectionSubmittedDissolutionEmailsScotlandJurisdiction() throws ServiceException {
+        when(dateTimeSupplier.get()).thenReturn(LOCAL_DATE_TIME);
+        when(config.getEmailSubject()).thenReturn(FORMATTED_EMAIL_SUBJECT);
+        when(config.getEmailRecipientsEdinburgh()).thenReturn(EMAIL_RECIPIENTS_EDINBURGH_TEST);
+        Objection objection = Utils.getTestObjection(
+                OBJECTION_ID, REASON, COMPANY_NUMBER, USER_ID, EMAIL, LOCAL_DATE_TIME);
+        Utils.getTestAttachments().forEach(objection::addAttachment);
+
+        emailService.sendObjectionSubmittedDissolutionTeamEmail(
+                COMPANY_NAME,
+                JURISDICTION_SCOTLAND,
+                objection,
+                REQUEST_ID
+        );
+
+        ArgumentCaptor<EmailContent> emailContentArgumentCaptor = ArgumentCaptor.forClass(EmailContent.class);
+        verify(kafkaEmailClient, times(2)).sendEmailToKafka(emailContentArgumentCaptor.capture());
+
+        List<EmailContent> emailContentList = emailContentArgumentCaptor.getAllValues();
+        assertEquals("test1@edinburgh.gov.uk", emailContentList.get(0).getEmailAddress());
+        assertEquals("test2@edinburgh.gov.uk", emailContentList.get(1).getEmailAddress());
+    }
+
+    @Test
+    void sendObjectionSubmittedDissolutionEmailsNIJurisdiction() throws ServiceException {
+        when(dateTimeSupplier.get()).thenReturn(LOCAL_DATE_TIME);
+        when(config.getEmailSubject()).thenReturn(FORMATTED_EMAIL_SUBJECT);
+        when(config.getEmailRecipientsBelfast()).thenReturn(EMAIL_RECIPIENTS_BELFAST_TEST);
+        Objection objection = Utils.getTestObjection(
+                OBJECTION_ID, REASON, COMPANY_NUMBER, USER_ID, EMAIL, LOCAL_DATE_TIME);
+        Utils.getTestAttachments().forEach(objection::addAttachment);
+
+        emailService.sendObjectionSubmittedDissolutionTeamEmail(
+                COMPANY_NAME,
+                JURISDICTION_NORTHERN_IRELAND,
+                objection,
+                REQUEST_ID
+        );
+
+        ArgumentCaptor<EmailContent> emailContentArgumentCaptor = ArgumentCaptor.forClass(EmailContent.class);
+        verify(kafkaEmailClient, times(2)).sendEmailToKafka(emailContentArgumentCaptor.capture());
+
+        List<EmailContent> emailContentList = emailContentArgumentCaptor.getAllValues();
+        assertEquals("test1@belfast.gov.uk", emailContentList.get(0).getEmailAddress());
+        assertEquals("test2@belfast.gov.uk", emailContentList.get(1).getEmailAddress());
+    }
+
+    @Test
+    public void testRegionalEmailAddresses() {
+        when(config.getEmailRecipientsCardiff()).thenReturn(EMAIL_RECIPIENTS_CARDIFF_TEST);
+        when(config.getEmailRecipientsEdinburgh()).thenReturn(EMAIL_RECIPIENTS_EDINBURGH_TEST);
+        when(config.getEmailRecipientsBelfast()).thenReturn(EMAIL_RECIPIENTS_BELFAST_TEST);
+        String[] recipients;
+        recipients = emailService.getDissolutionTeamRecipients("england");
+        assertEquals("test1@cardiff.gov.uk", recipients[0]);
+        assertEquals("test2@cardiff.gov.uk", recipients[1]);
+        assertEquals("test3@cardiff.gov.uk", recipients[2]);
+
+        recipients = emailService.getDissolutionTeamRecipients(JURISDICTION_WALES);
+        assertEquals("test1@cardiff.gov.uk", recipients[0]);
+        assertEquals("test2@cardiff.gov.uk", recipients[1]);
+        assertEquals("test3@cardiff.gov.uk", recipients[2]);
+
+        recipients = emailService.getDissolutionTeamRecipients("england-wales");
+        assertEquals("test1@cardiff.gov.uk", recipients[0]);
+        assertEquals("test2@cardiff.gov.uk", recipients[1]);
+        assertEquals("test3@cardiff.gov.uk", recipients[2]);
+
+        recipients = emailService.getDissolutionTeamRecipients(JURISDICTION_SCOTLAND );
+        assertEquals("test1@edinburgh.gov.uk", recipients[0]);
+        assertEquals("test2@edinburgh.gov.uk", recipients[1]);
+
+        recipients = emailService.getDissolutionTeamRecipients(JURISDICTION_NORTHERN_IRELAND);
+        assertEquals("test1@belfast.gov.uk", recipients[0]);
+        assertEquals("test2@belfast.gov.uk", recipients[1]);
+
+        recipients = emailService.getDissolutionTeamRecipients("united-kingdom");
+        assertEquals("test1@cardiff.gov.uk", recipients[0]);
+        assertEquals("test2@cardiff.gov.uk", recipients[1]);
+        assertEquals("test3@cardiff.gov.uk", recipients[2]);
+
+        recipients = emailService.getDissolutionTeamRecipients("something-else");
+        assertEquals("test1@cardiff.gov.uk", recipients[0]);
+        assertEquals("test2@cardiff.gov.uk", recipients[1]);
+        assertEquals("test3@cardiff.gov.uk", recipients[2]);
     }
 }

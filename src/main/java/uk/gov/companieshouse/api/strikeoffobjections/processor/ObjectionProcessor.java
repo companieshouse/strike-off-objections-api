@@ -2,11 +2,13 @@ package uk.gov.companieshouse.api.strikeoffobjections.processor;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import uk.gov.companieshouse.api.model.company.CompanyProfileApi;
 import uk.gov.companieshouse.api.strikeoffobjections.common.ApiLogger;
 import uk.gov.companieshouse.api.strikeoffobjections.common.LogConstants;
 import uk.gov.companieshouse.api.strikeoffobjections.exception.InvalidObjectionStatusException;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Objection;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.ObjectionStatus;
+import uk.gov.companieshouse.api.strikeoffobjections.service.ICompanyProfileService;
 import uk.gov.companieshouse.api.strikeoffobjections.service.IEmailService;
 import uk.gov.companieshouse.service.ServiceException;
 
@@ -28,12 +30,15 @@ public class ObjectionProcessor {
     private static final String LOG_OBJECTION_ID_KEY = LogConstants.OBJECTION_ID.getValue();
 
     private IEmailService emailService;
+    private ICompanyProfileService companyProfileService;
     private ApiLogger apiLogger;
 
     @Autowired
     public ObjectionProcessor(IEmailService emailService,
+                              ICompanyProfileService companyProfileService,
                               ApiLogger apiLogger) {
         this.emailService = emailService;
+        this.companyProfileService = companyProfileService;
         this.apiLogger = apiLogger;
     }
 
@@ -75,7 +80,8 @@ public class ObjectionProcessor {
 
         // send customer email
         try {
-            emailService.sendObjectionSubmittedCustomerEmail(objection, httpRequestId);
+            CompanyProfileApi companyProfile = this.companyProfileService.getCompanyProfile(objection.getCompanyNumber(), httpRequestId);
+            emailService.sendObjectionSubmittedCustomerEmail(objection, companyProfile.getCompanyName(), httpRequestId);
         } catch (Exception e) {
             logMap = new HashMap<>();
             logMap.put(LOG_OBJECTION_ID_KEY, objection.getId());

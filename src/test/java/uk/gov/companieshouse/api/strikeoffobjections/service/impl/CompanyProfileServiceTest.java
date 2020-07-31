@@ -53,7 +53,7 @@ class CompanyProfileServiceTest {
 
     @BeforeEach
     void init() {
-        dummyCompanyProfile = Utils.getDummyCompanyProfile(COMPANY_NUMBER);
+        dummyCompanyProfile = Utils.getDummyCompanyProfile(COMPANY_NUMBER, "wales");
     }
 
     @Test

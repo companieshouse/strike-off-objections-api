@@ -1,6 +1,5 @@
 package uk.gov.companieshouse.api.strikeoffobjections.utils;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.avro.Schema;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
@@ -10,6 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
 import uk.gov.companieshouse.api.model.company.CompanyProfileApi;
 import uk.gov.companieshouse.api.strikeoffobjections.file.FileTransferApiClientResponse;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Attachment;
+import uk.gov.companieshouse.api.strikeoffobjections.model.entity.CreatedBy;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Objection;
 import uk.gov.companieshouse.api.strikeoffobjections.model.email.EmailContent;
 
@@ -19,6 +19,7 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,16 +30,45 @@ public class Utils {
     public static final String ORIGINAL_FILE_NAME = "original.png";
     public static final String UPLOAD_ID = "5agf-g6hh";
 
-    public static Objection getTestObjection(String id) {
+    public static Objection getSimpleTestObjection(String objectionId){
         Objection objection = new Objection();
-        objection.setId(id);
+        objection.setId(objectionId);
         return objection;
     }
 
-    public static List<Attachment> getTestAttachments(String isContained) {
+    public static Objection getTestObjection(String objectionId,
+                                             String reason,
+                                             String companyNumber,
+                                             String userId,
+                                             String email,
+                                             LocalDateTime localDatetime) {
+
+        Objection objection = new Objection();
+        objection.setReason(reason);
+        objection.setId(objectionId);
+        objection.setCompanyNumber(companyNumber);
+        CreatedBy createdBy = new CreatedBy(userId, email);
+        objection.setCreatedBy(createdBy);
+        objection.setCreatedOn(localDatetime);
+
+        return objection;
+    }
+
+    public static List<Attachment> getTestAttachments(){
+        Attachment attachment1 = new Attachment();
+        Attachment attachment2 = new Attachment();
+        attachment1.setName("Name 1");
+        attachment2.setName("Name 2");
+
+        return Arrays.asList(
+                attachment1, attachment2
+        );
+    }
+
+    public static List<Attachment> getTestAttachmentsContainingKey(String keyContained) {
         List<Attachment> attachments = new ArrayList<Attachment>();
         attachments.add(buildTestAttachment("123", "test1.txt"));
-        attachments.add(buildTestAttachment(isContained, "test2.txt"));
+        attachments.add(buildTestAttachment(keyContained, "test2.txt"));
         attachments.add(buildTestAttachment("abc", "test3.txt"));
         return attachments;
     }
@@ -105,11 +135,11 @@ public class Utils {
         return parser.parse(new File(avroSchemaPath));
     }
 
-    public static CompanyProfileApi getDummyCompanyProfile(String companyNumber) {
+    public static CompanyProfileApi getDummyCompanyProfile(String companyNumber, String jurisdiction) {
         CompanyProfileApi companyProfileApi = new CompanyProfileApi();
         companyProfileApi.setCompanyNumber(companyNumber);
         companyProfileApi.setCompanyName("Company: " + companyNumber);
-
+        companyProfileApi.setJurisdiction(jurisdiction);
         return companyProfileApi;
     }
 }

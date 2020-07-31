@@ -7,6 +7,14 @@ public interface IEmailService {
 
     void sendObjectionSubmittedCustomerEmail(
             Objection objection,
+            String companyName,
+            String requestId
+    ) throws ServiceException;
+
+    void sendObjectionSubmittedDissolutionTeamEmail(
+            String companyName,
+            String jurisdiction,
+            Objection objection,
             String requestId
     ) throws ServiceException;
 }
