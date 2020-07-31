@@ -21,7 +21,6 @@ import java.util.Map;
 import java.util.function.Supplier;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -34,6 +33,7 @@ class EmailServiceTest {
     private static final String COMPANY_NAME = "Company: " + COMPANY_NUMBER;
     private static final String FORMATTED_EMAIL_SUBJECT = COMPANY_NUMBER + ": email sent";
     private static final LocalDateTime LOCAL_DATE_TIME = LocalDateTime.of(2020, 12, 10, 8, 0);
+    private static final String SUBMITTED_DATE = "10 December 2020";
     private static final String OBJECTION_ID = "OBJECTION_ID";
     private static final String EMAIL = "demo@ch.gov.uk";
     private static final String USER_ID = "32324";
@@ -67,7 +67,8 @@ class EmailServiceTest {
         when(config.getEmailSubject()).thenReturn(FORMATTED_EMAIL_SUBJECT);
         when(dateTimeSupplier.get()).thenReturn(LOCAL_DATE_TIME);
 
-        Objection objection = Utils.getTestObjection(OBJECTION_ID, REASON, COMPANY_NUMBER, USER_ID, EMAIL);
+        Objection objection = Utils.getTestObjection(
+                OBJECTION_ID, REASON, COMPANY_NUMBER, USER_ID, EMAIL, LOCAL_DATE_TIME);
         List<Attachment> attachments = Utils.getTestAttachments();
         attachments.forEach(objection::addAttachment);
 
@@ -87,14 +88,13 @@ class EmailServiceTest {
 
         Map<String, Object> data = emailContent.getData();
 
-        assertTrue(data.containsValue(COMPANY_NUMBER));
-        assertTrue(data.containsValue("Company: " + COMPANY_NUMBER));
-        assertTrue(data.containsValue(OBJECTION_ID));
-        assertTrue(data.containsValue(attachments));
-        assertTrue(data.containsKey("to"));
-        assertTrue(data.containsValue(EMAIL));
-        assertTrue(data.containsKey("subject"));
-        assertTrue(data.containsValue(FORMATTED_EMAIL_SUBJECT));
+        assertEquals(EMAIL, data.get("to"));
+        assertEquals(FORMATTED_EMAIL_SUBJECT, data.get("subject"));
+        assertEquals(SUBMITTED_DATE , data.get("date"));
+        assertEquals(OBJECTION_ID, data.get("objection_id"));
+        assertEquals("Company: " + COMPANY_NUMBER, data.get("company_name"));
+        assertEquals(COMPANY_NUMBER, data.get("company_number"));
+        assertEquals(attachments, data.get("attachments"));
     }
 
     @Test
@@ -102,7 +102,8 @@ class EmailServiceTest {
         when(dateTimeSupplier.get()).thenReturn(LOCAL_DATE_TIME);
         when(config.getEmailSubject()).thenReturn(FORMATTED_EMAIL_SUBJECT);
         when(config.getEmailRecipientsCardiff()).thenReturn(EMAIL_RECIPIENTS_CARDIFF_TEST);
-        Objection objection = Utils.getTestObjection(OBJECTION_ID, REASON, COMPANY_NUMBER, USER_ID, EMAIL);
+        Objection objection = Utils.getTestObjection(
+                OBJECTION_ID, REASON, COMPANY_NUMBER, USER_ID, EMAIL, LOCAL_DATE_TIME);
         Utils.getTestAttachments().forEach(objection::addAttachment);
 
         emailService.sendObjectionSubmittedDissolutionTeamEmail(
@@ -126,7 +127,8 @@ class EmailServiceTest {
         when(dateTimeSupplier.get()).thenReturn(LOCAL_DATE_TIME);
         when(config.getEmailSubject()).thenReturn(FORMATTED_EMAIL_SUBJECT);
         when(config.getEmailRecipientsEdinburgh()).thenReturn(EMAIL_RECIPIENTS_EDINBURGH_TEST);
-        Objection objection = Utils.getTestObjection(OBJECTION_ID, REASON, COMPANY_NUMBER, USER_ID, EMAIL);
+        Objection objection = Utils.getTestObjection(
+                OBJECTION_ID, REASON, COMPANY_NUMBER, USER_ID, EMAIL, LOCAL_DATE_TIME);
         Utils.getTestAttachments().forEach(objection::addAttachment);
 
         emailService.sendObjectionSubmittedDissolutionTeamEmail(
@@ -149,7 +151,8 @@ class EmailServiceTest {
         when(dateTimeSupplier.get()).thenReturn(LOCAL_DATE_TIME);
         when(config.getEmailSubject()).thenReturn(FORMATTED_EMAIL_SUBJECT);
         when(config.getEmailRecipientsBelfast()).thenReturn(EMAIL_RECIPIENTS_BELFAST_TEST);
-        Objection objection = Utils.getTestObjection(OBJECTION_ID, REASON, COMPANY_NUMBER, USER_ID, EMAIL);
+        Objection objection = Utils.getTestObjection(
+                OBJECTION_ID, REASON, COMPANY_NUMBER, USER_ID, EMAIL, LOCAL_DATE_TIME);
         Utils.getTestAttachments().forEach(objection::addAttachment);
 
         emailService.sendObjectionSubmittedDissolutionTeamEmail(

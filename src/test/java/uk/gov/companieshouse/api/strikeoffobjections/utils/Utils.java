@@ -40,14 +40,16 @@ public class Utils {
                                              String reason,
                                              String companyNumber,
                                              String userId,
-                                             String email
-                                             ) {
+                                             String email,
+                                             LocalDateTime localDatetime) {
+
         Objection objection = new Objection();
         objection.setReason(reason);
         objection.setId(objectionId);
         objection.setCompanyNumber(companyNumber);
         CreatedBy createdBy = new CreatedBy(userId, email);
         objection.setCreatedBy(createdBy);
+        objection.setCreatedOn(localDatetime);
 
         return objection;
     }
