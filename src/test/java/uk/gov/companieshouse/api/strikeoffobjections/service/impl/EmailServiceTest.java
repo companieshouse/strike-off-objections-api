@@ -98,14 +98,12 @@ class EmailServiceTest {
 
         Map<String, Object> data = emailContent.getData();
 
-        assertTrue(data.containsValue(COMPANY_NUMBER));
-        assertTrue(data.containsValue("Company: " + COMPANY_NUMBER));
-        assertTrue(data.containsValue(OBJECTION_ID));
-        assertTrue(data.containsValue(attachments));
-        assertTrue(data.containsKey("to"));
-        assertTrue(data.containsValue(EMAIL));
-        assertTrue(data.containsKey("subject"));
-        assertTrue(data.containsValue(FORMATTED_EMAIL_SUBJECT));
+        assertEquals(EMAIL, data.get("to"));
+        assertEquals(FORMATTED_EMAIL_SUBJECT, data.get("subject"));
         assertEquals(SUBMITTED_DATE , data.get("date"));
+        assertEquals(OBJECTION_ID, data.get("objection_id"));
+        assertEquals("Company: " + COMPANY_NUMBER, data.get("company_name"));
+        assertEquals(COMPANY_NUMBER, data.get("company_number"));
+        assertEquals(attachments, data.get("attachments"));
     }
 }

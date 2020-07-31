@@ -68,12 +68,12 @@ public class EmailService implements IEmailService {
         String subject = emailSubject.replace("{{ COMPANY_NUMBER }}", companyNumber);
         data.put("subject", subject);
         data.put("to", emailAddress);
+        data.put("date", FormatUtils.formatDate(submittedOn));
+        data.put("objection_id", objection.getId());
         data.put("company_name", companyName);
         data.put("company_number", companyNumber);
-        data.put("objection_id", objection.getId());
         data.put("reason", objection.getReason());
         data.put("attachments", objection.getAttachments());
-        data.put("date", FormatUtils.formatDate(submittedOn));
 
         EmailContent emailContent = new EmailContent.Builder()
                 .withOriginatingAppId(originatingAppId)
