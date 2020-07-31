@@ -24,7 +24,6 @@ import java.util.Map;
 import java.util.function.Supplier;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -37,6 +36,7 @@ class EmailServiceTest {
     private static final String COMPANY_NUMBER = "COMPANY_NUMBER";
     private static final String FORMATTED_EMAIL_SUBJECT = COMPANY_NUMBER + ": email sent";
     private static final LocalDateTime LOCAL_DATE_TIME = LocalDateTime.of(2020, 12, 10, 8, 0);
+    private static final String SUBMITTED_DATE = "10 December 2020";
     private static final String OBJECTION_ID = "OBJECTION_ID";
     private static final String EMAIL = "example@test.co.uk";
     private static final String USER_ID = "32324";
@@ -80,6 +80,7 @@ class EmailServiceTest {
         objection.setCompanyNumber(COMPANY_NUMBER);
         CreatedBy createdBy = new CreatedBy(USER_ID, EMAIL);
         objection.setCreatedBy(createdBy);
+        objection.setCreatedOn(LOCAL_DATE_TIME);
 
         emailService.sendObjectionSubmittedCustomerEmail(
                 objection,
@@ -95,13 +96,12 @@ class EmailServiceTest {
 
         Map<String, Object> data = emailContent.getData();
 
-        assertTrue(data.containsValue(COMPANY_NUMBER));
-        assertTrue(data.containsValue("Company: " + COMPANY_NUMBER));
-        assertTrue(data.containsValue(OBJECTION_ID));
-        assertTrue(data.containsValue(attachments));
-        assertTrue(data.containsKey("to"));
-        assertTrue(data.containsValue(EMAIL));
-        assertTrue(data.containsKey("subject"));
-        assertTrue(data.containsValue(FORMATTED_EMAIL_SUBJECT));
+        assertEquals(EMAIL, data.get("to"));
+        assertEquals(FORMATTED_EMAIL_SUBJECT, data.get("subject"));
+        assertEquals(SUBMITTED_DATE , data.get("date"));
+        assertEquals(OBJECTION_ID, data.get("objection_id"));
+        assertEquals("Company: " + COMPANY_NUMBER, data.get("company_name"));
+        assertEquals(COMPANY_NUMBER, data.get("company_number"));
+        assertEquals(attachments, data.get("attachments"));
     }
 }

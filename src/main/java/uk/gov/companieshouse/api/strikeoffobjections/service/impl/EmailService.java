@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import uk.gov.companieshouse.api.model.company.CompanyProfileApi;
 import uk.gov.companieshouse.api.strikeoffobjections.common.ApiLogger;
+import uk.gov.companieshouse.api.strikeoffobjections.common.FormatUtils;
 import uk.gov.companieshouse.api.strikeoffobjections.email.KafkaEmailClient;
 import uk.gov.companieshouse.api.strikeoffobjections.model.email.EmailContent;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Objection;
@@ -12,6 +13,7 @@ import uk.gov.companieshouse.api.strikeoffobjections.service.ICompanyProfileServ
 import uk.gov.companieshouse.api.strikeoffobjections.service.IEmailService;
 import uk.gov.companieshouse.service.ServiceException;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
@@ -61,12 +63,15 @@ public class EmailService implements IEmailService {
         String emailAddress = objection.getCreatedBy().getEmail();
         Map<String, Object> data = new HashMap<>();
 
+        LocalDate submittedOn = objection.getCreatedOn().toLocalDate();
+
         String subject = emailSubject.replace("{{ COMPANY_NUMBER }}", companyNumber);
         data.put("subject", subject);
         data.put("to", emailAddress);
+        data.put("date", FormatUtils.formatDate(submittedOn));
+        data.put("objection_id", objection.getId());
         data.put("company_name", companyName);
         data.put("company_number", companyNumber);
-        data.put("objection_id", objection.getId());
         data.put("reason", objection.getReason());
         data.put("attachments", objection.getAttachments());
 
