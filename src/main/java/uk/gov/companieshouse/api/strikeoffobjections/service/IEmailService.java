@@ -5,16 +5,16 @@ import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Objection;
 import uk.gov.companieshouse.service.ServiceException;
 
 public interface IEmailService {
+
     void sendObjectionSubmittedCustomerEmail(
-            String requestId,
-            String ericAuthorisedUser,
-            CompanyProfileApi companyProfile,
-            Objection objection
+            Objection objection,
+            String companyName,
+            String requestId
     ) throws ServiceException;
 
     void sendObjectionSubmittedDissolutionTeamEmail(
-            String requestId,
             CompanyProfileApi companyProfile,
-            Objection objection
+            Objection objection,
+            String requestId
     ) throws ServiceException;
 }

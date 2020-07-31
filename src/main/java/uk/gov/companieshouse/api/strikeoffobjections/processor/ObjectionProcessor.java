@@ -2,11 +2,15 @@ package uk.gov.companieshouse.api.strikeoffobjections.processor;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import uk.gov.companieshouse.api.model.company.CompanyProfileApi;
 import uk.gov.companieshouse.api.strikeoffobjections.common.ApiLogger;
 import uk.gov.companieshouse.api.strikeoffobjections.common.LogConstants;
 import uk.gov.companieshouse.api.strikeoffobjections.exception.InvalidObjectionStatusException;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Objection;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.ObjectionStatus;
+import uk.gov.companieshouse.api.strikeoffobjections.service.ICompanyProfileService;
+import uk.gov.companieshouse.api.strikeoffobjections.service.IEmailService;
+import uk.gov.companieshouse.service.ServiceException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -25,10 +29,16 @@ public class ObjectionProcessor {
             "Objection %s has status %s. Cannot process unless status = SUBMITTED";
     private static final String LOG_OBJECTION_ID_KEY = LogConstants.OBJECTION_ID.getValue();
 
+    private IEmailService emailService;
+    private ICompanyProfileService companyProfileService;
     private ApiLogger apiLogger;
 
     @Autowired
-    public ObjectionProcessor(ApiLogger apiLogger) {
+    public ObjectionProcessor(IEmailService emailService,
+                              ICompanyProfileService companyProfileService,
+                              ApiLogger apiLogger) {
+        this.emailService = emailService;
+        this.companyProfileService = companyProfileService;
         this.apiLogger = apiLogger;
     }
 
@@ -41,7 +51,7 @@ public class ObjectionProcessor {
      * @throws InvalidObjectionStatusException if the Objection is not currently in status SUBMITTED when this is called
      */
     public void process(Objection objection, String httpRequestId)
-            throws InvalidObjectionStatusException {
+            throws InvalidObjectionStatusException, ServiceException {
 
         if (objection == null) {
             throw new IllegalArgumentException(
@@ -58,13 +68,27 @@ public class ObjectionProcessor {
 
         validateObjectionStatus(objection, httpRequestId);
 
-        // TODO update status to processing
+        // TODO update status to PROCESSING
 
         // TODO OBJ-139/OBJ-20 do chips sending
 
-        // TODO update status to chips sent
+        // TODO update status to CHIPS_SENT
 
-        // TODO OBJ-157 do email sending
+        // TODO OBJ-172 send internal email
+
+        // TODO update status to INTERNAL_EMAIL_SENT
+
+        // send customer email
+        try {
+            CompanyProfileApi companyProfile = this.companyProfileService.getCompanyProfile(objection.getCompanyNumber(), httpRequestId);
+            emailService.sendObjectionSubmittedCustomerEmail(objection, companyProfile.getCompanyName(), httpRequestId);
+        } catch (Exception e) {
+            logMap = new HashMap<>();
+            logMap.put(LOG_OBJECTION_ID_KEY, objection.getId());
+            apiLogger.errorContext(httpRequestId, "Error sending customer email", e, logMap);
+
+            throw e;
+        }
 
         // TODO update status to processed
 

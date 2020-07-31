@@ -10,6 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 import uk.gov.companieshouse.api.model.company.CompanyProfileApi;
 import uk.gov.companieshouse.api.strikeoffobjections.file.FileTransferApiClientResponse;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Attachment;
+import uk.gov.companieshouse.api.strikeoffobjections.model.entity.CreatedBy;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Objection;
 import uk.gov.companieshouse.api.strikeoffobjections.model.email.EmailContent;
 
@@ -30,9 +31,25 @@ public class Utils {
     public static final String ORIGINAL_FILE_NAME = "original.png";
     public static final String UPLOAD_ID = "5agf-g6hh";
 
-    public static Objection getTestObjection(String objectionId) {
+    public static Objection getSimpleTestObjection(String objectionId){
         Objection objection = new Objection();
         objection.setId(objectionId);
+        return objection;
+    }
+
+    public static Objection getTestObjection(String objectionId,
+                                             String reason,
+                                             String companyNumber,
+                                             String userId,
+                                             String email
+                                             ) {
+        Objection objection = new Objection();
+        objection.setReason(reason);
+        objection.setId(objectionId);
+        objection.setCompanyNumber(companyNumber);
+        CreatedBy createdBy = new CreatedBy(userId, email);
+        objection.setCreatedBy(createdBy);
+
         return objection;
     }
 

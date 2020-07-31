@@ -25,37 +25,33 @@ public class EmailService implements IEmailService {
     private ApiLogger logger;
     private KafkaEmailClient kafkaEmailClient;
     private Supplier<LocalDateTime> dateTimeSupplier;
-    private ERICHeaderParser ericHeaderParser;
 
     @Autowired
     public EmailService(
             EmailConfig emailConfig,
             ApiLogger logger,
             KafkaEmailClient kafkaEmailClient,
-            Supplier<LocalDateTime> dateTimeSupplier,
-            ERICHeaderParser ericHeaderParser
+            Supplier<LocalDateTime> dateTimeSupplier
     ) {
         this.emailConfig = emailConfig;
         this.logger = logger;
         this.kafkaEmailClient = kafkaEmailClient;
         this.dateTimeSupplier = dateTimeSupplier;
-        this.ericHeaderParser = ericHeaderParser;
     }
 
     @Override
-    public void sendObjectionSubmittedCustomerEmail (
-            String requestId,
-            String ericAuthorisedUser,
-            CompanyProfileApi companyProfile,
-            Objection objection
+    public void sendObjectionSubmittedCustomerEmail(
+            Objection objection,
+            String companyName,
+            String requestId
     ) throws ServiceException {
 
+        String emailAddress = objection.getCreatedBy().getEmail();
         Map<String, Object> data = constructEmailDataMap(
-                companyProfile.getCompanyName(),
-                companyProfile.getCompanyNumber(),
-                objection);
+                companyName,
+                objection,
+                objection.getCreatedBy().getEmail());
 
-        String emailAddress = ericHeaderParser.getEmailAddress(ericAuthorisedUser);
         EmailContent emailContent = constructEmailContent(EmailType.CUSTOMER,
                 emailAddress, data);
 
@@ -66,17 +62,17 @@ public class EmailService implements IEmailService {
 
     @Override
     public void sendObjectionSubmittedDissolutionTeamEmail(
-            String requestId,
             CompanyProfileApi companyProfile,
-            Objection objection
+            Objection objection,
+            String requestId
     ) throws ServiceException {
 
-        Map<String, Object> data = constructEmailDataMap(
-                companyProfile.getCompanyName(),
-                companyProfile.getCompanyNumber(),
-                objection);
 
         for (String emailAddress : getDissolutionTeamRecipients(companyProfile.getJurisdiction())) {
+            Map<String, Object> data = constructEmailDataMap(
+                    companyProfile.getCompanyName(),
+                    objection,
+                    emailAddress);
             EmailContent emailContent = constructEmailContent(EmailType.DISSOLUTION_TEAM,
                     emailAddress, data);
             logger.debugContext(requestId, String.format("Calling Kafka client to send dissolution team email to %s",
@@ -103,11 +99,15 @@ public class EmailService implements IEmailService {
                 .build();
     }
 
-    private Map<String, Object> constructEmailDataMap(String companyName, String companyNumber, Objection objection) {
+    private Map<String, Object> constructEmailDataMap(String companyName, Objection objection, String email) {
         Map<String, Object> data = new HashMap<>();
 
+        String emailSubject = emailConfig.getEmailSubject();
+        String subject = emailSubject.replace("{{ COMPANY_NUMBER }}", objection.getCompanyNumber());
+        data.put("subject", subject);
+        data.put("to", email);
         data.put("company_name", companyName);
-        data.put("company_number", companyNumber);
+        data.put("company_number", objection.getCompanyNumber());
         data.put("objection_id", objection.getId());
         data.put("reason", objection.getReason());
         data.put("attachments", objection.getAttachments());

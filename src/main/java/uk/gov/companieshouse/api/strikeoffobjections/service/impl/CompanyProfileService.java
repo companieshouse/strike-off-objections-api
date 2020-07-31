@@ -53,7 +53,8 @@ public class CompanyProfileService implements ICompanyProfileService {
                     e);
 
             throw new ServiceException(
-                    String.format("Problem retrieving company details from the SDK for %s %s", LOG_COMPANY_NUMBER_KEY, companyNumber),
+                    String.format("Problem retrieving company details from the SDK for %s %s",
+                            LOG_COMPANY_NUMBER_KEY, companyNumber),
                     e);
         }
     }
