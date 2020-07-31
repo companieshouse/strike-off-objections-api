@@ -113,7 +113,6 @@ public class EmailService implements IEmailService {
         data.put("to", email);
         data.put("company_name", companyName);
         data.put("company_number", objection.getCompanyNumber());
-        data.put("objection_id", objection.getId());
         data.put("reason", objection.getReason());
         data.put("attachments", objection.getAttachments());
         return data;
@@ -121,12 +120,6 @@ public class EmailService implements IEmailService {
 
     protected String[] getDissolutionTeamRecipients(String jurisdiction) {
         switch(jurisdiction) {
-            case "england":
-                return emailConfig.getEmailRecipientsCardiff().split(",");
-            case "wales":
-                return emailConfig.getEmailRecipientsCardiff().split(",");
-            case "england-wales":
-                return emailConfig.getEmailRecipientsCardiff().split(",");
             case "scotland":
                 return emailConfig.getEmailRecipientsEdinburgh().split(",");
             case "northern-ireland":
