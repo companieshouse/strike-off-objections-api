@@ -8,6 +8,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 import uk.gov.companieshouse.api.strikeoffobjections.common.ApiLogger;
+import uk.gov.companieshouse.api.strikeoffobjections.common.FormatUtils;
 import uk.gov.companieshouse.api.strikeoffobjections.email.KafkaEmailClient;
 import uk.gov.companieshouse.api.strikeoffobjections.model.email.EmailContent;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Attachment;
@@ -37,6 +38,7 @@ class EmailServiceTest {
     private static final String COMPANY_NUMBER = "COMPANY_NUMBER";
     private static final String FORMATTED_EMAIL_SUBJECT = COMPANY_NUMBER + ": email sent";
     private static final LocalDateTime LOCAL_DATE_TIME = LocalDateTime.of(2020, 12, 10, 8, 0);
+    private static final String SUBMITTED_DATE = "10 December 2020";
     private static final String OBJECTION_ID = "OBJECTION_ID";
     private static final String EMAIL = "example@test.co.uk";
     private static final String USER_ID = "32324";
@@ -80,6 +82,7 @@ class EmailServiceTest {
         objection.setCompanyNumber(COMPANY_NUMBER);
         CreatedBy createdBy = new CreatedBy(USER_ID, EMAIL);
         objection.setCreatedBy(createdBy);
+        objection.setCreatedOn(LOCAL_DATE_TIME);
 
         emailService.sendObjectionSubmittedCustomerEmail(
                 objection,
@@ -103,5 +106,6 @@ class EmailServiceTest {
         assertTrue(data.containsValue(EMAIL));
         assertTrue(data.containsKey("subject"));
         assertTrue(data.containsValue(FORMATTED_EMAIL_SUBJECT));
+        assertEquals(SUBMITTED_DATE , data.get("date"));
     }
 }
