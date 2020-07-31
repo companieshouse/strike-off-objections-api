@@ -74,7 +74,18 @@ public class ObjectionProcessor {
 
         // TODO update status to CHIPS_SENT
 
-        // TODO OBJ-172 send internal email
+        // send internal email
+        try {
+            CompanyProfileApi companyProfile = this.companyProfileService.getCompanyProfile(objection.getCompanyNumber(), httpRequestId);
+            emailService.sendObjectionSubmittedDissolutionTeamEmail(companyProfile.getCompanyName(), companyProfile.getJurisdiction(), objection, httpRequestId);
+        } catch (Exception e) {
+            logMap = new HashMap<>();
+            logMap.put(LOG_OBJECTION_ID_KEY, objection.getId());
+            apiLogger.errorContext(httpRequestId, "Error sending dissolution team email", e,
+                    logMap);
+
+            throw e;
+        }
 
         // TODO update status to INTERNAL_EMAIL_SENT
 
