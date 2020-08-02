@@ -34,6 +34,6 @@ public class ObjectionPatcher {
             return false;
         }
 
-        return incomingStatus != ObjectionStatus.SUBMITTED || !existingStatus.isErrorStatus();
+        return existingStatus == ObjectionStatus.OPEN && incomingStatus == ObjectionStatus.SUBMITTED;
     }
 }

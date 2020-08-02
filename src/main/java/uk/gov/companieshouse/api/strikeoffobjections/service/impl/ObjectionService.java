@@ -128,10 +128,15 @@ public class ObjectionService implements IObjectionService {
         objectionRepository.save(objection);
 
         // if changing status to SUBMITTED from OPEN or error status, process the objection
-        if (ObjectionStatus.SUBMITTED == objectionPatch.getStatus()
-                && ( ObjectionStatus.OPEN == previousStatus || previousStatus.isErrorStatus() )) {
+        ObjectionStatus incomingStatus = objectionPatch.getStatus();
+        if (isObjectionToBeProcessed(previousStatus, incomingStatus)) {
             objectionProcessor.process(objection, requestId);
         }
+    }
+
+    private boolean isObjectionToBeProcessed(ObjectionStatus previousStatus, ObjectionStatus incomingStatus) {
+        return ObjectionStatus.SUBMITTED == incomingStatus
+                && (ObjectionStatus.OPEN == previousStatus || previousStatus.isErrorStatus());
     }
 
     private void validatePatchStatusChange(ObjectionPatch objectionPatch,
