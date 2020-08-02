@@ -127,8 +127,9 @@ public class ObjectionService implements IObjectionService {
         Objection objection = objectionPatcher.patchObjection(objectionPatch, requestId, existingObjection);
         objectionRepository.save(objection);
 
-        // if changing status to SUBMITTED from OPEN, process the objection
-        if (ObjectionStatus.SUBMITTED == objectionPatch.getStatus() && ObjectionStatus.OPEN == previousStatus) {
+        // if changing status to SUBMITTED from OPEN or error status, process the objection
+        if (ObjectionStatus.SUBMITTED == objectionPatch.getStatus()
+                && ( ObjectionStatus.OPEN == previousStatus || previousStatus.isErrorStatus() )) {
             objectionProcessor.process(objection, requestId);
         }
     }

@@ -8,8 +8,10 @@ import uk.gov.companieshouse.api.strikeoffobjections.common.LogConstants;
 import uk.gov.companieshouse.api.strikeoffobjections.exception.InvalidObjectionStatusException;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Objection;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.ObjectionStatus;
+import uk.gov.companieshouse.api.strikeoffobjections.repository.ObjectionRepository;
 import uk.gov.companieshouse.api.strikeoffobjections.service.ICompanyProfileService;
 import uk.gov.companieshouse.api.strikeoffobjections.service.IEmailService;
+import uk.gov.companieshouse.api.strikeoffobjections.service.IObjectionService;
 import uk.gov.companieshouse.service.ServiceException;
 
 import java.util.HashMap;
@@ -31,14 +33,17 @@ public class ObjectionProcessor {
 
     private IEmailService emailService;
     private ICompanyProfileService companyProfileService;
+    private ObjectionRepository objectionRepository;
     private ApiLogger apiLogger;
 
     @Autowired
     public ObjectionProcessor(IEmailService emailService,
                               ICompanyProfileService companyProfileService,
+                              ObjectionRepository objectionRepository,
                               ApiLogger apiLogger) {
         this.emailService = emailService;
         this.companyProfileService = companyProfileService;
+        this.objectionRepository = objectionRepository;
         this.apiLogger = apiLogger;
     }
 
@@ -68,11 +73,7 @@ public class ObjectionProcessor {
 
         validateObjectionStatus(objection, httpRequestId);
 
-        // TODO update status to PROCESSING
-
         // TODO OBJ-139/OBJ-20 do chips sending
-
-        // TODO update status to CHIPS_SENT
 
         // send internal email
         try {
@@ -84,10 +85,9 @@ public class ObjectionProcessor {
             apiLogger.errorContext(httpRequestId, "Error sending dissolution team email", e,
                     logMap);
 
+            setStatus(ObjectionStatus.ERROR_INT_EMAIL, objection, httpRequestId);
             throw e;
         }
-
-        // TODO update status to INTERNAL_EMAIL_SENT
 
         // send customer email
         try {
@@ -98,18 +98,20 @@ public class ObjectionProcessor {
             logMap.put(LOG_OBJECTION_ID_KEY, objection.getId());
             apiLogger.errorContext(httpRequestId, "Error sending customer email", e, logMap);
 
+            setStatus(ObjectionStatus.ERROR_EXT_EMAIL, objection, httpRequestId);
             throw e;
         }
 
-        // TODO update status to processed
+        // update status to processed
+        setStatus(ObjectionStatus.PROCESSED, objection, httpRequestId);
 
     }
 
     private void validateObjectionStatus(Objection objection, String httpRequestId)
             throws InvalidObjectionStatusException {
 
-        // if status not SUBMITTED, throw exception
-        if (objection != null && ObjectionStatus.SUBMITTED != objection.getStatus()) {
+        // if status not SUBMITTED or not error status, throw exception
+        if (objection != null && (objection.getStatus() == null || !objection.getStatus().isProcessableStatus())) {
             InvalidObjectionStatusException statusException = new InvalidObjectionStatusException(
                     String.format(INVALID_START_STATUS_MSG, objection.getId(), objection.getStatus()));
 
@@ -119,5 +121,11 @@ public class ObjectionProcessor {
 
             throw statusException;
         }
+    }
+
+    private void setStatus(ObjectionStatus newStatus, Objection objection, String httpRequestId) {
+        // TODO debug log statement for status change
+        objection.setStatus(newStatus);
+        objectionRepository.save(objection);
     }
 }
