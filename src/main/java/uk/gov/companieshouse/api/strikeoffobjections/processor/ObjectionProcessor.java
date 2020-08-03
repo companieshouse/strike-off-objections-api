@@ -74,34 +74,13 @@ public class ObjectionProcessor {
 
         // TODO update status to CHIPS_SENT
 
-        // send internal email
-        try {
-            CompanyProfileApi companyProfile = this.companyProfileService.getCompanyProfile(objection.getCompanyNumber(), httpRequestId);
-            emailService.sendObjectionSubmittedDissolutionTeamEmail(companyProfile.getCompanyName(), companyProfile.getJurisdiction(), objection, httpRequestId);
-        } catch (Exception e) {
-            logMap = new HashMap<>();
-            logMap.put(LOG_OBJECTION_ID_KEY, objection.getId());
-            apiLogger.errorContext(httpRequestId, "Error sending dissolution team email", e,
-                    logMap);
+        CompanyProfileApi companyProfile = this.companyProfileService.getCompanyProfile(objection.getCompanyNumber(), httpRequestId);
 
-            throw e;
-        }
+        sendInternalEmail(objection, companyProfile, httpRequestId);
 
         // TODO update status to INTERNAL_EMAIL_SENT
 
-        // send customer email
-        try {
-            CompanyProfileApi companyProfile = this.companyProfileService.getCompanyProfile(objection.getCompanyNumber(), httpRequestId);
-            emailService.sendObjectionSubmittedCustomerEmail(objection, companyProfile.getCompanyName(), httpRequestId);
-        } catch (Exception e) {
-            logMap = new HashMap<>();
-            logMap.put(LOG_OBJECTION_ID_KEY, objection.getId());
-            apiLogger.errorContext(httpRequestId, "Error sending customer email", e, logMap);
-
-            throw e;
-        }
-
-        // TODO update status to processed
+        sendExternalEmail(objection, companyProfile, httpRequestId);
 
     }
 
@@ -119,5 +98,35 @@ public class ObjectionProcessor {
 
             throw statusException;
         }
+    }
+
+    private void sendInternalEmail(Objection objection, CompanyProfileApi companyProfile,
+                                   String httpRequestId) throws ServiceException {
+        try {
+            emailService.sendObjectionSubmittedDissolutionTeamEmail(companyProfile.getCompanyName(), companyProfile.getJurisdiction(), objection, httpRequestId);
+        } catch (Exception e) {
+            Map<String, Object> logMap = new HashMap<>();
+            logMap.put(LOG_OBJECTION_ID_KEY, objection.getId());
+            apiLogger.errorContext(httpRequestId, "Error sending dissolution team email", e,
+                    logMap);
+
+            throw e;
+        }
+    }
+
+    private void sendExternalEmail(Objection objection, CompanyProfileApi companyProfile,
+                                   String httpRequestId) throws ServiceException {
+        try {
+            emailService.sendObjectionSubmittedCustomerEmail(objection, companyProfile.getCompanyName(), httpRequestId);
+        } catch (Exception e) {
+            Map<String, Object> logMap = new HashMap<>();
+            logMap.put(LOG_OBJECTION_ID_KEY, objection.getId());
+            apiLogger.errorContext(httpRequestId, "Error sending customer email", e, logMap);
+
+            throw e;
+        }
+
+        // TODO update status to processed
+
     }
 }
