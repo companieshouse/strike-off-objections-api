@@ -82,6 +82,8 @@ public class ObjectionProcessor {
 
         sendExternalEmail(objection, companyProfile, httpRequestId);
 
+        // TODO update status to processed
+
     }
 
     private void validateObjectionStatus(Objection objection, String httpRequestId)
@@ -125,8 +127,5 @@ public class ObjectionProcessor {
 
             throw e;
         }
-
-        // TODO update status to processed
-
     }
 }
