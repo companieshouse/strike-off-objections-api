@@ -1,5 +1,6 @@
 package uk.gov.companieshouse.api.strikeoffobjections.service.impl;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -62,6 +63,11 @@ class EmailServiceTest {
     @InjectMocks
     private EmailService emailService;
 
+    private List<Attachment> attachments;
+    @BeforeEach
+    void init() {
+        attachments = Utils.getTestAttachments();
+    }
     @Test
     void sendObjectionSubmittedCustomerEmail() throws ServiceException {
         when(config.getEmailSubject()).thenReturn(FORMATTED_EMAIL_SUBJECT);
@@ -69,9 +75,7 @@ class EmailServiceTest {
 
         Objection objection = Utils.getTestObjection(
                 OBJECTION_ID, REASON, COMPANY_NUMBER, USER_ID, EMAIL, LOCAL_DATE_TIME);
-        List<Attachment> attachments = Utils.getTestAttachments();
         attachments.forEach(objection::addAttachment);
-
 
         emailService.sendObjectionSubmittedCustomerEmail(
                 objection,
@@ -88,13 +92,7 @@ class EmailServiceTest {
 
         Map<String, Object> data = emailContent.getData();
 
-        assertEquals(EMAIL, data.get("to"));
-        assertEquals(FORMATTED_EMAIL_SUBJECT, data.get("subject"));
-        assertEquals(SUBMITTED_DATE , data.get("date"));
-        assertEquals(OBJECTION_ID, data.get("objection_id"));
-        assertEquals("Company: " + COMPANY_NUMBER, data.get("company_name"));
-        assertEquals(COMPANY_NUMBER, data.get("company_number"));
-        assertEquals(attachments, data.get("attachments"));
+        assertExternalEmailData(data);
     }
 
     @Test
@@ -120,6 +118,9 @@ class EmailServiceTest {
         assertEquals("test1@cardiff.gov.uk", emailContentList.get(0).getEmailAddress());
         assertEquals("test2@cardiff.gov.uk", emailContentList.get(1).getEmailAddress());
         assertEquals("test3@cardiff.gov.uk", emailContentList.get(2).getEmailAddress());
+
+        Map<String, Object> sampleData = emailContentList.get(0).getData();
+        assertInternalEmailData(sampleData);
     }
 
     @Test
@@ -144,6 +145,9 @@ class EmailServiceTest {
         List<EmailContent> emailContentList = emailContentArgumentCaptor.getAllValues();
         assertEquals("test1@edinburgh.gov.uk", emailContentList.get(0).getEmailAddress());
         assertEquals("test2@edinburgh.gov.uk", emailContentList.get(1).getEmailAddress());
+
+        Map<String, Object> sampleData = emailContentList.get(0).getData();
+        assertInternalEmailData(sampleData);
     }
 
     @Test
@@ -168,6 +172,9 @@ class EmailServiceTest {
         List<EmailContent> emailContentList = emailContentArgumentCaptor.getAllValues();
         assertEquals("test1@belfast.gov.uk", emailContentList.get(0).getEmailAddress());
         assertEquals("test2@belfast.gov.uk", emailContentList.get(1).getEmailAddress());
+
+        Map<String, Object> sampleData = emailContentList.get(0).getData();
+        assertInternalEmailData(sampleData);
     }
 
     @Test
@@ -208,5 +215,24 @@ class EmailServiceTest {
         assertEquals("test1@cardiff.gov.uk", recipients[0]);
         assertEquals("test2@cardiff.gov.uk", recipients[1]);
         assertEquals("test3@cardiff.gov.uk", recipients[2]);
+    }
+
+    void assertCommonEmailData(Map<String, Object> data) {
+        assertEquals(FORMATTED_EMAIL_SUBJECT, data.get("subject"));
+        assertEquals(SUBMITTED_DATE , data.get("date"));
+        assertEquals(OBJECTION_ID, data.get("objection_id"));
+        assertEquals("Company: " + COMPANY_NUMBER, data.get("company_name"));
+        assertEquals(COMPANY_NUMBER, data.get("company_number"));
+        assertEquals(attachments, data.get("attachments"));
+    }
+
+    void assertExternalEmailData(Map<String, Object> data) {
+        assertEquals(EMAIL, data.get("to"));
+        assertCommonEmailData(data);
+    }
+
+    void assertInternalEmailData(Map<String, Object> data) {
+        assertEquals(EMAIL, data.get("email"));
+        assertCommonEmailData(data);
     }
 }

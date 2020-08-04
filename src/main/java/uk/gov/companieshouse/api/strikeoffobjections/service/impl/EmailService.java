@@ -47,7 +47,7 @@ public class EmailService implements IEmailService {
     ) throws ServiceException {
 
         String emailAddress = objection.getCreatedBy().getEmail();
-        Map<String, Object> data = constructEmailDataMap(
+        Map<String, Object> data = constructCommonEmailMap(
                 companyName,
                 objection,
                 objection.getCreatedBy().getEmail());
@@ -70,10 +70,12 @@ public class EmailService implements IEmailService {
 
 
         for (String emailAddress : getDissolutionTeamRecipients(jurisdiction)) {
-            Map<String, Object> data = constructEmailDataMap(
+            Map<String, Object> data = constructCommonEmailMap(
                     companyName,
                     objection,
                     emailAddress);
+
+            data.put("email", objection.getCreatedBy().getEmail());
             EmailContent emailContent = constructEmailContent(EmailType.DISSOLUTION_TEAM,
                     emailAddress, data);
             logger.debugContext(requestId, String.format("Calling Kafka client to send dissolution team email to %s",
@@ -100,7 +102,7 @@ public class EmailService implements IEmailService {
                 .build();
     }
 
-    private Map<String, Object> constructEmailDataMap(String companyName, Objection objection, String email) {
+    private Map<String, Object> constructCommonEmailMap(String companyName, Objection objection, String email) {
         Map<String, Object> data = new HashMap<>();
 
         LocalDate submittedOn = objection.getCreatedOn().toLocalDate();
