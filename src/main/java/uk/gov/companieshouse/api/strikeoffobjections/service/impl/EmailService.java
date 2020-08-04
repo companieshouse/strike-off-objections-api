@@ -123,11 +123,11 @@ public class EmailService implements IEmailService {
     protected String[] getDissolutionTeamRecipients(String jurisdiction) {
         switch(jurisdiction) {
             case "scotland":
-                return emailConfig.getEmailRecipientsEdinburgh().split(",");
+                return emailConfig.getEmailRecipientsEdinburgh().replace(" ", "").split(",");
             case "northern-ireland":
-                return emailConfig.getEmailRecipientsBelfast().split(",");
+                return emailConfig.getEmailRecipientsBelfast().replace(" ", "").split(",");
             default:
-                return emailConfig.getEmailRecipientsCardiff().split(",");
+                return emailConfig.getEmailRecipientsCardiff().replace(" ", "").split(",");
         }
     }
 }
