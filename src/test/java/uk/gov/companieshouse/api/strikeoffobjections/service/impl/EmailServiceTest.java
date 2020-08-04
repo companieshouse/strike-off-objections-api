@@ -41,6 +41,7 @@ class EmailServiceTest {
     private static final String REASON = "THIS IS A REASON";
 
     private static final String EMAIL_RECIPIENTS_CARDIFF_TEST = "test1@cardiff.gov.uk,test2@cardiff.gov.uk,test3@cardiff.gov.uk";
+    private static final String EMAIL_RECIPIENTS_CARDIFF_TEST_SPACE = "test1@cardiff.gov.uk, test2@cardiff.gov.uk, test3@cardiff.gov.uk";
     private static final String EMAIL_RECIPIENTS_EDINBURGH_TEST = "test1@edinburgh.gov.uk,test2@edinburgh.gov.uk";
     private static final String EMAIL_RECIPIENTS_BELFAST_TEST = "test1@belfast.gov.uk,test2@belfast.gov.uk";
 
@@ -100,6 +101,34 @@ class EmailServiceTest {
         when(dateTimeSupplier.get()).thenReturn(LOCAL_DATE_TIME);
         when(config.getEmailSubject()).thenReturn(FORMATTED_EMAIL_SUBJECT);
         when(config.getEmailRecipientsCardiff()).thenReturn(EMAIL_RECIPIENTS_CARDIFF_TEST);
+        Objection objection = Utils.getTestObjection(
+                OBJECTION_ID, REASON, COMPANY_NUMBER, USER_ID, EMAIL, LOCAL_DATE_TIME);
+        Utils.getTestAttachments().forEach(objection::addAttachment);
+
+        emailService.sendObjectionSubmittedDissolutionTeamEmail(
+                COMPANY_NAME,
+                JURISDICTION_WALES ,
+                objection,
+                REQUEST_ID
+        );
+
+        ArgumentCaptor<EmailContent> emailContentArgumentCaptor = ArgumentCaptor.forClass(EmailContent.class);
+        verify(kafkaEmailClient, times(3)).sendEmailToKafka(emailContentArgumentCaptor.capture());
+
+        List<EmailContent> emailContentList = emailContentArgumentCaptor.getAllValues();
+        assertEquals("test1@cardiff.gov.uk", emailContentList.get(0).getEmailAddress());
+        assertEquals("test2@cardiff.gov.uk", emailContentList.get(1).getEmailAddress());
+        assertEquals("test3@cardiff.gov.uk", emailContentList.get(2).getEmailAddress());
+
+        Map<String, Object> sampleData = emailContentList.get(0).getData();
+        assertInternalEmailData(sampleData);
+    }
+
+    @Test
+    void sendObjectionSubmittedDissolutionEmailsWalesSpaceInConfigs() throws ServiceException {
+        when(dateTimeSupplier.get()).thenReturn(LOCAL_DATE_TIME);
+        when(config.getEmailSubject()).thenReturn(FORMATTED_EMAIL_SUBJECT);
+        when(config.getEmailRecipientsCardiff()).thenReturn(EMAIL_RECIPIENTS_CARDIFF_TEST_SPACE);
         Objection objection = Utils.getTestObjection(
                 OBJECTION_ID, REASON, COMPANY_NUMBER, USER_ID, EMAIL, LOCAL_DATE_TIME);
         Utils.getTestAttachments().forEach(objection::addAttachment);
