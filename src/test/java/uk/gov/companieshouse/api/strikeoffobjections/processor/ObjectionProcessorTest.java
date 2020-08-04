@@ -9,6 +9,7 @@ import uk.gov.companieshouse.api.strikeoffobjections.common.ApiLogger;
 import uk.gov.companieshouse.api.strikeoffobjections.exception.InvalidObjectionStatusException;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Objection;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.ObjectionStatus;
+import uk.gov.companieshouse.api.strikeoffobjections.repository.ObjectionRepository;
 import uk.gov.companieshouse.api.strikeoffobjections.service.ICompanyProfileService;
 import uk.gov.companieshouse.api.strikeoffobjections.service.IEmailService;
 import uk.gov.companieshouse.api.strikeoffobjections.utils.Utils;
@@ -47,6 +48,9 @@ class ObjectionProcessorTest {
 
     @Mock
     private ICompanyProfileService companyProfileService;
+
+    @Mock
+    private ObjectionRepository objectionRepository;
 
     @InjectMocks
     private ObjectionProcessor objectionProcessor;
@@ -95,6 +99,38 @@ class ObjectionProcessorTest {
         verify(emailService, times(1))
                 .sendObjectionSubmittedDissolutionTeamEmail(COMPANY_NAME, JURISDICTION,
                         dummyObjection, HTTP_REQUEST_ID);
+    }
+
+    @Test
+    void processHandlesDissolutionTeamEmailException() throws ServiceException {
+        when(companyProfileService.getCompanyProfile(COMPANY_NUMBER, HTTP_REQUEST_ID))
+                .thenReturn(Utils.getDummyCompanyProfile(COMPANY_NUMBER, JURISDICTION));
+
+        Objection dummyObjection = Utils.getTestObjection(
+                OBJECTION_ID, REASON, COMPANY_NUMBER, USER_ID, EMAIL, LOCAL_DATE_TIME);
+        dummyObjection.setStatus(ObjectionStatus.SUBMITTED);
+
+        doThrow(new ServiceException("blah")).when(emailService).sendObjectionSubmittedDissolutionTeamEmail(any(), any(), any(), any());
+
+        assertThrows(ServiceException.class, () -> objectionProcessor.process(dummyObjection, HTTP_REQUEST_ID));
+
+        verify(apiLogger, times(1)).errorContext(eq(HTTP_REQUEST_ID), any(), any(), any());
+    }
+
+    @Test
+    void processHandlesDissolutionTeamEmailUncheckedException() throws ServiceException {
+        when(companyProfileService.getCompanyProfile(COMPANY_NUMBER, HTTP_REQUEST_ID))
+                .thenReturn(Utils.getDummyCompanyProfile(COMPANY_NUMBER, JURISDICTION));
+
+        Objection dummyObjection = Utils.getTestObjection(
+                OBJECTION_ID, REASON, COMPANY_NUMBER, USER_ID, EMAIL, LOCAL_DATE_TIME);
+        dummyObjection.setStatus(ObjectionStatus.SUBMITTED);
+
+        doThrow(new RuntimeException("blah")).when(emailService).sendObjectionSubmittedDissolutionTeamEmail(any(), any(), any(), any());
+
+        assertThrows(RuntimeException.class, () -> objectionProcessor.process(dummyObjection, HTTP_REQUEST_ID));
+
+        verify(apiLogger, times(1)).errorContext(eq(HTTP_REQUEST_ID), any(), any(), any());
     }
 
     @Test
