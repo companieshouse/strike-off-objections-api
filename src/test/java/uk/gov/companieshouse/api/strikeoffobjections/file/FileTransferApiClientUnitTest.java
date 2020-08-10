@@ -1,6 +1,5 @@
 package uk.gov.companieshouse.api.strikeoffobjections.file;
 
-import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -36,7 +35,6 @@ public class FileTransferApiClientUnitTest {
     private static final String FILE_ID = "12345";
     private static final String EXCEPTION_MESSAGE = "BAD THINGS";
     private static final String DELETE_URL = DUMMY_URL + "/" + FILE_ID;
-    private static final String DOWNLOAD_URI = DUMMY_URL + "/" + FILE_ID + "/download";
 
     @Mock
     private RestTemplate restTemplate;
@@ -137,7 +135,7 @@ public class FileTransferApiClientUnitTest {
         FileTransferApiClientResponse downloadResponse = fileTransferApiClient.download(FILE_ID, servletResponse);
 
         //check status is ok
-        Assert.assertEquals(HttpStatus.OK, downloadResponse.getHttpStatus());
+        assertEquals(HttpStatus.OK, downloadResponse.getHttpStatus());
 
         // TODO OBJ-200 verify file transfer client was called, check headers, check file content
     }
