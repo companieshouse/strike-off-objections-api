@@ -1,23 +1,39 @@
 package uk.gov.companieshouse.api.strikeoffobjections.file;
 
+import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.platform.commons.util.StringUtils;
 import org.junit.rules.ExpectedException;
+import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.ContentDisposition;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.ClientHttpResponse;
+import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.web.client.RequestCallback;
+import org.springframework.web.client.ResponseExtractor;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 import uk.gov.companieshouse.api.strikeoffobjections.common.ApiLogger;
+import uk.gov.companieshouse.api.strikeoffobjections.utils.Utils;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -34,6 +50,7 @@ public class FileTransferApiClientUnitTest {
     private static final String FILE_ID = "12345";
     private static final String EXCEPTION_MESSAGE = "BAD THINGS";
     private static final String DELETE_URL = DUMMY_URL + "/" + FILE_ID;
+    private static final String DOWNLOAD_URI = DUMMY_URL + "/" + FILE_ID + "/download";
 
     @Mock
     private RestTemplate restTemplate;
@@ -126,6 +143,20 @@ public class FileTransferApiClientUnitTest {
 
         assertThrows(RestClientException.class, () -> fileTransferApiClient.delete(REQUEST_ID, FILE_ID));
     }
+
+    @Test
+    public void testSuccessfulDownload() {
+
+        MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+        FileTransferApiClientResponse downloadResponse = fileTransferApiClient.download(FILE_ID, servletResponse);
+
+        //check status is ok
+        Assert.assertEquals(HttpStatus.OK, downloadResponse.getHttpStatus());
+
+        // TODO OBJ-200 verify file transfer client was called, check headers, check file content
+    }
+
+    // TODO OBJ-200 check fiel downlaod error response
 
     private ResponseEntity<FileTransferApiResponse> apiSuccessResponse() {
         FileTransferApiResponse response = new FileTransferApiResponse();

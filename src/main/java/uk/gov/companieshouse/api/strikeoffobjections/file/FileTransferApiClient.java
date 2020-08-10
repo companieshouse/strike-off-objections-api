@@ -14,6 +14,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 import uk.gov.companieshouse.api.strikeoffobjections.common.ApiLogger;
 
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 @Component
@@ -152,5 +153,22 @@ public class FileTransferApiClient {
                 return response;
             }
         );
+    }
+
+    /**
+     * Downloads a file from the file-transfer-api
+     * The RestTemplate execute method takes a callback function to handle the response
+     * from the file-transfer-api. it's in here that we copy the data coming in from
+     * the file-transfer-api into the provided outputStream.
+     * @param fileId The id used by the file-transfer-api to identify the file
+     * @param httpServletResponse The HttpServletResponse to stream the file to
+     * @return FileTransferApiClientResponse containing the http status
+     */
+    public FileTransferApiClientResponse download(String fileId, HttpServletResponse httpServletResponse) {
+        // TODO OBJ-200 replace this dummy response with the implementation.
+        FileTransferApiClientResponse fileTransferApiClientResponse = new FileTransferApiClientResponse();
+        fileTransferApiClientResponse.setFileId(fileId);
+        fileTransferApiClientResponse.setHttpStatus(HttpStatus.OK);
+        return fileTransferApiClientResponse;
     }
 }
