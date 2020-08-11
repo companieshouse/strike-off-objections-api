@@ -1,5 +1,6 @@
 package uk.gov.companieshouse.api.strikeoffobjections.file;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.junit.Rule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -12,12 +13,19 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 import uk.gov.companieshouse.api.strikeoffobjections.common.ApiLogger;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -126,6 +134,23 @@ public class FileTransferApiClientUnitTest {
 
         assertThrows(RestClientException.class, () -> fileTransferApiClient.delete(REQUEST_ID, FILE_ID));
     }
+
+    @Test
+    public void testSuccessfulDownload() throws IOException {
+        final File file = new File("./src/test/resources/input/test.txt");
+        final InputStream fileInputStream = new FileInputStream(file);
+
+        MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+        FileTransferApiClientResponse downloadResponse = fileTransferApiClient.download(FILE_ID, servletResponse);
+
+        //check status is ok
+        assertEquals(HttpStatus.OK, downloadResponse.getHttpStatus());
+        assertTrue(ArrayUtils.isEquals(Files.readAllBytes(file.toPath()), servletResponse.getContentAsByteArray()));
+
+        // TODO OBJ-200 verify file transfer client was called, check headers, check file content
+    }
+
+    // TODO OBJ-200 check fiel downlaod error response
 
     private ResponseEntity<FileTransferApiResponse> apiSuccessResponse() {
         FileTransferApiResponse response = new FileTransferApiResponse();
