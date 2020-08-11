@@ -20,6 +20,7 @@ import uk.gov.companieshouse.api.strikeoffobjections.common.ApiLogger;
 import uk.gov.companieshouse.api.strikeoffobjections.common.LogConstants;
 import uk.gov.companieshouse.api.strikeoffobjections.exception.AttachmentNotFoundException;
 import uk.gov.companieshouse.api.strikeoffobjections.exception.ObjectionNotFoundException;
+import uk.gov.companieshouse.api.strikeoffobjections.file.FileTransferApiClientResponse;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Attachment;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Objection;
 import uk.gov.companieshouse.api.strikeoffobjections.model.patch.ObjectionPatch;
@@ -34,6 +35,7 @@ import uk.gov.companieshouse.service.rest.response.PluggableResponseEntityFactor
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -457,9 +459,8 @@ public class ObjectionController {
                     "GET /{objectionId}/attachments/{attachmentId}/download request received",
                     logMap
             );
-
-            objectionService.downloadAttachment(objectionId, attachmentId, response);
-            return new ResponseEntity<>(HttpStatus.OK);
+            FileTransferApiClientResponse downloadServiceResult = objectionService.downloadAttachment(objectionId, attachmentId, response);
+            return ResponseEntity.status(downloadServiceResult.getHttpStatus()).build();
         } catch (HttpClientErrorException | HttpServerErrorException e) {
             apiLogger.errorContext(
                     requestId,

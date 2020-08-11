@@ -7,6 +7,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
+import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.multipart.MultipartFile;
@@ -28,6 +29,7 @@ import uk.gov.companieshouse.api.strikeoffobjections.utils.Utils;
 import uk.gov.companieshouse.service.ServiceException;
 import uk.gov.companieshouse.service.ServiceResult;
 
+import javax.servlet.http.HttpServletResponse;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -601,5 +603,22 @@ class ObjectionServiceTest {
                 eq(String.format("Unable to delete attachment %s", ATTACHMENT_ID)),
                 any());
     }
+
+    @Test
+    public void willCallFileTransferGatewayForDownload() {
+        HttpServletResponse httpServletResponse = new MockHttpServletResponse();
+        FileTransferApiClientResponse dummyDownloadResponse = Utils.dummyDownloadResponse();
+
+        when(fileTransferApiClient.download(ATTACHMENT_ID, httpServletResponse)).thenReturn(dummyDownloadResponse);
+
+        FileTransferApiClientResponse downloadServiceResult = objectionService.downloadAttachment(
+                OBJECTION_ID, ATTACHMENT_ID, httpServletResponse);
+
+        verify(fileTransferApiClient, only()).download(ATTACHMENT_ID, httpServletResponse);
+        verify(fileTransferApiClient, times(1)).download(ATTACHMENT_ID, httpServletResponse);
+
+        assertNotNull(downloadServiceResult);
+    }
+
 
 }

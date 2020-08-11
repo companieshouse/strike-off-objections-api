@@ -1,5 +1,6 @@
 package uk.gov.companieshouse.api.strikeoffobjections.controller;
 
+import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mapstruct.factory.Mappers;
@@ -8,6 +9,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.multipart.MultipartFile;
@@ -15,6 +17,7 @@ import uk.gov.companieshouse.api.strikeoffobjections.common.ApiLogger;
 import uk.gov.companieshouse.api.strikeoffobjections.exception.AttachmentNotFoundException;
 import uk.gov.companieshouse.api.strikeoffobjections.exception.InvalidObjectionStatusException;
 import uk.gov.companieshouse.api.strikeoffobjections.exception.ObjectionNotFoundException;
+import uk.gov.companieshouse.api.strikeoffobjections.file.FileTransferApiClientResponse;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Attachment;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Objection;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.ObjectionStatus;
@@ -31,10 +34,13 @@ import uk.gov.companieshouse.service.rest.response.ChResponseBody;
 import uk.gov.companieshouse.service.rest.response.PluggableResponseEntityFactory;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
@@ -400,6 +406,85 @@ class ObjectionControllerTest {
         ResponseEntity response = objectionController.deleteAttachment(COMPANY_NUMBER, OBJECTION_ID, ATTACHMENT_ID, REQUEST_ID);
 
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+    }
 
+    @Test
+    public void testReturnOkStatusForDownload() {
+        HttpServletResponse httpServletResponse = new MockHttpServletResponse();
+        FileTransferApiClientResponse dummyDownloadResponse = Utils.dummyDownloadResponse();
+        dummyDownloadResponse.setHttpStatus(HttpStatus.OK);
+        when(objectionService.downloadAttachment(OBJECTION_ID, ATTACHMENT_ID, httpServletResponse))
+                .thenReturn(dummyDownloadResponse);
+
+        ResponseEntity responseEntity =
+                objectionController.downloadAttachment(
+                        COMPANY_NUMBER, OBJECTION_ID, ATTACHMENT_ID, REQUEST_ID, httpServletResponse);
+
+        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+        assertNull(responseEntity.getBody());
+        assertTrue(responseEntity.getHeaders().isEmpty());
+    }
+
+    @Test
+    public void testReturnUnauthorizedStatusWhenInDownloadResponse() {
+        HttpServletResponse httpServletResponse = new MockHttpServletResponse();
+        FileTransferApiClientResponse dummyDownloadResponse = Utils.dummyDownloadResponse();
+        dummyDownloadResponse.setHttpStatus(HttpStatus.UNAUTHORIZED);
+        when(objectionService.downloadAttachment(OBJECTION_ID, ATTACHMENT_ID, httpServletResponse))
+                .thenReturn(dummyDownloadResponse);
+
+        ResponseEntity responseEntity =
+                objectionController.downloadAttachment(
+                        COMPANY_NUMBER, OBJECTION_ID, ATTACHMENT_ID, REQUEST_ID, httpServletResponse);
+
+        assertEquals(HttpStatus.UNAUTHORIZED, responseEntity.getStatusCode());
+        assertNull(responseEntity.getBody());
+        assertTrue(responseEntity.getHeaders().isEmpty());
+    }
+
+    @Test
+    public void testReturnForbiddenStatusWhenInDownloadResponse() {
+        HttpServletResponse httpServletResponse = new MockHttpServletResponse();
+        FileTransferApiClientResponse dummyDownloadResponse = Utils.dummyDownloadResponse();
+        dummyDownloadResponse.setHttpStatus(HttpStatus.FORBIDDEN);
+        when(objectionService.downloadAttachment(OBJECTION_ID, ATTACHMENT_ID, httpServletResponse))
+                .thenReturn(dummyDownloadResponse);
+
+        ResponseEntity responseEntity =
+                objectionController.downloadAttachment(
+                        COMPANY_NUMBER, OBJECTION_ID, ATTACHMENT_ID, REQUEST_ID, httpServletResponse);
+
+        assertEquals(HttpStatus.FORBIDDEN, responseEntity.getStatusCode());
+        assertNull(responseEntity.getBody());
+        assertTrue(responseEntity.getHeaders().isEmpty());
+    }
+
+    @Test
+    public void testDownloadWillCatchHttpClientExceptions() {
+        HttpServletResponse httpServletResponse = new MockHttpServletResponse();
+
+        when(objectionService.downloadAttachment(OBJECTION_ID, ATTACHMENT_ID, httpServletResponse))
+                .thenThrow(new HttpClientErrorException(HttpStatus.BAD_REQUEST));
+
+        ResponseEntity responseEntity = objectionController.downloadAttachment(
+                COMPANY_NUMBER, OBJECTION_ID, ATTACHMENT_ID, REQUEST_ID, httpServletResponse);
+        Assert.assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
+        assertNull(responseEntity.getBody());
+        assertTrue(responseEntity.getHeaders().isEmpty());
+    }
+
+    @Test
+    public void testDownloadWillCatchHttpServerExceptions() {
+        HttpServletResponse httpServletResponse = new MockHttpServletResponse();
+
+        when(objectionService.downloadAttachment(OBJECTION_ID, ATTACHMENT_ID, httpServletResponse))
+                .thenThrow(new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR));
+
+        ResponseEntity responseEntity = objectionController.downloadAttachment(
+                COMPANY_NUMBER, OBJECTION_ID, ATTACHMENT_ID, REQUEST_ID, httpServletResponse);
+
+        Assert.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, responseEntity.getStatusCode());
+        assertNull(responseEntity.getBody());
+        assertTrue(responseEntity.getHeaders().isEmpty());
     }
 }

@@ -30,6 +30,7 @@ import uk.gov.companieshouse.service.links.Links;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotNull;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -287,6 +288,10 @@ public class ObjectionService implements IObjectionService {
         }
     }
 
+    public FileTransferApiClientResponse downloadAttachment(String objectionId, String attachmentId, HttpServletResponse response) {
+        return fileTransferApiClient.download(attachmentId,response);
+    }
+
     // TODO OBJ-141 repetitive logging in codebase, needs centralized handler that allows for different parameters.
     private Map<String, Object> buildLogMap(String companyNumber, String objectionId, String attachmentId) {
         Map<String, Object> logMap = new HashMap<>();
@@ -300,10 +305,5 @@ public class ObjectionService implements IObjectionService {
             logMap.put(LogConstants.ATTACHMENT_ID.getValue(), attachmentId);
         }
         return logMap;
-    }
-
-    public ServiceResult<String> downloadAttachment(String objectionId, String attachmentId, HttpServletResponse response) {
-        //fileTransferApiClient.download(attachmentId,);
-        return null;
     }
 }
