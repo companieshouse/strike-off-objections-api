@@ -33,6 +33,7 @@ import uk.gov.companieshouse.service.rest.response.ChResponseBody;
 import uk.gov.companieshouse.service.rest.response.PluggableResponseEntityFactory;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -437,6 +438,36 @@ public class ObjectionController {
                     "Finished DELETE /{objectionId}/attachments/{attachmentId} request",
                     logMap
             );
+        }
+    }
+
+    @GetMapping("/{objectionId}/attachments/{attachmentId}/download")
+    public ResponseEntity<Void> downloadAttachment(@PathVariable String companyNumber,
+                                                   @PathVariable String objectionId,
+                                                   @PathVariable String attachmentId,
+                                                   @RequestHeader(value = ERIC_REQUEST_ID_HEADER) String requestId,
+                                                   HttpServletResponse response) {
+        Map<String, Object> logMap = new HashMap<>();
+        logMap.put(LOG_COMPANY_NUMBER_KEY, companyNumber);
+        logMap.put(LOG_OBJECTION_ID_KEY, objectionId);
+
+        try{
+            apiLogger.infoContext(
+                    requestId,
+                    "GET /{objectionId}/attachments/{attachmentId}/download request received",
+                    logMap
+            );
+
+            objectionService.downloadAttachment(objectionId, attachmentId, response);
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch (HttpClientErrorException | HttpServerErrorException e) {
+            apiLogger.errorContext(
+                    requestId,
+                   "",
+                    e,
+                    logMap
+            );
+            return ResponseEntity.status(e.getStatusCode()).build();
         }
     }
 }

@@ -12,6 +12,8 @@ import uk.gov.companieshouse.api.strikeoffobjections.model.patch.ObjectionPatch;
 import uk.gov.companieshouse.service.ServiceException;
 import uk.gov.companieshouse.service.ServiceResult;
 
+import javax.servlet.http.HttpServletResponse;
+
 public interface IObjectionService {
     String createObjection(String requestId, String companyNumber, String ericUserId, String ericUserDetails);
 
@@ -32,4 +34,6 @@ public interface IObjectionService {
 
     void deleteAttachment(String requestId, String objectionId, String attachmentId)
             throws ObjectionNotFoundException, AttachmentNotFoundException, ServiceException;
+
+    ServiceResult<String> downloadAttachment(String objectionId, String attachmentId, HttpServletResponse response);
 }

@@ -28,6 +28,7 @@ import uk.gov.companieshouse.service.ServiceException;
 import uk.gov.companieshouse.service.ServiceResult;
 import uk.gov.companieshouse.service.links.Links;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -299,5 +300,10 @@ public class ObjectionService implements IObjectionService {
             logMap.put(LogConstants.ATTACHMENT_ID.getValue(), attachmentId);
         }
         return logMap;
+    }
+
+    public ServiceResult<String> downloadAttachment(String objectionId, String attachmentId, HttpServletResponse response) {
+        //fileTransferApiClient.download(attachmentId,);
+        return null;
     }
 }
