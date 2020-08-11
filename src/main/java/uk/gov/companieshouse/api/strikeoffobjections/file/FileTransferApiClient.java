@@ -1,5 +1,6 @@
 package uk.gov.companieshouse.api.strikeoffobjections.file;
 
+import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -15,7 +16,9 @@ import org.springframework.web.multipart.MultipartFile;
 import uk.gov.companieshouse.api.strikeoffobjections.common.ApiLogger;
 
 import javax.servlet.http.HttpServletResponse;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 
 @Component
 public class FileTransferApiClient {
@@ -164,11 +167,15 @@ public class FileTransferApiClient {
      * @param httpServletResponse The HttpServletResponse to stream the file to
      * @return FileTransferApiClientResponse containing the http status
      */
-    public FileTransferApiClientResponse download(String fileId, HttpServletResponse httpServletResponse) {
+    public FileTransferApiClientResponse download(String fileId, HttpServletResponse httpServletResponse) throws IOException {
         // TODO OBJ-200 replace this dummy response with the implementation.
         FileTransferApiClientResponse fileTransferApiClientResponse = new FileTransferApiClientResponse();
         fileTransferApiClientResponse.setFileId(fileId);
         fileTransferApiClientResponse.setHttpStatus(HttpStatus.OK);
+
+        InputStream inputStream = new ByteArrayInputStream("This is a test".getBytes());
+        IOUtils.copy(inputStream, httpServletResponse.getOutputStream());
+
         return fileTransferApiClientResponse;
     }
 }
