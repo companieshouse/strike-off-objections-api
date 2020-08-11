@@ -56,6 +56,7 @@ public class ObjectionController {
     private static final String ERROR_500 = "Internal server error";
     private static final String COULD_NOT_DELETE = "Could not delete attachment";
     private static final String OBJECTION_NOT_PROCESSED = "Objection not processed";
+    private static final String DOWNLOAD_ERROR = "Download Error";
 
     private PluggableResponseEntityFactory responseEntityFactory;
     private IObjectionService objectionService;
@@ -464,7 +465,7 @@ public class ObjectionController {
         } catch (HttpClientErrorException | HttpServerErrorException e) {
             apiLogger.errorContext(
                     requestId,
-                   "",
+                    DOWNLOAD_ERROR,
                     e,
                     logMap
             );
