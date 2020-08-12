@@ -427,7 +427,7 @@ class ObjectionControllerTest {
     }
 
     @Test
-    public void testReturnUnauthorizedStatusWhenDownloadFailsAuthorizationChecks() throws ServiceException {
+    public void testReturnUnauthorizedStatusForDownload() throws ServiceException {
         HttpServletResponse httpServletResponse = new MockHttpServletResponse();
         FileTransferApiClientResponse dummyDownloadResponse = Utils.dummyDownloadResponse();
         dummyDownloadResponse.setHttpStatus(HttpStatus.UNAUTHORIZED);
@@ -444,7 +444,7 @@ class ObjectionControllerTest {
     }
 
     @Test
-    public void testReturnForbiddenStatusWhenNotAllowedToDownloadAnInfectedFile() throws ServiceException {
+    public void testReturnForbiddenStatusForDownload() throws ServiceException {
         HttpServletResponse httpServletResponse = new MockHttpServletResponse();
         FileTransferApiClientResponse dummyDownloadResponse = Utils.dummyDownloadResponse();
         dummyDownloadResponse.setHttpStatus(HttpStatus.FORBIDDEN);
