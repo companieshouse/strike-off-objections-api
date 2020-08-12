@@ -1,6 +1,5 @@
 package uk.gov.companieshouse.api.strikeoffobjections.service;
 
-import java.io.IOException;
 import java.util.List;
 
 import org.springframework.web.multipart.MultipartFile;
@@ -37,5 +36,6 @@ public interface IObjectionService {
     void deleteAttachment(String requestId, String objectionId, String attachmentId)
             throws ObjectionNotFoundException, AttachmentNotFoundException, ServiceException;
 
-    FileTransferApiClientResponse downloadAttachment(String objectionId, String attachmentId, HttpServletResponse response);
+    FileTransferApiClientResponse downloadAttachment(
+            String requestId, String objectionId, String attachmentId, HttpServletResponse response) throws ServiceException;
 }

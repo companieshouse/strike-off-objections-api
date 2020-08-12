@@ -167,18 +167,14 @@ public class FileTransferApiClient {
      * @param httpServletResponse The HttpServletResponse to stream the file to
      * @return FileTransferApiClientResponse containing the http status
      */
-    public FileTransferApiClientResponse download(String fileId, HttpServletResponse httpServletResponse) {
+    public FileTransferApiClientResponse download(String fileId, HttpServletResponse httpServletResponse) throws IOException {
         // TODO OBJ-200 replace this dummy response with the implementation.
         FileTransferApiClientResponse fileTransferApiClientResponse = new FileTransferApiClientResponse();
         fileTransferApiClientResponse.setFileId(fileId);
         fileTransferApiClientResponse.setHttpStatus(HttpStatus.OK);
 
         InputStream inputStream = new ByteArrayInputStream("This is a test".getBytes());
-        try {
-            IOUtils.copy(inputStream, httpServletResponse.getOutputStream());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        IOUtils.copy(inputStream, httpServletResponse.getOutputStream());
 
         return fileTransferApiClientResponse;
     }

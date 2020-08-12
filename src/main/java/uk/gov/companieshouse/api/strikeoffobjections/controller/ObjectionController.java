@@ -35,7 +35,6 @@ import uk.gov.companieshouse.service.rest.response.PluggableResponseEntityFactor
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -460,7 +459,8 @@ public class ObjectionController {
                     "GET /{objectionId}/attachments/{attachmentId}/download request received",
                     logMap
             );
-            FileTransferApiClientResponse downloadServiceResult = objectionService.downloadAttachment(objectionId, attachmentId, response);
+            FileTransferApiClientResponse downloadServiceResult = objectionService.downloadAttachment(
+                    requestId, objectionId, attachmentId, response);
             return ResponseEntity.status(downloadServiceResult.getHttpStatus()).build();
         } catch (HttpClientErrorException | HttpServerErrorException e) {
             apiLogger.errorContext(
@@ -470,6 +470,21 @@ public class ObjectionController {
                     logMap
             );
             return ResponseEntity.status(e.getStatusCode()).build();
+        } catch (ServiceException e) {
+            apiLogger.errorContext(
+                    requestId,
+                    DOWNLOAD_ERROR,
+                    e,
+                    logMap
+            );
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+
+        } finally {
+            apiLogger.infoContext(
+                    requestId,
+                    "Finished DOWNLOAD /{objectionId}/attachments/{attachmentId}/download request",
+                    logMap
+            );
         }
     }
 }

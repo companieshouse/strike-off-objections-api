@@ -409,11 +409,11 @@ class ObjectionControllerTest {
     }
 
     @Test
-    public void testReturnOkStatusForDownload() {
+    public void testReturnOkStatusForDownload() throws ServiceException {
         HttpServletResponse httpServletResponse = new MockHttpServletResponse();
         FileTransferApiClientResponse dummyDownloadResponse = Utils.dummyDownloadResponse();
         dummyDownloadResponse.setHttpStatus(HttpStatus.OK);
-        when(objectionService.downloadAttachment(OBJECTION_ID, ATTACHMENT_ID, httpServletResponse))
+        when(objectionService.downloadAttachment(REQUEST_ID, OBJECTION_ID, ATTACHMENT_ID, httpServletResponse))
                 .thenReturn(dummyDownloadResponse);
 
         ResponseEntity responseEntity =
@@ -426,11 +426,11 @@ class ObjectionControllerTest {
     }
 
     @Test
-    public void testReturnUnauthorizedStatusWhenInDownloadResponse() {
+    public void testReturnUnauthorizedStatusWhenInDownloadResponse() throws ServiceException {
         HttpServletResponse httpServletResponse = new MockHttpServletResponse();
         FileTransferApiClientResponse dummyDownloadResponse = Utils.dummyDownloadResponse();
         dummyDownloadResponse.setHttpStatus(HttpStatus.UNAUTHORIZED);
-        when(objectionService.downloadAttachment(OBJECTION_ID, ATTACHMENT_ID, httpServletResponse))
+        when(objectionService.downloadAttachment(REQUEST_ID, OBJECTION_ID, ATTACHMENT_ID, httpServletResponse))
                 .thenReturn(dummyDownloadResponse);
 
         ResponseEntity responseEntity =
@@ -443,11 +443,11 @@ class ObjectionControllerTest {
     }
 
     @Test
-    public void testReturnForbiddenStatusWhenInDownloadResponse() {
+    public void testReturnForbiddenStatusWhenInDownloadResponse() throws ServiceException {
         HttpServletResponse httpServletResponse = new MockHttpServletResponse();
         FileTransferApiClientResponse dummyDownloadResponse = Utils.dummyDownloadResponse();
         dummyDownloadResponse.setHttpStatus(HttpStatus.FORBIDDEN);
-        when(objectionService.downloadAttachment(OBJECTION_ID, ATTACHMENT_ID, httpServletResponse))
+        when(objectionService.downloadAttachment(REQUEST_ID, OBJECTION_ID, ATTACHMENT_ID, httpServletResponse))
                 .thenReturn(dummyDownloadResponse);
 
         ResponseEntity responseEntity =
@@ -460,10 +460,10 @@ class ObjectionControllerTest {
     }
 
     @Test
-    public void testDownloadWillCatchHttpClientExceptions() {
+    public void testDownloadWillCatchHttpClientExceptions() throws ServiceException {
         HttpServletResponse httpServletResponse = new MockHttpServletResponse();
 
-        when(objectionService.downloadAttachment(OBJECTION_ID, ATTACHMENT_ID, httpServletResponse))
+        when(objectionService.downloadAttachment(REQUEST_ID, OBJECTION_ID, ATTACHMENT_ID, httpServletResponse))
                 .thenThrow(new HttpClientErrorException(HttpStatus.BAD_REQUEST));
 
         ResponseEntity responseEntity = objectionController.downloadAttachment(
@@ -474,10 +474,10 @@ class ObjectionControllerTest {
     }
 
     @Test
-    public void testDownloadWillCatchHttpServerExceptions() {
+    public void testDownloadWillCatchHttpServerExceptions() throws ServiceException {
         HttpServletResponse httpServletResponse = new MockHttpServletResponse();
 
-        when(objectionService.downloadAttachment(OBJECTION_ID, ATTACHMENT_ID, httpServletResponse))
+        when(objectionService.downloadAttachment(REQUEST_ID, OBJECTION_ID, ATTACHMENT_ID, httpServletResponse))
                 .thenThrow(new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR));
 
         ResponseEntity responseEntity = objectionController.downloadAttachment(

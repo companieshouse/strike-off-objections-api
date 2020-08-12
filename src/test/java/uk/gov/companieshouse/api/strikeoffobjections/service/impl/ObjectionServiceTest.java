@@ -30,6 +30,7 @@ import uk.gov.companieshouse.service.ServiceException;
 import uk.gov.companieshouse.service.ServiceResult;
 
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -605,14 +606,14 @@ class ObjectionServiceTest {
     }
 
     @Test
-    public void willCallFileTransferGatewayForDownload() {
+    public void willCallFileTransferGatewayForDownload() throws IOException, ServiceException {
         HttpServletResponse httpServletResponse = new MockHttpServletResponse();
         FileTransferApiClientResponse dummyDownloadResponse = Utils.dummyDownloadResponse();
 
         when(fileTransferApiClient.download(ATTACHMENT_ID, httpServletResponse)).thenReturn(dummyDownloadResponse);
 
         FileTransferApiClientResponse downloadServiceResult = objectionService.downloadAttachment(
-                OBJECTION_ID, ATTACHMENT_ID, httpServletResponse);
+                REQUEST_ID, OBJECTION_ID, ATTACHMENT_ID, httpServletResponse);
 
         verify(fileTransferApiClient, only()).download(ATTACHMENT_ID, httpServletResponse);
         verify(fileTransferApiClient, times(1)).download(ATTACHMENT_ID, httpServletResponse);
