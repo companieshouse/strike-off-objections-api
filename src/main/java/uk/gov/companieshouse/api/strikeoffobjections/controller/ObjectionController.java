@@ -448,7 +448,7 @@ public class ObjectionController {
     public ResponseEntity<Void> downloadAttachment(@PathVariable String companyNumber,
                                                    @PathVariable String objectionId,
                                                    @PathVariable String attachmentId,
-                                                   @RequestHeader(value = ERIC_REQUEST_ID_HEADER) String requestId,
+                                                   @RequestHeader(value = ERIC_REQUEST_ID) String requestId,
                                                    HttpServletResponse response) {
         Map<String, Object> logMap = new HashMap<>();
         logMap.put(LOG_COMPANY_NUMBER_KEY, companyNumber);
