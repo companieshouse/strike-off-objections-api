@@ -20,6 +20,7 @@ import uk.gov.companieshouse.api.strikeoffobjections.common.ApiLogger;
 import uk.gov.companieshouse.api.strikeoffobjections.common.LogConstants;
 import uk.gov.companieshouse.api.strikeoffobjections.exception.AttachmentNotFoundException;
 import uk.gov.companieshouse.api.strikeoffobjections.exception.ObjectionNotFoundException;
+import uk.gov.companieshouse.api.strikeoffobjections.file.FileTransferApiClientResponse;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Attachment;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Objection;
 import uk.gov.companieshouse.api.strikeoffobjections.model.patch.ObjectionPatch;
@@ -33,6 +34,7 @@ import uk.gov.companieshouse.service.rest.response.ChResponseBody;
 import uk.gov.companieshouse.service.rest.response.PluggableResponseEntityFactory;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -53,6 +55,7 @@ public class ObjectionController {
     private static final String ERROR_500 = "Internal server error";
     private static final String COULD_NOT_DELETE = "Could not delete attachment";
     private static final String OBJECTION_NOT_PROCESSED = "Objection not processed";
+    private static final String DOWNLOAD_ERROR = "Download Error";
 
     private PluggableResponseEntityFactory responseEntityFactory;
     private IObjectionService objectionService;
@@ -435,6 +438,51 @@ public class ObjectionController {
             apiLogger.infoContext(
                     requestId,
                     "Finished DELETE /{objectionId}/attachments/{attachmentId} request",
+                    logMap
+            );
+        }
+    }
+
+    @GetMapping("/{objectionId}/attachments/{attachmentId}/download")
+    public ResponseEntity<Void> downloadAttachment(@PathVariable String companyNumber,
+                                                   @PathVariable String objectionId,
+                                                   @PathVariable String attachmentId,
+                                                   @RequestHeader(value = ERIC_REQUEST_ID_HEADER) String requestId,
+                                                   HttpServletResponse response) {
+        Map<String, Object> logMap = new HashMap<>();
+        logMap.put(LOG_COMPANY_NUMBER_KEY, companyNumber);
+        logMap.put(LOG_OBJECTION_ID_KEY, objectionId);
+
+        try{
+            apiLogger.infoContext(
+                    requestId,
+                    "GET /{objectionId}/attachments/{attachmentId}/download request received",
+                    logMap
+            );
+            FileTransferApiClientResponse downloadServiceResult = objectionService.downloadAttachment(
+                    requestId, objectionId, attachmentId, response);
+            return ResponseEntity.status(downloadServiceResult.getHttpStatus()).build();
+        } catch (HttpClientErrorException | HttpServerErrorException e) {
+            apiLogger.errorContext(
+                    requestId,
+                    DOWNLOAD_ERROR,
+                    e,
+                    logMap
+            );
+            return ResponseEntity.status(e.getStatusCode()).build();
+        } catch (ServiceException e) {
+            apiLogger.errorContext(
+                    requestId,
+                    DOWNLOAD_ERROR,
+                    e,
+                    logMap
+            );
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+
+        } finally {
+            apiLogger.infoContext(
+                    requestId,
+                    "Finished DOWNLOAD /{objectionId}/attachments/{attachmentId}/download request",
                     logMap
             );
         }

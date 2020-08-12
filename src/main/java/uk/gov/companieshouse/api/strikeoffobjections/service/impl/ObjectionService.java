@@ -28,7 +28,9 @@ import uk.gov.companieshouse.service.ServiceException;
 import uk.gov.companieshouse.service.ServiceResult;
 import uk.gov.companieshouse.service.links.Links;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotNull;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -283,6 +285,19 @@ public class ObjectionService implements IObjectionService {
             String message = String.format(ATTACHMENT_NOT_DELETED, attachmentId, e.getStatusCode());
             logger.errorContext(requestId, message, e, logMap);
             throw new ServiceException(message);
+        }
+    }
+
+    public FileTransferApiClientResponse downloadAttachment(String requestId,
+                                                            String objectionId,
+                                                            String attachmentId,
+                                                            HttpServletResponse response) throws ServiceException {
+        Map<String, Object> logMap = buildLogMap(null, objectionId, attachmentId);
+        try {
+            return fileTransferApiClient.download(attachmentId, response);
+        } catch (IOException e) {
+            logger.errorContext(requestId, e.getMessage(), e, logMap);
+            throw new ServiceException(e.getMessage());
         }
     }
 

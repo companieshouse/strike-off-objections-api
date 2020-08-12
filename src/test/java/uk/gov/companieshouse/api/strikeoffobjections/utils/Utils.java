@@ -142,4 +142,10 @@ public class Utils {
         companyProfileApi.setJurisdiction(jurisdiction);
         return companyProfileApi;
     }
+
+    public static FileTransferApiClientResponse dummyDownloadResponse() {
+        FileTransferApiClientResponse dummyDownloadResponse = new FileTransferApiClientResponse();
+        dummyDownloadResponse.setHttpStatus(HttpStatus.OK);
+        return dummyDownloadResponse;
+    }
 }
