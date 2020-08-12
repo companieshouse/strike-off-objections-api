@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.multipart.MultipartFile;
 import uk.gov.companieshouse.api.strikeoffobjections.common.ApiLogger;
 import uk.gov.companieshouse.api.strikeoffobjections.exception.AttachmentNotFoundException;
@@ -606,7 +607,7 @@ class ObjectionServiceTest {
     }
 
     @Test
-    public void willCallFileTransferGatewayForDownload() throws IOException, ServiceException {
+    public void willCallFileTransferApiForDownload() throws IOException, ServiceException {
         HttpServletResponse httpServletResponse = new MockHttpServletResponse();
         FileTransferApiClientResponse dummyDownloadResponse = Utils.dummyDownloadResponse();
 
@@ -619,7 +620,18 @@ class ObjectionServiceTest {
         verify(fileTransferApiClient, times(1)).download(ATTACHMENT_ID, httpServletResponse);
 
         assertNotNull(downloadServiceResult);
+        assertEquals(HttpStatus.OK, downloadServiceResult.getHttpStatus());
     }
 
+    @Test
+    public void willThrowIOExceptonForDownload() throws IOException, ServiceException {
+        HttpServletResponse httpServletResponse = new MockHttpServletResponse();
+        FileTransferApiClientResponse dummyDownloadResponse = Utils.dummyDownloadResponse();
 
+        when(fileTransferApiClient.download(ATTACHMENT_ID, httpServletResponse)).thenThrow(new IOException());
+
+        assertThrows(ServiceException.class, () -> objectionService.downloadAttachment(
+                REQUEST_ID, OBJECTION_ID, ATTACHMENT_ID, httpServletResponse));
+
+    }
 }

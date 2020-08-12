@@ -43,6 +43,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doThrow;
@@ -426,7 +427,7 @@ class ObjectionControllerTest {
     }
 
     @Test
-    public void testReturnUnauthorizedStatusWhenInDownloadResponse() throws ServiceException {
+    public void testReturnUnauthorizedStatusWhenDownloadFailsAuthorizationChecks() throws ServiceException {
         HttpServletResponse httpServletResponse = new MockHttpServletResponse();
         FileTransferApiClientResponse dummyDownloadResponse = Utils.dummyDownloadResponse();
         dummyDownloadResponse.setHttpStatus(HttpStatus.UNAUTHORIZED);
@@ -443,7 +444,7 @@ class ObjectionControllerTest {
     }
 
     @Test
-    public void testReturnForbiddenStatusWhenInDownloadResponse() throws ServiceException {
+    public void testReturnForbiddenStatusWhenNotAllowedToDownloadAnInfectedFile() throws ServiceException {
         HttpServletResponse httpServletResponse = new MockHttpServletResponse();
         FileTransferApiClientResponse dummyDownloadResponse = Utils.dummyDownloadResponse();
         dummyDownloadResponse.setHttpStatus(HttpStatus.FORBIDDEN);
@@ -479,6 +480,21 @@ class ObjectionControllerTest {
 
         when(objectionService.downloadAttachment(REQUEST_ID, OBJECTION_ID, ATTACHMENT_ID, httpServletResponse))
                 .thenThrow(new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR));
+
+        ResponseEntity responseEntity = objectionController.downloadAttachment(
+                COMPANY_NUMBER, OBJECTION_ID, ATTACHMENT_ID, REQUEST_ID, httpServletResponse);
+
+        Assert.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, responseEntity.getStatusCode());
+        assertNull(responseEntity.getBody());
+        assertTrue(responseEntity.getHeaders().isEmpty());
+    }
+
+    @Test
+    public void willThrowServiceExceptonForDownload() throws ServiceException {
+        HttpServletResponse httpServletResponse = new MockHttpServletResponse();
+
+        when(objectionService.downloadAttachment(REQUEST_ID, OBJECTION_ID, ATTACHMENT_ID, httpServletResponse))
+                .thenThrow(ServiceException.class);
 
         ResponseEntity responseEntity = objectionController.downloadAttachment(
                 COMPANY_NUMBER, OBJECTION_ID, ATTACHMENT_ID, REQUEST_ID, httpServletResponse);
