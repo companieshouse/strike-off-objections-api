@@ -38,6 +38,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static uk.gov.companieshouse.api.strikeoffobjections.service.impl.ERICHeaderFields.ERIC_REQUEST_ID;
+import static uk.gov.companieshouse.api.strikeoffobjections.service.impl.ERICHeaderFields.ERIC_IDENTITY;
+import static uk.gov.companieshouse.api.strikeoffobjections.service.impl.ERICHeaderFields.ERIC_AUTHORISED_USER;
+
 @RestController
 @RequestMapping(value = "/company/{companyNumber}/strike-off-objections")
 public class ObjectionController {
@@ -45,9 +49,6 @@ public class ObjectionController {
     private static final String LOG_COMPANY_NUMBER_KEY = LogConstants.COMPANY_NUMBER.getValue();
     private static final String LOG_OBJECTION_ID_KEY = LogConstants.OBJECTION_ID.getValue();
     private static final String LOG_ATTACHMENT_ID = LogConstants.ATTACHMENT_ID.getValue();
-    private static final String ERIC_REQUEST_ID_HEADER = "X-Request-Id";
-    private static final String ERIC_IDENTITY = "ERIC-identity";
-    private static final String ERIC_AUTHORISED_USER = "ERIC-Authorised-User";
     private static final String OBJECTION_NOT_FOUND = "Objection not found";
     private static final String ATTACHMENT_NOT_FOUND = "Attachment not found";
     private static final String ERROR_500 = "Internal server error";
@@ -79,7 +80,7 @@ public class ObjectionController {
             @PathVariable("companyNumber") String companyNumber,
             @PathVariable("objectionId") String objectionId,
             @PathVariable("attachmentId") String attachmentId,
-            @RequestHeader(value = ERIC_REQUEST_ID_HEADER) String requestId
+            @RequestHeader(value = ERIC_REQUEST_ID) String requestId
     ) {
         Map<String, Object> logMap = new HashMap<>();
         logMap.put(LOG_COMPANY_NUMBER_KEY, companyNumber);
@@ -127,7 +128,7 @@ public class ObjectionController {
     @PostMapping
     public ResponseEntity<ChResponseBody<ObjectionResponseDTO>> createObjection(
             @PathVariable("companyNumber") String companyNumber,
-            @RequestHeader(value = ERIC_REQUEST_ID_HEADER) String requestId,
+            @RequestHeader(value = ERIC_REQUEST_ID) String requestId,
             @RequestHeader(value = ERIC_IDENTITY) String ericUserId,
             @RequestHeader(value = ERIC_AUTHORISED_USER) String ericUserDetails
     ) {
@@ -177,7 +178,7 @@ public class ObjectionController {
             @PathVariable("companyNumber") String companyNumber,
             @PathVariable("objectionId") String objectionId,
             @RequestBody ObjectionPatch objectionPatch,
-            @RequestHeader(value = ERIC_REQUEST_ID_HEADER) String requestId
+            @RequestHeader(value = ERIC_REQUEST_ID) String requestId
     ) {
 
         Map<String, Object> logMap = new HashMap<>();
@@ -237,7 +238,7 @@ public class ObjectionController {
     public ResponseEntity<ChResponseBody<ObjectionResponseDTO>> getObjection(
             @PathVariable("companyNumber") String companyNumber,
             @PathVariable("objectionId") String objectionId,
-            @RequestHeader(value = ERIC_REQUEST_ID_HEADER) String requestId
+            @RequestHeader(value = ERIC_REQUEST_ID) String requestId
     ) {
         Map<String, Object> logMap = new HashMap<>();
         logMap.put(LOG_COMPANY_NUMBER_KEY, companyNumber);
@@ -285,7 +286,7 @@ public class ObjectionController {
     public ResponseEntity<ChResponseBody<List<AttachmentResponseDTO>>> getAttachments(
             @PathVariable("companyNumber") String companyNumber,
             @PathVariable("objectionId") String objectionId,
-            @RequestHeader(value = ERIC_REQUEST_ID_HEADER) String requestId
+            @RequestHeader(value = ERIC_REQUEST_ID) String requestId
     ) {
         Map<String, Object> logMap = new HashMap<>();
         logMap.put(LOG_COMPANY_NUMBER_KEY, companyNumber);
@@ -327,7 +328,7 @@ public class ObjectionController {
             @RequestParam("file") MultipartFile file,
             @PathVariable("companyNumber") String companyNumber,
             @PathVariable String objectionId,
-            @RequestHeader(value = ERIC_REQUEST_ID_HEADER) String requestId,
+            @RequestHeader(value = ERIC_REQUEST_ID) String requestId,
             HttpServletRequest servletRequest) {
 
         Map<String, Object> logMap = new HashMap<>();
@@ -386,7 +387,7 @@ public class ObjectionController {
             @PathVariable String companyNumber,
             @PathVariable String objectionId,
             @PathVariable String attachmentId,
-            @RequestHeader(value = ERIC_REQUEST_ID_HEADER) String requestId
+            @RequestHeader(value = ERIC_REQUEST_ID) String requestId
     ) {
         Map<String, Object> logMap = new HashMap<>();
         logMap.put(LOG_COMPANY_NUMBER_KEY, companyNumber);
