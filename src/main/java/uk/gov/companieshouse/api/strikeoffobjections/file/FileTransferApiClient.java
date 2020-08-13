@@ -29,8 +29,7 @@ public class FileTransferApiClient {
     private static final String UPLOAD = "upload";
     private static final String CONTENT_DISPOSITION_VALUE = "form-data; name=%s; filename=%s";
     private static final String NULL_RESPONSE_MESSAGE = "null response from file transfer api url";
-    private static final String GET_URI = "%s/%s";
-    private static final String DELETE_URI = "%s/%s";
+    private static final String FILE_TRANSFER_URI_TEMPLATE = "%s/%s";
     private static final String DOWNLOAD_URI = "%s/%s/download";
     private static final String CONTENT_TYPE = "Content-Type";
     private static final String CONTENT_LENGTH = "Content-Length";
@@ -151,7 +150,7 @@ public class FileTransferApiClient {
      * @return FileTransferApiClientResponse containing the http status
      */
     public FileTransferApiClientResponse delete(String requestId, String fileId) {
-        String deleteUrl = String.format(DELETE_URI, fileTransferApiURL, fileId);
+        String deleteUrl = String.format(FILE_TRANSFER_URI_TEMPLATE, fileTransferApiURL, fileId);
         return makeApiCall(
             requestId,
             () -> {
@@ -184,23 +183,15 @@ public class FileTransferApiClient {
                 () -> restTemplate.execute(
                         downloadUri,
                         HttpMethod.GET,
-                        requestCallback -> {
-                            handleRequestCallback(requestCallback);
-                        },
-                        clientHttpResponse -> {
-                            return getClientHttpResponse(httpServletResponse, clientHttpResponse);
-                        }),
-
-                //FileTransferResponseBuilder - the output from FileTransferOperation is the input into
-                // this FileTransferResponseBuilder
-                clientHttpResponse -> {
-                    return getFileTransferApiClientResponse(requestId, clientHttpResponse);
-                }
+                        this::handleRequestCallback,
+                        clientHttpResponse -> getClientHttpResponse(httpServletResponse, clientHttpResponse)
+                        ),
+                clientHttpResponse -> getFileTransferApiClientResponse(requestId, clientHttpResponse)
         );
     }
 
     private boolean isFileClean(String requestId, String fileId) {
-        String getUrl = String.format(GET_URI, fileTransferApiURL, fileId);
+        String getUrl = String.format(FILE_TRANSFER_URI_TEMPLATE, fileTransferApiURL, fileId);
 
         FileTransferApiClientResponse fileDataResponse = makeApiCall(
                 requestId,
@@ -208,9 +199,7 @@ public class FileTransferApiClient {
                     HttpEntity<Void> request = new HttpEntity<>(createApiKeyHeader());
                     return restTemplate.exchange(getUrl, HttpMethod.DELETE, request, FileTransferApiResponse.class);
                 },
-                responseEntity -> {
-                    return getFileTransferApiClientResponse(requestId, responseEntity);
-                }
+                responseEntity -> getFileTransferApiClientResponse(requestId, responseEntity)
         );
 
         return fileDataResponse.getAvStatus().equals("clean");
