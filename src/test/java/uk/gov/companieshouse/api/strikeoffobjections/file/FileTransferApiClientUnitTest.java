@@ -195,6 +195,43 @@ public class FileTransferApiClientUnitTest {
         assertEquals(contentDisposition.toString(), servletResponse.getHeader("Content-Disposition"));
     }
 
+
+    @Test
+    public void testNullClientHttpResponseForDownload() throws IOException {
+        final String contentDispositionType = "attachment";
+        final int contentLength = 55123;
+        final MediaType contentType = MediaType.APPLICATION_OCTET_STREAM;
+        final String fileName = "file.txt";
+        final File file = new File("./src/test/resources/input/test.txt");
+        final InputStream fileInputStream = new FileInputStream(file);
+
+        MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+
+        ClientHttpResponse responseFromFileTransferApi = null;
+
+        ContentDisposition contentDisposition = ContentDisposition.builder(contentDispositionType)
+                .filename(fileName).build();
+
+        HttpHeaders httpHeaders = Utils.getDummyHttpHeaders(contentDisposition, contentLength, contentType);
+
+        //tell mocks what to return when download method is executed
+        when(restTemplate.execute(eq(DOWNLOAD_URI), eq(HttpMethod.GET), any(RequestCallback.class), ArgumentMatchers.<ResponseExtractor<ClientHttpResponse>>any(), any(FileTransferApiClientResponse.class)))
+                .thenReturn(responseFromFileTransferApi);
+
+        FileTransferApiClientResponse downloadResponse = fileTransferApiClient.download(REQUEST_ID, FILE_ID, servletResponse);
+
+        //need to capture the responseExtractor lambda passed to the restTemplate so we can test it - this is what actually does the file copy
+        verify(restTemplate).execute(eq(DOWNLOAD_URI), eq(HttpMethod.GET), any(RequestCallback.class),
+                responseExtractorArgCaptor.capture(), any(FileTransferApiClientResponse.class));
+
+        //now executing the responseExtractor should cause input stream (file) to be copied to output stream (servletResponse)
+        ResponseExtractor<ClientHttpResponse> responseExtractor = responseExtractorArgCaptor.getValue();
+        responseExtractor.extractData(responseFromFileTransferApi);
+
+        //check status is ok
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, downloadResponse.getHttpStatus());
+    }
+
     @Test
     public void testGenericExceptionThrownWhenDownloadCalled() {
         final MockHttpServletResponse servletResponse = new MockHttpServletResponse();

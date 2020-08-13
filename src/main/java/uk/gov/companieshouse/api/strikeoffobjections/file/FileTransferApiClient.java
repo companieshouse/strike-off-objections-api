@@ -195,10 +195,13 @@ public class FileTransferApiClient {
     }
 
     private ClientHttpResponse copyClientHttpDataToServletResponse(HttpServletResponse httpServletResponse, ClientHttpResponse clientHttpResponse) throws IOException {
-        setResponseHeaders(httpServletResponse, clientHttpResponse);
+        if(clientHttpResponse != null) {
+            setResponseHeaders(httpServletResponse, clientHttpResponse);
 
-        InputStream inputStream = clientHttpResponse.getBody();
-        IOUtils.copy(inputStream, httpServletResponse.getOutputStream());
+            InputStream inputStream = clientHttpResponse.getBody();
+            IOUtils.copy(inputStream, httpServletResponse.getOutputStream());
+            return clientHttpResponse;
+        }
         return clientHttpResponse;
     }
 
@@ -220,13 +223,15 @@ public class FileTransferApiClient {
      * @param clientHttpResponse the response back from the api we are calling - the file-transfer-api
      */
     private void setResponseHeaders(HttpServletResponse httpServletResponse, ClientHttpResponse clientHttpResponse) {
-        HttpHeaders incomingHeaders = clientHttpResponse.getHeaders();
-        MediaType contentType = incomingHeaders.getContentType();
-        if (contentType != null) {
-            httpServletResponse.setHeader(CONTENT_TYPE, contentType.toString());
+        if(clientHttpResponse != null) {
+            HttpHeaders incomingHeaders = clientHttpResponse.getHeaders();
+            MediaType contentType = incomingHeaders.getContentType();
+            if (contentType != null) {
+                httpServletResponse.setHeader(CONTENT_TYPE, contentType.toString());
+            }
+            httpServletResponse.setHeader(CONTENT_LENGTH, String.valueOf(incomingHeaders.getContentLength()));
+            httpServletResponse.setHeader(CONTENT_DISPOSITION, incomingHeaders.getContentDisposition().toString());
         }
-        httpServletResponse.setHeader(CONTENT_LENGTH, String.valueOf(incomingHeaders.getContentLength()));
-        httpServletResponse.setHeader(CONTENT_DISPOSITION, incomingHeaders.getContentDisposition().toString());
     }
 
 }
