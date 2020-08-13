@@ -194,7 +194,7 @@ public class FileTransferApiClient {
                 //FileTransferResponseBuilder - the output from FileTransferOperation is the input into
                 // this FileTransferResponseBuilder
                 clientHttpResponse -> {
-                    return getFileTransferApiClientResponse(clientHttpResponse);
+                    return getFileTransferApiClientResponse(requestId, clientHttpResponse);
                 }
         );
     }
@@ -230,11 +230,13 @@ public class FileTransferApiClient {
         return clientHttpResponse;
     }
 
-    private FileTransferApiClientResponse getFileTransferApiClientResponse(ClientHttpResponse clientHttpResponse) throws IOException {
+    private FileTransferApiClientResponse getFileTransferApiClientResponse(String requestId,
+                                                                           ClientHttpResponse clientHttpResponse) throws IOException {
         FileTransferApiClientResponse fileTransferApiClientResponse = new FileTransferApiClientResponse();
         if (clientHttpResponse != null) {
             fileTransferApiClientResponse.setHttpStatus(clientHttpResponse.getStatusCode());
         } else {
+            logger.debugContext(requestId, NULL_RESPONSE_MESSAGE + " " + fileTransferApiURL);
             fileTransferApiClientResponse.setHttpStatus(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return fileTransferApiClientResponse;
