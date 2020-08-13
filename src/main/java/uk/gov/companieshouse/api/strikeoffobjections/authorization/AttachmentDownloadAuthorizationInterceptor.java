@@ -6,7 +6,6 @@ import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
@@ -48,9 +47,7 @@ public class AttachmentDownloadAuthorizationInterceptor extends HandlerIntercept
 
     private boolean isAttachmentDownloadAllowed(HttpServletRequest request, String requestId) {
        try {
-            final boolean downloadPrivilegeAvailable = doesUserHavePrivilege(request, ADMIN_DOWNLOAD_ROLE, requestId);
-
-            if (downloadPrivilegeAvailable) {
+           if (userHasPrivilege(request, ADMIN_DOWNLOAD_ROLE, requestId)) {
                 return true;
             }
         } catch(ServiceException e) {
@@ -60,7 +57,7 @@ public class AttachmentDownloadAuthorizationInterceptor extends HandlerIntercept
         return false;
     }
 
-    private boolean doesUserHavePrivilege(HttpServletRequest request, String privilege, String requestId) throws ServiceException {
+    private boolean userHasPrivilege(HttpServletRequest request, String privilege, String requestId) throws ServiceException {
         logger.debugContext(requestId, "Checking admin privileges for user");
 
         return Arrays.stream(
