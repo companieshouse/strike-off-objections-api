@@ -13,6 +13,7 @@ import org.springframework.http.client.ClientHttpRequest;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 import uk.gov.companieshouse.api.strikeoffobjections.common.ApiLogger;
@@ -111,7 +112,6 @@ public class FileTransferApiClient {
             FileTransferApiResponse apiResponse = responseEntity.getBody();
             if (apiResponse != null) {
                 fileTransferApiClientResponse.setFileId(apiResponse.getId());
-                fileTransferApiClientResponse.setAvStatus(apiResponse.getAvStatus());
             }
         } else {
             logger.infoContext(requestId, String.format("%s %s", NULL_RESPONSE_MESSAGE,fileTransferApiURL));
@@ -175,8 +175,8 @@ public class FileTransferApiClient {
      * @return FileTransferApiClientResponse containing the http status
      */
     public FileTransferApiClientResponse download(String requestId, String fileId, HttpServletResponse httpServletResponse) {
-        String downloadUri = String.format(DOWNLOAD_URI, fileTransferApiURL, fileId);
 
+        String downloadUri = String.format(DOWNLOAD_URI, fileTransferApiURL, fileId);
         return makeApiCall(
                 requestId,
                 //FileTransferOperation
@@ -184,26 +184,10 @@ public class FileTransferApiClient {
                         downloadUri,
                         HttpMethod.GET,
                         this::handleRequestCallback,
-                        clientHttpResponse -> getClientHttpResponse(httpServletResponse, clientHttpResponse)
+                        clientHttpResponse -> copyClientHttpDataToServletResponse(httpServletResponse, clientHttpResponse)
                         ),
                 clientHttpResponse -> getFileTransferApiClientResponse(requestId, clientHttpResponse)
         );
-    }
-
-    private boolean isFileClean(String requestId, String fileId) {
-        String getUrl = String.format(FILE_TRANSFER_URI_TEMPLATE, fileTransferApiURL, fileId);
-
-        FileTransferApiClientResponse fileDataResponse = makeApiCall(
-                requestId,
-                () -> {
-                    HttpEntity<Void> request = new HttpEntity<>(createApiKeyHeader());
-                    return restTemplate.exchange(getUrl, HttpMethod.DELETE, request, FileTransferApiResponse.class);
-                },
-                responseEntity -> getFileTransferApiClientResponse(requestId, responseEntity)
-        );
-
-        return fileDataResponse.getAvStatus().equals("clean");
-
     }
 
     private void handleRequestCallback(ClientHttpRequest requestCallback) {
@@ -211,7 +195,7 @@ public class FileTransferApiClient {
         requestCallback.getHeaders().add(HEADER_API_KEY, fileTransferApiKey);
     }
 
-    private ClientHttpResponse getClientHttpResponse(HttpServletResponse httpServletResponse, ClientHttpResponse clientHttpResponse) throws IOException {
+    private ClientHttpResponse copyClientHttpDataToServletResponse(HttpServletResponse httpServletResponse, ClientHttpResponse clientHttpResponse) throws IOException {
         setResponseHeaders(httpServletResponse, clientHttpResponse);
 
         InputStream inputStream = clientHttpResponse.getBody();

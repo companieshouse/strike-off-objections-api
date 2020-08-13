@@ -607,7 +607,7 @@ class ObjectionServiceTest {
     }
 
     @Test
-    public void willCallFileTransferApiForDownload() throws IOException, ServiceException {
+    public void willCallFileTransferApiForDownload() throws ServiceException {
         HttpServletResponse httpServletResponse = new MockHttpServletResponse();
         FileTransferApiClientResponse dummyDownloadResponse = Utils.dummyDownloadResponse();
 
