@@ -9,6 +9,8 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.ClientHttpRequest;
+import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.client.RestTemplate;
@@ -16,9 +18,9 @@ import org.springframework.web.multipart.MultipartFile;
 import uk.gov.companieshouse.api.strikeoffobjections.common.ApiLogger;
 
 import javax.servlet.http.HttpServletResponse;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collections;
 
 @Component
 public class FileTransferApiClient {
@@ -27,7 +29,12 @@ public class FileTransferApiClient {
     private static final String UPLOAD = "upload";
     private static final String CONTENT_DISPOSITION_VALUE = "form-data; name=%s; filename=%s";
     private static final String NULL_RESPONSE_MESSAGE = "null response from file transfer api url";
+    private static final String GET_URI = "%s/%s";
     private static final String DELETE_URI = "%s/%s";
+    private static final String DOWNLOAD_URI = "%s/%s/download";
+    private static final String CONTENT_TYPE = "Content-Type";
+    private static final String CONTENT_LENGTH = "Content-Length";
+    private static final String CONTENT_DISPOSITION = "Content-Disposition";
 
     @Autowired
     private ApiLogger logger;
@@ -105,6 +112,7 @@ public class FileTransferApiClient {
             FileTransferApiResponse apiResponse = responseEntity.getBody();
             if (apiResponse != null) {
                 fileTransferApiClientResponse.setFileId(apiResponse.getId());
+                fileTransferApiClientResponse.setAvStatus(apiResponse.getAvStatus());
             }
         } else {
             logger.infoContext(requestId, String.format("%s %s", NULL_RESPONSE_MESSAGE,fileTransferApiURL));
@@ -167,15 +175,84 @@ public class FileTransferApiClient {
      * @param httpServletResponse The HttpServletResponse to stream the file to
      * @return FileTransferApiClientResponse containing the http status
      */
-    public FileTransferApiClientResponse download(String fileId, HttpServletResponse httpServletResponse) throws IOException {
-        // TODO OBJ-200 replace this dummy response with the implementation.
-        FileTransferApiClientResponse fileTransferApiClientResponse = new FileTransferApiClientResponse();
-        fileTransferApiClientResponse.setFileId(fileId);
-        fileTransferApiClientResponse.setHttpStatus(HttpStatus.OK);
+    public FileTransferApiClientResponse download(String requestId, String fileId, HttpServletResponse httpServletResponse) {
+        String downloadUri = String.format(DOWNLOAD_URI, fileTransferApiURL, fileId);
 
-        InputStream inputStream = new ByteArrayInputStream("This is a test".getBytes());
+        return makeApiCall(
+                requestId,
+                //FileTransferOperation
+                () -> restTemplate.execute(
+                        downloadUri,
+                        HttpMethod.GET,
+                        requestCallback -> {
+                            handleRequestCallback(requestCallback);
+                        },
+                        clientHttpResponse -> {
+                            return getClientHttpResponse(httpServletResponse, clientHttpResponse);
+                        }),
+
+                //FileTransferResponseBuilder - the output from FileTransferOperation is the input into
+                // this FileTransferResponseBuilder
+                clientHttpResponse -> {
+                    return getFileTransferApiClientResponse(clientHttpResponse);
+                }
+        );
+    }
+
+    private boolean isFileClean(String requestId, String fileId) {
+        String getUrl = String.format(GET_URI, fileTransferApiURL, fileId);
+
+        FileTransferApiClientResponse fileDataResponse = makeApiCall(
+                requestId,
+                () -> {
+                    HttpEntity<Void> request = new HttpEntity<>(createApiKeyHeader());
+                    return restTemplate.exchange(getUrl, HttpMethod.DELETE, request, FileTransferApiResponse.class);
+                },
+                responseEntity -> {
+                    return getFileTransferApiClientResponse(requestId, responseEntity);
+                }
+        );
+
+        return fileDataResponse.getAvStatus().equals("clean");
+
+    }
+
+    private void handleRequestCallback(ClientHttpRequest requestCallback) {
+        requestCallback.getHeaders().setAccept(Collections.singletonList(MediaType.APPLICATION_OCTET_STREAM));
+        requestCallback.getHeaders().add(HEADER_API_KEY, fileTransferApiKey);
+    }
+
+    private ClientHttpResponse getClientHttpResponse(HttpServletResponse httpServletResponse, ClientHttpResponse clientHttpResponse) throws IOException {
+        setResponseHeaders(httpServletResponse, clientHttpResponse);
+
+        InputStream inputStream = clientHttpResponse.getBody();
         IOUtils.copy(inputStream, httpServletResponse.getOutputStream());
+        return clientHttpResponse;
+    }
 
+    private FileTransferApiClientResponse getFileTransferApiClientResponse(ClientHttpResponse clientHttpResponse) throws IOException {
+        FileTransferApiClientResponse fileTransferApiClientResponse = new FileTransferApiClientResponse();
+        if (clientHttpResponse != null) {
+            fileTransferApiClientResponse.setHttpStatus(clientHttpResponse.getStatusCode());
+        } else {
+            fileTransferApiClientResponse.setHttpStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
         return fileTransferApiClientResponse;
     }
+
+    /**
+     * Copies file detail headers returned from the file-transfer-api call into the httpServletResponse
+     * @param httpServletResponse response to stream file to
+     * @param clientHttpResponse the response back from the api we are calling - the file-transfer-api
+     */
+    private void setResponseHeaders(HttpServletResponse httpServletResponse, ClientHttpResponse clientHttpResponse) {
+        HttpHeaders incomingHeaders = clientHttpResponse.getHeaders();
+        MediaType contentType = incomingHeaders.getContentType();
+        if (contentType != null) {
+            httpServletResponse.setHeader(CONTENT_TYPE, contentType.toString());
+        }
+        httpServletResponse.setHeader(CONTENT_LENGTH, String.valueOf(incomingHeaders.getContentLength()));
+        httpServletResponse.setHeader(CONTENT_DISPOSITION, incomingHeaders.getContentDisposition().toString());
+    }
+
 }

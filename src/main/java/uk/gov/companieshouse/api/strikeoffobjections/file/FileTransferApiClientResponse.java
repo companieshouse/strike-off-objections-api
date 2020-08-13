@@ -6,6 +6,8 @@ import org.springframework.http.HttpStatus;
 public class FileTransferApiClientResponse {
 
     private String fileId;
+
+    private String avStatus;
     private HttpStatus httpStatus;
     private HttpHeaders httpHeaders;
 
@@ -31,5 +33,13 @@ public class FileTransferApiClientResponse {
 
     public void setHttpHeaders(HttpHeaders httpHeaders) {
         this.httpHeaders = httpHeaders;
+    }
+
+    public String getAvStatus() {
+        return avStatus;
+    }
+
+    public void setAvStatus(String avStatus) {
+        this.avStatus = avStatus;
     }
 }

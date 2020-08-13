@@ -43,7 +43,6 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doThrow;
@@ -490,7 +489,7 @@ class ObjectionControllerTest {
     }
 
     @Test
-    public void willThrowServiceExceptonForDownload() throws ServiceException {
+    public void willThrowServiceExceptionForDownload() throws ServiceException {
         HttpServletResponse httpServletResponse = new MockHttpServletResponse();
 
         when(objectionService.downloadAttachment(REQUEST_ID, OBJECTION_ID, ATTACHMENT_ID, httpServletResponse))
