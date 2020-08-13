@@ -57,7 +57,7 @@ public class AttachmentDownloadAuthorizationInterceptorTest {
     @Test
     public void willNotAuthoriseUserToDownloadAttachmentWhenRoleMissing() {
         when(request.getHeader("ERIC-Authorised-Roles"))
-        .thenReturn("permission /admin/another-role-not-for-download");
+            .thenReturn("permission /admin/another-role-not-for-download");
 
         boolean result = interceptor.preHandle(request, response, null);
 
