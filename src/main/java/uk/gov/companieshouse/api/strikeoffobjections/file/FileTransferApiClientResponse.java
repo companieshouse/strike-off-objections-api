@@ -6,7 +6,6 @@ import org.springframework.http.HttpStatus;
 public class FileTransferApiClientResponse {
 
     private String fileId;
-
     private HttpStatus httpStatus;
     private HttpHeaders httpHeaders;
 
