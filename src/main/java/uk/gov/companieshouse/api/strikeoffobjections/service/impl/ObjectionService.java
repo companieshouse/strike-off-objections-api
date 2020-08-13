@@ -30,7 +30,6 @@ import uk.gov.companieshouse.service.links.Links;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotNull;
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -292,7 +291,6 @@ public class ObjectionService implements IObjectionService {
                                                             String objectionId,
                                                             String attachmentId,
                                                             HttpServletResponse response) throws ServiceException {
-        Map<String, Object> logMap = buildLogMap(null, objectionId, attachmentId);
         return fileTransferApiClient.download(requestId, attachmentId, response);
     }
 
