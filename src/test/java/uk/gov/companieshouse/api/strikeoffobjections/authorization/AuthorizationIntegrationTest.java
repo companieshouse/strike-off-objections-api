@@ -7,15 +7,15 @@ import static org.mockito.Mockito.when;
 
 import javax.servlet.http.HttpServletResponse;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.RequestBuilder;
@@ -26,13 +26,14 @@ import uk.gov.companieshouse.api.strikeoffobjections.controller.AttachmentMapper
 import uk.gov.companieshouse.api.strikeoffobjections.controller.ObjectionController;
 import uk.gov.companieshouse.api.strikeoffobjections.controller.ObjectionMapper;
 import uk.gov.companieshouse.api.strikeoffobjections.file.FileTransferApiClientResponse;
+import uk.gov.companieshouse.api.strikeoffobjections.groups.Integration;
 import uk.gov.companieshouse.api.strikeoffobjections.service.impl.ERICHeaderParser;
 import uk.gov.companieshouse.api.strikeoffobjections.service.impl.ObjectionService;
 import uk.gov.companieshouse.service.ServiceException;
 import uk.gov.companieshouse.service.rest.response.PluggableResponseEntityFactory;
 
-//@Category(Integration.class)
-@RunWith(SpringRunner.class)
+@Integration
+@ExtendWith(SpringExtension.class)
 @WebMvcTest(value = { ObjectionController.class })
 public class AuthorizationIntegrationTest {
 
@@ -57,7 +58,7 @@ public class AuthorizationIntegrationTest {
     @MockBean
     private PluggableResponseEntityFactory responseEntityFactory;
 
-    @Before
+    @BeforeEach
     public void setup() throws ServiceException {
         FileTransferApiClientResponse transferResponse = new FileTransferApiClientResponse();
         transferResponse.setFileId("123");

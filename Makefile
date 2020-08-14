@@ -23,7 +23,11 @@ test: test-unit
 
 .PHONY: test-unit
 test-unit: clean
-	mvn test
+	mvn test -Dgroups="Unit"
+
+.PHONY: test-integration
+test-integration: clean
+	mvn verify -Dgroups="Integration"
 
 .PHONY: package
 package:
