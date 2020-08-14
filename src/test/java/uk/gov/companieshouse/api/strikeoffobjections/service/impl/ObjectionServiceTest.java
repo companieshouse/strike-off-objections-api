@@ -608,31 +608,19 @@ class ObjectionServiceTest {
     }
 
     @Test
-    public void willCallFileTransferApiForDownload() throws IOException, ServiceException {
+    public void willCallFileTransferApiForDownload() throws ServiceException {
         HttpServletResponse httpServletResponse = new MockHttpServletResponse();
         FileTransferApiClientResponse dummyDownloadResponse = Utils.dummyDownloadResponse();
 
-        when(fileTransferApiClient.download(ATTACHMENT_ID, httpServletResponse)).thenReturn(dummyDownloadResponse);
+        when(fileTransferApiClient.download(REQUEST_ID, ATTACHMENT_ID, httpServletResponse)).thenReturn(dummyDownloadResponse);
 
         FileTransferApiClientResponse downloadServiceResult = objectionService.downloadAttachment(
                 REQUEST_ID, OBJECTION_ID, ATTACHMENT_ID, httpServletResponse);
 
-        verify(fileTransferApiClient, only()).download(ATTACHMENT_ID, httpServletResponse);
-        verify(fileTransferApiClient, times(1)).download(ATTACHMENT_ID, httpServletResponse);
+        verify(fileTransferApiClient, only()).download(REQUEST_ID, ATTACHMENT_ID, httpServletResponse);
+        verify(fileTransferApiClient, times(1)).download(REQUEST_ID, ATTACHMENT_ID, httpServletResponse);
 
         assertNotNull(downloadServiceResult);
         assertEquals(HttpStatus.OK, downloadServiceResult.getHttpStatus());
-    }
-
-    @Test
-    public void willThrowIOExceptonForDownload() throws IOException, ServiceException {
-        HttpServletResponse httpServletResponse = new MockHttpServletResponse();
-        FileTransferApiClientResponse dummyDownloadResponse = Utils.dummyDownloadResponse();
-
-        when(fileTransferApiClient.download(ATTACHMENT_ID, httpServletResponse)).thenThrow(new IOException());
-
-        assertThrows(ServiceException.class, () -> objectionService.downloadAttachment(
-                REQUEST_ID, OBJECTION_ID, ATTACHMENT_ID, httpServletResponse));
-
     }
 }

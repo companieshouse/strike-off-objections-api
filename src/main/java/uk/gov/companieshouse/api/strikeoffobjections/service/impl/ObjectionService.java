@@ -30,7 +30,6 @@ import uk.gov.companieshouse.service.links.Links;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotNull;
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -292,13 +291,7 @@ public class ObjectionService implements IObjectionService {
                                                             String objectionId,
                                                             String attachmentId,
                                                             HttpServletResponse response) throws ServiceException {
-        Map<String, Object> logMap = buildLogMap(null, objectionId, attachmentId);
-        try {
-            return fileTransferApiClient.download(attachmentId, response);
-        } catch (IOException e) {
-            logger.errorContext(requestId, e.getMessage(), e, logMap);
-            throw new ServiceException(e.getMessage());
-        }
+        return fileTransferApiClient.download(requestId, attachmentId, response);
     }
 
     // TODO OBJ-141 repetitive logging in codebase, needs centralized handler that allows for different parameters.

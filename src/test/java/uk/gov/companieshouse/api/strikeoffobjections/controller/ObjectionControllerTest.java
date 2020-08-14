@@ -491,7 +491,7 @@ class ObjectionControllerTest {
     }
 
     @Test
-    public void willThrowServiceExceptonForDownload() throws ServiceException {
+    public void willThrowServiceExceptionForDownload() throws ServiceException {
         HttpServletResponse httpServletResponse = new MockHttpServletResponse();
 
         when(objectionService.downloadAttachment(REQUEST_ID, OBJECTION_ID, ATTACHMENT_ID, httpServletResponse))
