@@ -462,12 +462,6 @@ public class ObjectionController {
             );
             FileTransferApiClientResponse downloadServiceResult = objectionService.downloadAttachment(
                     requestId, objectionId, attachmentId, response);
-            
-            
-            System.out.println("\n\n\n downloadServiceResult: " + downloadServiceResult);
-            System.out.println("getHttpStatus: " + downloadServiceResult.getHttpStatus());
-            
-            
             return ResponseEntity.status(downloadServiceResult.getHttpStatus()).build();
         } catch (HttpClientErrorException | HttpServerErrorException e) {
             apiLogger.errorContext(
