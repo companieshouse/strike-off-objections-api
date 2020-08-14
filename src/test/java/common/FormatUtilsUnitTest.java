@@ -2,12 +2,14 @@ package common;
 
 import org.junit.jupiter.api.Test;
 import uk.gov.companieshouse.api.strikeoffobjections.common.FormatUtils;
+import uk.gov.companieshouse.api.strikeoffobjections.groups.Unit;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+@Unit
 public class FormatUtilsUnitTest {
 
     @Test

@@ -1,6 +1,8 @@
 package uk.gov.companieshouse.api.strikeoffobjections.model.patcher;
 
 import org.junit.jupiter.api.Test;
+
+import uk.gov.companieshouse.api.strikeoffobjections.groups.Unit;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Objection;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.ObjectionStatus;
 import uk.gov.companieshouse.api.strikeoffobjections.model.patch.ObjectionPatch;
@@ -9,6 +11,7 @@ import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+@Unit
 class ObjectionPatcherTest {
 
     private static final String REASON = "REASON";

@@ -1,6 +1,8 @@
 package uk.gov.companieshouse.api.strikeoffobjections.model.entity;
 
 import org.junit.jupiter.api.Test;
+
+import uk.gov.companieshouse.api.strikeoffobjections.groups.Unit;
 import uk.gov.companieshouse.service.links.Links;
 
 import java.time.LocalDateTime;
@@ -9,6 +11,7 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+@Unit
 public class ObjectionTest {
 
     private static final LocalDateTime MOCK_PRESENT = LocalDateTime.of(2020, 6, 30, 10, 00);
