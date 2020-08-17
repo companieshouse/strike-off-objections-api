@@ -26,7 +26,7 @@ public class ObjectionPatcher {
         return existingObjection;
     }
 
-    // if incoming status == SUBMITTED and existing status is an error status then don't change it
+    // You should only be able to patch from Open to Submitted
     private boolean isStatusChangeAllowed(ObjectionStatus existingStatus, ObjectionPatch objectionPatch) {
 
         ObjectionStatus incomingStatus = objectionPatch.getStatus();

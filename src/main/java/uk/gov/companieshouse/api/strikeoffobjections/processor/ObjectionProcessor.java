@@ -33,16 +33,19 @@ public class ObjectionProcessor {
     private IEmailService emailService;
     private ICompanyProfileService companyProfileService;
     private ObjectionRepository objectionRepository;
+    private ProcessingStatusManager statusManager;
     private ApiLogger apiLogger;
 
     @Autowired
     public ObjectionProcessor(IEmailService emailService,
                               ICompanyProfileService companyProfileService,
                               ObjectionRepository objectionRepository,
+                              ProcessingStatusManager processingStatusManager,
                               ApiLogger apiLogger) {
         this.emailService = emailService;
         this.companyProfileService = companyProfileService;
         this.objectionRepository = objectionRepository;
+        this.statusManager = processingStatusManager;
         this.apiLogger = apiLogger;
     }
 
@@ -57,38 +60,43 @@ public class ObjectionProcessor {
     public void process(Objection objection, String httpRequestId)
             throws InvalidObjectionStatusException, ServiceException {
 
-        if (objection == null) {
-            throw new IllegalArgumentException(
-                    "Objection arg missing from ObjectionProcessor.process(Objection, String)");
-        }
-        if (httpRequestId == null) {
-            throw new IllegalArgumentException(
-                    "httpRequestId arg missing from ObjectionProcessor.process(Objection, String)");
-        }
+        verifyCanStartProcessing(objection, httpRequestId);
 
         Map<String, Object> logMap = new HashMap<>();
         logMap.put(LOG_OBJECTION_ID_KEY, objection.getId());
         apiLogger.debugContext(httpRequestId, "Starting objection processing", logMap);
 
-        validateObjectionStatus(objection, httpRequestId);
-
-        // TODO OBJ-139/OBJ-20 do chips sending
+        if (statusManager.canProcessChips(objection.getStatus())) {
+            // TODO OBJ-139/OBJ-20 do chips sending
+        }
 
         CompanyProfileApi companyProfile = getCompanyProfile(objection, httpRequestId);
 
-        sendInternalEmail(objection, companyProfile, httpRequestId);
+        if (statusManager.canSendInternalEmail(objection.getStatus())) {
+            sendInternalEmail(objection, companyProfile, httpRequestId);
+        }
 
-        sendExternalEmail(objection, companyProfile, httpRequestId);
+        if (statusManager.canSendExternalEmail(objection.getStatus())) {
+            sendExternalEmail(objection, companyProfile, httpRequestId);
+        }
 
         setStatus(ObjectionStatus.PROCESSED, objection, httpRequestId);
-
     }
 
-    private void validateObjectionStatus(Objection objection, String httpRequestId)
+    private void verifyCanStartProcessing(Objection objection, String httpRequestId)
             throws InvalidObjectionStatusException {
 
-        // if status not SUBMITTED, throw exception
-        if (objection != null && ObjectionStatus.SUBMITTED != objection.getStatus()) {
+        if (objection == null) {
+            throw new IllegalArgumentException(
+                    "Objection arg missing from ObjectionProcessor.verifyCanStartProcessing(Objection, String)");
+        }
+        if (httpRequestId == null) {
+            throw new IllegalArgumentException(
+                    "httpRequestId arg missing from ObjectionProcessor.verifyCanStartProcessing(Objection, String)");
+        }
+
+        // if status not processable, throw exception
+        if (objection.getStatus() == null || !objection.getStatus().isProcessableStatus()) {
             InvalidObjectionStatusException statusException = new InvalidObjectionStatusException(
                     String.format(INVALID_START_STATUS_MSG, objection.getId(), objection.getStatus()));
 
@@ -135,7 +143,6 @@ public class ObjectionProcessor {
             setStatus(ObjectionStatus.ERROR_EXT_EMAIL, objection, httpRequestId);
             throw e;
         }
-
     }
 
     private void setStatus(ObjectionStatus newStatus, Objection objection, String httpRequestId) {

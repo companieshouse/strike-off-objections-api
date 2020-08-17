@@ -128,16 +128,11 @@ public class ObjectionService implements IObjectionService {
         Objection objection = objectionPatcher.patchObjection(objectionPatch, requestId, existingObjection);
         objectionRepository.save(objection);
 
-        // if changing status to SUBMITTED from OPEN or error status, process the objection
         ObjectionStatus incomingStatus = objectionPatch.getStatus();
+
         if (isObjectionToBeProcessed(previousStatus, incomingStatus)) {
             objectionProcessor.process(objection, requestId);
         }
-    }
-
-    private boolean isObjectionToBeProcessed(ObjectionStatus previousStatus, ObjectionStatus incomingStatus) {
-        return ObjectionStatus.SUBMITTED == incomingStatus
-                && (ObjectionStatus.OPEN == previousStatus || previousStatus.isErrorStatus());
     }
 
     private void validatePatchStatusChange(ObjectionPatch objectionPatch,
@@ -156,6 +151,11 @@ public class ObjectionService implements IObjectionService {
 
             throw statusException;
         }
+    }
+
+    private boolean isObjectionToBeProcessed(ObjectionStatus previousStatus, ObjectionStatus incomingStatus) {
+        return ObjectionStatus.SUBMITTED == incomingStatus
+                && (ObjectionStatus.OPEN == previousStatus || previousStatus.isErrorStatus() || previousStatus.isRetryStatus());
     }
 
     @Override
