@@ -7,6 +7,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
+import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.multipart.MultipartFile;
@@ -17,6 +18,7 @@ import uk.gov.companieshouse.api.strikeoffobjections.exception.ObjectionNotFound
 import uk.gov.companieshouse.api.strikeoffobjections.file.FileTransferApiClient;
 import uk.gov.companieshouse.api.strikeoffobjections.file.FileTransferApiClientResponse;
 import uk.gov.companieshouse.api.strikeoffobjections.file.ObjectionsLinkKeys;
+import uk.gov.companieshouse.api.strikeoffobjections.groups.Unit;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Attachment;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Objection;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.ObjectionStatus;
@@ -28,6 +30,8 @@ import uk.gov.companieshouse.api.strikeoffobjections.utils.Utils;
 import uk.gov.companieshouse.service.ServiceException;
 import uk.gov.companieshouse.service.ServiceResult;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -51,6 +55,7 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.mockito.ArgumentMatchers.any;
 
+@Unit
 @ExtendWith(MockitoExtension.class)
 class ObjectionServiceTest {
 
@@ -602,4 +607,20 @@ class ObjectionServiceTest {
                 any());
     }
 
+    @Test
+    public void willCallFileTransferApiForDownload() throws ServiceException {
+        HttpServletResponse httpServletResponse = new MockHttpServletResponse();
+        FileTransferApiClientResponse dummyDownloadResponse = Utils.dummyDownloadResponse();
+
+        when(fileTransferApiClient.download(REQUEST_ID, ATTACHMENT_ID, httpServletResponse)).thenReturn(dummyDownloadResponse);
+
+        FileTransferApiClientResponse downloadServiceResult = objectionService.downloadAttachment(
+                REQUEST_ID, OBJECTION_ID, ATTACHMENT_ID, httpServletResponse);
+
+        verify(fileTransferApiClient, only()).download(REQUEST_ID, ATTACHMENT_ID, httpServletResponse);
+        verify(fileTransferApiClient, times(1)).download(REQUEST_ID, ATTACHMENT_ID, httpServletResponse);
+
+        assertNotNull(downloadServiceResult);
+        assertEquals(HttpStatus.OK, downloadServiceResult.getHttpStatus());
+    }
 }

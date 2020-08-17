@@ -6,11 +6,14 @@ import org.springframework.web.multipart.MultipartFile;
 import uk.gov.companieshouse.api.strikeoffobjections.exception.AttachmentNotFoundException;
 import uk.gov.companieshouse.api.strikeoffobjections.exception.InvalidObjectionStatusException;
 import uk.gov.companieshouse.api.strikeoffobjections.exception.ObjectionNotFoundException;
+import uk.gov.companieshouse.api.strikeoffobjections.file.FileTransferApiClientResponse;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Attachment;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Objection;
 import uk.gov.companieshouse.api.strikeoffobjections.model.patch.ObjectionPatch;
 import uk.gov.companieshouse.service.ServiceException;
 import uk.gov.companieshouse.service.ServiceResult;
+
+import javax.servlet.http.HttpServletResponse;
 
 public interface IObjectionService {
     String createObjection(String requestId, String companyNumber, String ericUserId, String ericUserDetails);
@@ -32,4 +35,7 @@ public interface IObjectionService {
 
     void deleteAttachment(String requestId, String objectionId, String attachmentId)
             throws ObjectionNotFoundException, AttachmentNotFoundException, ServiceException;
+
+    FileTransferApiClientResponse downloadAttachment(
+            String requestId, String objectionId, String attachmentId, HttpServletResponse response) throws ServiceException;
 }

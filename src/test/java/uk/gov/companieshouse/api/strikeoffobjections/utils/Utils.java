@@ -3,7 +3,10 @@ package uk.gov.companieshouse.api.strikeoffobjections.utils;
 import org.apache.avro.Schema;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
+import org.springframework.http.ContentDisposition;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 import uk.gov.companieshouse.api.model.company.CompanyProfileApi;
@@ -141,5 +144,22 @@ public class Utils {
         companyProfileApi.setCompanyName("Company: " + companyNumber);
         companyProfileApi.setJurisdiction(jurisdiction);
         return companyProfileApi;
+    }
+
+    public static FileTransferApiClientResponse dummyDownloadResponse() {
+        FileTransferApiClientResponse dummyDownloadResponse = new FileTransferApiClientResponse();
+        dummyDownloadResponse.setHttpStatus(HttpStatus.OK);
+        return dummyDownloadResponse;
+    }
+
+    public static HttpHeaders getDummyHttpHeaders(ContentDisposition contentDisposition,
+                                                  int contentLength,
+                                                  MediaType contentType) {
+        //create dummy headers that would be returned from calling the file-transfer-api
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.setContentLength(contentLength);
+        httpHeaders.setContentDisposition(contentDisposition);
+        httpHeaders.setContentType(contentType);
+        return httpHeaders;
     }
 }

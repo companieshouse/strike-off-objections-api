@@ -265,10 +265,16 @@
         ],
         "responses": {
           "200": {
-            "description": "the attachment was found",
+            "description": "The attachment was found and download was successful",
             "schema": {
               "type": "file"
             }
+          },
+          "401": {
+            "description": "Not authorised to download the attachment"
+          },
+          "403": {
+            "description": "The attachment cannot be downloaded, e.g. the file is infected with a virus"
           },
           "404": {
             "description": "Objection or attachment not found"

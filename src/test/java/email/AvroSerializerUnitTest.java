@@ -6,6 +6,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.companieshouse.api.strikeoffobjections.email.AvroSerializer;
+import uk.gov.companieshouse.api.strikeoffobjections.groups.Unit;
 import uk.gov.companieshouse.api.strikeoffobjections.model.email.EmailContent;
 import uk.gov.companieshouse.api.strikeoffobjections.utils.Utils;
 
@@ -15,6 +16,7 @@ import java.time.LocalDateTime;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
+@Unit
 @ExtendWith(MockitoExtension.class)
 public class AvroSerializerUnitTest {
 

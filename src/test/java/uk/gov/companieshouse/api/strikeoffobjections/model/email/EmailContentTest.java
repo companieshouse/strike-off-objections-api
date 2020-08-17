@@ -1,12 +1,16 @@
 package uk.gov.companieshouse.api.strikeoffobjections.model.email;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+
 import org.junit.jupiter.api.Test;
+
+import uk.gov.companieshouse.api.strikeoffobjections.groups.Unit;
 import uk.gov.companieshouse.api.strikeoffobjections.utils.Utils;
 import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+@Unit
 class EmailContentTest {
 
     private static final String ORIGINATING_APP_ID = "APP_ID";

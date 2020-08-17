@@ -2,9 +2,12 @@ package uk.gov.companieshouse.api.strikeoffobjections.service.impl;
 
 import org.junit.jupiter.api.Test;
 
+import uk.gov.companieshouse.api.strikeoffobjections.groups.Unit;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
+@Unit
 public class ERICHeaderParserTest {
 
     private static final String EMAIL = "demo@ch.gov.uk";
