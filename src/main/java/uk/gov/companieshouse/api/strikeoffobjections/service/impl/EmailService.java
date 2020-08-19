@@ -117,7 +117,7 @@ public class EmailService implements IEmailService {
         data.put("company_number", objection.getCompanyNumber());
         data.put("reason", objection.getReason());
         data.put("attachments", objection.getAttachments());
-        data.put("attachments_download_url", emailConfig.getEmailAttachmentDownloadUrl());
+        data.put("attachments_download_url_prefix", emailConfig.getEmailAttachmentDownloadUrlPrefix());
         
         return data;
     }

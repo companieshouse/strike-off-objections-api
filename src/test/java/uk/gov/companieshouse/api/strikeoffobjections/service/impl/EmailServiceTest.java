@@ -41,7 +41,7 @@ class EmailServiceTest {
     private static final String EMAIL = "demo@ch.gov.uk";
     private static final String USER_ID = "32324";
     private static final String REASON = "THIS IS A REASON";
-    private static final String DOWNLOAD_URL = "http://chs-test-web:4000/strike-off-objections/download";
+    private static final String DOWNLOAD_URL_PREFIX = "http://chs-test-web:4000/strike-off-objections/download";
 
     private static final String EMAIL_RECIPIENTS_CARDIFF_TEST = "test1@cardiff.gov.uk,test2@cardiff.gov.uk,test3@cardiff.gov.uk";
     private static final String EMAIL_RECIPIENTS_CARDIFF_TEST_SPACE = "test1@cardiff.gov.uk, test2@cardiff.gov.uk, test3@cardiff.gov.uk";
@@ -75,7 +75,7 @@ class EmailServiceTest {
     @Test
     void sendObjectionSubmittedCustomerEmail() throws ServiceException {
         when(config.getEmailSubject()).thenReturn(FORMATTED_EMAIL_SUBJECT);
-        when(config.getEmailAttachmentDownloadUrl()).thenReturn(DOWNLOAD_URL);
+        when(config.getEmailAttachmentDownloadUrlPrefix()).thenReturn(DOWNLOAD_URL_PREFIX);
         when(dateTimeSupplier.get()).thenReturn(LOCAL_DATE_TIME);
 
         Objection objection = Utils.getTestObjection(
@@ -105,7 +105,7 @@ class EmailServiceTest {
         when(dateTimeSupplier.get()).thenReturn(LOCAL_DATE_TIME);
         when(config.getEmailSubject()).thenReturn(FORMATTED_EMAIL_SUBJECT);
         when(config.getEmailRecipientsCardiff()).thenReturn(EMAIL_RECIPIENTS_CARDIFF_TEST);
-        when(config.getEmailAttachmentDownloadUrl()).thenReturn(DOWNLOAD_URL);
+        when(config.getEmailAttachmentDownloadUrlPrefix()).thenReturn(DOWNLOAD_URL_PREFIX);
         Objection objection = Utils.getTestObjection(
                 OBJECTION_ID, REASON, COMPANY_NUMBER, USER_ID, EMAIL, LOCAL_DATE_TIME);
         Utils.getTestAttachments().forEach(objection::addAttachment);
@@ -134,7 +134,7 @@ class EmailServiceTest {
         when(dateTimeSupplier.get()).thenReturn(LOCAL_DATE_TIME);
         when(config.getEmailSubject()).thenReturn(FORMATTED_EMAIL_SUBJECT);
         when(config.getEmailRecipientsCardiff()).thenReturn(EMAIL_RECIPIENTS_CARDIFF_TEST_SPACE);
-        when(config.getEmailAttachmentDownloadUrl()).thenReturn(DOWNLOAD_URL);
+        when(config.getEmailAttachmentDownloadUrlPrefix()).thenReturn(DOWNLOAD_URL_PREFIX);
         Objection objection = Utils.getTestObjection(
                 OBJECTION_ID, REASON, COMPANY_NUMBER, USER_ID, EMAIL, LOCAL_DATE_TIME);
         Utils.getTestAttachments().forEach(objection::addAttachment);
@@ -163,7 +163,7 @@ class EmailServiceTest {
         when(dateTimeSupplier.get()).thenReturn(LOCAL_DATE_TIME);
         when(config.getEmailSubject()).thenReturn(FORMATTED_EMAIL_SUBJECT);
         when(config.getEmailRecipientsEdinburgh()).thenReturn(EMAIL_RECIPIENTS_EDINBURGH_TEST);
-        when(config.getEmailAttachmentDownloadUrl()).thenReturn(DOWNLOAD_URL);
+        when(config.getEmailAttachmentDownloadUrlPrefix()).thenReturn(DOWNLOAD_URL_PREFIX);
         Objection objection = Utils.getTestObjection(
                 OBJECTION_ID, REASON, COMPANY_NUMBER, USER_ID, EMAIL, LOCAL_DATE_TIME);
         Utils.getTestAttachments().forEach(objection::addAttachment);
@@ -191,7 +191,7 @@ class EmailServiceTest {
         when(dateTimeSupplier.get()).thenReturn(LOCAL_DATE_TIME);
         when(config.getEmailSubject()).thenReturn(FORMATTED_EMAIL_SUBJECT);
         when(config.getEmailRecipientsBelfast()).thenReturn(EMAIL_RECIPIENTS_BELFAST_TEST);
-        when(config.getEmailAttachmentDownloadUrl()).thenReturn(DOWNLOAD_URL);
+        when(config.getEmailAttachmentDownloadUrlPrefix()).thenReturn(DOWNLOAD_URL_PREFIX);
         Objection objection = Utils.getTestObjection(
                 OBJECTION_ID, REASON, COMPANY_NUMBER, USER_ID, EMAIL, LOCAL_DATE_TIME);
         Utils.getTestAttachments().forEach(objection::addAttachment);
@@ -261,7 +261,7 @@ class EmailServiceTest {
         assertEquals("Company: " + COMPANY_NUMBER, data.get("company_name"));
         assertEquals(COMPANY_NUMBER, data.get("company_number"));
         assertEquals(attachments, data.get("attachments"));
-        assertEquals(DOWNLOAD_URL, data.get("attachments_download_url"));
+        assertEquals(DOWNLOAD_URL_PREFIX, data.get("attachments_download_url_prefix"));
     }
 
     void assertExternalEmailData(Map<String, Object> data) {
