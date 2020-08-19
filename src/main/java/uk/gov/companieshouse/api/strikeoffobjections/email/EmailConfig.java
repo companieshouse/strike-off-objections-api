@@ -8,6 +8,7 @@ public class EmailConfig {
 
     private String emailSubject;
     private String originatingAppId;
+    private String emailAttachmentDownloadUrl;
     private String submittedCustomerEmailType;
     private String submittedDissolutionTeamEmailType;
     private String emailRecipientsCardiff;
@@ -17,6 +18,7 @@ public class EmailConfig {
     public EmailConfig(
             @Value("${EMAIL_SUBJECT}") String emailSubject,
             @Value("${EMAIL_SENDER_APP_ID}") String originatingAppId,
+            @Value(("${EMAIL_ATTACHMENT_DOWNLOAD_URL}")) String emailAttachmentDownloadUrl,
             @Value(("${EMAIL_SUBMITTED_EXTERNAL_TEMPLATE_MESSAGE_TYPE}")) String submittedCustomerEmailType,
             @Value(("${EMAIL_SUBMITTED_INTERNAL_TEMPLATE_MESSAGE_TYPE}")) String submittedDissolutionTeamEmailType,
             @Value(("${EMAIL_RECIPIENTS_CARDIFF}")) String emailRecipientsCardiff,
@@ -24,6 +26,7 @@ public class EmailConfig {
             @Value(("${EMAIL_RECIPIENTS_BELFAST}"))String emailRecipientsBelfast) {
         this.emailSubject = emailSubject;
         this.originatingAppId = originatingAppId;
+        this.emailAttachmentDownloadUrl = emailAttachmentDownloadUrl;
         this.submittedCustomerEmailType = submittedCustomerEmailType;
         this.submittedDissolutionTeamEmailType = submittedDissolutionTeamEmailType;
         this.emailRecipientsCardiff = emailRecipientsCardiff;
@@ -37,6 +40,10 @@ public class EmailConfig {
 
     public String getOriginatingAppId() {
         return originatingAppId;
+    }
+
+    public String getEmailAttachmentDownloadUrl() {
+        return emailAttachmentDownloadUrl;
     }
 
     public String getSubmittedCustomerEmailType() {
