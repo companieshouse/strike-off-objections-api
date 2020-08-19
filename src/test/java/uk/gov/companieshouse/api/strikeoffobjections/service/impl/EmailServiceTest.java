@@ -7,8 +7,9 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
+
 import uk.gov.companieshouse.api.strikeoffobjections.common.ApiLogger;
-import uk.gov.companieshouse.api.strikeoffobjections.email.EmailConfig;
 import uk.gov.companieshouse.api.strikeoffobjections.email.KafkaEmailClient;
 import uk.gov.companieshouse.api.strikeoffobjections.groups.Unit;
 import uk.gov.companieshouse.api.strikeoffobjections.model.email.EmailContent;
@@ -53,9 +54,6 @@ class EmailServiceTest {
     private static final String JURISDICTION_NORTHERN_IRELAND = "northern-ireland";
 
     @Mock
-    private EmailConfig config;
-
-    @Mock
     private ApiLogger apiLogger;
 
     @Mock
@@ -71,11 +69,15 @@ class EmailServiceTest {
     @BeforeEach
     void init() {
         attachments = Utils.getTestAttachments();
+        
+        ReflectionTestUtils.setField(emailService, "emailSubject", FORMATTED_EMAIL_SUBJECT);
+        ReflectionTestUtils.setField(emailService, "emailAttachmentDownloadUrlPrefix", DOWNLOAD_URL_PREFIX);
+        ReflectionTestUtils.setField(emailService, "emailRecipientsCardiff", EMAIL_RECIPIENTS_CARDIFF_TEST);
+        ReflectionTestUtils.setField(emailService, "emailRecipientsEdinburgh", EMAIL_RECIPIENTS_EDINBURGH_TEST);
+        ReflectionTestUtils.setField(emailService, "emailRecipientsBelfast", EMAIL_RECIPIENTS_BELFAST_TEST);
     }
     @Test
     void sendObjectionSubmittedCustomerEmail() throws ServiceException {
-        when(config.getEmailSubject()).thenReturn(FORMATTED_EMAIL_SUBJECT);
-        when(config.getEmailAttachmentDownloadUrlPrefix()).thenReturn(DOWNLOAD_URL_PREFIX);
         when(dateTimeSupplier.get()).thenReturn(LOCAL_DATE_TIME);
 
         Objection objection = Utils.getTestObjection(
@@ -103,9 +105,6 @@ class EmailServiceTest {
     @Test
     void sendObjectionSubmittedDissolutionEmailsWalesJurisdiction() throws ServiceException {
         when(dateTimeSupplier.get()).thenReturn(LOCAL_DATE_TIME);
-        when(config.getEmailSubject()).thenReturn(FORMATTED_EMAIL_SUBJECT);
-        when(config.getEmailRecipientsCardiff()).thenReturn(EMAIL_RECIPIENTS_CARDIFF_TEST);
-        when(config.getEmailAttachmentDownloadUrlPrefix()).thenReturn(DOWNLOAD_URL_PREFIX);
         Objection objection = Utils.getTestObjection(
                 OBJECTION_ID, REASON, COMPANY_NUMBER, USER_ID, EMAIL, LOCAL_DATE_TIME);
         Utils.getTestAttachments().forEach(objection::addAttachment);
@@ -132,9 +131,7 @@ class EmailServiceTest {
     @Test
     void sendObjectionSubmittedDissolutionEmailsWalesSpaceInConfigs() throws ServiceException {
         when(dateTimeSupplier.get()).thenReturn(LOCAL_DATE_TIME);
-        when(config.getEmailSubject()).thenReturn(FORMATTED_EMAIL_SUBJECT);
-        when(config.getEmailRecipientsCardiff()).thenReturn(EMAIL_RECIPIENTS_CARDIFF_TEST_SPACE);
-        when(config.getEmailAttachmentDownloadUrlPrefix()).thenReturn(DOWNLOAD_URL_PREFIX);
+        ReflectionTestUtils.setField(emailService, "emailRecipientsCardiff", EMAIL_RECIPIENTS_CARDIFF_TEST_SPACE);
         Objection objection = Utils.getTestObjection(
                 OBJECTION_ID, REASON, COMPANY_NUMBER, USER_ID, EMAIL, LOCAL_DATE_TIME);
         Utils.getTestAttachments().forEach(objection::addAttachment);
@@ -161,9 +158,6 @@ class EmailServiceTest {
     @Test
     void sendObjectionSubmittedDissolutionEmailsScotlandJurisdiction() throws ServiceException {
         when(dateTimeSupplier.get()).thenReturn(LOCAL_DATE_TIME);
-        when(config.getEmailSubject()).thenReturn(FORMATTED_EMAIL_SUBJECT);
-        when(config.getEmailRecipientsEdinburgh()).thenReturn(EMAIL_RECIPIENTS_EDINBURGH_TEST);
-        when(config.getEmailAttachmentDownloadUrlPrefix()).thenReturn(DOWNLOAD_URL_PREFIX);
         Objection objection = Utils.getTestObjection(
                 OBJECTION_ID, REASON, COMPANY_NUMBER, USER_ID, EMAIL, LOCAL_DATE_TIME);
         Utils.getTestAttachments().forEach(objection::addAttachment);
@@ -189,9 +183,6 @@ class EmailServiceTest {
     @Test
     void sendObjectionSubmittedDissolutionEmailsNIJurisdiction() throws ServiceException {
         when(dateTimeSupplier.get()).thenReturn(LOCAL_DATE_TIME);
-        when(config.getEmailSubject()).thenReturn(FORMATTED_EMAIL_SUBJECT);
-        when(config.getEmailRecipientsBelfast()).thenReturn(EMAIL_RECIPIENTS_BELFAST_TEST);
-        when(config.getEmailAttachmentDownloadUrlPrefix()).thenReturn(DOWNLOAD_URL_PREFIX);
         Objection objection = Utils.getTestObjection(
                 OBJECTION_ID, REASON, COMPANY_NUMBER, USER_ID, EMAIL, LOCAL_DATE_TIME);
         Utils.getTestAttachments().forEach(objection::addAttachment);
@@ -216,9 +207,6 @@ class EmailServiceTest {
 
     @Test
     public void testRegionalEmailAddresses() {
-        when(config.getEmailRecipientsCardiff()).thenReturn(EMAIL_RECIPIENTS_CARDIFF_TEST);
-        when(config.getEmailRecipientsEdinburgh()).thenReturn(EMAIL_RECIPIENTS_EDINBURGH_TEST);
-        when(config.getEmailRecipientsBelfast()).thenReturn(EMAIL_RECIPIENTS_BELFAST_TEST);
         String[] recipients;
         recipients = emailService.getDissolutionTeamRecipients("england");
         assertEquals("test1@cardiff.gov.uk", recipients[0]);

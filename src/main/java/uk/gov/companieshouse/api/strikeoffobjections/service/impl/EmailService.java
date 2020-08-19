@@ -1,9 +1,9 @@
 package uk.gov.companieshouse.api.strikeoffobjections.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import uk.gov.companieshouse.api.strikeoffobjections.common.ApiLogger;
-import uk.gov.companieshouse.api.strikeoffobjections.email.EmailConfig;
 import uk.gov.companieshouse.api.strikeoffobjections.common.FormatUtils;
 import uk.gov.companieshouse.api.strikeoffobjections.email.KafkaEmailClient;
 import uk.gov.companieshouse.api.strikeoffobjections.model.email.EmailContent;
@@ -21,19 +21,40 @@ import java.util.function.Supplier;
 @Service
 public class EmailService implements IEmailService {
 
-    private EmailConfig emailConfig;
     private ApiLogger logger;
     private KafkaEmailClient kafkaEmailClient;
     private Supplier<LocalDateTime> dateTimeSupplier;
 
+    @Value("${EMAIL_SUBJECT}")
+    private String emailSubject;
+
+    @Value("${EMAIL_SENDER_APP_ID}")
+    private String originatingAppId;
+
+    @Value("${EMAIL_ATTACHMENT_DOWNLOAD_URL_PREFIX}")
+    private String emailAttachmentDownloadUrlPrefix;
+
+    @Value("${EMAIL_SUBMITTED_EXTERNAL_TEMPLATE_MESSAGE_TYPE}")
+    private String submittedCustomerEmailType;
+
+    @Value("${EMAIL_SUBMITTED_INTERNAL_TEMPLATE_MESSAGE_TYPE}")
+    private String submittedDissolutionTeamEmailType;
+
+    @Value("${EMAIL_RECIPIENTS_CARDIFF}")
+    private String emailRecipientsCardiff;
+
+    @Value("${EMAIL_RECIPIENTS_EDINBURGH}")
+    private String emailRecipientsEdinburgh;
+
+    @Value("${EMAIL_RECIPIENTS_BELFAST}")
+    private String emailRecipientsBelfast;
+
     @Autowired
     public EmailService(
-            EmailConfig emailConfig,
             ApiLogger logger,
             KafkaEmailClient kafkaEmailClient,
             Supplier<LocalDateTime> dateTimeSupplier
     ) {
-        this.emailConfig = emailConfig;
         this.logger = logger;
         this.kafkaEmailClient = kafkaEmailClient;
         this.dateTimeSupplier = dateTimeSupplier;
@@ -89,11 +110,11 @@ public class EmailService implements IEmailService {
                                                String emailAddress,
                                                Map<String, Object> data) {
 
-        String typeOfEmail = (emailType == EmailType.CUSTOMER)? emailConfig.getSubmittedCustomerEmailType()
-                : emailConfig.getSubmittedDissolutionTeamEmailType();
+        String typeOfEmail = (emailType == EmailType.CUSTOMER)? submittedCustomerEmailType
+                : submittedDissolutionTeamEmailType;
 
         return new EmailContent.Builder()
-                .withOriginatingAppId(emailConfig.getOriginatingAppId())
+                .withOriginatingAppId(originatingAppId)
                 .withCreatedAt(dateTimeSupplier.get())
                 .withMessageType(typeOfEmail)
                 .withMessageId(UUID.randomUUID().toString())
@@ -107,7 +128,6 @@ public class EmailService implements IEmailService {
 
         LocalDate submittedOn = objection.getCreatedOn().toLocalDate();
 
-        String emailSubject = emailConfig.getEmailSubject();
         String subject = emailSubject.replace("{{ COMPANY_NUMBER }}", objection.getCompanyNumber());
         data.put("subject", subject);
         data.put("date", FormatUtils.formatDate(submittedOn));
@@ -117,7 +137,7 @@ public class EmailService implements IEmailService {
         data.put("company_number", objection.getCompanyNumber());
         data.put("reason", objection.getReason());
         data.put("attachments", objection.getAttachments());
-        data.put("attachments_download_url_prefix", emailConfig.getEmailAttachmentDownloadUrlPrefix());
+        data.put("attachments_download_url_prefix", emailAttachmentDownloadUrlPrefix);
 
         return data;
     }
@@ -125,11 +145,11 @@ public class EmailService implements IEmailService {
     protected String[] getDissolutionTeamRecipients(String jurisdiction) {
         switch(jurisdiction) {
             case "scotland":
-                return splitAndStrip(emailConfig.getEmailRecipientsEdinburgh());
+                return splitAndStrip(emailRecipientsEdinburgh);
             case "northern-ireland":
-                return splitAndStrip(emailConfig.getEmailRecipientsBelfast());
+                return splitAndStrip(emailRecipientsBelfast);
             default:
-                return splitAndStrip(emailConfig.getEmailRecipientsCardiff());
+                return splitAndStrip(emailRecipientsCardiff);
         }
     }
 
