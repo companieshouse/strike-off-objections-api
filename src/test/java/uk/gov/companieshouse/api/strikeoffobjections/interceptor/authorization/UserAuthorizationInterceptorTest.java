@@ -1,4 +1,4 @@
-package uk.gov.companieshouse.api.strikeoffobjections.authorization;
+package uk.gov.companieshouse.api.strikeoffobjections.interceptor.authorization;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -30,7 +30,6 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class UserAuthorizationInterceptorTest {
 
-    private static final String OBJECTION_ID = "OBJECTION_ID";
     private static final String USER_EMAIL = "demo@ch.gov.uk";
     private static final String DIFFERENT_USER_EMAIL = "different@ch.gov.uk";
 
@@ -39,9 +38,6 @@ class UserAuthorizationInterceptorTest {
 
     @Mock
     private ERICHeaderParser ericHeaderParser;
-
-    @Mock
-    private IObjectionService objectionService;
 
     @Mock
     private HttpServletRequest request;
@@ -58,8 +54,7 @@ class UserAuthorizationInterceptorTest {
         CreatedBy createdBy = new CreatedBy("id", USER_EMAIL);
         objection.setCreatedBy(createdBy);
         when(ericHeaderParser.getEmailAddress(any())).thenReturn(USER_EMAIL);
-        when(objectionService.getObjection(any(), any())).thenReturn(objection);
-        when(request.getRequestURI()).thenReturn("/strike-off-objections/" + OBJECTION_ID);
+        when(request.getAttribute("objection")).thenReturn(objection);
 
         boolean result = userAuthorizationInterceptor.preHandle(request, response, null);
 
@@ -72,40 +67,11 @@ class UserAuthorizationInterceptorTest {
         CreatedBy createdBy = new CreatedBy("id", USER_EMAIL);
         objection.setCreatedBy(createdBy);
         when(ericHeaderParser.getEmailAddress(any())).thenReturn(DIFFERENT_USER_EMAIL);
-        when(objectionService.getObjection(any(), any())).thenReturn(objection);
-        when(request.getRequestURI()).thenReturn("/strike-off-objections/" + OBJECTION_ID);
+        when(request.getAttribute("objection")).thenReturn(objection);
 
         boolean result = userAuthorizationInterceptor.preHandle(request, response, null);
 
         assertFalse(result);
         verify(response, times(1)).setStatus(401);
-    }
-
-    @Test
-    void testGetObjectionId() throws Exception {
-        ArgumentCaptor<String> objectionIdCaptor = ArgumentCaptor.forClass(String.class);
-
-        Objection objection = new Objection();
-        CreatedBy createdBy = new CreatedBy("id", USER_EMAIL);
-        objection.setCreatedBy(createdBy);
-        when(ericHeaderParser.getEmailAddress(any())).thenReturn(USER_EMAIL);
-        when(objectionService.getObjection(any(), any())).thenReturn(objection);
-        when(request.getRequestURI()).thenReturn("/strike-off-objections/" + OBJECTION_ID);
-
-        boolean result = userAuthorizationInterceptor.preHandle(request, response, null);
-        verify(objectionService).getObjection(any(), objectionIdCaptor.capture());
-        String objectionId = objectionIdCaptor.getValue();
-
-        assertEquals(OBJECTION_ID, objectionId);
-        assertTrue(result);
-    }
-
-    @Test
-    void testGetObjectionIdInvalid() {
-        when(request.getRequestURI()).thenReturn("not/valid/uri");
-
-        assertThrows(ServiceException.class, () -> {
-            userAuthorizationInterceptor.preHandle(request, response, null);
-        });
     }
 }
