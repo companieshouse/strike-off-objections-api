@@ -409,25 +409,20 @@
         }
       }
     },
+    "Ineligible": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "$ref": "#/definitions/Status"
+        }
+      }
+    },
     "Status": {
       "type": "string",
       "enum": [
         "OPEN",
         "SUBMITTED",
-        "PROCESSED"
-      ]
-    },
-    "Ineligible": {
-      "type": "object",
-      "properties": {
-        "status": {
-          "$ref": "#/definitions/IneligibilityStatus"
-        }
-      }
-    },
-    "IneligibilityStatus": {
-      "type": "string",
-      "enum": [
+        "PROCESSED",
         "INELIGIBLE_COMPANY_STRUCK_OFF",
         "INELIGIBLE_NO_DISSOLUTION_ACTION"
       ]
