@@ -429,9 +429,7 @@
       "type": "string",
       "enum": [
         "INELIGIBLE_COMPANY_STRUCK_OFF",
-        "INELIGIBLE_COMPANY_SECOND_GAZETTE",
-        "INELIGIBLE_COMPANY_CONVERTED",
-        "INELIGIBLE_COMPANY_NO_ELIGIBILITY_CODE"
+        "INELIGIBLE_NO_DISSOLUTION_ACTION"
       ]
     }
   }
