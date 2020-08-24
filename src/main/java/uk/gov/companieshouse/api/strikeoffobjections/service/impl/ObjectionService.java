@@ -24,6 +24,8 @@ import uk.gov.companieshouse.api.strikeoffobjections.model.patcher.ObjectionPatc
 import uk.gov.companieshouse.api.strikeoffobjections.processor.ObjectionProcessor;
 import uk.gov.companieshouse.api.strikeoffobjections.repository.ObjectionRepository;
 import uk.gov.companieshouse.api.strikeoffobjections.service.IObjectionService;
+import uk.gov.companieshouse.api.strikeoffobjections.validation.ActionCodeValidator;
+import uk.gov.companieshouse.api.strikeoffobjections.validation.ValidationException;
 import uk.gov.companieshouse.service.ServiceException;
 import uk.gov.companieshouse.service.ServiceResult;
 import uk.gov.companieshouse.service.links.Links;
@@ -53,6 +55,7 @@ public class ObjectionService implements IObjectionService {
     private FileTransferApiClient fileTransferApiClient;
     private ERICHeaderParser ericHeaderParser;
     private ObjectionProcessor objectionProcessor;
+    private ActionCodeValidator actionCodeValidator;
 
     @Autowired
     public ObjectionService(ObjectionRepository objectionRepository,
@@ -61,7 +64,8 @@ public class ObjectionService implements IObjectionService {
                             ObjectionPatcher objectionPatcher,
                             FileTransferApiClient fileTransferApiClient,
                             ERICHeaderParser ericHeaderParser,
-                            ObjectionProcessor objectionProcessor) {
+                            ObjectionProcessor objectionProcessor,
+                            ActionCodeValidator actionCodeValidator) {
         this.objectionRepository = objectionRepository;
         this.logger = logger;
         this.dateTimeSupplier = dateTimeSupplier;
@@ -69,12 +73,20 @@ public class ObjectionService implements IObjectionService {
         this.fileTransferApiClient = fileTransferApiClient;
         this.ericHeaderParser = ericHeaderParser;
         this.objectionProcessor = objectionProcessor;
+        this.actionCodeValidator = actionCodeValidator;
     }
 
     @Override
     public String createObjection(String requestId, String companyNumber, String ericUserId, String ericUserDetails) {
         Map<String, Object> logMap = buildLogMap(companyNumber, null, null);
         logger.infoContext(requestId, "Creating objection", logMap);
+
+        ObjectionStatus createdWithStatus = ObjectionStatus.OPEN;
+        try {
+            actionCodeValidator.validate("90");
+        } catch (ValidationException ve) {
+            createdWithStatus = ve.getStatus();
+        }
 
         final String userEmailAddress = ericHeaderParser.getEmailAddress(ericUserDetails);
 
@@ -83,7 +95,7 @@ public class ObjectionService implements IObjectionService {
                 .withCreatedOn(dateTimeSupplier.get())
                 .withCreatedBy(new CreatedBy(ericUserId, userEmailAddress))
                 .withHttpRequestId(requestId)
-                .withStatus(ObjectionStatus.OPEN)
+                .withStatus(createdWithStatus)
                 .build();
 
         Objection savedEntity = objectionRepository.save(entity);
@@ -290,7 +302,7 @@ public class ObjectionService implements IObjectionService {
     public FileTransferApiClientResponse downloadAttachment(String requestId,
                                                             String objectionId,
                                                             String attachmentId,
-                                                            HttpServletResponse response) throws ServiceException {
+                                                            HttpServletResponse response) {
         return fileTransferApiClient.download(requestId, attachmentId, response);
     }
 
