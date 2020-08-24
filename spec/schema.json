@@ -54,7 +54,7 @@
               "$ref": "#/definitions/ResourceCreated"
             }
           },
-          "406": {
+          "400": {
             "description": "Company was ineligible for objecting to strike off",
             "schema": {
               "$ref": "#/definitions/Ineligible"
