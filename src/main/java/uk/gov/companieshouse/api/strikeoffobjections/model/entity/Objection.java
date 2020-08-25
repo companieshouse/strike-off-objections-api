@@ -19,6 +19,7 @@ public class Objection {
         private String companyNumber;
         private String reason;
         private ObjectionStatus status;
+        private int actionCode;
         private String httpRequestId;
 
         public Builder withCreatedOn(LocalDateTime createdOn) {
@@ -47,6 +48,11 @@ public class Objection {
             return this;
         }
 
+        public Builder withActionCode(int actionCode) {
+            this.actionCode = actionCode;
+            return this;
+        }
+
         public Builder withHttpRequestId(String httpRequestId) {
             this.httpRequestId = httpRequestId;
             return this;
@@ -59,6 +65,7 @@ public class Objection {
             objection.setCompanyNumber(this.companyNumber);
             objection.setReason(this.reason);
             objection.setStatus(this.status);
+            objection.setActionCode(actionCode);
             objection.setHttpRequestId(this.httpRequestId);
             return objection;
         }
@@ -78,6 +85,8 @@ public class Objection {
     private List<Attachment> attachments = new ArrayList<>();
     @Field("status")
     private ObjectionStatus status;
+    @Field("action_code")
+    private int actionCode;
     @Field("http_request_id")
     @JsonIgnore
     private String httpRequestId;
@@ -142,6 +151,14 @@ public class Objection {
 
     public void setStatus(ObjectionStatus status) {
         this.status = status;
+    }
+
+    public int getActionCode() {
+        return actionCode;
+    }
+
+    public void setActionCode(int actionCode) {
+        this.actionCode = actionCode;
     }
 
     public String getHttpRequestId() {
