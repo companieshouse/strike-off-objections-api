@@ -23,24 +23,24 @@ public class CompanyNumberInterceptor implements HandlerInterceptor {
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         final String requestId = request.getHeader(ERICHeaderFields.ERIC_REQUEST_ID);
         apiLogger.debugContext(requestId, "Checking provided company number matches objection company number");
-        final Objection objection = (Objection) request.getAttribute("objection");
+        final Objection objection = (Objection) request.getAttribute(InterceptorConstants.OBJECTION_ATTRIBUTE);
 
         Map<String, String> pathVariables =
                 (Map<String, String>) request.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE);
 
-        final String companyNumber = pathVariables.get("companyNumber");
+        final String companyNumber = pathVariables.get(InterceptorConstants.COMPANY_NUMBER_PATH_VARIABLE);
 
-        boolean result = false;
+        boolean companyNumberMatches = false;
         if(companyNumber != null) {
-            result = companyNumber.equals(objection.getCompanyNumber());
+            companyNumberMatches = companyNumber.equals(objection.getCompanyNumber());
         }
 
-        if (!result) {
+        if (!companyNumberMatches) {
             apiLogger.debugContext(requestId, "Provided company number does not match objection company number");
             response.setStatus(HttpStatus.BAD_REQUEST.value());
         }
 
         apiLogger.debugContext(requestId, "Provided company number matches objection company number");
-        return result;
+        return companyNumberMatches;
     }
 }

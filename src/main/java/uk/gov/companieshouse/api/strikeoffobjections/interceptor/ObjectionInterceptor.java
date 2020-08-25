@@ -31,11 +31,11 @@ public class ObjectionInterceptor implements HandlerInterceptor {
         Map<String, String> pathVariables =
                 (Map<String, String>) request.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE);
 
-        final String objectionId = pathVariables.get("objectionId");
+        final String objectionId = pathVariables.get(InterceptorConstants.OBJECTION_ID_PATH_VARIABLE);
 
         try {
             Objection objection = objectionService.getObjection(requestId, objectionId);
-            request.setAttribute("objection", objection);
+            request.setAttribute(InterceptorConstants.OBJECTION_ATTRIBUTE, objection);
         } catch (ObjectionNotFoundException e) {
             apiLogger.errorContext(
                     requestId,
