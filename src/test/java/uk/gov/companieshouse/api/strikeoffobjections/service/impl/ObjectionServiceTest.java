@@ -24,6 +24,7 @@ import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Objection;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.ObjectionStatus;
 import uk.gov.companieshouse.api.strikeoffobjections.model.patcher.ObjectionPatcher;
 import uk.gov.companieshouse.api.strikeoffobjections.model.patch.ObjectionPatch;
+import uk.gov.companieshouse.api.strikeoffobjections.model.response.ObjectionResponseDTO;
 import uk.gov.companieshouse.api.strikeoffobjections.processor.ObjectionProcessor;
 import uk.gov.companieshouse.api.strikeoffobjections.repository.ObjectionRepository;
 import uk.gov.companieshouse.api.strikeoffobjections.utils.Utils;
@@ -105,10 +106,10 @@ class ObjectionServiceTest {
         when(ericHeaderParser.getEmailAddress(AUTH_USER)).thenReturn(E_MAIL);
 
         ArgumentCaptor<Objection> acObjection = ArgumentCaptor.forClass(Objection.class);
-        String returnedId = objectionService.createObjection(REQUEST_ID, COMPANY_NUMBER, AUTH_ID, AUTH_USER);
+        ObjectionResponseDTO responseDTO = objectionService.createObjection(REQUEST_ID, COMPANY_NUMBER, AUTH_ID, AUTH_USER);
 
         verify(objectionRepository).save(acObjection.capture());
-        assertEquals(OBJECTION_ID, returnedId);
+        assertEquals(OBJECTION_ID, responseDTO.getId());
         assertEquals(MOCKED_TIME_STAMP, acObjection.getValue().getCreatedOn());
         assertEquals(COMPANY_NUMBER, acObjection.getValue().getCompanyNumber());
         assertEquals(ObjectionStatus.OPEN, acObjection.getValue().getStatus());

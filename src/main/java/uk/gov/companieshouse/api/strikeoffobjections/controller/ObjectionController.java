@@ -23,6 +23,7 @@ import uk.gov.companieshouse.api.strikeoffobjections.exception.ObjectionNotFound
 import uk.gov.companieshouse.api.strikeoffobjections.file.FileTransferApiClientResponse;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Attachment;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Objection;
+import uk.gov.companieshouse.api.strikeoffobjections.model.entity.ObjectionStatus;
 import uk.gov.companieshouse.api.strikeoffobjections.model.patch.ObjectionPatch;
 import uk.gov.companieshouse.api.strikeoffobjections.model.response.AttachmentResponseDTO;
 import uk.gov.companieshouse.api.strikeoffobjections.model.response.ObjectionResponseDTO;
@@ -145,8 +146,11 @@ public class ObjectionController {
         );
 
         try {
-            String objectionId = objectionService.createObjection(requestId, companyNumber, ericUserId, ericUserDetails);
-            ObjectionResponseDTO response = new ObjectionResponseDTO(objectionId);
+            ObjectionResponseDTO response = objectionService.createObjection(requestId, companyNumber, ericUserId, ericUserDetails);
+            ObjectionStatus obStat = response.getStatus();
+            if (obStat != null && obStat.isEligibilityError()) {
+               return new ResponseEntity<>(ChResponseBody.createNormalBody(response), HttpStatus.BAD_REQUEST);
+            }
             return responseEntityFactory.createResponse(ServiceResult.created(response));
         } catch (Exception e) {
             apiLogger.errorContext(

@@ -88,7 +88,8 @@ class ObjectionControllerTest {
     @Test
     void createObjectionTest() {
         ObjectionResponseDTO objectionResponse = new ObjectionResponseDTO(OBJECTION_ID);
-        when(objectionService.createObjection(REQUEST_ID, COMPANY_NUMBER, AUTH_ID, AUTH_USER)).thenReturn(OBJECTION_ID);
+        ObjectionResponseDTO responseDTO = new ObjectionResponseDTO(OBJECTION_ID);
+        when(objectionService.createObjection(REQUEST_ID, COMPANY_NUMBER, AUTH_ID, AUTH_USER)).thenReturn(responseDTO);
         when(pluggableResponseEntityFactory.createResponse(any(ServiceResult.class))).thenReturn(
                 ResponseEntity.status(HttpStatus.CREATED).body(ChResponseBody.createNormalBody(objectionResponse)));
         ResponseEntity<ChResponseBody<ObjectionResponseDTO>> response = objectionController.createObjection(COMPANY_NUMBER, REQUEST_ID, AUTH_ID, AUTH_USER);
@@ -100,6 +101,20 @@ class ObjectionControllerTest {
 
         assertNotNull(responseBody.getSuccessBody());
         assertEquals(OBJECTION_ID, responseBody.getSuccessBody().getId());
+    }
+
+    @Test
+    void createObjectionEligibilityErrorTest() {
+        ObjectionResponseDTO objectionResponse = new ObjectionResponseDTO(OBJECTION_ID);
+        objectionResponse.setStatus(ObjectionStatus.INELIGIBLE_COMPANY_STRUCK_OFF);
+        when(objectionService.createObjection(REQUEST_ID, COMPANY_NUMBER, AUTH_ID, AUTH_USER)).thenReturn(objectionResponse);
+        ResponseEntity<ChResponseBody<ObjectionResponseDTO>> response = objectionController.createObjection(COMPANY_NUMBER, REQUEST_ID, AUTH_ID, AUTH_USER);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertNotNull(response.getBody());
+        ChResponseBody<ObjectionResponseDTO> responseBody = response.getBody();
+        assertNotNull(responseBody.getSuccessBody());
+        assertEquals(ObjectionStatus.INELIGIBLE_COMPANY_STRUCK_OFF, responseBody.getSuccessBody().getStatus());
     }
 
     @Test

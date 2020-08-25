@@ -10,13 +10,14 @@ import uk.gov.companieshouse.api.strikeoffobjections.file.FileTransferApiClientR
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Attachment;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Objection;
 import uk.gov.companieshouse.api.strikeoffobjections.model.patch.ObjectionPatch;
+import uk.gov.companieshouse.api.strikeoffobjections.model.response.ObjectionResponseDTO;
 import uk.gov.companieshouse.service.ServiceException;
 import uk.gov.companieshouse.service.ServiceResult;
 
 import javax.servlet.http.HttpServletResponse;
 
 public interface IObjectionService {
-    String createObjection(String requestId, String companyNumber, String ericUserId, String ericUserDetails);
+    ObjectionResponseDTO createObjection(String requestId, String companyNumber, String ericUserId, String ericUserDetails);
 
     void patchObjection(String objectionId, ObjectionPatch objectionPatch, String requestId, String companyNumber)
             throws ObjectionNotFoundException, InvalidObjectionStatusException, ServiceException;

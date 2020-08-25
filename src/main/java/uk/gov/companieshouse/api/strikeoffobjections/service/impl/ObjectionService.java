@@ -21,6 +21,7 @@ import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Objection;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.ObjectionStatus;
 import uk.gov.companieshouse.api.strikeoffobjections.model.patch.ObjectionPatch;
 import uk.gov.companieshouse.api.strikeoffobjections.model.patcher.ObjectionPatcher;
+import uk.gov.companieshouse.api.strikeoffobjections.model.response.ObjectionResponseDTO;
 import uk.gov.companieshouse.api.strikeoffobjections.processor.ObjectionProcessor;
 import uk.gov.companieshouse.api.strikeoffobjections.repository.ObjectionRepository;
 import uk.gov.companieshouse.api.strikeoffobjections.service.IObjectionService;
@@ -72,9 +73,13 @@ public class ObjectionService implements IObjectionService {
     }
 
     @Override
-    public String createObjection(String requestId, String companyNumber, String ericUserId, String ericUserDetails) {
+    public ObjectionResponseDTO createObjection(String requestId, String companyNumber, String ericUserId, String ericUserDetails) {
         Map<String, Object> logMap = buildLogMap(companyNumber, null, null);
         logger.infoContext(requestId, "Creating objection", logMap);
+        ObjectionResponseDTO response = new ObjectionResponseDTO();
+
+        // TODO OBJ-231 process query result and return eligibility status
+        ObjectionStatus obStat = ObjectionStatus.OPEN;
 
         final String userEmailAddress = ericHeaderParser.getEmailAddress(ericUserDetails);
 
@@ -83,11 +88,13 @@ public class ObjectionService implements IObjectionService {
                 .withCreatedOn(dateTimeSupplier.get())
                 .withCreatedBy(new CreatedBy(ericUserId, userEmailAddress))
                 .withHttpRequestId(requestId)
-                .withStatus(ObjectionStatus.OPEN)
+                .withStatus(obStat)
                 .build();
 
         Objection savedEntity = objectionRepository.save(entity);
-        return savedEntity.getId();
+        response.setId(savedEntity.getId());
+        response.setStatus(savedEntity.getStatus());
+        return response;
     }
 
     /**
