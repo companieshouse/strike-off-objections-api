@@ -29,11 +29,7 @@ public class CompanyNumberInterceptor implements HandlerInterceptor {
                 (Map<String, String>) request.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE);
 
         final String companyNumber = pathVariables.get(InterceptorConstants.COMPANY_NUMBER_PATH_VARIABLE);
-
-        boolean companyNumberMatches = false;
-        if(companyNumber != null) {
-            companyNumberMatches = companyNumber.equals(objection.getCompanyNumber());
-        }
+        final boolean companyNumberMatches = doCompanyNumbersMatch(companyNumber, objection);
 
         if (!companyNumberMatches) {
             apiLogger.debugContext(requestId, "Provided company number does not match objection company number");
@@ -41,6 +37,14 @@ public class CompanyNumberInterceptor implements HandlerInterceptor {
         }
 
         apiLogger.debugContext(requestId, "Provided company number matches objection company number");
+        return companyNumberMatches;
+    }
+
+    private boolean doCompanyNumbersMatch(String requestCompanyNumber, Objection objection) {
+        boolean companyNumberMatches = false;
+        if(requestCompanyNumber != null) {
+            companyNumberMatches = requestCompanyNumber.equals(objection.getCompanyNumber());
+        }
         return companyNumberMatches;
     }
 }
