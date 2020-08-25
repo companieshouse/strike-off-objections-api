@@ -42,7 +42,7 @@ public class ObjectionTest {
                        .withCompanyNumber("00006400")
                        .withReason("This is a test")
                        .withStatus(ObjectionStatus.OPEN)
-                       .withActionCode(ActionCode.IR_OR_HMO_AND_ORDINARY_OBJECTION_IN_FORCE.getCodeId())
+                       .withActionCode(4400)
                        .build();
 
        objection.addAttachment(attachment);
