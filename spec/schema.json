@@ -426,7 +426,9 @@
       "enum": [
         "OPEN",
         "SUBMITTED",
-        "PROCESSED"
+        "PROCESSED",
+        "INELIGIBLE_COMPANY_STRUCK_OFF",
+        "INELIGIBLE_NO_DISSOLUTION_ACTION"
       ]
     }
   }
