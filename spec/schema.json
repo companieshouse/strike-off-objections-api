@@ -413,7 +413,11 @@
       "type": "object",
       "properties": {
         "status": {
-          "$ref": "#/definitions/Status"
+          "type": "string",
+          "enum": [
+            "INELIGIBLE_COMPANY_STRUCK_OFF",
+            "INELIGIBLE_NO_DISSOLUTION_ACTION"
+          ]
         }
       }
     },
@@ -422,9 +426,7 @@
       "enum": [
         "OPEN",
         "SUBMITTED",
-        "PROCESSED",
-        "INELIGIBLE_COMPANY_STRUCK_OFF",
-        "INELIGIBLE_NO_DISSOLUTION_ACTION"
+        "PROCESSED"
       ]
     }
   }
