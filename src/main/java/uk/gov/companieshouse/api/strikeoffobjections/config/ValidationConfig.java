@@ -19,21 +19,21 @@ public class ValidationConfig {
     @Value("#{'${ACTION_CODES_COMPANY_STRUCK_OFF}'.split(',')}")
     private List<Long> ACTION_CODES_COMPANY_STRUCK_OFF;
 
-    @Value("#{'${ACTION_CODES_NO_DISSOLUTION_ACTION}'.split(',')}")
-    private List<Long> ACTION_CODES_NO_DISSOLUTION_ACTION;
+    @Value("#{'${ACTION_CODES_STRIKE_OFF_NOTICE}'.split(',')}")
+    private List<Long> ACTION_CODES_STRIKE_OFF_NOTICE;
 
     @Autowired
     private ApiLogger apiLogger;
 
     @Bean
-    public List<ValidationRule> getActionCodeValidationRules() {
+    public List<ValidationRule<Long>> getActionCodeValidationRules() {
         return Arrays.asList(
                 new DisallowedValuesValidationRule<>(
                         ACTION_CODES_COMPANY_STRUCK_OFF,
                         ObjectionStatus.INELIGIBLE_COMPANY_STRUCK_OFF,
                         apiLogger),
                 new AllowedValuesValidationRule<>(
-                        ACTION_CODES_NO_DISSOLUTION_ACTION,
+                        ACTION_CODES_STRIKE_OFF_NOTICE,
                         ObjectionStatus.INELIGIBLE_NO_CURRENT_DISSOLUTION,
                         apiLogger)
         );

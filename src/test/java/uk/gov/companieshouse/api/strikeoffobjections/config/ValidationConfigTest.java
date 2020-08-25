@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class ValidationConfigTest {
 
     private static final List<Long> STRUCK_OFF_VALUES = Arrays.asList(10L, 200L, 3000L);
-    private static final List<Long> NO_DISS_VALUES = Arrays.asList(10L, 200L, 3000L);
+    private static final List<Long> STRIKE_OFF_NOTICE_VALUES = Arrays.asList(10L, 200L, 3000L);
 
     @Mock
     private ApiLogger apiLogger;
@@ -33,13 +33,13 @@ class ValidationConfigTest {
     void setup() {
         validationConfig = new ValidationConfig();
         ReflectionTestUtils.setField(validationConfig, "ACTION_CODES_COMPANY_STRUCK_OFF", STRUCK_OFF_VALUES);
-        ReflectionTestUtils.setField(validationConfig, "ACTION_CODES_NO_DISSOLUTION_ACTION", NO_DISS_VALUES);
+        ReflectionTestUtils.setField(validationConfig, "ACTION_CODES_STRIKE_OFF_NOTICE", STRIKE_OFF_NOTICE_VALUES);
         ReflectionTestUtils.setField(validationConfig, "apiLogger", apiLogger);
     }
 
     @Test
     void getActionCodeValidationRulesTest() {
-        List<ValidationRule> rules = validationConfig.getActionCodeValidationRules();
+        List<ValidationRule<Long>> rules = validationConfig.getActionCodeValidationRules();
 
         assertEquals(DisallowedValuesValidationRule.class, rules.get(0).getClass());
         assertEquals(AllowedValuesValidationRule.class, rules.get(1).getClass());
