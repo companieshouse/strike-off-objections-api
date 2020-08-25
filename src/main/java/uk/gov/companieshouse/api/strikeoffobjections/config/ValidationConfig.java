@@ -1,6 +1,5 @@
 package uk.gov.companieshouse.api.strikeoffobjections.config;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,23 +16,20 @@ import java.util.List;
 public class ValidationConfig {
 
     @Value("#{'${ACTION_CODES_COMPANY_STRUCK_OFF}'.split(',')}")
-    private List<Long> ACTION_CODES_COMPANY_STRUCK_OFF;
+    private List<Long> companyStruckOffActionCodes;
 
     @Value("#{'${ACTION_CODES_STRIKE_OFF_NOTICE}'.split(',')}")
-    private List<Long> ACTION_CODES_STRIKE_OFF_NOTICE;
-
-    @Autowired
-    private ApiLogger apiLogger;
+    private List<Long> strikeOffNoticeActionCodes;
 
     @Bean
-    public List<ValidationRule<Long>> getActionCodeValidationRules() {
+    public List<ValidationRule<Long>> getActionCodeValidationRules(ApiLogger apiLogger) {
         return Arrays.asList(
                 new DisallowedValuesValidationRule<>(
-                        ACTION_CODES_COMPANY_STRUCK_OFF,
+                        companyStruckOffActionCodes,
                         ObjectionStatus.INELIGIBLE_COMPANY_STRUCK_OFF,
                         apiLogger),
                 new AllowedValuesValidationRule<>(
-                        ACTION_CODES_STRIKE_OFF_NOTICE,
+                        strikeOffNoticeActionCodes,
                         ObjectionStatus.INELIGIBLE_NO_CURRENT_DISSOLUTION,
                         apiLogger)
         );

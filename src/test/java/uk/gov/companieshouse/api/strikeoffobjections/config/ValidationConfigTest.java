@@ -32,14 +32,13 @@ class ValidationConfigTest {
     @BeforeEach
     void setup() {
         validationConfig = new ValidationConfig();
-        ReflectionTestUtils.setField(validationConfig, "ACTION_CODES_COMPANY_STRUCK_OFF", STRUCK_OFF_VALUES);
-        ReflectionTestUtils.setField(validationConfig, "ACTION_CODES_STRIKE_OFF_NOTICE", STRIKE_OFF_NOTICE_VALUES);
-        ReflectionTestUtils.setField(validationConfig, "apiLogger", apiLogger);
+        ReflectionTestUtils.setField(validationConfig, "companyStruckOffActionCodes", STRUCK_OFF_VALUES);
+        ReflectionTestUtils.setField(validationConfig, "strikeOffNoticeActionCodes", STRIKE_OFF_NOTICE_VALUES);
     }
 
     @Test
     void getActionCodeValidationRulesTest() {
-        List<ValidationRule<Long>> rules = validationConfig.getActionCodeValidationRules();
+        List<ValidationRule<Long>> rules = validationConfig.getActionCodeValidationRules(apiLogger);
 
         assertEquals(DisallowedValuesValidationRule.class, rules.get(0).getClass());
         assertEquals(AllowedValuesValidationRule.class, rules.get(1).getClass());
