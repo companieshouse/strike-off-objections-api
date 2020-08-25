@@ -81,12 +81,7 @@ public class ObjectionService implements IObjectionService {
         Map<String, Object> logMap = buildLogMap(companyNumber, null, null);
         logger.infoContext(requestId, "Creating objection", logMap);
 
-        ObjectionStatus createdWithStatus = ObjectionStatus.OPEN;
-        try {
-            actionCodeValidator.validate("90");
-        } catch (ValidationException ve) {
-            createdWithStatus = ve.getStatus();
-        }
+        ObjectionStatus createdWithStatus = getCreateObjectionStatus(requestId);
 
         final String userEmailAddress = ericHeaderParser.getEmailAddress(ericUserDetails);
 
@@ -100,6 +95,16 @@ public class ObjectionService implements IObjectionService {
 
         Objection savedEntity = objectionRepository.save(entity);
         return savedEntity.getId();
+    }
+
+    private ObjectionStatus getCreateObjectionStatus(String requestId) {
+        ObjectionStatus createdWithStatus = ObjectionStatus.OPEN;
+        try {
+            actionCodeValidator.validate("90", requestId);
+        } catch (ValidationException ve) {
+            createdWithStatus = ve.getStatus();
+        }
+        return createdWithStatus;
     }
 
     /**

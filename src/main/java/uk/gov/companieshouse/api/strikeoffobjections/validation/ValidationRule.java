@@ -1,5 +1,5 @@
 package uk.gov.companieshouse.api.strikeoffobjections.validation;
 
-public interface ValidationRule {
-    void validate(Object input) throws ValidationException;
+public interface ValidationRule<T> {
+    void validate(T input, String logContext) throws ValidationException;
 }
