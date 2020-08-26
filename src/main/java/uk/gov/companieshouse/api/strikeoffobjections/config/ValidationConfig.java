@@ -23,6 +23,8 @@ public class ValidationConfig {
 
     @Bean
     public List<ValidationRule<Long>> getActionCodeValidationRules(ApiLogger apiLogger) {
+        logActionCodeValidatorConfigValues(apiLogger);
+
         return Arrays.asList(
                 new DisallowedValuesValidationRule<>(
                         companyStruckOffActionCodes,
@@ -34,4 +36,13 @@ public class ValidationConfig {
                         apiLogger)
         );
     }
+
+    private void logActionCodeValidatorConfigValues(ApiLogger apiLogger) {
+        String messagePrefix = "CHS ENV CONFIG -";
+        apiLogger.info(
+                String.format("%s ACTION_CODES_COMPANY_STRUCK_OFF = %s", messagePrefix, companyStruckOffActionCodes));
+        apiLogger.info(
+                String.format("%s ACTION_CODES_STRIKE_OFF_NOTICE = %s", messagePrefix, strikeOffNoticeActionCodes));
+    }
+
 }
