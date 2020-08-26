@@ -72,9 +72,12 @@ public class ObjectionService implements IObjectionService {
     }
 
     @Override
-    public String createObjection(String requestId, String companyNumber, String ericUserId, String ericUserDetails) {
+    public Objection createObjection(String requestId, String companyNumber, String ericUserId, String ericUserDetails) {
         Map<String, Object> logMap = buildLogMap(companyNumber, null, null);
         logger.infoContext(requestId, "Creating objection", logMap);
+
+        // TODO OBJ-231 process query result and return eligibility status
+        ObjectionStatus objectionStatus = ObjectionStatus.OPEN;
 
         final String userEmailAddress = ericHeaderParser.getEmailAddress(ericUserDetails);
 
@@ -83,11 +86,10 @@ public class ObjectionService implements IObjectionService {
                 .withCreatedOn(dateTimeSupplier.get())
                 .withCreatedBy(new CreatedBy(ericUserId, userEmailAddress))
                 .withHttpRequestId(requestId)
-                .withStatus(ObjectionStatus.OPEN)
+                .withStatus(objectionStatus)
                 .build();
 
-        Objection savedEntity = objectionRepository.save(entity);
-        return savedEntity.getId();
+        return objectionRepository.save(entity);
     }
 
     /**
