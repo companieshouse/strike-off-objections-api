@@ -147,12 +147,13 @@ public class ObjectionController {
 
         try {
             Objection objection = objectionService.createObjection(requestId, companyNumber, ericUserId, ericUserDetails);
-            ObjectionResponseDTO response = objectionMapper.objectionEntityToObjectionResponseDTO(objection);
-            ObjectionStatus objectionStatus = response.getStatus();
+            ObjectionStatus objectionStatus = objection.getStatus();
             if (objectionStatus.isIneligible()) {
+               ObjectionResponseDTO response = new  ObjectionResponseDTO();
+               response.setStatus(objectionStatus);
                return new ResponseEntity<>(ChResponseBody.createNormalBody(response), HttpStatus.BAD_REQUEST);
             }
-            return responseEntityFactory.createResponse(ServiceResult.created(response));
+            return responseEntityFactory.createResponse(ServiceResult.created(new ObjectionResponseDTO(objection.getId())));
         } catch (Exception e) {
             apiLogger.errorContext(
                     requestId,

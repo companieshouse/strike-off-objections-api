@@ -94,8 +94,7 @@ class ObjectionControllerTest {
 
         ObjectionResponseDTO objectionDTO = new ObjectionResponseDTO();
         objectionDTO.setId(OBJECTION_ID);
-        objectionDTO.setStatus(ObjectionStatus.SUBMITTED);
-        when(objectionMapper.objectionEntityToObjectionResponseDTO(objection)).thenReturn(objectionDTO);
+
         when(pluggableResponseEntityFactory.createResponse(any(ServiceResult.class))).thenReturn(
                 ResponseEntity.status(HttpStatus.CREATED).body(ChResponseBody.createNormalBody(objectionDTO)));
 
@@ -116,11 +115,6 @@ class ObjectionControllerTest {
         objection.setId(OBJECTION_ID);
         objection.setStatus(ObjectionStatus.INELIGIBLE_COMPANY_STRUCK_OFF);
         when(objectionService.createObjection(REQUEST_ID, COMPANY_NUMBER, AUTH_ID, AUTH_USER)).thenReturn(objection);
-
-        ObjectionResponseDTO objectionDTO = new ObjectionResponseDTO();
-        objectionDTO.setId(OBJECTION_ID);
-        objectionDTO.setStatus(ObjectionStatus.INELIGIBLE_COMPANY_STRUCK_OFF);
-        when(objectionMapper.objectionEntityToObjectionResponseDTO(objection)).thenReturn(objectionDTO);
 
         ResponseEntity<ChResponseBody<ObjectionResponseDTO>> response = objectionController.createObjection(COMPANY_NUMBER, REQUEST_ID, AUTH_ID, AUTH_USER);
 
