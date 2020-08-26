@@ -30,7 +30,7 @@ public class ValidationConfig {
                         apiLogger),
                 new AllowedValuesValidationRule<>(
                         strikeOffNoticeActionCodes,
-                        ObjectionStatus.INELIGIBLE_NO_CURRENT_DISSOLUTION,
+                        ObjectionStatus.INELIGIBLE_NO_DISSOLUTION_ACTION,
                         apiLogger)
         );
     }

@@ -1,4 +1,4 @@
-package uk.gov.companieshouse.api.strikeoffobjections.authorization;
+package uk.gov.companieshouse.api.strikeoffobjections.interceptor.authorization;
 
 import java.util.Arrays;
 import java.util.Optional;

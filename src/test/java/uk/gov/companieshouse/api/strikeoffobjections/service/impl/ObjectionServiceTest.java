@@ -2,7 +2,6 @@ package uk.gov.companieshouse.api.strikeoffobjections.service.impl;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -20,6 +19,7 @@ import uk.gov.companieshouse.api.strikeoffobjections.file.FileTransferApiClientR
 import uk.gov.companieshouse.api.strikeoffobjections.file.ObjectionsLinkKeys;
 import uk.gov.companieshouse.api.strikeoffobjections.groups.Unit;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Attachment;
+import uk.gov.companieshouse.api.strikeoffobjections.model.entity.CreatedBy;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Objection;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.ObjectionStatus;
 import uk.gov.companieshouse.api.strikeoffobjections.model.patcher.ObjectionPatcher;
@@ -31,7 +31,6 @@ import uk.gov.companieshouse.service.ServiceException;
 import uk.gov.companieshouse.service.ServiceResult;
 
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -100,20 +99,24 @@ class ObjectionServiceTest {
                 .withCompanyNumber(COMPANY_NUMBER)
                 .build();
         returnedEntity.setId(OBJECTION_ID);
+        returnedEntity.setCreatedOn(MOCKED_TIME_STAMP);
+        returnedEntity.setStatus(ObjectionStatus.OPEN);
+        CreatedBy createdBy = new CreatedBy(AUTH_ID, E_MAIL);
+        returnedEntity.setCreatedBy(createdBy);
+
         when(objectionRepository.save(any())).thenReturn(returnedEntity);
         when(localDateTimeSupplier.get()).thenReturn(MOCKED_TIME_STAMP);
         when(ericHeaderParser.getEmailAddress(AUTH_USER)).thenReturn(E_MAIL);
 
-        ArgumentCaptor<Objection> acObjection = ArgumentCaptor.forClass(Objection.class);
-        String returnedId = objectionService.createObjection(REQUEST_ID, COMPANY_NUMBER, AUTH_ID, AUTH_USER);
+        Objection objectionResponse = objectionService.createObjection(REQUEST_ID, COMPANY_NUMBER, AUTH_ID, AUTH_USER);
 
-        verify(objectionRepository).save(acObjection.capture());
-        assertEquals(OBJECTION_ID, returnedId);
-        assertEquals(MOCKED_TIME_STAMP, acObjection.getValue().getCreatedOn());
-        assertEquals(COMPANY_NUMBER, acObjection.getValue().getCompanyNumber());
-        assertEquals(ObjectionStatus.OPEN, acObjection.getValue().getStatus());
-        assertEquals(AUTH_ID, acObjection.getValue().getCreatedBy().getId());
-        assertEquals(E_MAIL, acObjection.getValue().getCreatedBy().getEmail());
+        verify(objectionRepository).save(any());
+        assertEquals(OBJECTION_ID, objectionResponse.getId());
+        assertEquals(MOCKED_TIME_STAMP, objectionResponse.getCreatedOn());
+        assertEquals(COMPANY_NUMBER, objectionResponse.getCompanyNumber());
+        assertEquals(ObjectionStatus.OPEN, objectionResponse.getStatus());
+        assertEquals(AUTH_ID, objectionResponse.getCreatedBy().getId());
+        assertEquals(E_MAIL, objectionResponse.getCreatedBy().getEmail());
     }
 
     @Test
@@ -608,7 +611,7 @@ class ObjectionServiceTest {
     }
 
     @Test
-    public void willCallFileTransferApiForDownload() throws ServiceException {
+    void willCallFileTransferApiForDownload() throws ServiceException {
         HttpServletResponse httpServletResponse = new MockHttpServletResponse();
         FileTransferApiClientResponse dummyDownloadResponse = Utils.dummyDownloadResponse();
 

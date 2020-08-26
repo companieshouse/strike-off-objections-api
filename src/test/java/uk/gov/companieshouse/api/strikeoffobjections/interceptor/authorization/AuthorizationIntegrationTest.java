@@ -1,4 +1,4 @@
-package uk.gov.companieshouse.api.strikeoffobjections.authorization;
+package uk.gov.companieshouse.api.strikeoffobjections.interceptor.authorization;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -25,8 +25,10 @@ import uk.gov.companieshouse.api.strikeoffobjections.common.ApiLogger;
 import uk.gov.companieshouse.api.strikeoffobjections.controller.AttachmentMapper;
 import uk.gov.companieshouse.api.strikeoffobjections.controller.ObjectionController;
 import uk.gov.companieshouse.api.strikeoffobjections.controller.ObjectionMapper;
+import uk.gov.companieshouse.api.strikeoffobjections.exception.ObjectionNotFoundException;
 import uk.gov.companieshouse.api.strikeoffobjections.file.FileTransferApiClientResponse;
 import uk.gov.companieshouse.api.strikeoffobjections.groups.Integration;
+import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Objection;
 import uk.gov.companieshouse.api.strikeoffobjections.service.impl.ERICHeaderParser;
 import uk.gov.companieshouse.api.strikeoffobjections.service.impl.ObjectionService;
 import uk.gov.companieshouse.service.ServiceException;
@@ -59,12 +61,15 @@ public class AuthorizationIntegrationTest {
     private PluggableResponseEntityFactory responseEntityFactory;
 
     @BeforeEach
-    public void setup() throws ServiceException {
+    public void setup() throws ServiceException, ObjectionNotFoundException {
+        Objection objection = new Objection();
+        objection.setCompanyNumber("00006400");
         FileTransferApiClientResponse transferResponse = new FileTransferApiClientResponse();
         transferResponse.setFileId("123");
         transferResponse.setHttpStatus(HttpStatus.OK);
         when(objectionService.downloadAttachment(anyString(), anyString(), anyString(), any(HttpServletResponse.class)))
             .thenReturn(transferResponse);
+        when(objectionService.getObjection(any(), any())).thenReturn(objection);
     }
 
     @Test

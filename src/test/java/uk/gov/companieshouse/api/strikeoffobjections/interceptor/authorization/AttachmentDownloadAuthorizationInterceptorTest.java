@@ -1,4 +1,4 @@
-package uk.gov.companieshouse.api.strikeoffobjections.authorization;
+package uk.gov.companieshouse.api.strikeoffobjections.interceptor.authorization;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;

@@ -21,7 +21,7 @@ class AllowedValuesValidationRuleTest {
 
     private static final List<Long> ALLOWED_VALUES = Arrays.asList(10L, 200L, 3000L);
     private static final String LOG_CONTEXT = "context";
-    private static final ObjectionStatus FAILURE_STATUS = ObjectionStatus.INELIGIBLE_NO_CURRENT_DISSOLUTION;
+    private static final ObjectionStatus FAILURE_STATUS = ObjectionStatus.INELIGIBLE_NO_DISSOLUTION_ACTION;
 
     @Mock
     private ApiLogger apiLogger;
