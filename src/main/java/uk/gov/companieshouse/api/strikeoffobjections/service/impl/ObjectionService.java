@@ -91,9 +91,7 @@ public class ObjectionService implements IObjectionService {
                 .withStatus(objectionStatus)
                 .build();
 
-        Objection savedEntity = objectionRepository.save(entity);
-
-        return savedEntity;
+        return objectionRepository.save(entity);
     }
 
     /**
