@@ -73,7 +73,7 @@ public class ObjectionService implements IObjectionService {
     }
 
     @Override
-    public ObjectionResponseDTO createObjection(String requestId, String companyNumber, String ericUserId, String ericUserDetails) {
+    public Objection createObjection(String requestId, String companyNumber, String ericUserId, String ericUserDetails) {
         Map<String, Object> logMap = buildLogMap(companyNumber, null, null);
         logger.infoContext(requestId, "Creating objection", logMap);
         ObjectionResponseDTO response = new ObjectionResponseDTO();
@@ -92,9 +92,8 @@ public class ObjectionService implements IObjectionService {
                 .build();
 
         Objection savedEntity = objectionRepository.save(entity);
-        response.setId(savedEntity.getId());
-        response.setStatus(savedEntity.getStatus());
-        return response;
+
+        return savedEntity;
     }
 
     /**

@@ -146,7 +146,8 @@ public class ObjectionController {
         );
 
         try {
-            ObjectionResponseDTO response = objectionService.createObjection(requestId, companyNumber, ericUserId, ericUserDetails);
+            Objection objection = objectionService.createObjection(requestId, companyNumber, ericUserId, ericUserDetails);
+            ObjectionResponseDTO response = objectionMapper.objectionEntityToObjectionResponseDTO(objection);
             ObjectionStatus objectionStatus = response.getStatus();
             if (objectionStatus.isIneligible()) {
                return new ResponseEntity<>(ChResponseBody.createNormalBody(response), HttpStatus.BAD_REQUEST);
