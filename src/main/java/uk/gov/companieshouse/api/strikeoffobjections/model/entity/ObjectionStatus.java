@@ -8,7 +8,7 @@ public enum ObjectionStatus {
     PROCESSED,
     SUBMITTED;
 
-    public boolean isIneligibleStatus() {
+    public boolean isIneligible() {
         return this == INELIGIBLE_NO_DISSOLUTION_ACTION ||
                 this == INELIGIBLE_COMPANY_STRUCK_OFF;
     }

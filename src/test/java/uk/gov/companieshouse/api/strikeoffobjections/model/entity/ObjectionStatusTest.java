@@ -10,18 +10,18 @@ public class ObjectionStatusTest {
     @Test
     public void testWhenEligible() {
         ObjectionStatus objectionStatus = ObjectionStatus.OPEN;
-        assertFalse(objectionStatus.isIneligibleStatus());
+        assertFalse(objectionStatus.isIneligible());
     }
 
     @Test
     public void testWhenIneligibleStruckOff() {
         ObjectionStatus objectionStatus = ObjectionStatus.INELIGIBLE_COMPANY_STRUCK_OFF;
-        assertTrue(objectionStatus.isIneligibleStatus());
+        assertTrue(objectionStatus.isIneligible());
     }
 
     @Test
     public void testWhenIneligibleNoDissolutionAction() {
         ObjectionStatus objectionStatus = ObjectionStatus.INELIGIBLE_NO_DISSOLUTION_ACTION;
-        assertTrue(objectionStatus.isIneligibleStatus());
+        assertTrue(objectionStatus.isIneligible());
     }
 }
