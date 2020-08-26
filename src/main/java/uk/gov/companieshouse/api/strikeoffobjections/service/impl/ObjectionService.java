@@ -79,7 +79,7 @@ public class ObjectionService implements IObjectionService {
         ObjectionResponseDTO response = new ObjectionResponseDTO();
 
         // TODO OBJ-231 process query result and return eligibility status
-        ObjectionStatus obStat = ObjectionStatus.OPEN;
+        ObjectionStatus objectionStatus = ObjectionStatus.OPEN;
 
         final String userEmailAddress = ericHeaderParser.getEmailAddress(ericUserDetails);
 
@@ -88,7 +88,7 @@ public class ObjectionService implements IObjectionService {
                 .withCreatedOn(dateTimeSupplier.get())
                 .withCreatedBy(new CreatedBy(ericUserId, userEmailAddress))
                 .withHttpRequestId(requestId)
-                .withStatus(obStat)
+                .withStatus(objectionStatus)
                 .build();
 
         Objection savedEntity = objectionRepository.save(entity);
