@@ -87,11 +87,11 @@ class ObjectionControllerTest {
 
     @Test
     void createObjectionTest() {
-        ObjectionResponseDTO objectionResponse = new ObjectionResponseDTO(OBJECTION_ID);
         ObjectionResponseDTO responseDTO = new ObjectionResponseDTO(OBJECTION_ID);
+        responseDTO.setStatus(ObjectionStatus.SUBMITTED);
         when(objectionService.createObjection(REQUEST_ID, COMPANY_NUMBER, AUTH_ID, AUTH_USER)).thenReturn(responseDTO);
         when(pluggableResponseEntityFactory.createResponse(any(ServiceResult.class))).thenReturn(
-                ResponseEntity.status(HttpStatus.CREATED).body(ChResponseBody.createNormalBody(objectionResponse)));
+                ResponseEntity.status(HttpStatus.CREATED).body(ChResponseBody.createNormalBody(responseDTO)));
         ResponseEntity<ChResponseBody<ObjectionResponseDTO>> response = objectionController.createObjection(COMPANY_NUMBER, REQUEST_ID, AUTH_ID, AUTH_USER);
 
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
