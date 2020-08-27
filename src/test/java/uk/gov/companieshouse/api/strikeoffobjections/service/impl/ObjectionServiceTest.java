@@ -10,6 +10,8 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.multipart.MultipartFile;
+
+import uk.gov.companieshouse.api.strikeoffobjections.client.OracleQueryClient;
 import uk.gov.companieshouse.api.strikeoffobjections.common.ApiLogger;
 import uk.gov.companieshouse.api.strikeoffobjections.exception.AttachmentNotFoundException;
 import uk.gov.companieshouse.api.strikeoffobjections.exception.InvalidObjectionStatusException;
@@ -90,6 +92,9 @@ class ObjectionServiceTest {
     @Mock
     private ObjectionProcessor objectionProcessor;
 
+    @Mock
+    private OracleQueryClient oracleQueryClient;
+
     @InjectMocks
     private ObjectionService objectionService;
 
@@ -111,6 +116,8 @@ class ObjectionServiceTest {
         Objection objectionResponse = objectionService.createObjection(REQUEST_ID, COMPANY_NUMBER, AUTH_ID, AUTH_USER);
 
         verify(objectionRepository).save(any());
+        verify(oracleQueryClient).getCompanyActionCode(COMPANY_NUMBER);
+        
         assertEquals(OBJECTION_ID, objectionResponse.getId());
         assertEquals(MOCKED_TIME_STAMP, objectionResponse.getCreatedOn());
         assertEquals(COMPANY_NUMBER, objectionResponse.getCompanyNumber());

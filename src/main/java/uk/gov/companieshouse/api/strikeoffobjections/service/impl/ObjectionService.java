@@ -7,6 +7,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.multipart.MultipartFile;
+
+import uk.gov.companieshouse.api.strikeoffobjections.client.OracleQueryClient;
 import uk.gov.companieshouse.api.strikeoffobjections.common.ApiLogger;
 import uk.gov.companieshouse.api.strikeoffobjections.common.LogConstants;
 import uk.gov.companieshouse.api.strikeoffobjections.exception.AttachmentNotFoundException;
@@ -53,6 +55,7 @@ public class ObjectionService implements IObjectionService {
     private FileTransferApiClient fileTransferApiClient;
     private ERICHeaderParser ericHeaderParser;
     private ObjectionProcessor objectionProcessor;
+    private OracleQueryClient oracleQueryClient;
 
     @Autowired
     public ObjectionService(ObjectionRepository objectionRepository,
@@ -61,7 +64,8 @@ public class ObjectionService implements IObjectionService {
                             ObjectionPatcher objectionPatcher,
                             FileTransferApiClient fileTransferApiClient,
                             ERICHeaderParser ericHeaderParser,
-                            ObjectionProcessor objectionProcessor) {
+                            ObjectionProcessor objectionProcessor,
+                            OracleQueryClient oracleQueryClient) {
         this.objectionRepository = objectionRepository;
         this.logger = logger;
         this.dateTimeSupplier = dateTimeSupplier;
@@ -69,6 +73,7 @@ public class ObjectionService implements IObjectionService {
         this.fileTransferApiClient = fileTransferApiClient;
         this.ericHeaderParser = ericHeaderParser;
         this.objectionProcessor = objectionProcessor;
+        this.oracleQueryClient = oracleQueryClient;
     }
 
     @Override
@@ -76,7 +81,11 @@ public class ObjectionService implements IObjectionService {
         Map<String, Object> logMap = buildLogMap(companyNumber, null, null);
         logger.infoContext(requestId, "Creating objection", logMap);
 
-        // TODO OBJ-231 process query result and return eligibility status
+        long actionCode = oracleQueryClient.getCompanyActionCode(companyNumber);
+
+        logger.debugContext(requestId, "Company action code is " + actionCode);
+
+        // TODO OBJ-231 check action code and set eligibility status
         ObjectionStatus objectionStatus = ObjectionStatus.OPEN;
 
         final String userEmailAddress = ericHeaderParser.getEmailAddress(ericUserDetails);
