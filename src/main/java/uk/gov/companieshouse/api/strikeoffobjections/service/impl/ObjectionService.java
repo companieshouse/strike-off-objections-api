@@ -81,9 +81,8 @@ public class ObjectionService implements IObjectionService {
         Map<String, Object> logMap = buildLogMap(companyNumber, null, null);
         logger.infoContext(requestId, "Creating objection", logMap);
 
-        long actionCode = oracleQueryClient.getCompanyActionCode(companyNumber);
-
-        logger.debugContext(requestId, "Company action code is " + actionCode);
+        @SuppressWarnings("unused")
+        long actionCode = getActionCode(companyNumber, requestId);
 
         // TODO OBJ-231 check action code and set eligibility status
         ObjectionStatus objectionStatus = ObjectionStatus.OPEN;
@@ -318,5 +317,13 @@ public class ObjectionService implements IObjectionService {
             logMap.put(LogConstants.ATTACHMENT_ID.getValue(), attachmentId);
         }
         return logMap;
+    }
+
+    private long getActionCode(String companyNumber, String requestId) {
+        long actionCode = oracleQueryClient.getCompanyActionCode(companyNumber);
+
+        logger.debugContext(requestId, "Company action code is " + actionCode);
+ 
+        return actionCode;
     }
 }
