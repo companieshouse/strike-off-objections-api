@@ -2,6 +2,7 @@ package uk.gov.companieshouse.api.strikeoffobjections.service.impl;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -29,6 +30,8 @@ import uk.gov.companieshouse.api.strikeoffobjections.model.patch.ObjectionPatch;
 import uk.gov.companieshouse.api.strikeoffobjections.processor.ObjectionProcessor;
 import uk.gov.companieshouse.api.strikeoffobjections.repository.ObjectionRepository;
 import uk.gov.companieshouse.api.strikeoffobjections.utils.Utils;
+import uk.gov.companieshouse.api.strikeoffobjections.validation.ActionCodeValidator;
+import uk.gov.companieshouse.api.strikeoffobjections.validation.ValidationException;
 import uk.gov.companieshouse.service.ServiceException;
 import uk.gov.companieshouse.service.ServiceResult;
 
@@ -55,6 +58,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.mockito.ArgumentMatchers.any;
+import static uk.gov.companieshouse.api.strikeoffobjections.model.entity.ObjectionStatus.OPEN;
 
 @Unit
 @ExtendWith(MockitoExtension.class)
@@ -69,6 +73,7 @@ class ObjectionServiceTest {
     private static final String ATTACHMENT_ID = "12348765";
     private static final String REASON = "REASON";
     private static final String ACCESS_URL = "/dummyUrl";
+    private static final Long ACTION_CODE_OK = 3000L;
     private static final LocalDateTime MOCKED_TIME_STAMP = LocalDateTime.of(2020, 2,2, 0, 0);
 
     @Mock
@@ -95,36 +100,55 @@ class ObjectionServiceTest {
     @Mock
     private OracleQueryClient oracleQueryClient;
 
+    @Mock
+    private ActionCodeValidator actionCodeValidator;
+
     @InjectMocks
     private ObjectionService objectionService;
 
     @Test
-    void createObjectionTest() {
+    void createObjectionTest() throws ValidationException {
         Objection returnedEntity = new Objection.Builder()
                 .withCompanyNumber(COMPANY_NUMBER)
                 .build();
         returnedEntity.setId(OBJECTION_ID);
         returnedEntity.setCreatedOn(MOCKED_TIME_STAMP);
-        returnedEntity.setStatus(ObjectionStatus.OPEN);
+        returnedEntity.setStatus(OPEN);
         CreatedBy createdBy = new CreatedBy(AUTH_ID, E_MAIL);
         returnedEntity.setCreatedBy(createdBy);
 
         when(objectionRepository.save(any())).thenReturn(returnedEntity);
         when(localDateTimeSupplier.get()).thenReturn(MOCKED_TIME_STAMP);
         when(ericHeaderParser.getEmailAddress(AUTH_USER)).thenReturn(E_MAIL);
+        when(oracleQueryClient.getCompanyActionCode(COMPANY_NUMBER)).thenReturn(ACTION_CODE_OK);
 
         Objection objectionResponse = objectionService.createObjection(REQUEST_ID, COMPANY_NUMBER, AUTH_ID, AUTH_USER);
 
         verify(objectionRepository).save(any());
         verify(oracleQueryClient).getCompanyActionCode(COMPANY_NUMBER);
-        
+        verify(actionCodeValidator).validate(ACTION_CODE_OK, REQUEST_ID);
+
+        ArgumentCaptor<Objection> saveObjectionCaptor = ArgumentCaptor.forClass(Objection.class);
+        verify(objectionRepository, times(1)).save(saveObjectionCaptor.capture());
+
+        Objection savedObjection = saveObjectionCaptor.getValue();
+        assertEquals(COMPANY_NUMBER, savedObjection.getCompanyNumber());
+        assertEquals(MOCKED_TIME_STAMP, savedObjection.getCreatedOn());
+        assertEquals(AUTH_ID, savedObjection.getCreatedBy().getId());
+        assertEquals(E_MAIL, savedObjection.getCreatedBy().getEmail());
+        assertEquals(REQUEST_ID, savedObjection.getHttpRequestId());
+        assertEquals(ACTION_CODE_OK, savedObjection.getActionCode());
+        assertEquals(OPEN, savedObjection.getStatus());
+
         assertEquals(OBJECTION_ID, objectionResponse.getId());
         assertEquals(MOCKED_TIME_STAMP, objectionResponse.getCreatedOn());
         assertEquals(COMPANY_NUMBER, objectionResponse.getCompanyNumber());
-        assertEquals(ObjectionStatus.OPEN, objectionResponse.getStatus());
+        assertEquals(OPEN, objectionResponse.getStatus());
         assertEquals(AUTH_ID, objectionResponse.getCreatedBy().getId());
         assertEquals(E_MAIL, objectionResponse.getCreatedBy().getEmail());
     }
+
+    //TODO test status on validation exception
 
     @Test
     void patchObjectionExistsTest() throws Exception {
@@ -147,7 +171,7 @@ class ObjectionServiceTest {
     void patchObjectionDoesNotExistTest() {
         ObjectionPatch objectionPatch = new ObjectionPatch();
         objectionPatch.setReason(REASON);
-        objectionPatch.setStatus(ObjectionStatus.OPEN);
+        objectionPatch.setStatus(OPEN);
         when(objectionRepository.findById(any())).thenReturn(Optional.empty());
 
         assertThrows(ObjectionNotFoundException.class,
@@ -160,7 +184,7 @@ class ObjectionServiceTest {
     void patchObjectionSubmittedTest() throws Exception {
         Objection existingObjection = new Objection();
         existingObjection.setId(OBJECTION_ID);
-        existingObjection.setStatus(ObjectionStatus.OPEN);
+        existingObjection.setStatus(OPEN);
 
         Objection objection = new Objection();
         objection.setId(OBJECTION_ID);
@@ -182,7 +206,7 @@ class ObjectionServiceTest {
     void patchObjectionPropagatesProcessInvalidStatusExceptionTest() throws Exception {
         Objection existingObjection = new Objection();
         existingObjection.setId(OBJECTION_ID);
-        existingObjection.setStatus(ObjectionStatus.OPEN);
+        existingObjection.setStatus(OPEN);
 
         Objection objection = new Objection();
         objection.setId(OBJECTION_ID);
