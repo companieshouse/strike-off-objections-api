@@ -23,6 +23,10 @@ public class ApiLogger {
         LOGGER.debugContext(context, message, dataMap);
     }
 
+    public void info(String message) {
+        LOGGER.info(message, null);
+    }
+
     public void infoContext(String context, String message) {
         LOGGER.infoContext(context, message, null);
     }
