@@ -17,6 +17,8 @@ import java.util.List;
 @Configuration
 public class ValidationConfig {
 
+    private static final String CONFIG_MESSAGE_PREFIX = "CHS ENV CONFIG -";
+
     @Value("#{'${ACTION_CODES_COMPANY_STRUCK_OFF}'.split(',')}")
     private List<Long> companyStruckOffActionCodes;
 
@@ -42,10 +44,9 @@ public class ValidationConfig {
 
     @PostConstruct
     private void logActionCodeValidatorConfigValues() {
-        String messagePrefix = "CHS ENV CONFIG -";
         apiLogger.info(
-                String.format("%s ACTION_CODES_COMPANY_STRUCK_OFF = %s", messagePrefix, companyStruckOffActionCodes));
+                String.format("%s ACTION_CODES_COMPANY_STRUCK_OFF = %s", CONFIG_MESSAGE_PREFIX, companyStruckOffActionCodes));
         apiLogger.info(
-                String.format("%s ACTION_CODES_STRIKE_OFF_NOTICE = %s", messagePrefix, strikeOffNoticeActionCodes));
+                String.format("%s ACTION_CODES_STRIKE_OFF_NOTICE = %s", CONFIG_MESSAGE_PREFIX, strikeOffNoticeActionCodes));
     }
 }

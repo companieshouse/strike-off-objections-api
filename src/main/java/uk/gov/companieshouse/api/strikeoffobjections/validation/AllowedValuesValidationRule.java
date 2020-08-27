@@ -26,5 +26,4 @@ public class AllowedValuesValidationRule<T> implements ValidationRule<T> {
             throw new ValidationException(failureStatus);
         }
     }
-
 }
