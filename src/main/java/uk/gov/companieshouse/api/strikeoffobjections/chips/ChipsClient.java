@@ -4,9 +4,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import uk.gov.companieshouse.api.strikeoffobjections.common.ApiLogger;
 
-import java.util.HashMap;
-import java.util.Map;
-
 @Component
 public class ChipsClient {
 
