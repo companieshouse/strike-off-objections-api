@@ -1,11 +1,10 @@
-package email;
+package uk.gov.companieshouse.api.strikeoffobjections.email;
 
 import org.apache.avro.Schema;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.gov.companieshouse.api.strikeoffobjections.email.AvroSerializer;
 import uk.gov.companieshouse.api.strikeoffobjections.groups.Unit;
 import uk.gov.companieshouse.api.strikeoffobjections.model.email.EmailContent;
 import uk.gov.companieshouse.api.strikeoffobjections.utils.Utils;
@@ -18,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Unit
 @ExtendWith(MockitoExtension.class)
-public class AvroSerializerUnitTest {
+class AvroSerializerUnitTest {
 
     private static final LocalDateTime CREATED_AT = LocalDateTime.of(2020, 1, 1, 5, 0);
     private static final String EMAIL_TEMPLATE_MESSAGE_TYPE = "test_confirmation_email";
@@ -31,7 +30,7 @@ public class AvroSerializerUnitTest {
     private AvroSerializer avroSerializer;
 
     @Test
-    public void testAvroSerializer()
+    void testAvroSerializer()
             throws IOException {
         Schema schema = Utils.getDummySchema(this.getClass().getClassLoader().getResource(
                 "email/email-send.avsc"));

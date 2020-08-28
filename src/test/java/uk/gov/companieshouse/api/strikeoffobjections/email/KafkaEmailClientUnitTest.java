@@ -1,4 +1,4 @@
-package email;
+package uk.gov.companieshouse.api.strikeoffobjections.email;
 
 import org.apache.avro.Schema;
 import org.apache.kafka.clients.producer.RecordMetadata;
@@ -8,8 +8,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.gov.companieshouse.api.strikeoffobjections.email.AvroSerializer;
-import uk.gov.companieshouse.api.strikeoffobjections.email.KafkaEmailClient;
 import uk.gov.companieshouse.api.strikeoffobjections.groups.Unit;
 import uk.gov.companieshouse.api.strikeoffobjections.model.email.EmailContent;
 import uk.gov.companieshouse.api.strikeoffobjections.utils.Utils;
@@ -30,7 +28,7 @@ import static org.mockito.Mockito.when;
 
 @Unit
 @ExtendWith(MockitoExtension.class)
-public class KafkaEmailClientUnitTest {
+class KafkaEmailClientUnitTest {
 
     private static final LocalDateTime CREATED_AT =
             LocalDateTime.of(2019, 1, 1, 0, 0);
@@ -56,7 +54,7 @@ public class KafkaEmailClientUnitTest {
     private AvroSerializer faultyAvroSerializer;
 
     @BeforeEach
-    public void setup() throws IOException {
+    void setup() throws IOException {
         emailContent = Utils.buildEmailContent(
                 EMAIL_NO_LONGER_REQUIRED_TEMPLATE_APP_ID,
                 MESSAGE_ID,
@@ -70,7 +68,7 @@ public class KafkaEmailClientUnitTest {
     }
 
     @Test
-    public void checkFutureIsCalledWhenSendingEmailToKafka()
+    void checkFutureIsCalledWhenSendingEmailToKafka()
             throws ServiceException, ExecutionException, IOException, InterruptedException {
         when(producer.sendAndReturnFuture(any())).thenReturn(MOCKED_FUTURE);
         kafkaEmailClient = new KafkaEmailClient(producer,
@@ -80,7 +78,7 @@ public class KafkaEmailClientUnitTest {
     }
 
     @Test
-    public void checkServiceExcpetionIsThrownWhenSerializerThrowsIOExcpetion()
+    void checkServiceExcpetionIsThrownWhenSerializerThrowsIOExcpetion()
             throws IOException {
         doThrow(IOException.class).when(faultyAvroSerializer).serialize(emailContent, testSchema);
         kafkaEmailClient = new KafkaEmailClient(producer,
@@ -91,7 +89,7 @@ public class KafkaEmailClientUnitTest {
     }
 
     @Test
-    public void checkServiceExcpetionIsThrownWhenFutureThrowsExecutionException()
+    void checkServiceExcpetionIsThrownWhenFutureThrowsExecutionException()
             throws ExecutionException, InterruptedException {
         when(producer.sendAndReturnFuture(any())).thenReturn(FAULTY_MOCKED_FUTURE);
         kafkaEmailClient = new KafkaEmailClient(producer,
