@@ -1,4 +1,4 @@
-package email;
+package uk.gov.companieshouse.api.strikeoffobjections.email;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

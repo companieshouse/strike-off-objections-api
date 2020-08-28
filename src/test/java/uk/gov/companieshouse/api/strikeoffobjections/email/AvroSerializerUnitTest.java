@@ -1,4 +1,4 @@
-package email;
+package uk.gov.companieshouse.api.strikeoffobjections.email;
 
 import org.apache.avro.Schema;
 import org.junit.jupiter.api.Test;

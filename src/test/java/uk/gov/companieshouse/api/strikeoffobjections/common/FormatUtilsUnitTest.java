@@ -1,4 +1,4 @@
-package common;
+package uk.gov.companieshouse.api.strikeoffobjections.common;
 
 import org.junit.jupiter.api.Test;
 import uk.gov.companieshouse.api.strikeoffobjections.common.FormatUtils;
