@@ -50,36 +50,32 @@ public class ObjectionService implements IObjectionService {
     private static final String ATTACHMENT_NOT_DELETED_SHORT = "Unable to delete attachment %s";
     private static final String INVALID_PATCH_STATUS = "Unable to patch status to %s for Objection id: %s";
 
+    @Autowired
     private ObjectionRepository objectionRepository;
-    private ApiLogger logger;
-    private Supplier<LocalDateTime> dateTimeSupplier;
-    private ObjectionPatcher objectionPatcher;
-    private FileTransferApiClient fileTransferApiClient;
-    private ERICHeaderParser ericHeaderParser;
-    private ObjectionProcessor objectionProcessor;
-    private OracleQueryClient oracleQueryClient;
-    private ActionCodeValidator actionCodeValidator;
 
     @Autowired
-    public ObjectionService(ObjectionRepository objectionRepository,
-                            ApiLogger logger,
-                            Supplier<LocalDateTime> dateTimeSupplier,
-                            ObjectionPatcher objectionPatcher,
-                            FileTransferApiClient fileTransferApiClient,
-                            ERICHeaderParser ericHeaderParser,
-                            ObjectionProcessor objectionProcessor,
-                            OracleQueryClient oracleQueryClient,
-                            ActionCodeValidator actionCodeValidator) {
-        this.objectionRepository = objectionRepository;
-        this.logger = logger;
-        this.dateTimeSupplier = dateTimeSupplier;
-        this.objectionPatcher = objectionPatcher;
-        this.fileTransferApiClient = fileTransferApiClient;
-        this.ericHeaderParser = ericHeaderParser;
-        this.objectionProcessor = objectionProcessor;
-        this.oracleQueryClient = oracleQueryClient;
-        this.actionCodeValidator = actionCodeValidator;
-    }
+    private ApiLogger logger;
+
+    @Autowired
+    private Supplier<LocalDateTime> dateTimeSupplier;
+
+    @Autowired
+    private ObjectionPatcher objectionPatcher;
+
+    @Autowired
+    private FileTransferApiClient fileTransferApiClient;
+
+    @Autowired
+    private ERICHeaderParser ericHeaderParser;
+
+    @Autowired
+    private ObjectionProcessor objectionProcessor;
+
+    @Autowired
+    private OracleQueryClient oracleQueryClient;
+
+    @Autowired
+    private ActionCodeValidator actionCodeValidator;
 
     @Override
     public Objection createObjection(String requestId, String companyNumber, String ericUserId, String ericUserDetails) {
@@ -88,7 +84,7 @@ public class ObjectionService implements IObjectionService {
 
         final Long actionCode = getActionCode(companyNumber, requestId);
 
-        final ObjectionStatus objectionStatus = getObjectionStatus(actionCode, companyNumber, requestId);
+        final ObjectionStatus objectionStatus = getObjectionStatusForCreate(actionCode, companyNumber, requestId);
 
         final String userEmailAddress = ericHeaderParser.getEmailAddress(ericUserDetails);
 
@@ -105,14 +101,14 @@ public class ObjectionService implements IObjectionService {
     }
 
     private Long getActionCode(String companyNumber, String requestId) {
-        long actionCode = oracleQueryClient.getCompanyActionCode(companyNumber);
+        Long actionCode = oracleQueryClient.getCompanyActionCode(companyNumber);
 
         logger.debugContext(requestId, "Company action code is " + actionCode);
 
         return actionCode;
     }
 
-    private ObjectionStatus getObjectionStatus(Long actionCode, String companyNumber, String logContext) {
+    private ObjectionStatus getObjectionStatusForCreate(Long actionCode, String companyNumber, String logContext) {
         ObjectionStatus objectionStatus = ObjectionStatus.OPEN;
         try {
             actionCodeValidator.validate(actionCode, logContext);

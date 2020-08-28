@@ -58,6 +58,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.mockito.ArgumentMatchers.any;
+import static uk.gov.companieshouse.api.strikeoffobjections.model.entity.ObjectionStatus.INELIGIBLE_COMPANY_STRUCK_OFF;
 import static uk.gov.companieshouse.api.strikeoffobjections.model.entity.ObjectionStatus.OPEN;
 
 @Unit
@@ -74,6 +75,7 @@ class ObjectionServiceTest {
     private static final String REASON = "REASON";
     private static final String ACCESS_URL = "/dummyUrl";
     private static final Long ACTION_CODE_OK = 3000L;
+    private static final Long ACTION_CODE_INELIGIBLE = 200L;
     private static final LocalDateTime MOCKED_TIME_STAMP = LocalDateTime.of(2020, 2,2, 0, 0);
 
     @Mock
@@ -148,7 +150,29 @@ class ObjectionServiceTest {
         assertEquals(E_MAIL, objectionResponse.getCreatedBy().getEmail());
     }
 
-    //TODO test status on validation exception
+    @Test
+    void createObjectionIneligibleStatusTest() throws ValidationException {
+        when(localDateTimeSupplier.get()).thenReturn(MOCKED_TIME_STAMP);
+        when(ericHeaderParser.getEmailAddress(AUTH_USER)).thenReturn(E_MAIL);
+        when(oracleQueryClient.getCompanyActionCode(COMPANY_NUMBER)).thenReturn(ACTION_CODE_INELIGIBLE);
+
+        ValidationException ve = new ValidationException(INELIGIBLE_COMPANY_STRUCK_OFF);
+        doThrow(ve).when(actionCodeValidator).validate(ACTION_CODE_INELIGIBLE, REQUEST_ID);
+
+        objectionService.createObjection(REQUEST_ID, COMPANY_NUMBER, AUTH_ID, AUTH_USER);
+
+        ArgumentCaptor<Objection> saveObjectionCaptor = ArgumentCaptor.forClass(Objection.class);
+        verify(objectionRepository, times(1)).save(saveObjectionCaptor.capture());
+
+        Objection savedObjection = saveObjectionCaptor.getValue();
+        assertEquals(COMPANY_NUMBER, savedObjection.getCompanyNumber());
+        assertEquals(MOCKED_TIME_STAMP, savedObjection.getCreatedOn());
+        assertEquals(AUTH_ID, savedObjection.getCreatedBy().getId());
+        assertEquals(E_MAIL, savedObjection.getCreatedBy().getEmail());
+        assertEquals(REQUEST_ID, savedObjection.getHttpRequestId());
+        assertEquals(ACTION_CODE_INELIGIBLE, savedObjection.getActionCode());
+        assertEquals(INELIGIBLE_COMPANY_STRUCK_OFF, savedObjection.getStatus());
+    }
 
     @Test
     void patchObjectionExistsTest() throws Exception {

@@ -22,7 +22,7 @@ public class DisallowedValuesValidationRule<T> implements ValidationRule<T> {
     @Override
     public void validate(T input, String logContext) throws ValidationException {
         if (disallowedValues.contains(input)) {
-            apiLogger.debugContext(logContext, String.format("%s is a disallowed value", input));
+            apiLogger.debugContext(logContext, String.format("DisallowedValuesValidationRule %s is a disallowed value", input));
             throw new ValidationException(failureStatus);
         }
     }
