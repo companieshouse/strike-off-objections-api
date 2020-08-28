@@ -19,7 +19,6 @@ public class ChipsClient {
 
     public void sendToChips(String requestId){
         // TODO OBJ-240 add contact model object and send to CHIPS
-        Map<String, Object> logMap = new HashMap<>();
-        apiLogger.infoContext(requestId, "Sending contact to CHIPS", logMap);
+        apiLogger.infoContext(requestId, "Sending contact to CHIPS");
     }
 }
