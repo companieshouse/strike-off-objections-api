@@ -50,4 +50,13 @@ class AllowedValuesValidationRuleTest {
 
         assertEquals(FAILURE_STATUS, ve.getStatus());
     }
+
+    @Test
+    void validateThrowsExceptionWhenNullIsInputTest() {
+        ValidationException ve = assertThrows(
+                ValidationException.class,
+                () -> allowedValuesValidationRule.validate(null, LOG_CONTEXT));
+
+        assertEquals(FAILURE_STATUS, ve.getStatus());
+    }
 }

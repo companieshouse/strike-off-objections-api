@@ -43,6 +43,11 @@ class DisallowedValuesValidationRuleTest {
     }
 
     @Test
+    void validateIsOkWhenNullIsInputTest() throws ValidationException {
+        disallowedValuesValidationRule.validate(null, LOG_CONTEXT);
+    }
+
+    @Test
     void validateThrowsExceptionTest() {
         ValidationException ve = assertThrows(
                 ValidationException.class,

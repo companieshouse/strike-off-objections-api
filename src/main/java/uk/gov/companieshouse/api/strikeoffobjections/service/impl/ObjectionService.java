@@ -26,6 +26,8 @@ import uk.gov.companieshouse.api.strikeoffobjections.model.patcher.ObjectionPatc
 import uk.gov.companieshouse.api.strikeoffobjections.processor.ObjectionProcessor;
 import uk.gov.companieshouse.api.strikeoffobjections.repository.ObjectionRepository;
 import uk.gov.companieshouse.api.strikeoffobjections.service.IObjectionService;
+import uk.gov.companieshouse.api.strikeoffobjections.validation.ActionCodeValidator;
+import uk.gov.companieshouse.api.strikeoffobjections.validation.ValidationException;
 import uk.gov.companieshouse.service.ServiceException;
 import uk.gov.companieshouse.service.ServiceResult;
 import uk.gov.companieshouse.service.links.Links;
@@ -48,44 +50,41 @@ public class ObjectionService implements IObjectionService {
     private static final String ATTACHMENT_NOT_DELETED_SHORT = "Unable to delete attachment %s";
     private static final String INVALID_PATCH_STATUS = "Unable to patch status to %s for Objection id: %s";
 
+    @Autowired
     private ObjectionRepository objectionRepository;
+
+    @Autowired
     private ApiLogger logger;
+
+    @Autowired
     private Supplier<LocalDateTime> dateTimeSupplier;
+
+    @Autowired
     private ObjectionPatcher objectionPatcher;
+
+    @Autowired
     private FileTransferApiClient fileTransferApiClient;
+
+    @Autowired
     private ERICHeaderParser ericHeaderParser;
+
+    @Autowired
     private ObjectionProcessor objectionProcessor;
+
+    @Autowired
     private OracleQueryClient oracleQueryClient;
 
     @Autowired
-    public ObjectionService(ObjectionRepository objectionRepository,
-                            ApiLogger logger,
-                            Supplier<LocalDateTime> dateTimeSupplier,
-                            ObjectionPatcher objectionPatcher,
-                            FileTransferApiClient fileTransferApiClient,
-                            ERICHeaderParser ericHeaderParser,
-                            ObjectionProcessor objectionProcessor,
-                            OracleQueryClient oracleQueryClient) {
-        this.objectionRepository = objectionRepository;
-        this.logger = logger;
-        this.dateTimeSupplier = dateTimeSupplier;
-        this.objectionPatcher = objectionPatcher;
-        this.fileTransferApiClient = fileTransferApiClient;
-        this.ericHeaderParser = ericHeaderParser;
-        this.objectionProcessor = objectionProcessor;
-        this.oracleQueryClient = oracleQueryClient;
-    }
+    private ActionCodeValidator actionCodeValidator;
 
     @Override
     public Objection createObjection(String requestId, String companyNumber, String ericUserId, String ericUserDetails) {
         Map<String, Object> logMap = buildLogMap(companyNumber, null, null);
         logger.infoContext(requestId, "Creating objection", logMap);
 
-        @SuppressWarnings("unused")
-        long actionCode = getActionCode(companyNumber, requestId);
+        final Long actionCode = getActionCode(companyNumber, requestId);
 
-        // TODO OBJ-231 check action code and set eligibility status
-        ObjectionStatus objectionStatus = ObjectionStatus.OPEN;
+        final ObjectionStatus objectionStatus = getObjectionStatusForCreate(actionCode, companyNumber, requestId);
 
         final String userEmailAddress = ericHeaderParser.getEmailAddress(ericUserDetails);
 
@@ -94,10 +93,34 @@ public class ObjectionService implements IObjectionService {
                 .withCreatedOn(dateTimeSupplier.get())
                 .withCreatedBy(new CreatedBy(ericUserId, userEmailAddress))
                 .withHttpRequestId(requestId)
+                .withActionCode(actionCode)
                 .withStatus(objectionStatus)
                 .build();
 
         return objectionRepository.save(entity);
+    }
+
+    private Long getActionCode(String companyNumber, String requestId) {
+        Long actionCode = oracleQueryClient.getCompanyActionCode(companyNumber);
+
+        logger.debugContext(requestId, "Company action code is " + actionCode);
+
+        return actionCode;
+    }
+
+    private ObjectionStatus getObjectionStatusForCreate(Long actionCode, String companyNumber, String logContext) {
+        ObjectionStatus objectionStatus = ObjectionStatus.OPEN;
+        try {
+            actionCodeValidator.validate(actionCode, logContext);
+        } catch (ValidationException validationException) {
+            objectionStatus = validationException.getStatus();
+
+            Map<String, Object> logMap = buildLogMap(companyNumber, null, null);
+            logMap.put(LogConstants.ACTION_CODE.getValue(), actionCode);
+            logMap.put(LogConstants.OBJECTION_STATUS.getValue(), objectionStatus);
+            logger.infoContext(logContext, "Action Code validation failed", logMap);
+        }
+        return objectionStatus;
     }
 
     /**
@@ -317,13 +340,5 @@ public class ObjectionService implements IObjectionService {
             logMap.put(LogConstants.ATTACHMENT_ID.getValue(), attachmentId);
         }
         return logMap;
-    }
-
-    private long getActionCode(String companyNumber, String requestId) {
-        long actionCode = oracleQueryClient.getCompanyActionCode(companyNumber);
-
-        logger.debugContext(requestId, "Company action code is " + actionCode);
- 
-        return actionCode;
     }
 }

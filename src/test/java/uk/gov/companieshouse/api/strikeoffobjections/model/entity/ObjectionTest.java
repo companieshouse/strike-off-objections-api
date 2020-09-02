@@ -42,7 +42,7 @@ public class ObjectionTest {
                        .withCompanyNumber("00006400")
                        .withReason("This is a test")
                        .withStatus(ObjectionStatus.OPEN)
-                       .withActionCode(4400)
+                       .withActionCode(4400L)
                        .build();
 
        objection.addAttachment(attachment);
@@ -61,6 +61,6 @@ public class ObjectionTest {
 
        assertEquals("This is a test", objection.getReason());
        assertEquals(ObjectionStatus.OPEN, objection.getStatus());
-       assertEquals(4400, objection.getActionCode());
+       assertEquals(4400L, objection.getActionCode());
     }
 }

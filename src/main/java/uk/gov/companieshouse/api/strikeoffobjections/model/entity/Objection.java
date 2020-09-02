@@ -19,7 +19,7 @@ public class Objection {
         private String companyNumber;
         private String reason;
         private ObjectionStatus status;
-        private int actionCode;
+        private Long actionCode;
         private String httpRequestId;
 
         public Builder withCreatedOn(LocalDateTime createdOn) {
@@ -48,7 +48,7 @@ public class Objection {
             return this;
         }
 
-        public Builder withActionCode(int actionCode) {
+        public Builder withActionCode(Long actionCode) {
             this.actionCode = actionCode;
             return this;
         }
@@ -86,7 +86,7 @@ public class Objection {
     @Field("status")
     private ObjectionStatus status;
     @Field("action_code")
-    private int actionCode;
+    private Long actionCode;
     @Field("http_request_id")
     @JsonIgnore
     private String httpRequestId;
@@ -153,11 +153,11 @@ public class Objection {
         this.status = status;
     }
 
-    public int getActionCode() {
+    public Long getActionCode() {
         return actionCode;
     }
 
-    public void setActionCode(int actionCode) {
+    public void setActionCode(Long actionCode) {
         this.actionCode = actionCode;
     }
 
