@@ -8,6 +8,9 @@ import org.springframework.web.client.RestTemplate;
 import uk.gov.companieshouse.api.strikeoffobjections.common.ApiLogger;
 import uk.gov.companieshouse.api.strikeoffobjections.model.chips.ChipsRequest;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @Component
 public class ChipsClient {
 
@@ -24,8 +27,14 @@ public class ChipsClient {
     }
 
     public void sendToChips(String requestId, ChipsRequest chipsRequest){
-        apiLogger.infoContext(requestId,
-                String.format("Posting %s to chips rest interfaces", chipsRequest));
+        Map<String, Object> logMap = new HashMap<>();
+        logMap.put("chipsRestUrl", chipsRestUrl);
+
+        apiLogger.infoContext(
+                requestId,
+                String.format("Posting %s to chips rest interfaces", chipsRequest),
+                logMap
+        );
 
         ResponseEntity<String> chipsRestResponse = restTemplate.postForEntity(chipsRestUrl, chipsRequest, String.class);
 
