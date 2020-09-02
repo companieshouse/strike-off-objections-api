@@ -75,7 +75,7 @@ public class ObjectionProcessor {
 
         // TODO update status to PROCESSING
 
-        chipsService.sendObjection(httpRequestId, objection);
+        sendObjectionToChips(objection, httpRequestId);
 
         // TODO update status to CHIPS_SENT
 
@@ -104,6 +104,18 @@ public class ObjectionProcessor {
             apiLogger.errorContext(httpRequestId, statusException.getMessage(), statusException, logMap);
 
             throw statusException;
+        }
+    }
+
+    private void sendObjectionToChips(Objection objection, String httpRequestId) {
+        try {
+            chipsService.sendObjection(httpRequestId, objection);
+        } catch (Exception e) {
+            Map<String, Object> logMap = new HashMap<>();
+            logMap.put(LOG_OBJECTION_ID_KEY, objection.getId());
+            apiLogger.errorContext(httpRequestId, "Error sending objection to CHIPS", e, logMap);
+
+            throw e;
         }
     }
 

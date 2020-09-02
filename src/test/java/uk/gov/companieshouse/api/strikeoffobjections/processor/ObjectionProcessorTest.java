@@ -183,4 +183,17 @@ class ObjectionProcessorTest {
 
         verify(apiLogger, times(1)).errorContext(eq(HTTP_REQUEST_ID), any(), any(), any());
     }
+
+    @Test
+    void processHandlesChipsUncheckedException() throws ServiceException {
+        Objection dummyObjection = Utils.getTestObjection(
+                OBJECTION_ID, REASON, COMPANY_NUMBER, USER_ID, EMAIL, LOCAL_DATE_TIME);
+        dummyObjection.setStatus(ObjectionStatus.SUBMITTED);
+
+        doThrow(new RuntimeException("blah")).when(chipsService).sendObjection(any(), any());
+
+        assertThrows(RuntimeException.class, () -> objectionProcessor.process(dummyObjection, HTTP_REQUEST_ID));
+
+        verify(apiLogger, times(1)).errorContext(eq(HTTP_REQUEST_ID), any(), any(), any());
+    }
 }
