@@ -18,6 +18,7 @@ public class ChipsService implements IChipsService {
         this.chipsClient = chipsClient;
     }
 
+    @Override
     public void sendObjection(String requestId, Objection objection) {
         ChipsRequest chipsRequest = new ChipsRequest(
                 objection.getId(),
