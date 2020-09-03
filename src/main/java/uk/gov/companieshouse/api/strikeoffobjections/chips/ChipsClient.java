@@ -32,7 +32,7 @@ public class ChipsClient {
 
         apiLogger.infoContext(
                 requestId,
-                String.format("Posting %s to chips rest interfaces", chipsRequest),
+                String.format("Posting %s to CHIPS rest interfaces", chipsRequest),
                 logMap
         );
 
