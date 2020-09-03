@@ -1,19 +1,21 @@
 package uk.gov.companieshouse.api.strikeoffobjections.processor;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
 import uk.gov.companieshouse.api.model.company.CompanyProfileApi;
 import uk.gov.companieshouse.api.strikeoffobjections.common.ApiLogger;
 import uk.gov.companieshouse.api.strikeoffobjections.common.LogConstants;
 import uk.gov.companieshouse.api.strikeoffobjections.exception.InvalidObjectionStatusException;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Objection;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.ObjectionStatus;
+import uk.gov.companieshouse.api.strikeoffobjections.service.IChipsService;
 import uk.gov.companieshouse.api.strikeoffobjections.service.ICompanyProfileService;
 import uk.gov.companieshouse.api.strikeoffobjections.service.IEmailService;
 import uk.gov.companieshouse.service.ServiceException;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Processes an Objection
@@ -31,14 +33,17 @@ public class ObjectionProcessor {
 
     private IEmailService emailService;
     private ICompanyProfileService companyProfileService;
+    private IChipsService chipsService;
     private ApiLogger apiLogger;
 
     @Autowired
     public ObjectionProcessor(IEmailService emailService,
                               ICompanyProfileService companyProfileService,
+                              IChipsService chipsService,
                               ApiLogger apiLogger) {
         this.emailService = emailService;
         this.companyProfileService = companyProfileService;
+        this.chipsService = chipsService;
         this.apiLogger = apiLogger;
     }
 
@@ -70,7 +75,7 @@ public class ObjectionProcessor {
 
         // TODO update status to PROCESSING
 
-        // TODO OBJ-139/OBJ-20 do chips sending
+        sendObjectionToChips(objection, httpRequestId);
 
         // TODO update status to CHIPS_SENT
 
@@ -99,6 +104,18 @@ public class ObjectionProcessor {
             apiLogger.errorContext(httpRequestId, statusException.getMessage(), statusException, logMap);
 
             throw statusException;
+        }
+    }
+
+    private void sendObjectionToChips(Objection objection, String httpRequestId) {
+        try {
+            chipsService.sendObjection(httpRequestId, objection);
+        } catch (Exception e) {
+            Map<String, Object> logMap = new HashMap<>();
+            logMap.put(LOG_OBJECTION_ID_KEY, objection.getId());
+            apiLogger.errorContext(httpRequestId, "Error sending objection to CHIPS", e, logMap);
+
+            throw e;
         }
     }
 

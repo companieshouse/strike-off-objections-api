@@ -1,22 +1,5 @@
 package uk.gov.companieshouse.api.strikeoffobjections.processor;
 
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import uk.gov.companieshouse.api.strikeoffobjections.common.ApiLogger;
-import uk.gov.companieshouse.api.strikeoffobjections.exception.InvalidObjectionStatusException;
-import uk.gov.companieshouse.api.strikeoffobjections.groups.Unit;
-import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Objection;
-import uk.gov.companieshouse.api.strikeoffobjections.model.entity.ObjectionStatus;
-import uk.gov.companieshouse.api.strikeoffobjections.service.ICompanyProfileService;
-import uk.gov.companieshouse.api.strikeoffobjections.service.IEmailService;
-import uk.gov.companieshouse.api.strikeoffobjections.utils.Utils;
-import uk.gov.companieshouse.service.ServiceException;
-
-import java.time.LocalDateTime;
-
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -25,6 +8,25 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import java.time.LocalDateTime;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import uk.gov.companieshouse.api.strikeoffobjections.common.ApiLogger;
+import uk.gov.companieshouse.api.strikeoffobjections.exception.InvalidObjectionStatusException;
+import uk.gov.companieshouse.api.strikeoffobjections.groups.Unit;
+import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Objection;
+import uk.gov.companieshouse.api.strikeoffobjections.model.entity.ObjectionStatus;
+import uk.gov.companieshouse.api.strikeoffobjections.service.IChipsService;
+import uk.gov.companieshouse.api.strikeoffobjections.service.ICompanyProfileService;
+import uk.gov.companieshouse.api.strikeoffobjections.service.IEmailService;
+import uk.gov.companieshouse.api.strikeoffobjections.utils.Utils;
+import uk.gov.companieshouse.service.ServiceException;
 
 @Unit
 @ExtendWith(MockitoExtension.class)
@@ -49,6 +51,9 @@ class ObjectionProcessorTest {
 
     @Mock
     private ICompanyProfileService companyProfileService;
+
+    @Mock
+    private IChipsService chipsService;
 
     @InjectMocks
     private ObjectionProcessor objectionProcessor;
@@ -132,7 +137,7 @@ class ObjectionProcessorTest {
     }
 
     @Test
-    void processSendsCustomerEmail() throws Exception {
+    void processCallsChipsAndSendsCustomerEmail() throws Exception {
         Objection dummyObjection = Utils.getTestObjection(
                 OBJECTION_ID, REASON, COMPANY_NUMBER, USER_ID, EMAIL, LOCAL_DATE_TIME);
         dummyObjection.setStatus(ObjectionStatus.SUBMITTED);
@@ -142,6 +147,7 @@ class ObjectionProcessorTest {
 
         objectionProcessor.process(dummyObjection, HTTP_REQUEST_ID);
 
+        verify(chipsService, times(1)).sendObjection(HTTP_REQUEST_ID, dummyObjection);
         verify(emailService, times(1))
                 .sendObjectionSubmittedCustomerEmail(dummyObjection, COMPANY_NAME, HTTP_REQUEST_ID);
     }
@@ -172,6 +178,19 @@ class ObjectionProcessorTest {
         dummyObjection.setStatus(ObjectionStatus.SUBMITTED);
 
         doThrow(new RuntimeException("blah")).when(emailService).sendObjectionSubmittedCustomerEmail(any(), any(), any());
+
+        assertThrows(RuntimeException.class, () -> objectionProcessor.process(dummyObjection, HTTP_REQUEST_ID));
+
+        verify(apiLogger, times(1)).errorContext(eq(HTTP_REQUEST_ID), any(), any(), any());
+    }
+
+    @Test
+    void processHandlesChipsUncheckedException() throws ServiceException {
+        Objection dummyObjection = Utils.getTestObjection(
+                OBJECTION_ID, REASON, COMPANY_NUMBER, USER_ID, EMAIL, LOCAL_DATE_TIME);
+        dummyObjection.setStatus(ObjectionStatus.SUBMITTED);
+
+        doThrow(new RuntimeException("blah")).when(chipsService).sendObjection(any(), any());
 
         assertThrows(RuntimeException.class, () -> objectionProcessor.process(dummyObjection, HTTP_REQUEST_ID));
 
