@@ -126,6 +126,8 @@ public class Utils {
         Map<String, Object> data = new HashMap<>();
         data.put("to", "example@test.co.uk");
         data.put("subject", "Test objection submitted");
+        data.put("full_name", "Joe Bloggs");
+        data.put("share_identity", false);
         data.put("company_name", "TEST COMPANY");
         data.put("company_number", "00001111");
         data.put("reason", "Testing this");

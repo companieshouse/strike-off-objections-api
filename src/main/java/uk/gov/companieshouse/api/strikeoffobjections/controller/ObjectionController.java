@@ -21,6 +21,7 @@ import uk.gov.companieshouse.api.strikeoffobjections.common.LogConstants;
 import uk.gov.companieshouse.api.strikeoffobjections.exception.AttachmentNotFoundException;
 import uk.gov.companieshouse.api.strikeoffobjections.exception.ObjectionNotFoundException;
 import uk.gov.companieshouse.api.strikeoffobjections.file.FileTransferApiClientResponse;
+import uk.gov.companieshouse.api.strikeoffobjections.model.create.ObjectionCreate;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Attachment;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Objection;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.ObjectionStatus;
@@ -134,7 +135,8 @@ public class ObjectionController {
             @PathVariable("companyNumber") String companyNumber,
             @RequestHeader(value = ERIC_REQUEST_ID) String requestId,
             @RequestHeader(value = ERIC_IDENTITY) String ericUserId,
-            @RequestHeader(value = ERIC_AUTHORISED_USER) String ericUserDetails
+            @RequestHeader(value = ERIC_AUTHORISED_USER) String ericUserDetails,
+            @RequestBody ObjectionCreate objectionCreate
     ) {
         Map<String, Object> logMap = new HashMap<>();
         logMap.put(LOG_COMPANY_NUMBER_KEY, companyNumber);
@@ -146,7 +148,12 @@ public class ObjectionController {
         );
 
         try {
-            Objection objection = objectionService.createObjection(requestId, companyNumber, ericUserId, ericUserDetails);
+            Objection objection = objectionService.createObjection(
+                    requestId,
+                    companyNumber,
+                    ericUserId,
+                    ericUserDetails,
+                    objectionCreate);
             ObjectionStatus objectionStatus = objection.getStatus();
             if (objectionStatus.isIneligible()) {
                ObjectionResponseDTO response = new ObjectionResponseDTO();

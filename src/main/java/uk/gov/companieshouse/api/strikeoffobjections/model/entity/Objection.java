@@ -21,6 +21,8 @@ public class Objection {
         private ObjectionStatus status;
         private Long actionCode;
         private String httpRequestId;
+        private String fullName;
+        private boolean shareIdentity;
 
         public Builder withCreatedOn(LocalDateTime createdOn) {
             this.createdOn = createdOn;
@@ -42,7 +44,6 @@ public class Objection {
             return this;
         }
 
-
         public Builder withStatus(ObjectionStatus status) {
             this.status = status;
             return this;
@@ -58,6 +59,16 @@ public class Objection {
             return this;
         }
 
+        public Builder withFullName(String fullName){
+            this.fullName = fullName;
+            return this;
+        }
+
+        public Builder withShareIdentity(boolean shareIdentity){
+            this.shareIdentity = shareIdentity;
+            return this;
+        }
+
         public Objection build() {
             Objection objection = new Objection();
             objection.setCreatedOn(this.createdOn);
@@ -67,6 +78,8 @@ public class Objection {
             objection.setStatus(this.status);
             objection.setActionCode(actionCode);
             objection.setHttpRequestId(this.httpRequestId);
+            objection.setFullName(this.fullName);
+            objection.setShareIdentity(this.shareIdentity);
             return objection;
         }
     }
@@ -90,6 +103,10 @@ public class Objection {
     @Field("http_request_id")
     @JsonIgnore
     private String httpRequestId;
+    @Field("full_name")
+    private String fullName;
+    @Field("share_identity")
+    private boolean shareIdentity;
 
     public String getId() {
         return id;
@@ -169,4 +186,19 @@ public class Objection {
         this.httpRequestId = httpRequestId;
     }
 
+    public String getFullName() {
+        return fullName;
+    }
+
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
+    }
+
+    public boolean canShareIdentity() {
+        return shareIdentity;
+    }
+
+    public void setShareIdentity(boolean shareIdentity) {
+        this.shareIdentity = shareIdentity;
+    }
 }

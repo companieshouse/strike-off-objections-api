@@ -21,6 +21,7 @@ import uk.gov.companieshouse.api.strikeoffobjections.file.FileTransferApiClient;
 import uk.gov.companieshouse.api.strikeoffobjections.file.FileTransferApiClientResponse;
 import uk.gov.companieshouse.api.strikeoffobjections.file.ObjectionsLinkKeys;
 import uk.gov.companieshouse.api.strikeoffobjections.groups.Unit;
+import uk.gov.companieshouse.api.strikeoffobjections.model.create.ObjectionCreate;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Attachment;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.CreatedBy;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Objection;
@@ -77,6 +78,7 @@ class ObjectionServiceTest {
     private static final Long ACTION_CODE_OK = 3000L;
     private static final Long ACTION_CODE_INELIGIBLE = 200L;
     private static final LocalDateTime MOCKED_TIME_STAMP = LocalDateTime.of(2020, 2,2, 0, 0);
+    private static final String FULL_NAME = "Joe Bloggs";
 
     @Mock
     private ApiLogger apiLogger;
@@ -124,7 +126,11 @@ class ObjectionServiceTest {
         when(ericHeaderParser.getEmailAddress(AUTH_USER)).thenReturn(E_MAIL);
         when(oracleQueryClient.getCompanyActionCode(COMPANY_NUMBER)).thenReturn(ACTION_CODE_OK);
 
-        Objection objectionResponse = objectionService.createObjection(REQUEST_ID, COMPANY_NUMBER, AUTH_ID, AUTH_USER);
+        ObjectionCreate objectionCreate = new ObjectionCreate();
+        objectionCreate.setFullName(FULL_NAME);
+        objectionCreate.setShareIdentity(false);
+        Objection objectionResponse =
+                objectionService.createObjection(REQUEST_ID, COMPANY_NUMBER, AUTH_ID, AUTH_USER, objectionCreate);
 
         verify(objectionRepository).save(any());
         verify(oracleQueryClient).getCompanyActionCode(COMPANY_NUMBER);
@@ -159,7 +165,10 @@ class ObjectionServiceTest {
         ValidationException ve = new ValidationException(INELIGIBLE_COMPANY_STRUCK_OFF);
         doThrow(ve).when(actionCodeValidator).validate(ACTION_CODE_INELIGIBLE, REQUEST_ID);
 
-        objectionService.createObjection(REQUEST_ID, COMPANY_NUMBER, AUTH_ID, AUTH_USER);
+        ObjectionCreate objectionCreate = new ObjectionCreate();
+        objectionCreate.setFullName(FULL_NAME);
+        objectionCreate.setShareIdentity(false);
+        objectionService.createObjection(REQUEST_ID, COMPANY_NUMBER, AUTH_ID, AUTH_USER, objectionCreate);
 
         ArgumentCaptor<Objection> saveObjectionCaptor = ArgumentCaptor.forClass(Objection.class);
         verify(objectionRepository, times(1)).save(saveObjectionCaptor.capture());

@@ -19,6 +19,7 @@ import uk.gov.companieshouse.api.strikeoffobjections.exception.InvalidObjectionS
 import uk.gov.companieshouse.api.strikeoffobjections.exception.ObjectionNotFoundException;
 import uk.gov.companieshouse.api.strikeoffobjections.file.FileTransferApiClientResponse;
 import uk.gov.companieshouse.api.strikeoffobjections.groups.Unit;
+import uk.gov.companieshouse.api.strikeoffobjections.model.create.ObjectionCreate;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Attachment;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Objection;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.ObjectionStatus;
@@ -63,6 +64,7 @@ class ObjectionControllerTest {
     private static final String ATTACHMENT_ID = "12348765";
     private static final String REASON = "REASON";
     private static final String ACCESS_URL = "/dummyUrl";
+    private static final String FULL_NAME = "Joe Bloggs";
 
     @Mock
     private IObjectionService objectionService;
@@ -87,10 +89,19 @@ class ObjectionControllerTest {
 
     @Test
     void createObjectionTest() {
+        ObjectionCreate objectionCreate = new ObjectionCreate();
+        objectionCreate.setFullName(FULL_NAME);
+        objectionCreate.setShareIdentity(false);
         Objection objection = new Objection();
         objection.setId(OBJECTION_ID);
         objection.setStatus(ObjectionStatus.SUBMITTED);
-        when(objectionService.createObjection(REQUEST_ID, COMPANY_NUMBER, AUTH_ID, AUTH_USER)).thenReturn(objection);
+        when(objectionService.createObjection(
+                REQUEST_ID,
+                COMPANY_NUMBER,
+                AUTH_ID,
+                AUTH_USER,
+                objectionCreate
+                )).thenReturn(objection);
 
         ObjectionResponseDTO objectionDTO = new ObjectionResponseDTO();
         objectionDTO.setId(OBJECTION_ID);
@@ -98,7 +109,12 @@ class ObjectionControllerTest {
         when(pluggableResponseEntityFactory.createResponse(any(ServiceResult.class))).thenReturn(
                 ResponseEntity.status(HttpStatus.CREATED).body(ChResponseBody.createNormalBody(objectionDTO)));
 
-        ResponseEntity<ChResponseBody<ObjectionResponseDTO>> response = objectionController.createObjection(COMPANY_NUMBER, REQUEST_ID, AUTH_ID, AUTH_USER);
+        ResponseEntity<ChResponseBody<ObjectionResponseDTO>> response = objectionController.createObjection(
+                COMPANY_NUMBER,
+                REQUEST_ID,
+                AUTH_ID,
+                AUTH_USER,
+                objectionCreate);
 
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
 
@@ -111,12 +127,16 @@ class ObjectionControllerTest {
 
     @Test
     void createObjectionEligibilityErrorTest() {
+        ObjectionCreate objectionCreate = new ObjectionCreate();
+        objectionCreate.setFullName(FULL_NAME);
+        objectionCreate.setShareIdentity(false);
         Objection objection = new Objection();
         objection.setId(OBJECTION_ID);
         objection.setStatus(ObjectionStatus.INELIGIBLE_COMPANY_STRUCK_OFF);
-        when(objectionService.createObjection(REQUEST_ID, COMPANY_NUMBER, AUTH_ID, AUTH_USER)).thenReturn(objection);
+        when(objectionService.createObjection(REQUEST_ID, COMPANY_NUMBER, AUTH_ID, AUTH_USER, objectionCreate)).thenReturn(objection);
 
-        ResponseEntity<ChResponseBody<ObjectionResponseDTO>> response = objectionController.createObjection(COMPANY_NUMBER, REQUEST_ID, AUTH_ID, AUTH_USER);
+        ResponseEntity<ChResponseBody<ObjectionResponseDTO>> response =
+                objectionController.createObjection(COMPANY_NUMBER, REQUEST_ID, AUTH_ID, AUTH_USER, objectionCreate);
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         assertNotNull(response.getBody());
@@ -127,13 +147,17 @@ class ObjectionControllerTest {
 
     @Test
     void createObjectionExceptionTest() {
-        when(objectionService.createObjection(REQUEST_ID, COMPANY_NUMBER, AUTH_ID, AUTH_USER))
+        ObjectionCreate objectionCreate = new ObjectionCreate();
+        objectionCreate.setFullName(FULL_NAME);
+        objectionCreate.setShareIdentity(false);
+        when(objectionService.createObjection(REQUEST_ID, COMPANY_NUMBER, AUTH_ID, AUTH_USER, objectionCreate))
                 .thenThrow(new RuntimeException("ERROR MESSAGE"));
         when(pluggableResponseEntityFactory.createEmptyInternalServerError()).thenReturn(
                 ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build()
         );
 
-        ResponseEntity<ChResponseBody<ObjectionResponseDTO>> response = objectionController.createObjection(COMPANY_NUMBER, REQUEST_ID, AUTH_ID, AUTH_USER);
+        ResponseEntity<ChResponseBody<ObjectionResponseDTO>> response
+                = objectionController.createObjection(COMPANY_NUMBER, REQUEST_ID, AUTH_ID, AUTH_USER, objectionCreate);
 
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
     }

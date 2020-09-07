@@ -17,6 +17,7 @@ import uk.gov.companieshouse.api.strikeoffobjections.exception.ObjectionNotFound
 import uk.gov.companieshouse.api.strikeoffobjections.file.FileTransferApiClient;
 import uk.gov.companieshouse.api.strikeoffobjections.file.FileTransferApiClientResponse;
 import uk.gov.companieshouse.api.strikeoffobjections.file.ObjectionsLinkKeys;
+import uk.gov.companieshouse.api.strikeoffobjections.model.create.ObjectionCreate;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Attachment;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.CreatedBy;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Objection;
@@ -78,7 +79,11 @@ public class ObjectionService implements IObjectionService {
     private ActionCodeValidator actionCodeValidator;
 
     @Override
-    public Objection createObjection(String requestId, String companyNumber, String ericUserId, String ericUserDetails) {
+    public Objection createObjection(String requestId,
+                                     String companyNumber,
+                                     String ericUserId,
+                                     String ericUserDetails,
+                                     ObjectionCreate objectionCreate) {
         Map<String, Object> logMap = buildLogMap(companyNumber, null, null);
         logger.infoContext(requestId, "Creating objection", logMap);
 
@@ -95,6 +100,8 @@ public class ObjectionService implements IObjectionService {
                 .withHttpRequestId(requestId)
                 .withActionCode(actionCode)
                 .withStatus(objectionStatus)
+                .withFullName(objectionCreate.getFullName())
+                .withShareIdentity(objectionCreate.canShareIdentity())
                 .build();
 
         return objectionRepository.save(entity);
