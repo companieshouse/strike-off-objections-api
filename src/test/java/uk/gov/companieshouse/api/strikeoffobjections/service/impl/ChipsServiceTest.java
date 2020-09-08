@@ -42,7 +42,8 @@ public class ChipsServiceTest {
     @Test
     void testSendingToChipsCreatesCorrectRequest() throws ServiceException {
         Objection objection = Utils.getTestObjection(
-                OBJECTION_ID, REASON, COMPANY_NUMBER, USER_ID, EMAIL, LOCAL_DATE_TIME);
+                OBJECTION_ID, REASON, COMPANY_NUMBER, USER_ID, EMAIL, LOCAL_DATE_TIME,
+                Utils.buildTestObjectionCreate("Joe Bloggs", false));
 
         chipsService.sendObjection(REQUEST_ID, objection);
         ArgumentCaptor<ChipsRequest> chipsRequestArgumentCaptor = ArgumentCaptor.forClass(ChipsRequest.class);

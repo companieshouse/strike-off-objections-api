@@ -100,6 +100,8 @@ class ObjectionControllerTest {
         when(objectionService.createObjection(
                 eq(REQUEST_ID),
                 eq(COMPANY_NUMBER),
+                eq(AUTH_ID),
+                eq(AUTH_USER),
                 any()
                 )).thenReturn(objection);
 
@@ -133,7 +135,8 @@ class ObjectionControllerTest {
         Objection objection = new Objection();
         objection.setId(OBJECTION_ID);
         objection.setStatus(ObjectionStatus.INELIGIBLE_COMPANY_STRUCK_OFF);
-        when(objectionService.createObjection(eq(REQUEST_ID), eq(COMPANY_NUMBER), any())).thenReturn(objection);
+        when(objectionService.createObjection(eq(REQUEST_ID), eq(COMPANY_NUMBER),
+                eq(AUTH_ID), eq(AUTH_USER), any())).thenReturn(objection);
 
         ResponseEntity<ChResponseBody<ObjectionResponseDTO>> response =
                 objectionController.createObjection(COMPANY_NUMBER, REQUEST_ID, AUTH_ID, AUTH_USER, objectionCreate);
@@ -150,7 +153,8 @@ class ObjectionControllerTest {
         ObjectionCreate objectionCreate = new ObjectionCreate();
         objectionCreate.setFullName(FULL_NAME);
         objectionCreate.setShareIdentity(false);
-        when(objectionService.createObjection(eq(REQUEST_ID), eq(COMPANY_NUMBER), any()))
+        when(objectionService.createObjection(eq(REQUEST_ID), eq(COMPANY_NUMBER),
+                eq(AUTH_ID), eq(AUTH_USER), any()))
                 .thenThrow(new RuntimeException("ERROR MESSAGE"));
         when(pluggableResponseEntityFactory.createEmptyInternalServerError()).thenReturn(
                 ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build()

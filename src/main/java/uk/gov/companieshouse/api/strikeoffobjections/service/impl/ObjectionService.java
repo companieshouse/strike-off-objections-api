@@ -18,7 +18,6 @@ import uk.gov.companieshouse.api.strikeoffobjections.file.FileTransferApiClient;
 import uk.gov.companieshouse.api.strikeoffobjections.file.FileTransferApiClientResponse;
 import uk.gov.companieshouse.api.strikeoffobjections.file.ObjectionsLinkKeys;
 import uk.gov.companieshouse.api.strikeoffobjections.model.create.ObjectionCreate;
-import uk.gov.companieshouse.api.strikeoffobjections.model.create.ObjectionUserDetails;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Attachment;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.CreatedBy;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Objection;
@@ -82,7 +81,9 @@ public class ObjectionService implements IObjectionService {
     @Override
     public Objection createObjection(String requestId,
                                      String companyNumber,
-                                     ObjectionUserDetails userDetails) {
+                                     String ericUserId,
+                                     String ericUserDetails,
+                                     ObjectionCreate objectionCreate) {
 
         Map<String, Object> logMap = buildLogMap(companyNumber, null, null);
         logger.infoContext(requestId, "Creating objection", logMap);
@@ -93,30 +94,21 @@ public class ObjectionService implements IObjectionService {
         Objection entity = new Objection.Builder()
                 .withCompanyNumber(companyNumber)
                 .withCreatedOn(dateTimeSupplier.get())
-                .withCreatedBy(userDetails.getCreatedby())
+                .withCreatedBy(buildCreatedBy(ericUserId, ericUserDetails, objectionCreate))
                 .withHttpRequestId(requestId)
                 .withActionCode(actionCode)
                 .withStatus(objectionStatus)
-                .withFullName(userDetails.getFullName())
-                .withShareIdentity(userDetails.canShareIdentity())
                 .build();
 
         return objectionRepository.save(entity);
     }
 
-    @Override
-    public ObjectionUserDetails buildUserDetails(String ericUserId,
-                                                 String ericUserDetails,
-                                                 ObjectionCreate objectionCreate) {
-        ObjectionUserDetails userDetails = new ObjectionUserDetails();
-        userDetails.setFullName(objectionCreate.getFullName());
-        userDetails.setShareIdentity(objectionCreate.canShareIdentity());
+    private CreatedBy buildCreatedBy(String ericUserId,
+                                     String ericUserDetails,
+                                     ObjectionCreate objectionCreate) {
         final String userEmailAddress = ericHeaderParser.getEmailAddress(ericUserDetails);
-        userDetails.setUserEmailAddress(userEmailAddress);
-        userDetails.setCreatedby(new CreatedBy(ericUserId, userEmailAddress));
-
-        return userDetails;
-
+        return new CreatedBy(ericUserId, userEmailAddress,
+                objectionCreate.getFullName(), objectionCreate.canShareIdentity());
     }
 
     private Long getActionCode(String companyNumber, String requestId) {
