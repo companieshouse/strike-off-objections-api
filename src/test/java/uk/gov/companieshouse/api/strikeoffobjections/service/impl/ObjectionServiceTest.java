@@ -222,8 +222,8 @@ class ObjectionServiceTest {
 
         objectionService.patchObjection( OBJECTION_ID, objectionPatch, REQUEST_ID, COMPANY_NUMBER);
 
-        verify(objectionRepository, times(1)).save(objection);
-        verify(objectionProcessor, only()).process(objection, REQUEST_ID);
+        verify(objectionRepository, times(2)).save(objection);
+        verify(objectionProcessor, only()).process(eq(objection), eq(REQUEST_ID), any());
     }
 
     @Test
@@ -241,13 +241,13 @@ class ObjectionServiceTest {
 
         when(objectionRepository.findById(any())).thenReturn(Optional.of(existingObjection));
         when(objectionPatcher.patchObjection(any(), any(), any())).thenReturn(objection);
-        doThrow(new InvalidObjectionStatusException("Invalid")).when(objectionProcessor).process(any(), any());
+        doThrow(new InvalidObjectionStatusException("Invalid")).when(objectionProcessor).process(any(), any(), any());
 
         assertThrows(InvalidObjectionStatusException.class,
                 () -> objectionService.patchObjection( OBJECTION_ID, objectionPatch, REQUEST_ID, COMPANY_NUMBER));
 
-        verify(objectionRepository, times(1)).save(objection);
-        verify(objectionProcessor, only()).process(objection, REQUEST_ID);
+        verify(objectionRepository, times(2)).save(objection);
+        verify(objectionProcessor, only()).process(eq(objection), eq(REQUEST_ID), any());
     }
 
     @Test

@@ -1,5 +1,6 @@
 package uk.gov.companieshouse.api.strikeoffobjections.processor;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -12,6 +13,7 @@ import uk.gov.companieshouse.api.strikeoffobjections.common.LogConstants;
 import uk.gov.companieshouse.api.strikeoffobjections.exception.InvalidObjectionStatusException;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Objection;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.ObjectionStatus;
+import uk.gov.companieshouse.api.strikeoffobjections.model.patch.ObjectionPatch;
 import uk.gov.companieshouse.api.strikeoffobjections.service.IChipsService;
 import uk.gov.companieshouse.api.strikeoffobjections.service.ICompanyProfileService;
 import uk.gov.companieshouse.api.strikeoffobjections.service.IEmailService;
@@ -53,9 +55,10 @@ public class ObjectionProcessor {
      *
      * @param objection     the objection to process
      * @param httpRequestId http request id used for logging
+     * @param out an ObjectionPatch that is updated as the objection is processed
      * @throws InvalidObjectionStatusException if the Objection is not currently in status SUBMITTED when this is called
      */
-    public void process(Objection objection, String httpRequestId)
+    public void process(Objection objection, String httpRequestId, ObjectionPatch out)
             throws InvalidObjectionStatusException, ServiceException {
 
         if (objection == null) {
@@ -73,21 +76,25 @@ public class ObjectionProcessor {
 
         validateObjectionStatus(objection, httpRequestId);
 
-        // TODO update status to PROCESSING
+        out.setStatus(ObjectionStatus.PROCESSING);
+        out.setCreatedOn(LocalDateTime.now());
 
         sendObjectionToChips(objection, httpRequestId);
 
-        // TODO update status to CHIPS_SENT
+        out.setStatus(ObjectionStatus.CHIPS_SENT);
+        out.setCreatedOn(LocalDateTime.now());
 
         CompanyProfileApi companyProfile = this.companyProfileService.getCompanyProfile(objection.getCompanyNumber(), httpRequestId);
 
         sendInternalEmail(objection, companyProfile, httpRequestId);
 
-        // TODO update status to INTERNAL_EMAIL_SENT
+        out.setStatus(ObjectionStatus.INTERNAL_EMAIL_SENT);
+        out.setCreatedOn(LocalDateTime.now());
 
         sendExternalEmail(objection, companyProfile, httpRequestId);
 
-        // TODO update status to processed
+        out.setStatus(ObjectionStatus.PROCESSED);
+        out.setCreatedOn(LocalDateTime.now());
 
     }
 

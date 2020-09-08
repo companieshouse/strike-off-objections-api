@@ -17,6 +17,10 @@ public class ObjectionPatcher {
             existingObjection.setStatus(objectionPatch.getStatus());
         }
 
+        if (objectionPatch.getCreatedOn() != null) {
+            existingObjection.setCreatedOn(objectionPatch.getCreatedOn());
+        }
+
         return existingObjection;
     }
 }
