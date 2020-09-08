@@ -8,6 +8,7 @@ import uk.gov.companieshouse.api.strikeoffobjections.exception.InvalidObjectionS
 import uk.gov.companieshouse.api.strikeoffobjections.exception.ObjectionNotFoundException;
 import uk.gov.companieshouse.api.strikeoffobjections.file.FileTransferApiClientResponse;
 import uk.gov.companieshouse.api.strikeoffobjections.model.create.ObjectionCreate;
+import uk.gov.companieshouse.api.strikeoffobjections.model.create.ObjectionUserDetails;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Attachment;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Objection;
 import uk.gov.companieshouse.api.strikeoffobjections.model.patch.ObjectionPatch;
@@ -19,9 +20,11 @@ import javax.servlet.http.HttpServletResponse;
 public interface IObjectionService {
     Objection createObjection(String requestId,
                               String companyNumber,
-                              String ericUserId,
-                              String ericUserDetails,
-                              ObjectionCreate objectionCreate);
+                              ObjectionUserDetails userDetails);
+
+    ObjectionUserDetails buildUserDetails(String ericUserId,
+                                          String ericUserDetails,
+                                          ObjectionCreate objectionCreate);
 
     void patchObjection(String objectionId, ObjectionPatch objectionPatch, String requestId, String companyNumber)
             throws ObjectionNotFoundException, InvalidObjectionStatusException, ServiceException;

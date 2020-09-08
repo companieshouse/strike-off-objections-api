@@ -22,6 +22,7 @@ import uk.gov.companieshouse.api.strikeoffobjections.file.FileTransferApiClientR
 import uk.gov.companieshouse.api.strikeoffobjections.file.ObjectionsLinkKeys;
 import uk.gov.companieshouse.api.strikeoffobjections.groups.Unit;
 import uk.gov.companieshouse.api.strikeoffobjections.model.create.ObjectionCreate;
+import uk.gov.companieshouse.api.strikeoffobjections.model.create.ObjectionUserDetails;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Attachment;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.CreatedBy;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Objection;
@@ -129,8 +130,9 @@ class ObjectionServiceTest {
         ObjectionCreate objectionCreate = new ObjectionCreate();
         objectionCreate.setFullName(FULL_NAME);
         objectionCreate.setShareIdentity(false);
+        ObjectionUserDetails userDetails = objectionService.buildUserDetails(AUTH_ID, AUTH_USER, objectionCreate);
         Objection objectionResponse =
-                objectionService.createObjection(REQUEST_ID, COMPANY_NUMBER, AUTH_ID, AUTH_USER, objectionCreate);
+                objectionService.createObjection(REQUEST_ID, COMPANY_NUMBER, userDetails);
 
         verify(objectionRepository).save(any());
         verify(oracleQueryClient).getCompanyActionCode(COMPANY_NUMBER);
@@ -168,7 +170,8 @@ class ObjectionServiceTest {
         ObjectionCreate objectionCreate = new ObjectionCreate();
         objectionCreate.setFullName(FULL_NAME);
         objectionCreate.setShareIdentity(false);
-        objectionService.createObjection(REQUEST_ID, COMPANY_NUMBER, AUTH_ID, AUTH_USER, objectionCreate);
+        ObjectionUserDetails userDetails = objectionService.buildUserDetails(AUTH_ID, AUTH_USER, objectionCreate);
+        objectionService.createObjection(REQUEST_ID, COMPANY_NUMBER, userDetails);
 
         ArgumentCaptor<Objection> saveObjectionCaptor = ArgumentCaptor.forClass(Objection.class);
         verify(objectionRepository, times(1)).save(saveObjectionCaptor.capture());

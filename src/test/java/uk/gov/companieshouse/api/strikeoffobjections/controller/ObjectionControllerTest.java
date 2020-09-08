@@ -47,6 +47,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -95,12 +96,11 @@ class ObjectionControllerTest {
         Objection objection = new Objection();
         objection.setId(OBJECTION_ID);
         objection.setStatus(ObjectionStatus.SUBMITTED);
+
         when(objectionService.createObjection(
-                REQUEST_ID,
-                COMPANY_NUMBER,
-                AUTH_ID,
-                AUTH_USER,
-                objectionCreate
+                eq(REQUEST_ID),
+                eq(COMPANY_NUMBER),
+                any()
                 )).thenReturn(objection);
 
         ObjectionResponseDTO objectionDTO = new ObjectionResponseDTO();
@@ -133,7 +133,7 @@ class ObjectionControllerTest {
         Objection objection = new Objection();
         objection.setId(OBJECTION_ID);
         objection.setStatus(ObjectionStatus.INELIGIBLE_COMPANY_STRUCK_OFF);
-        when(objectionService.createObjection(REQUEST_ID, COMPANY_NUMBER, AUTH_ID, AUTH_USER, objectionCreate)).thenReturn(objection);
+        when(objectionService.createObjection(eq(REQUEST_ID), eq(COMPANY_NUMBER), any())).thenReturn(objection);
 
         ResponseEntity<ChResponseBody<ObjectionResponseDTO>> response =
                 objectionController.createObjection(COMPANY_NUMBER, REQUEST_ID, AUTH_ID, AUTH_USER, objectionCreate);
@@ -150,7 +150,7 @@ class ObjectionControllerTest {
         ObjectionCreate objectionCreate = new ObjectionCreate();
         objectionCreate.setFullName(FULL_NAME);
         objectionCreate.setShareIdentity(false);
-        when(objectionService.createObjection(REQUEST_ID, COMPANY_NUMBER, AUTH_ID, AUTH_USER, objectionCreate))
+        when(objectionService.createObjection(eq(REQUEST_ID), eq(COMPANY_NUMBER), any()))
                 .thenThrow(new RuntimeException("ERROR MESSAGE"));
         when(pluggableResponseEntityFactory.createEmptyInternalServerError()).thenReturn(
                 ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build()

@@ -22,6 +22,7 @@ import uk.gov.companieshouse.api.strikeoffobjections.exception.AttachmentNotFoun
 import uk.gov.companieshouse.api.strikeoffobjections.exception.ObjectionNotFoundException;
 import uk.gov.companieshouse.api.strikeoffobjections.file.FileTransferApiClientResponse;
 import uk.gov.companieshouse.api.strikeoffobjections.model.create.ObjectionCreate;
+import uk.gov.companieshouse.api.strikeoffobjections.model.create.ObjectionUserDetails;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Attachment;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Objection;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.ObjectionStatus;
@@ -148,12 +149,15 @@ public class ObjectionController {
         );
 
         try {
-            Objection objection = objectionService.createObjection(
-                    requestId,
-                    companyNumber,
+            ObjectionUserDetails userDetails = objectionService.buildUserDetails(
                     ericUserId,
                     ericUserDetails,
                     objectionCreate);
+
+            Objection objection = objectionService.createObjection(
+                    requestId,
+                    companyNumber,
+                    userDetails);
             ObjectionStatus objectionStatus = objection.getStatus();
             if (objectionStatus.isIneligible()) {
                ObjectionResponseDTO response = new ObjectionResponseDTO();
