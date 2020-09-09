@@ -12,6 +12,7 @@ import uk.gov.companieshouse.api.strikeoffobjections.model.entity.CreatedBy;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Objection;
 import uk.gov.companieshouse.api.strikeoffobjections.service.IObjectionService;
 import uk.gov.companieshouse.api.strikeoffobjections.service.impl.ERICHeaderParser;
+import uk.gov.companieshouse.api.strikeoffobjections.utils.Utils;
 import uk.gov.companieshouse.service.ServiceException;
 
 import javax.servlet.http.HttpServletRequest;
@@ -51,7 +52,8 @@ class UserAuthorizationInterceptorTest {
     @Test
     void testUserAuthorised() throws Exception {
         Objection objection = new Objection();
-        CreatedBy createdBy = new CreatedBy("id", USER_EMAIL);
+        CreatedBy createdBy = new CreatedBy("id", USER_EMAIL,
+               "Joe Bloggs", false);
         objection.setCreatedBy(createdBy);
         when(ericHeaderParser.getEmailAddress(any())).thenReturn(USER_EMAIL);
         when(request.getAttribute("objection")).thenReturn(objection);
@@ -64,7 +66,8 @@ class UserAuthorizationInterceptorTest {
     @Test
     void testUserNotAuthorised() throws Exception {
         Objection objection = new Objection();
-        CreatedBy createdBy = new CreatedBy("id", USER_EMAIL);
+        CreatedBy createdBy = new CreatedBy("id", USER_EMAIL,
+                "Joe Bloggs", false);
         objection.setCreatedBy(createdBy);
         when(ericHeaderParser.getEmailAddress(any())).thenReturn(DIFFERENT_USER_EMAIL);
         when(request.getAttribute("objection")).thenReturn(objection);

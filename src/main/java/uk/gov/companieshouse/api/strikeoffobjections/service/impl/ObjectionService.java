@@ -17,6 +17,7 @@ import uk.gov.companieshouse.api.strikeoffobjections.exception.ObjectionNotFound
 import uk.gov.companieshouse.api.strikeoffobjections.file.FileTransferApiClient;
 import uk.gov.companieshouse.api.strikeoffobjections.file.FileTransferApiClientResponse;
 import uk.gov.companieshouse.api.strikeoffobjections.file.ObjectionsLinkKeys;
+import uk.gov.companieshouse.api.strikeoffobjections.model.create.ObjectionCreate;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Attachment;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.CreatedBy;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Objection;
@@ -78,20 +79,22 @@ public class ObjectionService implements IObjectionService {
     private ActionCodeValidator actionCodeValidator;
 
     @Override
-    public Objection createObjection(String requestId, String companyNumber, String ericUserId, String ericUserDetails) {
+    public Objection createObjection(String requestId,
+                                     String companyNumber,
+                                     String ericUserId,
+                                     String ericUserDetails,
+                                     ObjectionCreate objectionCreate) {
+
         Map<String, Object> logMap = buildLogMap(companyNumber, null, null);
         logger.infoContext(requestId, "Creating objection", logMap);
 
         final Long actionCode = getActionCode(companyNumber, requestId);
-
         final ObjectionStatus objectionStatus = getObjectionStatusForCreate(actionCode, companyNumber, requestId);
-
-        final String userEmailAddress = ericHeaderParser.getEmailAddress(ericUserDetails);
 
         Objection entity = new Objection.Builder()
                 .withCompanyNumber(companyNumber)
                 .withCreatedOn(dateTimeSupplier.get())
-                .withCreatedBy(new CreatedBy(ericUserId, userEmailAddress))
+                .withCreatedBy(buildCreatedBy(ericUserId, ericUserDetails, objectionCreate))
                 .withHttpRequestId(requestId)
                 .withActionCode(actionCode)
                 .withStatus(objectionStatus)
@@ -99,6 +102,14 @@ public class ObjectionService implements IObjectionService {
                 .build();
 
         return objectionRepository.save(entity);
+    }
+
+    private CreatedBy buildCreatedBy(String ericUserId,
+                                     String ericUserDetails,
+                                     ObjectionCreate objectionCreate) {
+        final String userEmailAddress = ericHeaderParser.getEmailAddress(ericUserDetails);
+        return new CreatedBy(ericUserId, userEmailAddress,
+                objectionCreate.getFullName(), objectionCreate.canShareIdentity());
     }
 
     private Long getActionCode(String companyNumber, String requestId) {

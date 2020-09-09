@@ -47,6 +47,15 @@
         "tags": [
           "Strike Off Objections"
         ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "Create",
+            "schema": {
+              "$ref": "#/definitions/Create"
+            }
+          }
+        ],
         "responses": {
           "201": {
             "description": "An objection has been created.",
@@ -395,6 +404,17 @@
         "email": {
           "type": "string",
           "format": "email"
+        }
+      }
+    },
+    "Create": {
+      "type": "object",
+      "properties": {
+        "fullName": {
+          "type": "string"
+        },
+        "shareIdentity": {
+          "type": "boolean"
         }
       }
     },

@@ -81,7 +81,8 @@ class EmailServiceTest {
         when(dateTimeSupplier.get()).thenReturn(LOCAL_DATE_TIME);
 
         Objection objection = Utils.getTestObjection(
-                OBJECTION_ID, REASON, COMPANY_NUMBER, USER_ID, EMAIL, LOCAL_DATE_TIME);
+                OBJECTION_ID, REASON, COMPANY_NUMBER, USER_ID, EMAIL, LOCAL_DATE_TIME,
+                Utils.buildTestObjectionCreate("Joe Bloggs", false));
         attachments.forEach(objection::addAttachment);
 
         emailService.sendObjectionSubmittedCustomerEmail(
@@ -106,7 +107,8 @@ class EmailServiceTest {
     void sendObjectionSubmittedDissolutionEmailsWalesJurisdiction() throws ServiceException {
         when(dateTimeSupplier.get()).thenReturn(LOCAL_DATE_TIME);
         Objection objection = Utils.getTestObjection(
-                OBJECTION_ID, REASON, COMPANY_NUMBER, USER_ID, EMAIL, LOCAL_DATE_TIME);
+                OBJECTION_ID, REASON, COMPANY_NUMBER, USER_ID, EMAIL, LOCAL_DATE_TIME,
+                Utils.buildTestObjectionCreate("Joe Bloggs", false));
         Utils.getTestAttachments().forEach(objection::addAttachment);
 
         emailService.sendObjectionSubmittedDissolutionTeamEmail(
@@ -133,7 +135,8 @@ class EmailServiceTest {
         when(dateTimeSupplier.get()).thenReturn(LOCAL_DATE_TIME);
         ReflectionTestUtils.setField(emailService, "emailRecipientsCardiff", EMAIL_RECIPIENTS_CARDIFF_TEST_SPACE);
         Objection objection = Utils.getTestObjection(
-                OBJECTION_ID, REASON, COMPANY_NUMBER, USER_ID, EMAIL, LOCAL_DATE_TIME);
+                OBJECTION_ID, REASON, COMPANY_NUMBER, USER_ID, EMAIL, LOCAL_DATE_TIME,
+                Utils.buildTestObjectionCreate("Joe Bloggs", false));
         Utils.getTestAttachments().forEach(objection::addAttachment);
 
         emailService.sendObjectionSubmittedDissolutionTeamEmail(
@@ -159,7 +162,8 @@ class EmailServiceTest {
     void sendObjectionSubmittedDissolutionEmailsScotlandJurisdiction() throws ServiceException {
         when(dateTimeSupplier.get()).thenReturn(LOCAL_DATE_TIME);
         Objection objection = Utils.getTestObjection(
-                OBJECTION_ID, REASON, COMPANY_NUMBER, USER_ID, EMAIL, LOCAL_DATE_TIME);
+                OBJECTION_ID, REASON, COMPANY_NUMBER, USER_ID, EMAIL, LOCAL_DATE_TIME,
+                Utils.buildTestObjectionCreate("Joe Bloggs", false));
         Utils.getTestAttachments().forEach(objection::addAttachment);
 
         emailService.sendObjectionSubmittedDissolutionTeamEmail(
@@ -184,7 +188,8 @@ class EmailServiceTest {
     void sendObjectionSubmittedDissolutionEmailsNIJurisdiction() throws ServiceException {
         when(dateTimeSupplier.get()).thenReturn(LOCAL_DATE_TIME);
         Objection objection = Utils.getTestObjection(
-                OBJECTION_ID, REASON, COMPANY_NUMBER, USER_ID, EMAIL, LOCAL_DATE_TIME);
+                OBJECTION_ID, REASON, COMPANY_NUMBER, USER_ID, EMAIL, LOCAL_DATE_TIME,
+                Utils.buildTestObjectionCreate("Joe Bloggs", false));
         Utils.getTestAttachments().forEach(objection::addAttachment);
 
         emailService.sendObjectionSubmittedDissolutionTeamEmail(

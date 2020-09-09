@@ -11,6 +11,7 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 import uk.gov.companieshouse.api.model.company.CompanyProfileApi;
 import uk.gov.companieshouse.api.strikeoffobjections.file.FileTransferApiClientResponse;
+import uk.gov.companieshouse.api.strikeoffobjections.model.create.ObjectionCreate;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Attachment;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.CreatedBy;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Objection;
@@ -44,18 +45,29 @@ public class Utils {
                                              String companyNumber,
                                              String userId,
                                              String email,
-                                             LocalDateTime localDatetime) {
+                                             LocalDateTime localDatetime,
+                                             ObjectionCreate objectionCreate) {
 
         Objection objection = new Objection();
         objection.setReason(reason);
         objection.setId(objectionId);
         objection.setCompanyNumber(companyNumber);
-        CreatedBy createdBy = new CreatedBy(userId, email);
+        CreatedBy createdBy = new CreatedBy(userId, email,
+                objectionCreate.getFullName(), objectionCreate.canShareIdentity());
         objection.setCreatedBy(createdBy);
         objection.setCreatedOn(localDatetime);
 
         return objection;
     }
+
+    public static ObjectionCreate buildTestObjectionCreate(String fullName,
+                                                           boolean shareIdentity) {
+        ObjectionCreate objectionCreate = new ObjectionCreate();
+        objectionCreate.setFullName(fullName);
+        objectionCreate.setShareIdentity(shareIdentity);
+        return objectionCreate;
+    }
+
 
     public static List<Attachment> getTestAttachments(){
         Attachment attachment1 = new Attachment();
@@ -126,6 +138,8 @@ public class Utils {
         Map<String, Object> data = new HashMap<>();
         data.put("to", "example@test.co.uk");
         data.put("subject", "Test objection submitted");
+        data.put("full_name", "Joe Bloggs");
+        data.put("share_identity", false);
         data.put("company_name", "TEST COMPANY");
         data.put("company_number", "00001111");
         data.put("reason", "Testing this");
