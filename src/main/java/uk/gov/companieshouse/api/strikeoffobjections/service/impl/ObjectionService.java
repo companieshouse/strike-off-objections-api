@@ -95,6 +95,7 @@ public class ObjectionService implements IObjectionService {
                 .withHttpRequestId(requestId)
                 .withActionCode(actionCode)
                 .withStatus(objectionStatus)
+                .withStatusChangedOn(dateTimeSupplier.get())
                 .build();
 
         return objectionRepository.save(entity);
