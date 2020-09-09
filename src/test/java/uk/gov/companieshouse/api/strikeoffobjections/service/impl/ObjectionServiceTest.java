@@ -77,6 +77,7 @@ class ObjectionServiceTest {
     private static final Long ACTION_CODE_OK = 3000L;
     private static final Long ACTION_CODE_INELIGIBLE = 200L;
     private static final LocalDateTime MOCKED_TIME_STAMP = LocalDateTime.of(2020, 2,2, 0, 0);
+    private static final String FULL_NAME = "Joe Bloggs";
 
     @Mock
     private ApiLogger apiLogger;
@@ -116,7 +117,8 @@ class ObjectionServiceTest {
         returnedEntity.setId(OBJECTION_ID);
         returnedEntity.setCreatedOn(MOCKED_TIME_STAMP);
         returnedEntity.setStatus(OPEN);
-        CreatedBy createdBy = new CreatedBy(AUTH_ID, E_MAIL);
+
+        CreatedBy createdBy = new CreatedBy(AUTH_ID, E_MAIL, FULL_NAME, false);
         returnedEntity.setCreatedBy(createdBy);
 
         when(objectionRepository.save(any())).thenReturn(returnedEntity);
@@ -124,7 +126,9 @@ class ObjectionServiceTest {
         when(ericHeaderParser.getEmailAddress(AUTH_USER)).thenReturn(E_MAIL);
         when(oracleQueryClient.getCompanyActionCode(COMPANY_NUMBER)).thenReturn(ACTION_CODE_OK);
 
-        Objection objectionResponse = objectionService.createObjection(REQUEST_ID, COMPANY_NUMBER, AUTH_ID, AUTH_USER);
+        Objection objectionResponse =
+                objectionService.createObjection(REQUEST_ID, COMPANY_NUMBER, AUTH_ID, AUTH_USER,
+                        Utils.buildTestObjectionCreate(FULL_NAME, false));
 
         verify(objectionRepository).save(any());
         verify(oracleQueryClient).getCompanyActionCode(COMPANY_NUMBER);
@@ -159,7 +163,8 @@ class ObjectionServiceTest {
         ValidationException ve = new ValidationException(INELIGIBLE_COMPANY_STRUCK_OFF);
         doThrow(ve).when(actionCodeValidator).validate(ACTION_CODE_INELIGIBLE, REQUEST_ID);
 
-        objectionService.createObjection(REQUEST_ID, COMPANY_NUMBER, AUTH_ID, AUTH_USER);
+        objectionService.createObjection(REQUEST_ID, COMPANY_NUMBER, AUTH_ID, AUTH_USER,
+                Utils.buildTestObjectionCreate(FULL_NAME, false));
 
         ArgumentCaptor<Objection> saveObjectionCaptor = ArgumentCaptor.forClass(Objection.class);
         verify(objectionRepository, times(1)).save(saveObjectionCaptor.capture());

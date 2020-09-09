@@ -58,7 +58,8 @@ public class CompanyNumberInterceptorIntegrationTest {
     public void setup() throws ObjectionNotFoundException {
         Objection objection = new Objection();
         objection.setCompanyNumber("00006400");
-        CreatedBy createdBy = new CreatedBy("some id", "demo@ch.gov.uk");
+        CreatedBy createdBy = new CreatedBy("some id", "demo@ch.gov.uk",
+                "Joe Bloggs", false);
         objection.setCreatedBy(createdBy);
         when(objectionService.getObjection(any(), any())).thenReturn(objection);
         when(headerParser.getEmailAddress(any())).thenReturn("demo@ch.gov.uk");

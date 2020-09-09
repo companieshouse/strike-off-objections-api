@@ -42,7 +42,6 @@ public class Objection {
             return this;
         }
 
-
         public Builder withStatus(ObjectionStatus status) {
             this.status = status;
             return this;
@@ -168,5 +167,4 @@ public class Objection {
     public void setHttpRequestId(String httpRequestId) {
         this.httpRequestId = httpRequestId;
     }
-
 }

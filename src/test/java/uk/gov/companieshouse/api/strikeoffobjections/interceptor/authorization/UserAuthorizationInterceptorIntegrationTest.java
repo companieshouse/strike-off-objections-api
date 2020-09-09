@@ -19,10 +19,12 @@ import uk.gov.companieshouse.api.strikeoffobjections.controller.ObjectionControl
 import uk.gov.companieshouse.api.strikeoffobjections.controller.ObjectionMapper;
 import uk.gov.companieshouse.api.strikeoffobjections.exception.ObjectionNotFoundException;
 import uk.gov.companieshouse.api.strikeoffobjections.groups.Integration;
+import uk.gov.companieshouse.api.strikeoffobjections.model.create.ObjectionCreate;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.CreatedBy;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Objection;
 import uk.gov.companieshouse.api.strikeoffobjections.service.impl.ERICHeaderParser;
 import uk.gov.companieshouse.api.strikeoffobjections.service.impl.ObjectionService;
+import uk.gov.companieshouse.api.strikeoffobjections.utils.Utils;
 import uk.gov.companieshouse.service.rest.response.PluggableResponseEntityFactory;
 
 import static org.junit.Assert.assertEquals;
@@ -59,7 +61,8 @@ public class UserAuthorizationInterceptorIntegrationTest {
     public void setup() throws ObjectionNotFoundException {
         Objection objection = new Objection();
         objection.setCompanyNumber("00006400");
-        CreatedBy createdBy = new CreatedBy("some id", "demo@ch.gov.uk");
+        CreatedBy createdBy = new CreatedBy("some id", "demo@ch.gov.uk",
+                "Joe Bloggs", false);
         objection.setCreatedBy(createdBy);
         when(objectionService.getObjection(any(), any())).thenReturn(objection);
     }
