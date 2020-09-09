@@ -43,7 +43,6 @@ public class Objection {
             return this;
         }
 
-
         public Builder withStatus(ObjectionStatus status) {
             this.status = status;
             return this;
