@@ -163,18 +163,7 @@ public class ObjectionService implements IObjectionService {
 
         // if changing status to SUBMITTED from OPEN, process the objection
         if (ObjectionStatus.SUBMITTED == objectionPatch.getStatus() && ObjectionStatus.OPEN == previousStatus) {
-            ObjectionPatch patch = new ObjectionPatch();
-
-            try {
-                objectionProcessor.process(objection, requestId, patch);
-            } catch (Exception e) {
-                logger.infoContext(requestId, "Error processing objection updating status");
-                this.patchObjection(objectionId, patch, requestId, companyNumber);
-                throw e;
-            }
-
-            logger.infoContext(requestId, "Successfully processed objection updating status");
-            this.patchObjection(objectionId, patch, requestId, companyNumber);
+            objectionProcessor.process(objection, requestId);
         }
     }
 

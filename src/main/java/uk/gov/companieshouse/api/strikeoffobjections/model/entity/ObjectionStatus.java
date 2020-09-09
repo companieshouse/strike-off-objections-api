@@ -6,9 +6,9 @@ public enum ObjectionStatus {
     INELIGIBLE_NO_DISSOLUTION_ACTION,
     OPEN,
     PROCESSED,
-    PROCESSING,
-    CHIPS_SENT,
-    INTERNAL_EMAIL_SENT,
+    ERROR_CHIPS,
+    ERROR_INTERNAL_EMAIL,
+    ERROR_EXTERNAL_EMAIL,
     SUBMITTED;
 
     public boolean isIneligible() {

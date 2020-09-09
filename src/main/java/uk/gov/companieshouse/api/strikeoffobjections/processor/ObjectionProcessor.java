@@ -13,7 +13,7 @@ import uk.gov.companieshouse.api.strikeoffobjections.common.LogConstants;
 import uk.gov.companieshouse.api.strikeoffobjections.exception.InvalidObjectionStatusException;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Objection;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.ObjectionStatus;
-import uk.gov.companieshouse.api.strikeoffobjections.model.patch.ObjectionPatch;
+import uk.gov.companieshouse.api.strikeoffobjections.repository.ObjectionRepository;
 import uk.gov.companieshouse.api.strikeoffobjections.service.IChipsService;
 import uk.gov.companieshouse.api.strikeoffobjections.service.ICompanyProfileService;
 import uk.gov.companieshouse.api.strikeoffobjections.service.IEmailService;
@@ -37,16 +37,20 @@ public class ObjectionProcessor {
     private ICompanyProfileService companyProfileService;
     private IChipsService chipsService;
     private ApiLogger apiLogger;
+    private ObjectionRepository objectionRepository;
 
     @Autowired
-    public ObjectionProcessor(IEmailService emailService,
-                              ICompanyProfileService companyProfileService,
-                              IChipsService chipsService,
-                              ApiLogger apiLogger) {
+    public ObjectionProcessor(
+            IEmailService emailService,
+            ICompanyProfileService companyProfileService,
+            IChipsService chipsService,
+            ApiLogger apiLogger,
+            ObjectionRepository objectionRepository) {
         this.emailService = emailService;
         this.companyProfileService = companyProfileService;
         this.chipsService = chipsService;
         this.apiLogger = apiLogger;
+        this.objectionRepository = objectionRepository;
     }
 
     /**
@@ -55,10 +59,9 @@ public class ObjectionProcessor {
      *
      * @param objection     the objection to process
      * @param httpRequestId http request id used for logging
-     * @param out an ObjectionPatch that is updated as the objection is processed
      * @throws InvalidObjectionStatusException if the Objection is not currently in status SUBMITTED when this is called
      */
-    public void process(Objection objection, String httpRequestId, ObjectionPatch out)
+    public void process(Objection objection, String httpRequestId)
             throws InvalidObjectionStatusException, ServiceException {
 
         if (objection == null) {
@@ -76,26 +79,15 @@ public class ObjectionProcessor {
 
         validateObjectionStatus(objection, httpRequestId);
 
-        out.setStatus(ObjectionStatus.PROCESSING);
-        out.setCreatedOn(LocalDateTime.now());
-
         sendObjectionToChips(objection, httpRequestId);
-
-        out.setStatus(ObjectionStatus.CHIPS_SENT);
-        out.setCreatedOn(LocalDateTime.now());
 
         CompanyProfileApi companyProfile = this.companyProfileService.getCompanyProfile(objection.getCompanyNumber(), httpRequestId);
 
         sendInternalEmail(objection, companyProfile, httpRequestId);
 
-        out.setStatus(ObjectionStatus.INTERNAL_EMAIL_SENT);
-        out.setCreatedOn(LocalDateTime.now());
-
         sendExternalEmail(objection, companyProfile, httpRequestId);
 
-        out.setStatus(ObjectionStatus.PROCESSED);
-        out.setCreatedOn(LocalDateTime.now());
-
+        updateObjectionStatus(objection, httpRequestId, ObjectionStatus.PROCESSED);
     }
 
     private void validateObjectionStatus(Objection objection, String httpRequestId)
@@ -122,6 +114,7 @@ public class ObjectionProcessor {
             logMap.put(LOG_OBJECTION_ID_KEY, objection.getId());
             apiLogger.errorContext(httpRequestId, "Error sending objection to CHIPS", e, logMap);
 
+            updateObjectionStatus(objection, httpRequestId, ObjectionStatus.ERROR_CHIPS);
             throw e;
         }
     }
@@ -136,6 +129,7 @@ public class ObjectionProcessor {
             apiLogger.errorContext(httpRequestId, "Error sending dissolution team email", e,
                     logMap);
 
+            updateObjectionStatus(objection, httpRequestId, ObjectionStatus.ERROR_INTERNAL_EMAIL);
             throw e;
         }
     }
@@ -149,7 +143,16 @@ public class ObjectionProcessor {
             logMap.put(LOG_OBJECTION_ID_KEY, objection.getId());
             apiLogger.errorContext(httpRequestId, "Error sending customer email", e, logMap);
 
+            updateObjectionStatus(objection, httpRequestId, ObjectionStatus.ERROR_EXTERNAL_EMAIL);
             throw e;
         }
+    }
+
+    private void updateObjectionStatus(Objection objection, String requestId, ObjectionStatus newStatus) {
+        objection.setStatus(newStatus);
+        objection.setHttpRequestId(requestId);
+        objection.setCreatedOn(LocalDateTime.now());
+
+        objectionRepository.save(objection);
     }
 }
