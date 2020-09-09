@@ -222,7 +222,7 @@ class ObjectionServiceTest {
 
         objectionService.patchObjection( OBJECTION_ID, objectionPatch, REQUEST_ID, COMPANY_NUMBER);
 
-        verify(objectionRepository, times(2)).save(objection);
+        verify(objectionRepository, times(1)).save(objection);
         verify(objectionProcessor, only()).process(objection, REQUEST_ID);
     }
 
@@ -246,7 +246,7 @@ class ObjectionServiceTest {
         assertThrows(InvalidObjectionStatusException.class,
                 () -> objectionService.patchObjection( OBJECTION_ID, objectionPatch, REQUEST_ID, COMPANY_NUMBER));
 
-        verify(objectionRepository, times(2)).save(objection);
+        verify(objectionRepository, times(1)).save(objection);
         verify(objectionProcessor, only()).process(objection, REQUEST_ID);
     }
 
