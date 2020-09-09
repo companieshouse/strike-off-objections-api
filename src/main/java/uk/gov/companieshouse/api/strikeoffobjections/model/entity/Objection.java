@@ -90,6 +90,8 @@ public class Objection {
     @Field("http_request_id")
     @JsonIgnore
     private String httpRequestId;
+    @Field("status_changed_on")
+    private LocalDateTime statusChangedOn;
 
     public String getId() {
         return id;
@@ -169,4 +171,11 @@ public class Objection {
         this.httpRequestId = httpRequestId;
     }
 
+    public LocalDateTime getStatusChangedOn() {
+        return statusChangedOn;
+    }
+
+    public void setStatusChangedOn(LocalDateTime statusChangedOn) {
+        this.statusChangedOn = statusChangedOn;
+    }
 }

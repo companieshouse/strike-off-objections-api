@@ -151,7 +151,7 @@ public class ObjectionProcessor {
     private void updateObjectionStatus(Objection objection, String requestId, ObjectionStatus newStatus) {
         objection.setStatus(newStatus);
         objection.setHttpRequestId(requestId);
-        objection.setCreatedOn(LocalDateTime.now());
+        objection.setStatusChangedOn(LocalDateTime.now());
 
         objectionRepository.save(objection);
     }
