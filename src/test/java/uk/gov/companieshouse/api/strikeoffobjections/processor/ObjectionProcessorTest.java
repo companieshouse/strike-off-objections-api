@@ -1,6 +1,7 @@
 package uk.gov.companieshouse.api.strikeoffobjections.processor;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -13,6 +14,7 @@ import java.time.LocalDateTime;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -22,6 +24,7 @@ import uk.gov.companieshouse.api.strikeoffobjections.exception.InvalidObjectionS
 import uk.gov.companieshouse.api.strikeoffobjections.groups.Unit;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Objection;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.ObjectionStatus;
+import uk.gov.companieshouse.api.strikeoffobjections.repository.ObjectionRepository;
 import uk.gov.companieshouse.api.strikeoffobjections.service.IChipsService;
 import uk.gov.companieshouse.api.strikeoffobjections.service.ICompanyProfileService;
 import uk.gov.companieshouse.api.strikeoffobjections.service.IEmailService;
@@ -55,6 +58,9 @@ class ObjectionProcessorTest {
     @Mock
     private IChipsService chipsService;
 
+    @Mock
+    private ObjectionRepository objectionRepository;
+
     @InjectMocks
     private ObjectionProcessor objectionProcessor;
 
@@ -67,7 +73,12 @@ class ObjectionProcessorTest {
                 Utils.buildTestObjectionCreate("Joe Bloggs", false));
         dummyObjection.setStatus(ObjectionStatus.SUBMITTED);
 
+        ArgumentCaptor<Objection> objectionArgumentCaptor = ArgumentCaptor.forClass(Objection.class);
         assertDoesNotThrow(() -> objectionProcessor.process(dummyObjection, HTTP_REQUEST_ID));
+        verify(objectionRepository, times(1)).save(objectionArgumentCaptor.capture());
+
+        Objection objection = objectionArgumentCaptor.getValue();
+        assertEquals(ObjectionStatus.PROCESSED, objection.getStatus());
     }
 
     @Test
@@ -102,9 +113,16 @@ class ObjectionProcessorTest {
 
         objectionProcessor.process(dummyObjection, HTTP_REQUEST_ID);
 
+        ArgumentCaptor<Objection> objectionArgumentCaptor = ArgumentCaptor.forClass(Objection.class);
+
         verify(emailService, times(1))
                 .sendObjectionSubmittedDissolutionTeamEmail(COMPANY_NAME, JURISDICTION,
                         dummyObjection, HTTP_REQUEST_ID);
+
+        verify(objectionRepository, times(1)).save(objectionArgumentCaptor.capture());
+
+        Objection objection = objectionArgumentCaptor.getValue();
+        assertEquals(ObjectionStatus.PROCESSED, objection.getStatus());
     }
 
     @Test
@@ -119,9 +137,15 @@ class ObjectionProcessorTest {
 
         doThrow(new ServiceException("blah")).when(emailService).sendObjectionSubmittedDissolutionTeamEmail(any(), any(), any(), any());
 
+        ArgumentCaptor<Objection> objectionArgumentCaptor = ArgumentCaptor.forClass(Objection.class);
         assertThrows(ServiceException.class, () -> objectionProcessor.process(dummyObjection, HTTP_REQUEST_ID));
 
         verify(apiLogger, times(1)).errorContext(eq(HTTP_REQUEST_ID), any(), any(), any());
+
+        verify(objectionRepository, times(1)).save(objectionArgumentCaptor.capture());
+
+        Objection objection = objectionArgumentCaptor.getValue();
+        assertEquals(ObjectionStatus.ERROR_INTERNAL_EMAIL, objection.getStatus());
     }
 
     @Test
@@ -136,9 +160,15 @@ class ObjectionProcessorTest {
 
         doThrow(new RuntimeException("blah")).when(emailService).sendObjectionSubmittedDissolutionTeamEmail(any(), any(), any(), any());
 
+        ArgumentCaptor<Objection> objectionArgumentCaptor = ArgumentCaptor.forClass(Objection.class);
         assertThrows(RuntimeException.class, () -> objectionProcessor.process(dummyObjection, HTTP_REQUEST_ID));
 
         verify(apiLogger, times(1)).errorContext(eq(HTTP_REQUEST_ID), any(), any(), any());
+
+        verify(objectionRepository, times(1)).save(objectionArgumentCaptor.capture());
+
+        Objection objection = objectionArgumentCaptor.getValue();
+        assertEquals(ObjectionStatus.ERROR_INTERNAL_EMAIL, objection.getStatus());
     }
 
     @Test
@@ -151,11 +181,17 @@ class ObjectionProcessorTest {
         when(companyProfileService.getCompanyProfile(COMPANY_NUMBER,  HTTP_REQUEST_ID))
                 .thenReturn(Utils.getDummyCompanyProfile(COMPANY_NUMBER, JURISDICTION));
 
+        ArgumentCaptor<Objection> objectionArgumentCaptor = ArgumentCaptor.forClass(Objection.class);
         objectionProcessor.process(dummyObjection, HTTP_REQUEST_ID);
 
         verify(chipsService, times(1)).sendObjection(HTTP_REQUEST_ID, dummyObjection);
         verify(emailService, times(1))
                 .sendObjectionSubmittedCustomerEmail(dummyObjection, COMPANY_NAME, HTTP_REQUEST_ID);
+
+        verify(objectionRepository, times(1)).save(objectionArgumentCaptor.capture());
+
+        Objection objection = objectionArgumentCaptor.getValue();
+        assertEquals(ObjectionStatus.PROCESSED, objection.getStatus());
     }
 
     @Test
@@ -170,9 +206,15 @@ class ObjectionProcessorTest {
 
         doThrow(new ServiceException("blah")).when(emailService).sendObjectionSubmittedCustomerEmail(any(), any(), any());
 
+        ArgumentCaptor<Objection> objectionArgumentCaptor = ArgumentCaptor.forClass(Objection.class);
         assertThrows(ServiceException.class, () -> objectionProcessor.process(dummyObjection, HTTP_REQUEST_ID));
 
         verify(apiLogger, times(1)).errorContext(eq(HTTP_REQUEST_ID), any(), any(), any());
+
+        verify(objectionRepository, times(1)).save(objectionArgumentCaptor.capture());
+
+        Objection objection = objectionArgumentCaptor.getValue();
+        assertEquals(ObjectionStatus.ERROR_EXTERNAL_EMAIL, objection.getStatus());
     }
 
     @Test
@@ -185,11 +227,17 @@ class ObjectionProcessorTest {
                 Utils.buildTestObjectionCreate("Joe Bloggs", false));
         dummyObjection.setStatus(ObjectionStatus.SUBMITTED);
 
+        ArgumentCaptor<Objection> objectionArgumentCaptor = ArgumentCaptor.forClass(Objection.class);
         doThrow(new RuntimeException("blah")).when(emailService).sendObjectionSubmittedCustomerEmail(any(), any(), any());
 
         assertThrows(RuntimeException.class, () -> objectionProcessor.process(dummyObjection, HTTP_REQUEST_ID));
 
         verify(apiLogger, times(1)).errorContext(eq(HTTP_REQUEST_ID), any(), any(), any());
+
+        verify(objectionRepository, times(1)).save(objectionArgumentCaptor.capture());
+
+        Objection objection = objectionArgumentCaptor.getValue();
+        assertEquals(ObjectionStatus.ERROR_EXTERNAL_EMAIL, objection.getStatus());
     }
 
     @Test
@@ -201,8 +249,14 @@ class ObjectionProcessorTest {
 
         doThrow(new RuntimeException("blah")).when(chipsService).sendObjection(any(), any());
 
+        ArgumentCaptor<Objection> objectionArgumentCaptor = ArgumentCaptor.forClass(Objection.class);
         assertThrows(RuntimeException.class, () -> objectionProcessor.process(dummyObjection, HTTP_REQUEST_ID));
 
         verify(apiLogger, times(1)).errorContext(eq(HTTP_REQUEST_ID), any(), any(), any());
+
+        verify(objectionRepository, times(1)).save(objectionArgumentCaptor.capture());
+
+        Objection objection = objectionArgumentCaptor.getValue();
+        assertEquals(ObjectionStatus.ERROR_CHIPS, objection.getStatus());
     }
 }

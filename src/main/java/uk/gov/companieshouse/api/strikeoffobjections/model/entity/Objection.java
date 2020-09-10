@@ -21,6 +21,7 @@ public class Objection {
         private ObjectionStatus status;
         private Long actionCode;
         private String httpRequestId;
+        private LocalDateTime statusChangedOn;
 
         public Builder withCreatedOn(LocalDateTime createdOn) {
             this.createdOn = createdOn;
@@ -57,6 +58,11 @@ public class Objection {
             return this;
         }
 
+        public Builder withStatusChangedOn(LocalDateTime statusChangedOn) {
+            this.statusChangedOn = statusChangedOn;
+            return this;
+        }
+
         public Objection build() {
             Objection objection = new Objection();
             objection.setCreatedOn(this.createdOn);
@@ -66,6 +72,7 @@ public class Objection {
             objection.setStatus(this.status);
             objection.setActionCode(actionCode);
             objection.setHttpRequestId(this.httpRequestId);
+            objection.setStatusChangedOn(this.statusChangedOn);
             return objection;
         }
     }
@@ -89,6 +96,8 @@ public class Objection {
     @Field("http_request_id")
     @JsonIgnore
     private String httpRequestId;
+    @Field("status_changed_on")
+    private LocalDateTime statusChangedOn;
 
     public String getId() {
         return id;
@@ -166,5 +175,13 @@ public class Objection {
 
     public void setHttpRequestId(String httpRequestId) {
         this.httpRequestId = httpRequestId;
+    }
+
+    public LocalDateTime getStatusChangedOn() {
+        return statusChangedOn;
+    }
+
+    public void setStatusChangedOn(LocalDateTime statusChangedOn) {
+        this.statusChangedOn = statusChangedOn;
     }
 }

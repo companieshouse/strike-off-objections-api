@@ -1,5 +1,6 @@
 package uk.gov.companieshouse.api.strikeoffobjections.processor;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -12,6 +13,7 @@ import uk.gov.companieshouse.api.strikeoffobjections.common.LogConstants;
 import uk.gov.companieshouse.api.strikeoffobjections.exception.InvalidObjectionStatusException;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Objection;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.ObjectionStatus;
+import uk.gov.companieshouse.api.strikeoffobjections.repository.ObjectionRepository;
 import uk.gov.companieshouse.api.strikeoffobjections.service.IChipsService;
 import uk.gov.companieshouse.api.strikeoffobjections.service.ICompanyProfileService;
 import uk.gov.companieshouse.api.strikeoffobjections.service.IEmailService;
@@ -35,16 +37,20 @@ public class ObjectionProcessor {
     private ICompanyProfileService companyProfileService;
     private IChipsService chipsService;
     private ApiLogger apiLogger;
+    private ObjectionRepository objectionRepository;
 
     @Autowired
-    public ObjectionProcessor(IEmailService emailService,
-                              ICompanyProfileService companyProfileService,
-                              IChipsService chipsService,
-                              ApiLogger apiLogger) {
+    public ObjectionProcessor(
+            IEmailService emailService,
+            ICompanyProfileService companyProfileService,
+            IChipsService chipsService,
+            ApiLogger apiLogger,
+            ObjectionRepository objectionRepository) {
         this.emailService = emailService;
         this.companyProfileService = companyProfileService;
         this.chipsService = chipsService;
         this.apiLogger = apiLogger;
+        this.objectionRepository = objectionRepository;
     }
 
     /**
@@ -73,22 +79,15 @@ public class ObjectionProcessor {
 
         validateObjectionStatus(objection, httpRequestId);
 
-        // TODO update status to PROCESSING
-
         sendObjectionToChips(objection, httpRequestId);
-
-        // TODO update status to CHIPS_SENT
 
         CompanyProfileApi companyProfile = this.companyProfileService.getCompanyProfile(objection.getCompanyNumber(), httpRequestId);
 
         sendInternalEmail(objection, companyProfile, httpRequestId);
 
-        // TODO update status to INTERNAL_EMAIL_SENT
-
         sendExternalEmail(objection, companyProfile, httpRequestId);
 
-        // TODO update status to processed
-
+        updateObjectionStatus(objection, httpRequestId, ObjectionStatus.PROCESSED);
     }
 
     private void validateObjectionStatus(Objection objection, String httpRequestId)
@@ -115,6 +114,7 @@ public class ObjectionProcessor {
             logMap.put(LOG_OBJECTION_ID_KEY, objection.getId());
             apiLogger.errorContext(httpRequestId, "Error sending objection to CHIPS", e, logMap);
 
+            updateObjectionStatus(objection, httpRequestId, ObjectionStatus.ERROR_CHIPS);
             throw e;
         }
     }
@@ -129,6 +129,7 @@ public class ObjectionProcessor {
             apiLogger.errorContext(httpRequestId, "Error sending dissolution team email", e,
                     logMap);
 
+            updateObjectionStatus(objection, httpRequestId, ObjectionStatus.ERROR_INTERNAL_EMAIL);
             throw e;
         }
     }
@@ -142,7 +143,16 @@ public class ObjectionProcessor {
             logMap.put(LOG_OBJECTION_ID_KEY, objection.getId());
             apiLogger.errorContext(httpRequestId, "Error sending customer email", e, logMap);
 
+            updateObjectionStatus(objection, httpRequestId, ObjectionStatus.ERROR_EXTERNAL_EMAIL);
             throw e;
         }
+    }
+
+    private void updateObjectionStatus(Objection objection, String requestId, ObjectionStatus newStatus) {
+        objection.setStatus(newStatus);
+        objection.setHttpRequestId(requestId);
+        objection.setStatusChangedOn(LocalDateTime.now());
+
+        objectionRepository.save(objection);
     }
 }
