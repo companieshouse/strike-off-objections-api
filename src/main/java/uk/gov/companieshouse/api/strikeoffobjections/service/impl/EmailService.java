@@ -96,7 +96,7 @@ public class EmailService implements IEmailService {
                     objection,
                     emailAddress);
 
-            data.put("email", objection.getCreatedBy().getEmail());
+            data.put("customer_email", objection.getCreatedBy().getEmail());
             EmailContent emailContent = constructEmailContent(EmailType.DISSOLUTION_TEAM,
                     emailAddress, data);
             logger.debugContext(requestId, String.format("Calling Kafka client to send dissolution team email to %s",
