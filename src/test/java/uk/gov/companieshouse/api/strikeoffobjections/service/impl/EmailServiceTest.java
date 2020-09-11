@@ -263,7 +263,7 @@ class EmailServiceTest {
     }
 
     void assertInternalEmailData(Map<String, Object> data) {
-        assertEquals(EMAIL, data.get("email"));
+        assertEquals(EMAIL, data.get("customer_email"));
         assertCommonEmailData(data);
     }
 }
