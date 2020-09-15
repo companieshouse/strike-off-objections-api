@@ -134,7 +134,7 @@ public class EmailService implements IEmailService {
         data.put("objection_id", objection.getId());
         data.put("to", email);
         data.put("full_name", objection.getCreatedBy().getFullName());
-        data.put("share_identity", objection.getCreatedBy().canShareIdentity());
+        data.put("share_identity", objection.getCreatedBy().isShareIdentity());
         data.put("company_name", companyName);
         data.put("company_number", objection.getCompanyNumber());
         data.put("reason", objection.getReason());
