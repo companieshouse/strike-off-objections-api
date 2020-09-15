@@ -35,7 +35,7 @@ public class CreatedBy {
         return fullName;
     }
 
-    public boolean canShareIdentity() {
+    public boolean isShareIdentity() {
         return shareIdentity;
     }
 }
