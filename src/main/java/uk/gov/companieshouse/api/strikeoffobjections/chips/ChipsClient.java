@@ -17,7 +17,8 @@ public class ChipsClient {
     private final ApiLogger apiLogger;
     private final RestTemplate restTemplate;
 
-    @Value("${OBJECT_TO_STRIKE_OFF_CHIPS_REST_INTERFACE_URL}")
+    //TODO Re-enable chips call
+    //@Value("${OBJECT_TO_STRIKE_OFF_CHIPS_REST_INTERFACE_URL}")
     private String chipsRestUrl;
 
     @Autowired
@@ -36,11 +37,14 @@ public class ChipsClient {
                 logMap
         );
 
+        //TODO Re-enable chips call
+        /**
         ResponseEntity<String> chipsRestResponse = restTemplate.postForEntity(chipsRestUrl, chipsRequest, String.class);
 
         apiLogger.infoContext(
                 requestId,
                 String.format("Sent data to CHIPS, received status code: %s", chipsRestResponse.getStatusCode())
         );
+         **/
     }
 }
