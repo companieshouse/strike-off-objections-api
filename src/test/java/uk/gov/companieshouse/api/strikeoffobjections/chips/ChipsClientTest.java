@@ -2,7 +2,6 @@ package uk.gov.companieshouse.api.strikeoffobjections.chips;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.platform.commons.util.ReflectionUtils;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -14,8 +13,6 @@ import uk.gov.companieshouse.api.strikeoffobjections.common.ApiLogger;
 import uk.gov.companieshouse.api.strikeoffobjections.groups.Unit;
 import uk.gov.companieshouse.api.strikeoffobjections.model.chips.ChipsRequest;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -37,8 +34,6 @@ class ChipsClientTest {
     @Mock
     private RestTemplate restTemplate;
 
-    //TODO Re-enable chips call
-    /**
     @Test
     void testSendMessageToChips(){
         ReflectionTestUtils.setField(chipsClient, "chipsRestUrl", CHIPS_REST_URL);
@@ -52,5 +47,4 @@ class ChipsClientTest {
         chipsClient.sendToChips(REQUEST_ID, chipsRequest);
         verify(restTemplate, times(1)).postForEntity(CHIPS_REST_URL, chipsRequest, String.class);
     }
-    **/
 }
