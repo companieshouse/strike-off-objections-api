@@ -35,7 +35,15 @@ public class CreatedBy {
         return fullName;
     }
 
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
+    }
+
     public boolean isShareIdentity() {
         return shareIdentity;
+    }
+
+    public void setShareIdentity(boolean shareIdentity) {
+        this.shareIdentity = shareIdentity;
     }
 }
