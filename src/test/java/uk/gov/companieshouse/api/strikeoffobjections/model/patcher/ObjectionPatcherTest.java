@@ -64,4 +64,33 @@ class ObjectionPatcherTest {
         assertEquals(CREATED_ON, objection.getCreatedOn());
         assertEquals(STATUS_CHANGED_ON, objection.getStatusChangedOn());
     }
+
+    @Test
+    void testShareIdNotChangedWhenNullInPatch() {
+        ObjectionPatch objectionPatch = new ObjectionPatch();
+        objectionPatch.setFullName(FULL_NAME);
+        objectionPatch.setShareIdentity(null);
+        objectionPatch.setReason(REASON);
+        objectionPatch.setStatus(ObjectionStatus.OPEN);
+
+        CreatedBy createdBy = new CreatedBy( "", "","Not Joe Bloggs", Boolean.TRUE);
+        Objection existingObjection = new Objection();
+        existingObjection.setCreatedOn(CREATED_ON);
+        existingObjection.setId(OBJECTION_ID);
+        existingObjection.setCreatedBy(createdBy);
+        existingObjection.setCompanyNumber(COMPANY_NUMBER);
+
+        when(dateTimeSupplier.get()).thenReturn(STATUS_CHANGED_ON);
+        Objection objection = objectionPatcher.patchObjection(objectionPatch, REQUEST_ID, existingObjection);
+
+        assertEquals(REASON, objection.getReason());
+        assertEquals(OBJECTION_ID, objection.getId());
+        assertEquals(COMPANY_NUMBER, objection.getCompanyNumber());
+        assertEquals(FULL_NAME, objection.getCreatedBy().getFullName());
+        assertEquals(Boolean.TRUE, objection.getCreatedBy().isShareIdentity());
+        assertEquals(ObjectionStatus.OPEN, objection.getStatus());
+        assertEquals(REQUEST_ID, objection.getHttpRequestId());
+        assertEquals(CREATED_ON, objection.getCreatedOn());
+        assertEquals(STATUS_CHANGED_ON, objection.getStatusChangedOn());
+    }
 }
