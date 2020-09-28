@@ -186,6 +186,8 @@ class ObjectionServiceTest {
         Objection objection = new Objection();
         objection.setId(OBJECTION_ID);
         ObjectionPatch objectionPatch = new ObjectionPatch();
+        objectionPatch.setFullName(FULL_NAME);
+        objectionPatch.setShareIdentity(Boolean.TRUE);
         objectionPatch.setReason(REASON);
         objectionPatch.setStatus(ObjectionStatus.PROCESSED);
         when(objectionRepository.findById(any())).thenReturn(Optional.of(existingObjection));
@@ -219,6 +221,8 @@ class ObjectionServiceTest {
         objection.setId(OBJECTION_ID);
 
         ObjectionPatch objectionPatch = new ObjectionPatch();
+        objectionPatch.setFullName(FULL_NAME);
+        objectionPatch.setShareIdentity(Boolean.TRUE);
         objectionPatch.setReason(REASON);
         objectionPatch.setStatus(ObjectionStatus.SUBMITTED);
 
@@ -241,6 +245,8 @@ class ObjectionServiceTest {
         objection.setId(OBJECTION_ID);
 
         ObjectionPatch objectionPatch = new ObjectionPatch();
+        objectionPatch.setFullName(FULL_NAME);
+        objectionPatch.setShareIdentity(Boolean.TRUE);
         objectionPatch.setReason(REASON);
         objectionPatch.setStatus(ObjectionStatus.SUBMITTED);
 

@@ -421,6 +421,12 @@
     "Patch": {
       "type": "object",
       "properties": {
+        "fullName": {
+          "type": "string"
+        },
+        "shareIdentity": {
+          "type": "boolean"
+        },
         "reason": {
           "type": "string"
         },

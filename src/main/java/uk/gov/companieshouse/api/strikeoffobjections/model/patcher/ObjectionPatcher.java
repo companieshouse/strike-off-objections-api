@@ -20,6 +20,14 @@ public class ObjectionPatcher {
 
     public Objection patchObjection(ObjectionPatch objectionPatch, String requestId, Objection existingObjection) {
         existingObjection.setHttpRequestId(requestId);
+        if (objectionPatch.getFullName() != null) {
+            existingObjection.getCreatedBy().setFullName(objectionPatch.getFullName());
+        }
+
+        if (objectionPatch.isShareIdentity() != null) {
+            existingObjection.getCreatedBy().setShareIdentity(objectionPatch.isShareIdentity());
+        }
+
         if (objectionPatch.getReason() != null) {
             existingObjection.setReason(objectionPatch.getReason());
         }
