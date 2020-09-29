@@ -17,7 +17,7 @@ public class ObjectionResponseDTO {
     private String createdOn;
 
     @JsonProperty("created_by")
-    private CreatedBy createdBy;
+    private CreatedByResponseDTO createdBy;
 
     @JsonProperty("company_number")
     private String companyNumber;
@@ -54,11 +54,11 @@ public class ObjectionResponseDTO {
         this.createdOn = createdOn;
     }
 
-    public CreatedBy getCreatedBy() {
+    public CreatedByResponseDTO getCreatedBy() {
         return createdBy;
     }
 
-    public void setCreatedBy(CreatedBy createdBy) {
+    public void setCreatedBy(CreatedByResponseDTO createdBy) {
         this.createdBy = createdBy;
     }
 
