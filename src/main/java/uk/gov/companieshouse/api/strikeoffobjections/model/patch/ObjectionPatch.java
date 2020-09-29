@@ -1,9 +1,13 @@
 package uk.gov.companieshouse.api.strikeoffobjections.model.patch;
 
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.ObjectionStatus;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class ObjectionPatch {
+
+    @JsonProperty("full_name")
     private String fullName;
+    @JsonProperty("share_identity")
     private Boolean shareIdentity;
     private String reason;
     private ObjectionStatus status;
