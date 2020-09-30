@@ -18,10 +18,6 @@ public class CreatedByResponseDTO {
     @JsonProperty("share_identity")
     private boolean shareIdentity;
 
-    public CreatedByResponseDTO() {
-
-    }
-
     public String getId() {
         return id;
     }
