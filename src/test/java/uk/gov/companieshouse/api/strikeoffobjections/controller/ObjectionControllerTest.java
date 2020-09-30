@@ -21,10 +21,12 @@ import uk.gov.companieshouse.api.strikeoffobjections.file.FileTransferApiClientR
 import uk.gov.companieshouse.api.strikeoffobjections.groups.Unit;
 import uk.gov.companieshouse.api.strikeoffobjections.model.create.ObjectionCreate;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Attachment;
+import uk.gov.companieshouse.api.strikeoffobjections.model.entity.CreatedBy;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Objection;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.ObjectionStatus;
 import uk.gov.companieshouse.api.strikeoffobjections.model.patch.ObjectionPatch;
 import uk.gov.companieshouse.api.strikeoffobjections.model.response.AttachmentResponseDTO;
+import uk.gov.companieshouse.api.strikeoffobjections.model.response.CreatedByResponseDTO;
 import uk.gov.companieshouse.api.strikeoffobjections.model.response.ObjectionResponseDTO;
 import uk.gov.companieshouse.api.strikeoffobjections.service.IObjectionService;
 import uk.gov.companieshouse.api.strikeoffobjections.utils.Utils;
@@ -47,7 +49,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -289,7 +290,7 @@ class ObjectionControllerTest {
     }
 
     @Test
-    void testMapper() {
+    void testAttachmentMapper() {
         //given
         Attachment attachment = new Attachment();
         attachment.setId("123-456");
@@ -312,6 +313,23 @@ class ObjectionControllerTest {
         assertEquals("TEXT", attachmentDTO.getContentType());
         assertEquals(5, attachmentDTO.getSize());
         assertEquals("link to SELF", attachmentDTO.getLinks().getLink(CoreLinkKeys.SELF));
+    }
+
+    @Test
+    void testCreatedByMapper() {
+        //given
+        CreatedBy createdBy = new CreatedBy("abc-123", "jb@ch.gov.uk", "Joe Bloggs", true);
+
+        //when
+        CreatedByMapper mapper = Mappers.getMapper(CreatedByMapper.class);
+        CreatedByResponseDTO createdByResponseDTO = mapper.createdByEntityToCreatedByResponseDTO(createdBy);
+
+        //then
+        assertNotNull(createdByResponseDTO);
+        assertEquals("abc-123", createdByResponseDTO.getId());
+        assertEquals("jb@ch.gov.uk", createdByResponseDTO.getEmail());
+        assertEquals("Joe Bloggs", createdByResponseDTO.getFullName());
+        assertTrue( createdByResponseDTO.isShareIdentity());
     }
 
     @Test

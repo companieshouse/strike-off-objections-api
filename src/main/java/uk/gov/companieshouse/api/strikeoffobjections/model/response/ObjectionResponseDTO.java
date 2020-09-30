@@ -2,7 +2,6 @@ package uk.gov.companieshouse.api.strikeoffobjections.model.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import uk.gov.companieshouse.api.strikeoffobjections.model.entity.CreatedBy;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.ObjectionStatus;
 
 import java.util.List;
@@ -17,7 +16,7 @@ public class ObjectionResponseDTO {
     private String createdOn;
 
     @JsonProperty("created_by")
-    private CreatedBy createdBy;
+    private CreatedByResponseDTO createdBy;
 
     @JsonProperty("company_number")
     private String companyNumber;
@@ -54,11 +53,11 @@ public class ObjectionResponseDTO {
         this.createdOn = createdOn;
     }
 
-    public CreatedBy getCreatedBy() {
+    public CreatedByResponseDTO getCreatedBy() {
         return createdBy;
     }
 
-    public void setCreatedBy(CreatedBy createdBy) {
+    public void setCreatedBy(CreatedByResponseDTO createdBy) {
         this.createdBy = createdBy;
     }
 
