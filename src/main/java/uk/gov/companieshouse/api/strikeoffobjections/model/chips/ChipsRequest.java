@@ -32,10 +32,10 @@ public class ChipsRequest {
     public ChipsRequest(String objectionId, String companyNumber,
                         List<Attachment> attachments, String referenceNumber,
                         String customerEmail, String reason,
-                        String dowloadPrefix) {
+                        String downloadPrefix) {
         this.objectionId = objectionId;
         this.companyNumber = companyNumber;
-        this.attachments = buildAttachmentsMap(dowloadPrefix, attachments);
+        this.attachments = buildAttachmentsMap(downloadPrefix, attachments);
         this.referenceNumber = referenceNumber;
         this.customerEmail = customerEmail;
         this.reason = reason;
@@ -65,14 +65,14 @@ public class ChipsRequest {
         return reason;
     }
 
-    private Map<String, String> buildAttachmentsMap(String dowloadPrefix,
+    private Map<String, String> buildAttachmentsMap(String downloadPrefix,
                                                     List<Attachment> attachments) {
         Map<String, String> attachmentsMap = new HashMap<>();
         for (Attachment attachment : attachments) {
             String name = attachment.getName();
             Links links = attachment.getLinks();
             if(links != null) {
-                String downloadLink = String.format("%s%s", dowloadPrefix,
+                String downloadLink = String.format("%s%s", downloadPrefix,
                         links.getLink(CoreLinkKeys.SELF));
                 attachmentsMap.put(name, downloadLink);
             }
