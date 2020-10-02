@@ -30,12 +30,13 @@ public class ChipsRequest {
     private final String reason;
 
     public ChipsRequest(String objectionId, String companyNumber,
-                        List<Attachment> attachments,
-                        String customerEmail, String reason) {
+                        List<Attachment> attachments, String referenceNumber,
+                        String customerEmail, String reason,
+                        String dowloadPrefix) {
         this.objectionId = objectionId;
         this.companyNumber = companyNumber;
-        this.attachments = buildAttachmentsMap(attachments);
-        this.referenceNumber = ""; // TODO OBJ-162 add ref number
+        this.attachments = buildAttachmentsMap(dowloadPrefix, attachments);
+        this.referenceNumber = referenceNumber;
         this.customerEmail = customerEmail;
         this.reason = reason;
     }
@@ -64,13 +65,16 @@ public class ChipsRequest {
         return reason;
     }
 
-    private Map<String, String> buildAttachmentsMap(List<Attachment> attachments) {
+    private Map<String, String> buildAttachmentsMap(String dowloadPrefix,
+                                                    List<Attachment> attachments) {
         Map<String, String> attachmentsMap = new HashMap<>();
         for (Attachment attachment : attachments) {
             String name = attachment.getName();
             Links links = attachment.getLinks();
             if(links != null) {
-                attachmentsMap.put(name, links.getLink(CoreLinkKeys.SELF));
+                String downloadLink = String.format("%s%s", dowloadPrefix,
+                        links.getLink(CoreLinkKeys.SELF));
+                attachmentsMap.put(name, downloadLink);
             }
         }
         return attachmentsMap;

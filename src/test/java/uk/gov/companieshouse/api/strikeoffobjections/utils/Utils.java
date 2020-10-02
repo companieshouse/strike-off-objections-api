@@ -100,12 +100,12 @@ public class Utils {
     public static void setTestAttachmentsWithLinks(List<Attachment> attachments) {
         Attachment attachment1 = Utils.buildTestAttachment("id1", "TestAttachment1");
         Links links1 = new Links();
-        links1.setLink(CoreLinkKeys.SELF, "link to SELF 1");
+        links1.setLink(CoreLinkKeys.SELF, "/url1");
         attachment1.setLinks(links1);
         attachments.add(attachment1);
         Attachment attachment2 = Utils.buildTestAttachment("id1", "TestAttachment2");
         Links links2 = new Links();
-        links2.setLink(CoreLinkKeys.SELF, "link to SELF 2");
+        links2.setLink(CoreLinkKeys.SELF, "/url2");
         attachment2.setLinks(links2);
         attachments.add(attachment2);
     }
