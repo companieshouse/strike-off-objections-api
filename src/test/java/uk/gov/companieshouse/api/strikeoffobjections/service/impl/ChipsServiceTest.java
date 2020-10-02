@@ -29,6 +29,7 @@ import uk.gov.companieshouse.service.ServiceException;
 @ExtendWith(MockitoExtension.class)
 public class ChipsServiceTest {
 
+    private static final String REQUEST_ID = "test123";
     private static final String OBJECTION_ID = "OBJECTION_ID";
     private static final String COMPANY_NUMBER = "COMPANY_NUMBER";
     private static final LocalDateTime LOCAL_DATE_TIME = LocalDateTime.of(2020, 12, 10, 8, 0);
@@ -53,10 +54,10 @@ public class ChipsServiceTest {
         Utils.setTestAttachmentsWithLinks(attachments);
         objection.setAttachments(attachments);
 
-        chipsService.sendObjection(OBJECTION_ID, objection);
+        chipsService.sendObjection(REQUEST_ID, objection);
         ArgumentCaptor<ChipsRequest> chipsRequestArgumentCaptor = ArgumentCaptor.forClass(ChipsRequest.class);
 
-        verify(chipsClient, times(1)).sendToChips(eq(OBJECTION_ID), chipsRequestArgumentCaptor.capture());
+        verify(chipsClient, times(1)).sendToChips(eq(REQUEST_ID), chipsRequestArgumentCaptor.capture());
 
         ChipsRequest chipsRequest = chipsRequestArgumentCaptor.getValue();
 

@@ -25,8 +25,8 @@ import static org.mockito.Mockito.when;
 @Unit
 @ExtendWith(MockitoExtension.class)
 class ChipsClientTest {
-
     private static final String REQUEST_ID = "test123";
+    private static final String OBJECTION_ID = "OBJECTION_ID";
     private static final String COMPANY_NUMBER = "12345678";
     private static final List<Attachment> ATTACHMENTS = new ArrayList<>();
     private static final String CUSTOMER_EMAIL = "test123@ch.gov.uk";
@@ -48,10 +48,10 @@ class ChipsClientTest {
         Utils.setTestAttachmentsWithLinks(ATTACHMENTS);
         ReflectionTestUtils.setField(chipsClient, "chipsRestUrl", CHIPS_REST_URL);
         ChipsRequest chipsRequest = new ChipsRequest(
-                REQUEST_ID,
+                OBJECTION_ID,
                 COMPANY_NUMBER,
                 ATTACHMENTS,
-                REQUEST_ID,
+                OBJECTION_ID,
                 CUSTOMER_EMAIL,
                 REASON,
                 DOWNLOAD_URL_PREFIX
