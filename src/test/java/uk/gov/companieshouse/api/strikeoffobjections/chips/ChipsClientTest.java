@@ -18,7 +18,6 @@ import uk.gov.companieshouse.api.strikeoffobjections.utils.Utils;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -27,7 +26,7 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class ChipsClientTest {
 
-    private static final String OBJECTION_ID = "test123";
+    private static final String REQUEST_ID = "test123";
     private static final String COMPANY_NUMBER = "12345678";
     private static final List<Attachment> ATTACHMENTS = new ArrayList<>();
     private static final String CUSTOMER_EMAIL = "test123@ch.gov.uk";
@@ -49,10 +48,10 @@ class ChipsClientTest {
         Utils.setTestAttachmentsWithLinks(ATTACHMENTS);
         ReflectionTestUtils.setField(chipsClient, "chipsRestUrl", CHIPS_REST_URL);
         ChipsRequest chipsRequest = new ChipsRequest(
-                OBJECTION_ID,
+                REQUEST_ID,
                 COMPANY_NUMBER,
                 ATTACHMENTS,
-                OBJECTION_ID,
+                REQUEST_ID,
                 CUSTOMER_EMAIL,
                 REASON,
                 DOWNLOAD_URL_PREFIX
@@ -60,7 +59,7 @@ class ChipsClientTest {
 
         when(restTemplate.postForEntity(CHIPS_REST_URL, chipsRequest, String.class)).thenReturn(new ResponseEntity<>(HttpStatus.OK));
 
-        chipsClient.sendToChips(OBJECTION_ID, chipsRequest);
+        chipsClient.sendToChips(REQUEST_ID, chipsRequest);
         verify(restTemplate, times(1)).postForEntity(CHIPS_REST_URL, chipsRequest, String.class);
     }
 

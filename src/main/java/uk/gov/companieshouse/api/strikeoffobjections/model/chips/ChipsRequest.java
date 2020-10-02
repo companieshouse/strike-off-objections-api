@@ -85,10 +85,15 @@ public class ChipsRequest {
 
     @Override
     public String toString() {
+        StringBuilder sb = new StringBuilder();
+        for(String key : attachments.keySet()) {
+            sb.append(String.format("%s:%s,", key, attachments.get(key)));
+        }
+        String attachments = sb.toString().substring(0, sb.length()-1);
         return "ChipsRequest{" +
             "objectionId='" + objectionId + '\'' +
             ",companyNumber='" + companyNumber + '\'' +
-            ",attachments='" + attachments.values() + '\'' +
+            ",attachments='" + attachments + '\'' +
             ",referenceNumber='" + referenceNumber + '\'' +
             ",customerEmail='" + customerEmail + '\'' +
             ",reason='" + reason + '\'' +
