@@ -9,7 +9,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class ChipsRequestTest {
+class ChipsRequestTest {
 
     private static final String OBJECTION_ID = "test123";
     private static final String COMPANY_NUMBER = "12345678";
@@ -19,7 +19,7 @@ public class ChipsRequestTest {
     private static final String DOWNLOAD_URL_PREFIX = "http://chs-test-web:4000/strike-off-objections/download";
 
     @Test
-    public void testFieldsAndAttachmentConstruction()
+    void testFieldsAndAttachmentConstruction()
     {
         Utils.setTestAttachmentsWithLinks(ATTACHMENTS);
         ChipsRequest chipsRequest = new ChipsRequest(
