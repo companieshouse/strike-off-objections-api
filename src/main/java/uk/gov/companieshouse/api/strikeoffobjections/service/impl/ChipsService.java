@@ -28,7 +28,7 @@ public class ChipsService implements IChipsService {
                 objection.getId(),
                 objection.getCompanyNumber(),
                 objection.getAttachments(),
-                objection.getId(),
+                objection.getId(), // TODO OBJ-162 add ref number
                 objection.getCreatedBy().getEmail(),
                 objection.getReason(),
                 attachmentDownloadUrlPrefix
