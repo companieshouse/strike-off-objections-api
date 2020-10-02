@@ -29,9 +29,12 @@ public class ChipsRequest {
     @JsonProperty("reason")
     private final String reason;
 
-    public ChipsRequest(String objectionId, String companyNumber,
-                        List<Attachment> attachments, String referenceNumber,
-                        String customerEmail, String reason,
+    public ChipsRequest(String objectionId,
+                        String companyNumber,
+                        List<Attachment> attachments,
+                        String referenceNumber,
+                        String customerEmail,
+                        String reason,
                         String downloadPrefix) {
         this.objectionId = objectionId;
         this.companyNumber = companyNumber;
