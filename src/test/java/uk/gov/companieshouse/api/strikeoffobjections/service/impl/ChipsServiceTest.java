@@ -6,6 +6,8 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,9 +19,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.companieshouse.api.strikeoffobjections.chips.ChipsClient;
 import uk.gov.companieshouse.api.strikeoffobjections.groups.Unit;
 import uk.gov.companieshouse.api.strikeoffobjections.model.chips.ChipsRequest;
+import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Attachment;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Objection;
 import uk.gov.companieshouse.api.strikeoffobjections.utils.Utils;
 import uk.gov.companieshouse.service.ServiceException;
+import uk.gov.companieshouse.service.links.CoreLinkKeys;
 
 @Unit
 @ExtendWith(MockitoExtension.class)
@@ -44,6 +48,9 @@ public class ChipsServiceTest {
         Objection objection = Utils.getTestObjection(
                 OBJECTION_ID, REASON, COMPANY_NUMBER, USER_ID, EMAIL, LOCAL_DATE_TIME,
                 Utils.buildTestObjectionCreate("Joe Bloggs", false));
+        List<Attachment> attachments = new ArrayList<>();
+        Utils.setTestAttachmentsWithLinks(attachments);
+        objection.setAttachments(attachments);
 
         chipsService.sendObjection(REQUEST_ID, objection);
         ArgumentCaptor<ChipsRequest> chipsRequestArgumentCaptor = ArgumentCaptor.forClass(ChipsRequest.class);
@@ -54,5 +61,12 @@ public class ChipsServiceTest {
 
         assertEquals(COMPANY_NUMBER, chipsRequest.getCompanyNumber());
         assertEquals(OBJECTION_ID, chipsRequest.getObjectionId());
+        assertEquals(EMAIL, chipsRequest.getCustomerEmail());
+        assertEquals(REASON, chipsRequest.getReason());
+
+        assertEquals("link to SELF 1",
+                chipsRequest.getAttachments().get("TestAttachment1"));
+        assertEquals("link to SELF 2",
+                chipsRequest.getAttachments().get("TestAttachment2"));
     }
 }

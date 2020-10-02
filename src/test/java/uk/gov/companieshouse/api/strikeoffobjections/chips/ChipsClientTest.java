@@ -12,7 +12,17 @@ import org.springframework.web.client.RestTemplate;
 import uk.gov.companieshouse.api.strikeoffobjections.common.ApiLogger;
 import uk.gov.companieshouse.api.strikeoffobjections.groups.Unit;
 import uk.gov.companieshouse.api.strikeoffobjections.model.chips.ChipsRequest;
+import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Attachment;
+import uk.gov.companieshouse.api.strikeoffobjections.utils.Utils;
+import uk.gov.companieshouse.service.links.CoreLinkKeys;
+import uk.gov.companieshouse.service.links.Links;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -23,6 +33,9 @@ class ChipsClientTest {
 
     private static final String REQUEST_ID = "test123";
     private static final String COMPANY_NUMBER = "12345678";
+    private static final List<Attachment> ATTACHMENTS = new ArrayList<>();
+    private static final String CUSTOMER_EMAIL = "test123@ch.gov.uk";
+    private static final String REASON = "This is a test";
     private static final String CHIPS_REST_URL = "test.url";
 
     @InjectMocks
@@ -35,16 +48,25 @@ class ChipsClientTest {
     private RestTemplate restTemplate;
 
     @Test
-    void testSendMessageToChips(){
+    void testSendMessageToChips() {
+        Utils.setTestAttachmentsWithLinks(ATTACHMENTS);
         ReflectionTestUtils.setField(chipsClient, "chipsRestUrl", CHIPS_REST_URL);
         ChipsRequest chipsRequest = new ChipsRequest(
                 REQUEST_ID,
-                COMPANY_NUMBER
+                COMPANY_NUMBER,
+                ATTACHMENTS,
+                CUSTOMER_EMAIL,
+                REASON
         );
 
+        assertEquals("link to SELF 1",
+        chipsRequest.getAttachments().get("TestAttachment1"));
+        assertEquals("link to SELF 2",
+                chipsRequest.getAttachments().get("TestAttachment2"));
         when(restTemplate.postForEntity(CHIPS_REST_URL, chipsRequest, String.class)).thenReturn(new ResponseEntity<>(HttpStatus.OK));
 
         chipsClient.sendToChips(REQUEST_ID, chipsRequest);
         verify(restTemplate, times(1)).postForEntity(CHIPS_REST_URL, chipsRequest, String.class);
     }
+
 }

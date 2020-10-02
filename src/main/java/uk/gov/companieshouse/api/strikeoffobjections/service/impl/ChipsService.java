@@ -22,7 +22,10 @@ public class ChipsService implements IChipsService {
     public void sendObjection(String requestId, Objection objection) {
         ChipsRequest chipsRequest = new ChipsRequest(
                 objection.getId(),
-                objection.getCompanyNumber()
+                objection.getCompanyNumber(),
+                objection.getAttachments(),
+                objection.getCreatedBy().getEmail(),
+                objection.getReason()
         );
 
         this.chipsClient.sendToChips(requestId, chipsRequest);
