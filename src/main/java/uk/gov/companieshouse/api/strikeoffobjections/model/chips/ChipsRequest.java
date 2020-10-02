@@ -89,7 +89,7 @@ public class ChipsRequest {
         for(String key : attachments.keySet()) {
             sb.append(String.format("%s:%s,", key, attachments.get(key)));
         }
-        String attachments = sb.toString().substring(0, sb.length()-1);
+        String attachments = sb.toString().substring(0, sb.length()-2);
         return "ChipsRequest{" +
             "objectionId='" + objectionId + '\'' +
             ",companyNumber='" + companyNumber + '\'' +
