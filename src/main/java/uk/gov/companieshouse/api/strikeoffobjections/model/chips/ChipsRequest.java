@@ -2,7 +2,7 @@ package uk.gov.companieshouse.api.strikeoffobjections.model.chips;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Attachment;
-import uk.gov.companieshouse.service.links.CoreLinkKeys;
+import uk.gov.companieshouse.api.strikeoffobjections.model.entity.ObjectionLinkKeys;
 import uk.gov.companieshouse.service.links.Links;
 
 import java.util.HashMap;
@@ -76,7 +76,7 @@ public class ChipsRequest {
             Links links = attachment.getLinks();
             if(links != null) {
                 String downloadLink = String.format("%s%s", downloadPrefix,
-                        links.getLink(CoreLinkKeys.SELF));
+                        links.getLink(ObjectionLinkKeys.DOWNLOAD));
                 attachmentsMap.put(name, downloadLink);
             }
         }

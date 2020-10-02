@@ -66,9 +66,9 @@ public class ChipsServiceTest {
         assertEquals(EMAIL, chipsRequest.getCustomerEmail());
         assertEquals(REASON, chipsRequest.getReason());
 
-        assertEquals(String.format("%s/url1", DOWNLOAD_URL_PREFIX),
+        assertEquals(String.format("%s/url1/download", DOWNLOAD_URL_PREFIX),
                 chipsRequest.getAttachments().get("TestAttachment1"));
-        assertEquals(String.format("%s/url2", DOWNLOAD_URL_PREFIX),
+        assertEquals(String.format("%s/url2/download", DOWNLOAD_URL_PREFIX),
                 chipsRequest.getAttachments().get("TestAttachment2"));
     }
 }

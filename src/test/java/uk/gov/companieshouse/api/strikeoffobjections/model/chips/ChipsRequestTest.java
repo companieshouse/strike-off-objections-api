@@ -34,9 +34,9 @@ class ChipsRequestTest {
 
 
         assertEquals(COMPANY_NUMBER, chipsRequest.getCompanyNumber());
-        assertEquals(String.format("%s/url1", DOWNLOAD_URL_PREFIX),
+        assertEquals(String.format("%s/url1/download", DOWNLOAD_URL_PREFIX),
                 chipsRequest.getAttachments().get("TestAttachment1"));
-        assertEquals(String.format("%s/url2", DOWNLOAD_URL_PREFIX),
+        assertEquals(String.format("%s/url2/download", DOWNLOAD_URL_PREFIX),
                 chipsRequest.getAttachments().get("TestAttachment2"));
         assertEquals(OBJECTION_ID, chipsRequest.getReferenceNumber());
         assertEquals(CUSTOMER_EMAIL, chipsRequest.getCustomerEmail());
