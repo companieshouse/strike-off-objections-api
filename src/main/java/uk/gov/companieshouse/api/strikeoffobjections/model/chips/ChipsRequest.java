@@ -1,10 +1,12 @@
 package uk.gov.companieshouse.api.strikeoffobjections.model.chips;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.apache.commons.lang.StringUtils;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Attachment;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.ObjectionLinkKeys;
 import uk.gov.companieshouse.service.links.Links;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -70,11 +72,15 @@ public class ChipsRequest {
 
     private Map<String, String> buildAttachmentsMap(String downloadPrefix,
                                                     List<Attachment> attachments) {
+        if (attachments == null) {
+            return null;
+        }
+
         Map<String, String> attachmentsMap = new HashMap<>();
         for (Attachment attachment : attachments) {
             String name = attachment.getName();
             Links links = attachment.getLinks();
-            if(links != null) {
+            if (links != null) {
                 String downloadLink = String.format("%s%s", downloadPrefix,
                         links.getLink(ObjectionLinkKeys.DOWNLOAD));
                 attachmentsMap.put(name, downloadLink);
@@ -85,18 +91,17 @@ public class ChipsRequest {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        for(String key : attachments.keySet()) {
-            sb.append(String.format("%s:%s,", key, attachments.get(key)));
-        }
-        String attachments = sb.toString().substring(0, sb.length()-2);
         return "ChipsRequest{" +
             "objectionId='" + objectionId + '\'' +
             ",companyNumber='" + companyNumber + '\'' +
-            ",attachments='" + attachments + '\'' +
+            ",attachments='" + getAttachmentsAsString() + '\'' +
             ",referenceNumber='" + referenceNumber + '\'' +
             ",customerEmail='" + customerEmail + '\'' +
             ",reason='" + reason + '\'' +
             "}";
+    }
+
+    private String getAttachmentsAsString() {
+        return StringUtils.join(Collections.singleton(attachments), ',');
     }
 }
