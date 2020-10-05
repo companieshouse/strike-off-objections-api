@@ -16,6 +16,9 @@ import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Attachment;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.CreatedBy;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Objection;
 import uk.gov.companieshouse.api.strikeoffobjections.model.email.EmailContent;
+import uk.gov.companieshouse.api.strikeoffobjections.model.entity.ObjectionLinkKeys;
+import uk.gov.companieshouse.service.links.CoreLinkKeys;
+import uk.gov.companieshouse.service.links.Links;
 
 import java.io.File;
 import java.io.IOException;
@@ -93,6 +96,19 @@ public class Utils {
         attachment.setId(id);
         attachment.setName(name);
         return attachment;
+    }
+
+    public static void setTestAttachmentsWithLinks(List<Attachment> attachments) {
+        Attachment attachment1 = Utils.buildTestAttachment("id1", "TestAttachment1");
+        Links links1 = new Links();
+        links1.setLink(ObjectionLinkKeys.DOWNLOAD, "/url1/download");
+        attachment1.setLinks(links1);
+        attachments.add(attachment1);
+        Attachment attachment2 = Utils.buildTestAttachment("id1", "TestAttachment2");
+        Links links2 = new Links();
+        links2.setLink(ObjectionLinkKeys.DOWNLOAD, "/url2/download");
+        attachment2.setLinks(links2);
+        attachments.add(attachment2);
     }
 
     public static MultipartFile mockMultipartFile() throws IOException {
