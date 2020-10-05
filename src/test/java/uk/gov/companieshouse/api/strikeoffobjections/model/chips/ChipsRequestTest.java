@@ -81,4 +81,26 @@ class ChipsRequestTest {
 
         assertEquals(expectedOutput, actualOutput);
     }
+
+    @Test
+    void testToStringNullAttachments() {
+        String expectedOutput = "ChipsRequest{objectionId='test123',companyNumber='12345678',attachments=''," +
+                "referenceNumber='test123',customerEmail='test123@ch.gov.uk',reason='This is a test'}";
+
+
+        Utils.setTestAttachmentsWithLinks(ATTACHMENTS);
+        ChipsRequest chipsRequest = new ChipsRequest(
+                OBJECTION_ID,
+                COMPANY_NUMBER,
+                null,
+                OBJECTION_ID,
+                CUSTOMER_EMAIL,
+                REASON,
+                DOWNLOAD_URL_PREFIX
+        );
+
+        String actualOutput = chipsRequest.toString();
+
+        assertEquals(expectedOutput, actualOutput);
+    }
 }
