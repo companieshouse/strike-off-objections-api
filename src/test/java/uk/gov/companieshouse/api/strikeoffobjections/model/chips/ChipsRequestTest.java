@@ -87,7 +87,6 @@ class ChipsRequestTest {
         String expectedOutput = "ChipsRequest{objectionId='test123',companyNumber='12345678',attachments=''," +
                 "referenceNumber='test123',customerEmail='test123@ch.gov.uk',reason='This is a test'}";
 
-
         Utils.setTestAttachmentsWithLinks(ATTACHMENTS);
         ChipsRequest chipsRequest = new ChipsRequest(
                 OBJECTION_ID,
