@@ -135,6 +135,13 @@ public class ObjectionService implements IObjectionService {
         return objectionStatus;
     }
 
+    public boolean isCompanyEligible(String companyNumber, String requestId) {
+        Long actionCode = getActionCode(companyNumber, requestId);
+        final ObjectionStatus objectionStatus = getObjectionStatusForCreate(actionCode, companyNumber, requestId);
+
+        return !objectionStatus.isIneligible();
+    }
+
     /**
      * Update the Objection data with the provided patch data
      * Triggers the processing of the Objection if status is changed

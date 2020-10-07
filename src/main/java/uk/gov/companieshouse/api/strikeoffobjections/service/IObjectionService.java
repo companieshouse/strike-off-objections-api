@@ -43,4 +43,6 @@ public interface IObjectionService {
 
     FileTransferApiClientResponse downloadAttachment(
             String requestId, String objectionId, String attachmentId, HttpServletResponse response) throws ServiceException;
+
+    boolean isCompanyEligible(String companyNumber, String requestId);
 }

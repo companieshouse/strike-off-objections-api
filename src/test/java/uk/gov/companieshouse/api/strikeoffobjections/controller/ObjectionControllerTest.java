@@ -46,6 +46,7 @@ import java.util.List;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -568,4 +569,21 @@ class ObjectionControllerTest {
         assertNull(responseEntity.getBody());
         assertTrue(responseEntity.getHeaders().isEmpty());
     }
+
+    @Test
+    public void isCompanyEligibleForObjectionTestTrueReturned() {
+        when(objectionService.isCompanyEligible(COMPANY_NUMBER, REQUEST_ID)).thenReturn(true);
+        ResponseEntity<Boolean> responseEntity = objectionController.isCompanyEligibleForObjection(COMPANY_NUMBER, REQUEST_ID);
+        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+        assertTrue(responseEntity.getBody());
+    }
+
+    @Test
+    public void isCompanyEligibleForObjectionTestFalseReturned() {
+        when(objectionService.isCompanyEligible(COMPANY_NUMBER, REQUEST_ID)).thenReturn(false);
+        ResponseEntity<Boolean> responseEntity = objectionController.isCompanyEligibleForObjection(COMPANY_NUMBER, REQUEST_ID);
+        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+        assertFalse(responseEntity.getBody());
+    }
+
 }

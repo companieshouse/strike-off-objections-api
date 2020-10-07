@@ -692,4 +692,29 @@ class ObjectionServiceTest {
         assertNotNull(downloadServiceResult);
         assertEquals(HttpStatus.OK, downloadServiceResult.getHttpStatus());
     }
+
+    @Test
+    void willReturnTrueEligibilityResponseWhenActionCodeOk() throws ValidationException {
+
+        when(oracleQueryClient.getCompanyActionCode(COMPANY_NUMBER)).thenReturn(ACTION_CODE_OK);
+        boolean response = objectionService.isCompanyEligible(COMPANY_NUMBER, REQUEST_ID);
+
+        verify(oracleQueryClient).getCompanyActionCode(COMPANY_NUMBER);
+        verify(actionCodeValidator).validate(ACTION_CODE_OK, REQUEST_ID);
+
+        assertTrue(response);
+    }
+
+    @Test
+    void willReturnFalseEligibilityResponseWhenActionCodeIneligible() throws ValidationException {
+
+        when(oracleQueryClient.getCompanyActionCode(COMPANY_NUMBER)).thenReturn(ACTION_CODE_INELIGIBLE);
+        doThrow(new ValidationException(INELIGIBLE_COMPANY_STRUCK_OFF)).when(actionCodeValidator).validate(ACTION_CODE_INELIGIBLE, REQUEST_ID);
+        boolean response = objectionService.isCompanyEligible(COMPANY_NUMBER, REQUEST_ID);
+
+        verify(oracleQueryClient).getCompanyActionCode(COMPANY_NUMBER);
+        verify(actionCodeValidator).validate(ACTION_CODE_INELIGIBLE, REQUEST_ID);
+
+        assertFalse(response);
+    }
 }

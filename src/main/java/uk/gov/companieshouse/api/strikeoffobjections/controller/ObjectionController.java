@@ -501,4 +501,11 @@ public class ObjectionController {
             );
         }
     }
+
+    @GetMapping("/status")
+    public ResponseEntity<Boolean> isCompanyEligibleForObjection(@PathVariable("companyNumber") String companyNumber,
+                                                                 @RequestHeader(value = ERIC_REQUEST_ID) String requestId) {
+        boolean result = objectionService.isCompanyEligible(companyNumber, requestId);
+        return new ResponseEntity<>(result, HttpStatus.OK);
+    }
 }
