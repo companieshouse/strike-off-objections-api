@@ -572,7 +572,7 @@ class ObjectionControllerTest {
     }
 
     @Test
-    public void isCompanyEligibleForObjectionTestTrueReturned() {
+    void isCompanyEligibleForObjectionTestTrueReturned() {
         ObjectionEligibility objectionEligibility = new ObjectionEligibility();
         objectionEligibility.setEligible(true);
         when(objectionService.isCompanyEligible(COMPANY_NUMBER, REQUEST_ID)).thenReturn(objectionEligibility);
@@ -582,7 +582,7 @@ class ObjectionControllerTest {
     }
 
     @Test
-    public void isCompanyEligibleForObjectionTestFalseReturned() {
+    void isCompanyEligibleForObjectionTestFalseReturned() {
         ObjectionEligibility objectionEligibility = new ObjectionEligibility();
         objectionEligibility.setEligible(false);
         when(objectionService.isCompanyEligible(COMPANY_NUMBER, REQUEST_ID)).thenReturn(objectionEligibility);
