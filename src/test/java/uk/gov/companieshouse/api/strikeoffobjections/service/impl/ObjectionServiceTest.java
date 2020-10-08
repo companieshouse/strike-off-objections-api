@@ -21,6 +21,7 @@ import uk.gov.companieshouse.api.strikeoffobjections.file.FileTransferApiClient;
 import uk.gov.companieshouse.api.strikeoffobjections.file.FileTransferApiClientResponse;
 import uk.gov.companieshouse.api.strikeoffobjections.file.ObjectionsLinkKeys;
 import uk.gov.companieshouse.api.strikeoffobjections.groups.Unit;
+import uk.gov.companieshouse.api.strikeoffobjections.model.eligibility.ObjectionEligibility;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Attachment;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.CreatedBy;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Objection;
@@ -697,12 +698,12 @@ class ObjectionServiceTest {
     void willReturnTrueEligibilityResponseWhenActionCodeOk() throws ValidationException {
 
         when(oracleQueryClient.getCompanyActionCode(COMPANY_NUMBER)).thenReturn(ACTION_CODE_OK);
-        boolean response = objectionService.isCompanyEligible(COMPANY_NUMBER, REQUEST_ID);
+        ObjectionEligibility response = objectionService.isCompanyEligible(COMPANY_NUMBER, REQUEST_ID);
 
         verify(oracleQueryClient).getCompanyActionCode(COMPANY_NUMBER);
         verify(actionCodeValidator).validate(ACTION_CODE_OK, REQUEST_ID);
 
-        assertTrue(response);
+        assertTrue(response.isEligible());
     }
 
     @Test
@@ -710,11 +711,11 @@ class ObjectionServiceTest {
 
         when(oracleQueryClient.getCompanyActionCode(COMPANY_NUMBER)).thenReturn(ACTION_CODE_INELIGIBLE);
         doThrow(new ValidationException(INELIGIBLE_COMPANY_STRUCK_OFF)).when(actionCodeValidator).validate(ACTION_CODE_INELIGIBLE, REQUEST_ID);
-        boolean response = objectionService.isCompanyEligible(COMPANY_NUMBER, REQUEST_ID);
+        ObjectionEligibility response = objectionService.isCompanyEligible(COMPANY_NUMBER, REQUEST_ID);
 
         verify(oracleQueryClient).getCompanyActionCode(COMPANY_NUMBER);
         verify(actionCodeValidator).validate(ACTION_CODE_INELIGIBLE, REQUEST_ID);
 
-        assertFalse(response);
+        assertFalse(response.isEligible());
     }
 }

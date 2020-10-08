@@ -8,6 +8,7 @@ import uk.gov.companieshouse.api.strikeoffobjections.exception.InvalidObjectionS
 import uk.gov.companieshouse.api.strikeoffobjections.exception.ObjectionNotFoundException;
 import uk.gov.companieshouse.api.strikeoffobjections.file.FileTransferApiClientResponse;
 import uk.gov.companieshouse.api.strikeoffobjections.model.create.ObjectionCreate;
+import uk.gov.companieshouse.api.strikeoffobjections.model.eligibility.ObjectionEligibility;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Attachment;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Objection;
 import uk.gov.companieshouse.api.strikeoffobjections.model.patch.ObjectionPatch;
@@ -44,5 +45,5 @@ public interface IObjectionService {
     FileTransferApiClientResponse downloadAttachment(
             String requestId, String objectionId, String attachmentId, HttpServletResponse response) throws ServiceException;
 
-    boolean isCompanyEligible(String companyNumber, String requestId);
+    ObjectionEligibility isCompanyEligible(String companyNumber, String requestId);
 }

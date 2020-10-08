@@ -20,6 +20,7 @@ import uk.gov.companieshouse.api.strikeoffobjections.exception.ObjectionNotFound
 import uk.gov.companieshouse.api.strikeoffobjections.file.FileTransferApiClientResponse;
 import uk.gov.companieshouse.api.strikeoffobjections.groups.Unit;
 import uk.gov.companieshouse.api.strikeoffobjections.model.create.ObjectionCreate;
+import uk.gov.companieshouse.api.strikeoffobjections.model.eligibility.ObjectionEligibility;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Attachment;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.CreatedBy;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Objection;
@@ -572,18 +573,22 @@ class ObjectionControllerTest {
 
     @Test
     public void isCompanyEligibleForObjectionTestTrueReturned() {
-        when(objectionService.isCompanyEligible(COMPANY_NUMBER, REQUEST_ID)).thenReturn(true);
-        ResponseEntity<Boolean> responseEntity = objectionController.isCompanyEligibleForObjection(COMPANY_NUMBER, REQUEST_ID);
+        ObjectionEligibility objectionEligibility = new ObjectionEligibility();
+        objectionEligibility.setEligible(true);
+        when(objectionService.isCompanyEligible(COMPANY_NUMBER, REQUEST_ID)).thenReturn(objectionEligibility);
+        ResponseEntity<ObjectionEligibility> responseEntity = objectionController.isCompanyEligibleForObjection(COMPANY_NUMBER, REQUEST_ID);
         assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
-        assertTrue(responseEntity.getBody());
+        assertTrue(responseEntity.getBody().isEligible());
     }
 
     @Test
     public void isCompanyEligibleForObjectionTestFalseReturned() {
-        when(objectionService.isCompanyEligible(COMPANY_NUMBER, REQUEST_ID)).thenReturn(false);
-        ResponseEntity<Boolean> responseEntity = objectionController.isCompanyEligibleForObjection(COMPANY_NUMBER, REQUEST_ID);
+        ObjectionEligibility objectionEligibility = new ObjectionEligibility();
+        objectionEligibility.setEligible(false);
+        when(objectionService.isCompanyEligible(COMPANY_NUMBER, REQUEST_ID)).thenReturn(objectionEligibility);
+        ResponseEntity<ObjectionEligibility> responseEntity = objectionController.isCompanyEligibleForObjection(COMPANY_NUMBER, REQUEST_ID);
         assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
-        assertFalse(responseEntity.getBody());
+        assertFalse(responseEntity.getBody().isEligible());
     }
 
 }
