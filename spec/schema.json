@@ -27,7 +27,7 @@
         ],
         "responses": {
           "200": {
-            "description": "an eligibility object has been returned successfully",
+            "description": "an Eligibility object has been returned successfully",
             "schema": {
               "$ref": "#/definitions/ObjectionEligibility"
             }
