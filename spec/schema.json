@@ -16,9 +16,9 @@
     }
   ],
   "paths": {
-    "/status": {
+    "/eligibility": {
       "get": {
-        "summary": "Returns information describing the strike-off status of the company",
+        "summary": "Returns information describing the strike-off eligibility of the company",
         "produces": [
           "application/json"
         ],
@@ -27,9 +27,9 @@
         ],
         "responses": {
           "200": {
-            "description": "a Status object has been returned successfully",
+            "description": "an Eligibility object has been returned successfully",
             "schema": {
-              "$ref": "#/definitions/StrikeOffStatus"
+              "$ref": "#/definitions/ObjectionEligibility"
             }
           },
           "404": {
@@ -344,14 +344,11 @@
         }
       }
     },
-    "StrikeOffStatus": {
+    "ObjectionEligibility": {
       "type": "object",
       "properties": {
         "isEligible": {
           "type": "boolean"
-        },
-        "strikeOffDate": {
-          "type": "string"
         }
       }
     },
