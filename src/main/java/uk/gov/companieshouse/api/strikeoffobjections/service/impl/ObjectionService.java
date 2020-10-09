@@ -18,6 +18,7 @@ import uk.gov.companieshouse.api.strikeoffobjections.file.FileTransferApiClient;
 import uk.gov.companieshouse.api.strikeoffobjections.file.FileTransferApiClientResponse;
 import uk.gov.companieshouse.api.strikeoffobjections.file.ObjectionsLinkKeys;
 import uk.gov.companieshouse.api.strikeoffobjections.model.create.ObjectionCreate;
+import uk.gov.companieshouse.api.strikeoffobjections.model.eligibility.ObjectionEligibility;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Attachment;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.CreatedBy;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Objection;
@@ -133,6 +134,15 @@ public class ObjectionService implements IObjectionService {
             logger.infoContext(logContext, "Action Code validation failed", logMap);
         }
         return objectionStatus;
+    }
+
+    public ObjectionEligibility isCompanyEligible(String companyNumber, String requestId) {
+        Long actionCode = getActionCode(companyNumber, requestId);
+        final ObjectionStatus objectionStatus = getObjectionStatusForCreate(actionCode, companyNumber, requestId);
+
+        ObjectionEligibility objectionEligibility = new ObjectionEligibility();
+        objectionEligibility.setEligible(!objectionStatus.isIneligible());
+        return objectionEligibility;
     }
 
     /**

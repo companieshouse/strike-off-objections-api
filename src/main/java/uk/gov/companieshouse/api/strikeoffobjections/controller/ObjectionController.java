@@ -22,6 +22,7 @@ import uk.gov.companieshouse.api.strikeoffobjections.exception.AttachmentNotFoun
 import uk.gov.companieshouse.api.strikeoffobjections.exception.ObjectionNotFoundException;
 import uk.gov.companieshouse.api.strikeoffobjections.file.FileTransferApiClientResponse;
 import uk.gov.companieshouse.api.strikeoffobjections.model.create.ObjectionCreate;
+import uk.gov.companieshouse.api.strikeoffobjections.model.eligibility.ObjectionEligibility;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Attachment;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Objection;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.ObjectionStatus;
@@ -500,5 +501,12 @@ public class ObjectionController {
                     logMap
             );
         }
+    }
+
+    @GetMapping("/eligibility")
+    public ResponseEntity<ObjectionEligibility> isCompanyEligibleForObjection(@PathVariable("companyNumber") String companyNumber,
+                                                                 @RequestHeader(value = ERIC_REQUEST_ID) String requestId) {
+        ObjectionEligibility result = objectionService.isCompanyEligible(companyNumber, requestId);
+        return new ResponseEntity<>(result, HttpStatus.OK);
     }
 }
