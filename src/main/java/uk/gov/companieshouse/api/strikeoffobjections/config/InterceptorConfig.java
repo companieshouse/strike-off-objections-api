@@ -19,6 +19,7 @@ public class InterceptorConfig implements WebMvcConfigurer {
 
     private static final String ATTACHMENTS_DOWNLOAD_PATH = "/**/attachments/**/download";
     private static final String STRIKE_OFF_OBJECTIONS_OBJECTION_ID = "/**/strike-off-objections/?**/**";
+    private static final String ELIGIBILITY_CHECK_PATH = "/**/strike-off-objections/eligibility";
 
     @Autowired
     private ApiLogger logger;
@@ -55,13 +56,15 @@ public class InterceptorConfig implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(attachmentDownloadAuthorizationInterceptor(logger))
-            .addPathPatterns(ATTACHMENTS_DOWNLOAD_PATH);
+                .addPathPatterns(ATTACHMENTS_DOWNLOAD_PATH);
         registry.addInterceptor(objectionInterceptor(objectionService, logger))
-                .addPathPatterns(STRIKE_OFF_OBJECTIONS_OBJECTION_ID);
+                .addPathPatterns(STRIKE_OFF_OBJECTIONS_OBJECTION_ID)
+                .excludePathPatterns(ELIGIBILITY_CHECK_PATH);
         registry.addInterceptor(companyNumberInterceptor(logger))
-                .addPathPatterns(STRIKE_OFF_OBJECTIONS_OBJECTION_ID);
+                .addPathPatterns(STRIKE_OFF_OBJECTIONS_OBJECTION_ID)
+                .excludePathPatterns(ELIGIBILITY_CHECK_PATH);
         registry.addInterceptor(userAuthorizationInterceptor(logger, ericHeaderParser))
                 .addPathPatterns(STRIKE_OFF_OBJECTIONS_OBJECTION_ID)
-                .excludePathPatterns(ATTACHMENTS_DOWNLOAD_PATH);
+                .excludePathPatterns(ATTACHMENTS_DOWNLOAD_PATH, ELIGIBILITY_CHECK_PATH);
     }
 }
