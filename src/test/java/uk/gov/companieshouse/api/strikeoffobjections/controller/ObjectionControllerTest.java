@@ -1,5 +1,6 @@
 package uk.gov.companieshouse.api.strikeoffobjections.controller;
 
+import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -573,8 +574,7 @@ class ObjectionControllerTest {
 
     @Test
     void isCompanyEligibleForObjectionTestTrueReturned() {
-        ObjectionEligibility objectionEligibility = new ObjectionEligibility();
-        objectionEligibility.setEligible(true);
+        ObjectionEligibility objectionEligibility = new ObjectionEligibility(true);
         when(objectionService.isCompanyEligible(COMPANY_NUMBER, REQUEST_ID)).thenReturn(objectionEligibility);
         ResponseEntity<ObjectionEligibility> responseEntity = objectionController.isCompanyEligibleForObjection(COMPANY_NUMBER, REQUEST_ID);
         assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
@@ -583,12 +583,19 @@ class ObjectionControllerTest {
 
     @Test
     void isCompanyEligibleForObjectionTestFalseReturned() {
-        ObjectionEligibility objectionEligibility = new ObjectionEligibility();
-        objectionEligibility.setEligible(false);
+        ObjectionEligibility objectionEligibility = new ObjectionEligibility(false);
         when(objectionService.isCompanyEligible(COMPANY_NUMBER, REQUEST_ID)).thenReturn(objectionEligibility);
         ResponseEntity<ObjectionEligibility> responseEntity = objectionController.isCompanyEligibleForObjection(COMPANY_NUMBER, REQUEST_ID);
         assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
         assertFalse(responseEntity.getBody().isEligible());
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            System.out.println(objectMapper.writeValueAsString(objectionEligibility));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 
 }

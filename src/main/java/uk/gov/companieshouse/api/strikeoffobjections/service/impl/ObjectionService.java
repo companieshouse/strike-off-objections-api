@@ -137,12 +137,14 @@ public class ObjectionService implements IObjectionService {
     }
 
     public ObjectionEligibility isCompanyEligible(String companyNumber, String requestId) {
-        Long actionCode = getActionCode(companyNumber, requestId);
-        final ObjectionStatus objectionStatus = getObjectionStatusForCreate(actionCode, companyNumber, requestId);
-
-        ObjectionEligibility objectionEligibility = new ObjectionEligibility();
-        objectionEligibility.setEligible(!objectionStatus.isIneligible());
-        return objectionEligibility;
+        boolean isCompanyEligible = true;
+        try {
+            Long actionCode = getActionCode(companyNumber, requestId);
+            actionCodeValidator.validate(actionCode, requestId);
+        } catch (ValidationException validationException) {
+            isCompanyEligible = false;
+        }
+        return new ObjectionEligibility(isCompanyEligible);
     }
 
     /**
