@@ -1,6 +1,5 @@
 package uk.gov.companieshouse.api.strikeoffobjections.controller;
 
-import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -588,14 +587,5 @@ class ObjectionControllerTest {
         ResponseEntity<ObjectionEligibility> responseEntity = objectionController.isCompanyEligibleForObjection(COMPANY_NUMBER, REQUEST_ID);
         assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
         assertFalse(responseEntity.getBody().isEligible());
-
-        ObjectMapper objectMapper = new ObjectMapper();
-        try {
-            System.out.println(objectMapper.writeValueAsString(objectionEligibility));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
     }
-
 }
