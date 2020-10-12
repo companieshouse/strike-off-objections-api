@@ -1,14 +1,19 @@
 package uk.gov.companieshouse.api.strikeoffobjections.service.impl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -23,11 +28,10 @@ import uk.gov.companieshouse.api.strikeoffobjections.model.chips.ChipsRequest;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Attachment;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Objection;
 import uk.gov.companieshouse.api.strikeoffobjections.utils.Utils;
-import uk.gov.companieshouse.service.ServiceException;
 
 @Unit
 @ExtendWith(MockitoExtension.class)
-public class ChipsServiceTest {
+class ChipsServiceTest {
 
     private static final String REQUEST_ID = "test123";
     private static final String OBJECTION_ID = "OBJECTION_ID";
@@ -45,8 +49,10 @@ public class ChipsServiceTest {
     private ChipsService chipsService;
 
     @Test
-    void testSendingToChipsCreatesCorrectRequest() throws ServiceException {
+    void testSendingToChipsCreatesCorrectRequestWithContactFeatureFlagOn() {
         ReflectionTestUtils.setField(chipsService, "attachmentDownloadUrlPrefix", DOWNLOAD_URL_PREFIX);
+        ReflectionTestUtils.setField(chipsService, "isFeatureFlagSendChipsContactEnabled", true);
+
         Objection objection = Utils.getTestObjection(
                 OBJECTION_ID, REASON, COMPANY_NUMBER, USER_ID, EMAIL, LOCAL_DATE_TIME,
                 Utils.buildTestObjectionCreate("Joe Bloggs", false));
@@ -71,5 +77,30 @@ public class ChipsServiceTest {
                 chipsRequest.getAttachments().get("TestAttachment1"));
         assertEquals(String.format("%s/url2/download", DOWNLOAD_URL_PREFIX),
                 chipsRequest.getAttachments().get("TestAttachment2"));
+    }
+
+    @Test
+    void testSendingToChipsCreatesCorrectRequestWithContactFeatureFlagOff() {
+        ReflectionTestUtils.setField(chipsService, "attachmentDownloadUrlPrefix", DOWNLOAD_URL_PREFIX);
+        ReflectionTestUtils.setField(chipsService, "isFeatureFlagSendChipsContactEnabled", false);
+
+        Objection objection = Utils.getTestObjection(
+                OBJECTION_ID, REASON, COMPANY_NUMBER, USER_ID, EMAIL, LOCAL_DATE_TIME,
+                Utils.buildTestObjectionCreate("Joe Bloggs", false));
+        objection.setAttachments(new ArrayList<>());
+
+        chipsService.sendObjection(REQUEST_ID, objection);
+        ArgumentCaptor<ChipsRequest> chipsRequestArgumentCaptor = ArgumentCaptor.forClass(ChipsRequest.class);
+
+        verify(chipsClient, times(1)).sendToChips(eq(REQUEST_ID), chipsRequestArgumentCaptor.capture());
+
+        ChipsRequest chipsRequest = chipsRequestArgumentCaptor.getValue();
+
+        assertEquals(COMPANY_NUMBER, chipsRequest.getCompanyNumber());
+        assertEquals(OBJECTION_ID, chipsRequest.getObjectionId());
+        assertNull(chipsRequest.getReferenceNumber());
+        assertNull(chipsRequest.getCustomerEmail());
+        assertNull(chipsRequest.getReason());
+        assertNull(chipsRequest.getAttachments());
     }
 }

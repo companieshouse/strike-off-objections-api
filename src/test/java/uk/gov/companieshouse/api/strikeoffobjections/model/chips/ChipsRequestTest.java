@@ -1,5 +1,8 @@
 package uk.gov.companieshouse.api.strikeoffobjections.model.chips;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Attachment;
 import uk.gov.companieshouse.api.strikeoffobjections.utils.Utils;
@@ -8,7 +11,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 class ChipsRequestTest {
@@ -101,5 +106,29 @@ class ChipsRequestTest {
         String actualOutput = chipsRequest.toString();
 
         assertEquals(expectedOutput, actualOutput);
+    }
+
+    @Test
+    void testNullsIgnoredWhenConvertingChipsRequestToJson() throws JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        ChipsRequest chipsRequest = new ChipsRequest(
+                OBJECTION_ID,
+                COMPANY_NUMBER,
+                null,
+                null,
+                null,
+                null,
+                null
+        );
+
+        String chipsRequestAsJsonString = mapper.writeValueAsString(chipsRequest);
+
+        assertTrue(chipsRequestAsJsonString.contains("objection_id"));
+        assertTrue(chipsRequestAsJsonString.contains("company_number"));
+        assertFalse(chipsRequestAsJsonString.contains("attachments"));
+        assertFalse(chipsRequestAsJsonString.contains("reference_number"));
+        assertFalse(chipsRequestAsJsonString.contains("customer_email"));
+        assertFalse(chipsRequestAsJsonString.contains("reason"));
     }
 }
