@@ -30,7 +30,7 @@ import static org.mockito.Mockito.verify;
 @Integration
 @ExtendWith(SpringExtension.class)
 @WebMvcTest(value = { ObjectionController.class })
-public class EligibilityIntegrationTest {
+class EligibilityIntegrationTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -63,7 +63,7 @@ public class EligibilityIntegrationTest {
     private UserAuthorizationInterceptor userAuthorizationInterceptor;
 
     @Test
-    public void willAlwaysAllowEligibilityEndpoint() throws Exception {
+    void willAlwaysAllowEligibilityEndpoint() throws Exception {
         RequestBuilder requestBuilder = MockMvcRequestBuilders
                 .get("/company/00006400/strike-off-objections/eligibility")
                 .accept(MediaType.APPLICATION_JSON)
