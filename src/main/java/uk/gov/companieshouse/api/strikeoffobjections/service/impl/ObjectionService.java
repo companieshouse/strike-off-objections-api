@@ -124,25 +124,35 @@ public class ObjectionService implements IObjectionService {
     private ObjectionStatus getObjectionStatusForCreate(Long actionCode, String companyNumber, String logContext) {
         ObjectionStatus objectionStatus = ObjectionStatus.OPEN;
         try {
-            actionCodeValidator.validate(actionCode, logContext);
+            validateActionCode(actionCode, companyNumber, logContext);
         } catch (ValidationException validationException) {
             objectionStatus = validationException.getStatus();
-
-            Map<String, Object> logMap = buildLogMap(companyNumber, null, null);
-            logMap.put(LogConstants.ACTION_CODE.getValue(), actionCode);
-            logMap.put(LogConstants.OBJECTION_STATUS.getValue(), objectionStatus);
-            logger.infoContext(logContext, "Action Code validation failed", logMap);
         }
         return objectionStatus;
     }
 
     public ObjectionEligibility isCompanyEligible(String companyNumber, String requestId) {
         Long actionCode = getActionCode(companyNumber, requestId);
-        final ObjectionStatus objectionStatus = getObjectionStatusForCreate(actionCode, companyNumber, requestId);
 
-        ObjectionEligibility objectionEligibility = new ObjectionEligibility();
-        objectionEligibility.setEligible(!objectionStatus.isIneligible());
-        return objectionEligibility;
+        boolean isCompanyEligible = true;
+        try {
+            validateActionCode(actionCode, companyNumber, requestId);
+        } catch (ValidationException validationException) {
+            isCompanyEligible = false;
+        }
+        return new ObjectionEligibility(isCompanyEligible);
+    }
+
+    private void validateActionCode(Long actionCode, String companyNumber, String logContext) throws ValidationException {
+        try {
+            actionCodeValidator.validate(actionCode, logContext);
+        } catch (ValidationException validationException) {
+            Map<String, Object> logMap = buildLogMap(companyNumber, null, null);
+            logMap.put(LogConstants.ACTION_CODE.getValue(), actionCode);
+            logMap.put(LogConstants.OBJECTION_STATUS.getValue(), validationException.getStatus());
+            logger.infoContext(logContext, "Action Code validation failed", logMap);
+            throw validationException;
+        }
     }
 
     /**

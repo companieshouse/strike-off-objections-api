@@ -7,11 +7,11 @@ public class ObjectionEligibility {
     @JsonProperty("is_eligible")
     private boolean isEligible;
 
-    public boolean isEligible() {
-        return isEligible;
+    public ObjectionEligibility(boolean isEligible) {
+        this.isEligible = isEligible;
     }
 
-    public void setEligible(boolean eligible) {
-        isEligible = eligible;
+    public boolean isEligible() {
+        return isEligible;
     }
 }
