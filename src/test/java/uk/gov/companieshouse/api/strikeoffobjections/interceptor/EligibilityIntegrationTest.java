@@ -63,7 +63,7 @@ class EligibilityIntegrationTest {
     private UserAuthorizationInterceptor userAuthorizationInterceptor;
 
     @Test
-    void willAlwaysAllowEligibilityEndpoint() throws Exception {
+    void interceptorsNotCalledForEligibilityEndpoint() throws Exception {
         RequestBuilder requestBuilder = MockMvcRequestBuilders
                 .get("/company/00006400/strike-off-objections/eligibility")
                 .accept(MediaType.APPLICATION_JSON)
