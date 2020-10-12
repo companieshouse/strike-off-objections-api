@@ -6,14 +6,10 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -51,7 +47,7 @@ class ChipsServiceTest {
     @Test
     void testSendingToChipsCreatesCorrectRequestWithContactFeatureFlagOn() {
         ReflectionTestUtils.setField(chipsService, "attachmentDownloadUrlPrefix", DOWNLOAD_URL_PREFIX);
-        ReflectionTestUtils.setField(chipsService, "isFeatureFlagSendChipsContactEnabled", true);
+        ReflectionTestUtils.setField(chipsService, "isFeatureFlagSendChipsContactDataEnabled", true);
 
         Objection objection = Utils.getTestObjection(
                 OBJECTION_ID, REASON, COMPANY_NUMBER, USER_ID, EMAIL, LOCAL_DATE_TIME,
@@ -82,7 +78,7 @@ class ChipsServiceTest {
     @Test
     void testSendingToChipsCreatesCorrectRequestWithContactFeatureFlagOff() {
         ReflectionTestUtils.setField(chipsService, "attachmentDownloadUrlPrefix", DOWNLOAD_URL_PREFIX);
-        ReflectionTestUtils.setField(chipsService, "isFeatureFlagSendChipsContactEnabled", false);
+        ReflectionTestUtils.setField(chipsService, "isFeatureFlagSendChipsContactDataEnabled", false);
 
         Objection objection = Utils.getTestObjection(
                 OBJECTION_ID, REASON, COMPANY_NUMBER, USER_ID, EMAIL, LOCAL_DATE_TIME,
