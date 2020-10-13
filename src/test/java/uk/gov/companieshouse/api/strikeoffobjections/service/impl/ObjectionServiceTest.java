@@ -426,8 +426,10 @@ class ObjectionServiceTest {
     void willPropagateServerRuntimeExceptions() throws Exception {
         when(fileTransferApiClient.upload(anyString(), any(MultipartFile.class)))
                 .thenThrow(new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR));
+
+        MultipartFile mockFile = Utils.mockMultipartFile();
         try {
-            objectionService.addAttachment(REQUEST_ID, OBJECTION_ID, Utils.mockMultipartFile(), ACCESS_URL);
+            objectionService.addAttachment(REQUEST_ID, OBJECTION_ID, mockFile, ACCESS_URL);
             fail();
         } catch(HttpServerErrorException e) {
             assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.toString(), e.getMessage());
@@ -438,8 +440,10 @@ class ObjectionServiceTest {
     void willPropagateClientRuntimeExceptions() throws Exception {
         when(fileTransferApiClient.upload(anyString(), any(MultipartFile.class)))
                 .thenThrow(new HttpClientErrorException(HttpStatus.BAD_REQUEST));
+
+        MultipartFile mockFile = Utils.mockMultipartFile();
         try {
-            objectionService.addAttachment(REQUEST_ID, OBJECTION_ID, Utils.mockMultipartFile(), ACCESS_URL);
+            objectionService.addAttachment(REQUEST_ID, OBJECTION_ID, mockFile, ACCESS_URL);
             fail();
         } catch(HttpClientErrorException e) {
             assertEquals(HttpStatus.BAD_REQUEST.toString(), e.getMessage());
