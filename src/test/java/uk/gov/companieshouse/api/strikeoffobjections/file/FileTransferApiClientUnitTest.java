@@ -49,7 +49,7 @@ import static org.mockito.Mockito.when;
 
 @Unit
 @ExtendWith(MockitoExtension.class)
-public class FileTransferApiClientUnitTest {
+class FileTransferApiClientUnitTest {
 
     private static final String REQUEST_ID = "abc";
     private static final String DUMMY_URL = "http://test";
@@ -82,7 +82,7 @@ public class FileTransferApiClientUnitTest {
     }
 
     @Test
-    public void testUploadSuccess() {
+    void testUploadSuccess() {
         final ResponseEntity<FileTransferApiResponse> apiResponse = apiSuccessResponse();
 
         when(restTemplate.postForEntity(eq(DUMMY_URL), any(), eq(FileTransferApiResponse.class)))
@@ -95,7 +95,7 @@ public class FileTransferApiClientUnitTest {
     }
 
     @Test
-    public void testUploadApiReturnsError() {
+    void testUploadApiReturnsError() {
         final ResponseEntity<FileTransferApiResponse> apiErrorResponse = apiErrorResponse();
 
         when(restTemplate.postForEntity(eq(DUMMY_URL), any(), eq(FileTransferApiResponse.class))).thenReturn(apiErrorResponse);
@@ -108,7 +108,7 @@ public class FileTransferApiClientUnitTest {
     }
 
     @Test
-    public void testUploadGenericExceptionResponse() {
+    void testUploadGenericExceptionResponse() {
         final RestClientException exception = new RestClientException(EXCEPTION_MESSAGE);
 
         when(restTemplate.postForEntity(eq(DUMMY_URL), any(), eq(FileTransferApiResponse.class))).thenThrow(exception);
@@ -120,7 +120,7 @@ public class FileTransferApiClientUnitTest {
     }
 
     @Test
-    public void testDeleteSuccess() {
+    void testDeleteSuccess() {
         final ResponseEntity<String> apiResponse = new ResponseEntity<>("", HttpStatus.NO_CONTENT);
         when(restTemplate.exchange(eq(DELETE_URL), eq(HttpMethod.DELETE), any(), eq(String.class)))
                 .thenReturn(apiResponse);
@@ -129,7 +129,7 @@ public class FileTransferApiClientUnitTest {
     }
 
     @Test
-    public void testDeleteApiReturnsError() {
+    void testDeleteApiReturnsError() {
         final ResponseEntity<String> apiResponse = new ResponseEntity<>("", HttpStatus.INTERNAL_SERVER_ERROR);
 
         when(restTemplate.exchange(eq(DELETE_URL), eq(HttpMethod.DELETE), any(), eq(String.class)))
@@ -142,7 +142,7 @@ public class FileTransferApiClientUnitTest {
     }
 
     @Test
-    public void testDeleteGenericExceptionResponse() {
+    void testDeleteGenericExceptionResponse() {
         final RestClientException exception = new RestClientException(EXCEPTION_MESSAGE);
 
         when(restTemplate.exchange(eq(DELETE_URL), eq(HttpMethod.DELETE), any(), eq(String.class))).thenThrow(exception);
@@ -154,7 +154,7 @@ public class FileTransferApiClientUnitTest {
     }
 
     @Test
-    public void testSuccessfulDownload() throws IOException {
+    void testSuccessfulDownload() throws IOException {
         final String contentDispositionType = "attachment";
         final int contentLength = 55123;
         final MediaType contentType = MediaType.APPLICATION_OCTET_STREAM;
@@ -199,7 +199,7 @@ public class FileTransferApiClientUnitTest {
 
 
     @Test
-    public void testNullClientHttpResponseForDownload() throws IOException {
+    void testNullClientHttpResponseForDownload() throws IOException {
         final String contentDispositionType = "attachment";
         final int contentLength = 55123;
         final MediaType contentType = MediaType.APPLICATION_OCTET_STREAM;
@@ -235,7 +235,7 @@ public class FileTransferApiClientUnitTest {
     }
 
     @Test
-    public void testGenericExceptionThrownWhenDownloadCalled() {
+    void testGenericExceptionThrownWhenDownloadCalled() {
         final MockHttpServletResponse servletResponse = new MockHttpServletResponse();
         final RestClientException exception = new RestClientException(EXCEPTION_MESSAGE);
 

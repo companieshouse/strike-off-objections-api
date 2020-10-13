@@ -20,7 +20,7 @@ import uk.gov.companieshouse.api.strikeoffobjections.groups.Unit;
 
 @Unit
 @ExtendWith(MockitoExtension.class)
-public class AttachmentDownloadAuthorizationInterceptorTest {
+class AttachmentDownloadAuthorizationInterceptorTest {
     
     @InjectMocks
     private AttachmentDownloadAuthorizationInterceptor interceptor;
@@ -35,7 +35,7 @@ public class AttachmentDownloadAuthorizationInterceptorTest {
     private ApiLogger logger;
 
     @Test
-    public void willAuthoriseUserToDownloadAttachmentWhenOnlyDownloadRolePresent() {
+    void willAuthoriseUserToDownloadAttachmentWhenOnlyDownloadRolePresent() {
         when(request.getHeader("X-Request-Id"))
                 .thenReturn("123");
         when(request.getHeader("ERIC-Authorised-Roles"))
@@ -48,7 +48,7 @@ public class AttachmentDownloadAuthorizationInterceptorTest {
     }
 
     @Test
-    public void willAuthoriseUserToDownloadAttachmentWhenDownloadRoleAndOthersArePresent() {
+    void willAuthoriseUserToDownloadAttachmentWhenDownloadRoleAndOthersArePresent() {
         when(request.getHeader("X-Request-Id"))
                 .thenReturn("123");
         when(request.getHeader("ERIC-Authorised-Roles"))
@@ -61,7 +61,7 @@ public class AttachmentDownloadAuthorizationInterceptorTest {
     }
 
     @Test
-    public void willNotAuthoriseUserToDownloadAttachmentWhenRoleMissing() {
+    void willNotAuthoriseUserToDownloadAttachmentWhenRoleMissing() {
         when(request.getHeader("X-Request-Id"))
                 .thenReturn("123");
         when(request.getHeader("ERIC-Authorised-Roles"))
@@ -74,7 +74,7 @@ public class AttachmentDownloadAuthorizationInterceptorTest {
     }
 
     @Test
-    public void willNotAuthoriseUserToDownloadAttachmentWhenListOfRolesIsMissingFromERICHeader() {
+    void willNotAuthoriseUserToDownloadAttachmentWhenListOfRolesIsMissingFromERICHeader() {
         boolean result = interceptor.preHandle(request, response, null);
 
         assertFalse(result);

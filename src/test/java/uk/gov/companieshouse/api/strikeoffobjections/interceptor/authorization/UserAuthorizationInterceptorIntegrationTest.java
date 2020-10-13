@@ -34,7 +34,7 @@ import static org.mockito.Mockito.when;
 @Integration
 @ExtendWith(SpringExtension.class)
 @WebMvcTest(value = { ObjectionController.class })
-public class UserAuthorizationInterceptorIntegrationTest {
+class UserAuthorizationInterceptorIntegrationTest {
 
     @Autowired
     private MockMvc mockMvc;

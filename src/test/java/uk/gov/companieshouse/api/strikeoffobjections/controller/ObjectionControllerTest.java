@@ -335,7 +335,7 @@ class ObjectionControllerTest {
     }
 
     @Test
-    public void willReturnCreatedIfSuccessful() throws ServiceException, IOException, ObjectionNotFoundException {
+    void willReturnCreatedIfSuccessful() throws ServiceException, IOException, ObjectionNotFoundException {
         when(servletRequest.getRequestURI()).thenReturn(ACCESS_URL);
         when(objectionService.addAttachment(anyString(), anyString(), any(MultipartFile.class), anyString()))
                 .thenReturn(ServiceResult.accepted("abc"));
@@ -346,7 +346,7 @@ class ObjectionControllerTest {
     }
 
     @Test
-    public void willReturn404IfInvalidRequestSuppliedPostRequest() throws Exception {
+    void willReturn404IfInvalidRequestSuppliedPostRequest() throws Exception {
         ObjectionNotFoundException objectionNotFoundException = new ObjectionNotFoundException("exception error");
         when(servletRequest.getRequestURI()).thenReturn("url");
         when(objectionService.addAttachment(anyString(), anyString(), any(MultipartFile.class), anyString()))
@@ -359,7 +359,7 @@ class ObjectionControllerTest {
     }
 
     @Test
-    public void willReturn415FromInvalidUpload() throws ServiceException, IOException, ObjectionNotFoundException {
+    void willReturn415FromInvalidUpload() throws ServiceException, IOException, ObjectionNotFoundException {
         HttpClientErrorException expectedException =
                 new HttpClientErrorException(HttpStatus.UNSUPPORTED_MEDIA_TYPE);
         when(servletRequest.getRequestURI()).thenReturn(ACCESS_URL);
@@ -373,7 +373,7 @@ class ObjectionControllerTest {
     }
 
     @Test
-    public void willReturn500FromFileTransferServerError() throws ServiceException, IOException, ObjectionNotFoundException {
+    void willReturn500FromFileTransferServerError() throws ServiceException, IOException, ObjectionNotFoundException {
         HttpServerErrorException expectedException =
                 new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR);
         when(servletRequest.getRequestURI()).thenReturn("url");
@@ -387,7 +387,7 @@ class ObjectionControllerTest {
     }
 
     @Test
-    public void getAttachmentTest() throws ObjectionNotFoundException, AttachmentNotFoundException {
+    void getAttachmentTest() throws ObjectionNotFoundException, AttachmentNotFoundException {
         Attachment attachment = new Attachment();
         attachment.setId(ATTACHMENT_ID);
         AttachmentResponseDTO responseDTO = new AttachmentResponseDTO();
@@ -417,7 +417,7 @@ class ObjectionControllerTest {
     }
 
     @Test
-    public void getAttachmentWhenObjectionNotFoundTest() throws ObjectionNotFoundException, AttachmentNotFoundException {
+    void getAttachmentWhenObjectionNotFoundTest() throws ObjectionNotFoundException, AttachmentNotFoundException {
         doThrow(new ObjectionNotFoundException("Message")).when(objectionService).getAttachment(any(), any(), any(), any());
         ResponseEntity response = objectionController.getAttachment(COMPANY_NUMBER, OBJECTION_ID, ATTACHMENT_ID, REQUEST_ID);
 
@@ -426,7 +426,7 @@ class ObjectionControllerTest {
     }
 
     @Test
-    public void getAttachmentWhenAttachmentNotFoundTest() throws ObjectionNotFoundException, AttachmentNotFoundException {
+    void getAttachmentWhenAttachmentNotFoundTest() throws ObjectionNotFoundException, AttachmentNotFoundException {
         doThrow(new AttachmentNotFoundException("Message")).when(objectionService).getAttachment(any(), any(), any(), any());
         ResponseEntity response = objectionController.getAttachment(COMPANY_NUMBER, OBJECTION_ID, ATTACHMENT_ID, REQUEST_ID);
 
@@ -435,7 +435,7 @@ class ObjectionControllerTest {
     }
 
     @Test
-    public void deleteAttachmentTest() {
+    void deleteAttachmentTest() {
 
         ResponseEntity response = objectionController.deleteAttachment(
                 COMPANY_NUMBER,
@@ -448,7 +448,7 @@ class ObjectionControllerTest {
     }
 
     @Test
-    public void deleteAttachmentWhenObjectionNotFoundTest()
+    void deleteAttachmentWhenObjectionNotFoundTest()
             throws ObjectionNotFoundException, AttachmentNotFoundException, ServiceException {
         doThrow(new ObjectionNotFoundException("Message")).when(objectionService).deleteAttachment(any(), any(), any());
         ResponseEntity response = objectionController.deleteAttachment(COMPANY_NUMBER, OBJECTION_ID, ATTACHMENT_ID, REQUEST_ID);
@@ -458,7 +458,7 @@ class ObjectionControllerTest {
     }
 
     @Test
-    public void deleteAttachmentWhenAttachmentNotFoundTest()
+    void deleteAttachmentWhenAttachmentNotFoundTest()
             throws ObjectionNotFoundException, AttachmentNotFoundException, ServiceException {
         doThrow(new AttachmentNotFoundException("Message")).when(objectionService).deleteAttachment(any(), any(), any());
         ResponseEntity response = objectionController.deleteAttachment(COMPANY_NUMBER, OBJECTION_ID, ATTACHMENT_ID, REQUEST_ID);
@@ -468,7 +468,7 @@ class ObjectionControllerTest {
     }
 
     @Test
-    public void deleteAttachmentWhenUnableToDelete()
+    void deleteAttachmentWhenUnableToDelete()
             throws ObjectionNotFoundException, AttachmentNotFoundException, ServiceException {
         doThrow(new ServiceException("Message")).when(objectionService).deleteAttachment(any(), any(), any());
         ResponseEntity response = objectionController.deleteAttachment(COMPANY_NUMBER, OBJECTION_ID, ATTACHMENT_ID, REQUEST_ID);
@@ -477,7 +477,7 @@ class ObjectionControllerTest {
     }
 
     @Test
-    public void testReturnOkStatusForDownload() throws ServiceException {
+    void testReturnOkStatusForDownload() throws ServiceException {
         HttpServletResponse httpServletResponse = new MockHttpServletResponse();
         FileTransferApiClientResponse dummyDownloadResponse = Utils.dummyDownloadResponse();
         dummyDownloadResponse.setHttpStatus(HttpStatus.OK);
@@ -494,7 +494,7 @@ class ObjectionControllerTest {
     }
 
     @Test
-    public void testReturnUnauthorizedStatusForDownload() throws ServiceException {
+    void testReturnUnauthorizedStatusForDownload() throws ServiceException {
         HttpServletResponse httpServletResponse = new MockHttpServletResponse();
         FileTransferApiClientResponse dummyDownloadResponse = Utils.dummyDownloadResponse();
         dummyDownloadResponse.setHttpStatus(HttpStatus.UNAUTHORIZED);
@@ -511,7 +511,7 @@ class ObjectionControllerTest {
     }
 
     @Test
-    public void testReturnForbiddenStatusForDownload() throws ServiceException {
+    void testReturnForbiddenStatusForDownload() throws ServiceException {
         HttpServletResponse httpServletResponse = new MockHttpServletResponse();
         FileTransferApiClientResponse dummyDownloadResponse = Utils.dummyDownloadResponse();
         dummyDownloadResponse.setHttpStatus(HttpStatus.FORBIDDEN);
@@ -528,7 +528,7 @@ class ObjectionControllerTest {
     }
 
     @Test
-    public void testDownloadWillCatchHttpClientExceptions() throws ServiceException {
+    void testDownloadWillCatchHttpClientExceptions() throws ServiceException {
         HttpServletResponse httpServletResponse = new MockHttpServletResponse();
 
         when(objectionService.downloadAttachment(REQUEST_ID, OBJECTION_ID, ATTACHMENT_ID, httpServletResponse))
@@ -542,7 +542,7 @@ class ObjectionControllerTest {
     }
 
     @Test
-    public void testDownloadWillCatchHttpServerExceptions() throws ServiceException {
+    void testDownloadWillCatchHttpServerExceptions() throws ServiceException {
         HttpServletResponse httpServletResponse = new MockHttpServletResponse();
 
         when(objectionService.downloadAttachment(REQUEST_ID, OBJECTION_ID, ATTACHMENT_ID, httpServletResponse))
@@ -557,7 +557,7 @@ class ObjectionControllerTest {
     }
 
     @Test
-    public void willThrowServiceExceptionForDownload() throws ServiceException {
+    void willThrowServiceExceptionForDownload() throws ServiceException {
         HttpServletResponse httpServletResponse = new MockHttpServletResponse();
 
         when(objectionService.downloadAttachment(REQUEST_ID, OBJECTION_ID, ATTACHMENT_ID, httpServletResponse))

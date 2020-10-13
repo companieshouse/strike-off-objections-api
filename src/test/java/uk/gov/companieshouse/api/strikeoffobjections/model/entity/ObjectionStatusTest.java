@@ -5,22 +5,22 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class ObjectionStatusTest {
+class ObjectionStatusTest {
 
     @Test
-    public void testWhenEligible() {
+    void testWhenEligible() {
         ObjectionStatus objectionStatus = ObjectionStatus.OPEN;
         assertFalse(objectionStatus.isIneligible());
     }
 
     @Test
-    public void testWhenIneligibleStruckOff() {
+    void testWhenIneligibleStruckOff() {
         ObjectionStatus objectionStatus = ObjectionStatus.INELIGIBLE_COMPANY_STRUCK_OFF;
         assertTrue(objectionStatus.isIneligible());
     }
 
     @Test
-    public void testWhenIneligibleNoDissolutionAction() {
+    void testWhenIneligibleNoDissolutionAction() {
         ObjectionStatus objectionStatus = ObjectionStatus.INELIGIBLE_NO_DISSOLUTION_ACTION;
         assertTrue(objectionStatus.isIneligible());
     }

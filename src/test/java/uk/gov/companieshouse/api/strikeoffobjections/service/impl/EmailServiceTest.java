@@ -211,7 +211,7 @@ class EmailServiceTest {
     }
 
     @Test
-    public void testRegionalEmailAddresses() {
+    void testRegionalEmailAddresses() {
         String[] recipients;
         recipients = emailService.getDissolutionTeamRecipients("england");
         assertEquals("test1@cardiff.gov.uk", recipients[0]);
