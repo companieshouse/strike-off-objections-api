@@ -1,6 +1,5 @@
 package uk.gov.companieshouse.api.strikeoffobjections.model.chips;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -111,7 +110,6 @@ class ChipsRequestTest {
     @Test
     void testNullsIgnoredWhenConvertingChipsRequestToJson() throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
-        mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         ChipsRequest chipsRequest = new ChipsRequest(
                 OBJECTION_ID,
                 COMPANY_NUMBER,
