@@ -18,7 +18,7 @@ import uk.gov.companieshouse.api.strikeoffobjections.groups.Unit;
 
 @Unit
 @ExtendWith(MockitoExtension.class)
-public class OracleQueryClientTest {
+class OracleQueryClientTest {
 
     private static final String DUMMY_URL = "http://test";
     private static final String COMPANY_NUMBER = "12345678";
@@ -36,7 +36,7 @@ public class OracleQueryClientTest {
     }
 
     @Test
-    public void testUrlCorrectlyConstructedAndActionCodeReturned() {
+    void testUrlCorrectlyConstructedAndActionCodeReturned() {
         when(restTemplate.getForEntity(DUMMY_URL + "/company/" + COMPANY_NUMBER + "/action-code", Long.class))
                 .thenReturn(new ResponseEntity<>(ACTION_CODE, HttpStatus.OK));
 

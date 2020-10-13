@@ -8,7 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 @Unit
-public class ERICHeaderParserTest {
+class ERICHeaderParserTest {
 
     private static final String EMAIL = "demo@ch.gov.uk";
     private static final String AUTH_USER = EMAIL + "; forename=demoForename; surname=demoSurname";

@@ -37,7 +37,7 @@ import uk.gov.companieshouse.service.rest.response.PluggableResponseEntityFactor
 @Integration
 @ExtendWith(SpringExtension.class)
 @WebMvcTest(value = { ObjectionController.class })
-public class AuthorizationIntegrationTest {
+class AuthorizationIntegrationTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -73,7 +73,7 @@ public class AuthorizationIntegrationTest {
     }
 
     @Test
-    public void willNotAllowUserWithoutPermissionsToDownloadAttachment() throws Exception {
+    void willNotAllowUserWithoutPermissionsToDownloadAttachment() throws Exception {
         RequestBuilder requestBuilder = MockMvcRequestBuilders
             .get("/company/00006400/strike-off-objections/5f05c3f24be29647ef076f21/attachments/123/download")
             .accept(MediaType.APPLICATION_JSON)
@@ -84,7 +84,7 @@ public class AuthorizationIntegrationTest {
     }
 
     @Test
-    public void willAllowUserWithDownloadRoleToDownloadAttachment() throws Exception {
+    void willAllowUserWithDownloadRoleToDownloadAttachment() throws Exception {
         RequestBuilder requestBuilder = MockMvcRequestBuilders
             .get("/company/00006400/strike-off-objections/5f05c3f24be29647ef076f21/attachments/123/download")
             .accept(MediaType.APPLICATION_JSON)
@@ -97,7 +97,7 @@ public class AuthorizationIntegrationTest {
     }
 
     @Test
-    public void willNotAllowUserWithoutDownloadRoleToDownloadAttachment() throws Exception {
+    void willNotAllowUserWithoutDownloadRoleToDownloadAttachment() throws Exception {
         RequestBuilder requestBuilder = MockMvcRequestBuilders
             .get("/company/00006400/strike-off-objections/5f05c3f24be29647ef076f21/attachments/123/download")
             .accept(MediaType.APPLICATION_JSON)

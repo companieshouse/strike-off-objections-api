@@ -27,7 +27,7 @@ import uk.gov.companieshouse.service.ServiceException;
 
 @Unit
 @ExtendWith(MockitoExtension.class)
-public class ChipsServiceTest {
+class ChipsServiceTest {
 
     private static final String REQUEST_ID = "test123";
     private static final String OBJECTION_ID = "OBJECTION_ID";

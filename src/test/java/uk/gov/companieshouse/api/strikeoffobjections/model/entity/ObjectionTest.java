@@ -12,12 +12,12 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @Unit
-public class ObjectionTest {
+class ObjectionTest {
 
     private static final LocalDateTime MOCK_PRESENT = LocalDateTime.of(2020, 6, 30, 10, 00);
 
     @Test
-    public void enityBuilderTest() {
+    void enityBuilderTest() {
 
        CreatedBy createdBy = new CreatedBy("1", "jBloggs@ch.gov.uk",
                "Joe Bloggs", false);

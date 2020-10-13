@@ -32,7 +32,7 @@ import static org.mockito.Mockito.when;
 @Integration
 @ExtendWith(SpringExtension.class)
 @WebMvcTest(value = { ObjectionController.class })
-public class CompanyNumberInterceptorIntegrationTest {
+class CompanyNumberInterceptorIntegrationTest {
     @Autowired
     private MockMvc mockMvc;
 
@@ -66,7 +66,7 @@ public class CompanyNumberInterceptorIntegrationTest {
     }
 
     @Test
-    public void willAllowRequestWithMatchingCompanyNumbersToExecute() throws Exception {
+    void willAllowRequestWithMatchingCompanyNumbersToExecute() throws Exception {
         RequestBuilder requestBuilder = MockMvcRequestBuilders
                 .get("/company/00006400/strike-off-objections/5f05c3f24be29647ef076f21")
                 .accept(MediaType.APPLICATION_JSON)
@@ -77,7 +77,7 @@ public class CompanyNumberInterceptorIntegrationTest {
     }
 
     @Test
-    public void willBlockRequestWithoutMatchingCompanyNumbers() throws Exception {
+    void willBlockRequestWithoutMatchingCompanyNumbers() throws Exception {
         RequestBuilder requestBuilder = MockMvcRequestBuilders
                 .get("/company/00000099/strike-off-objections/5f05c3f24be29647ef076f21")
                 .accept(MediaType.APPLICATION_JSON)
