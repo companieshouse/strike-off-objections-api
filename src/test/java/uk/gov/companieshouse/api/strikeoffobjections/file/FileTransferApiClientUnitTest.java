@@ -42,6 +42,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -199,8 +200,8 @@ class FileTransferApiClientUnitTest {
         FileTransferApiClientResponse downloadResponse = fileTransferApiClient.download(REQUEST_ID, FILE_ID, servletResponse);
 
         //need to capture the responseExtractor lambda passed to the restTemplate so we can test it - this is what actually does the file copy
-        verify(restTemplate).execute(eq(DOWNLOAD_URI), eq(HttpMethod.GET), any(RequestCallback.class),
-                responseExtractorArgCaptor.capture(), any(FileTransferApiClientResponse.class));
+        verify(restTemplate, times(1)).execute(eq(DOWNLOAD_URI), eq(HttpMethod.GET), any(RequestCallback.class),
+                ArgumentMatchers.<ResponseExtractor<ClientHttpResponse>>any(), any(FileTransferApiClientResponse.class));
 
         //check status is Internal Server Error
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, downloadResponse.getHttpStatus());
