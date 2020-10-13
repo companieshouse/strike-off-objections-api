@@ -1,5 +1,6 @@
 package uk.gov.companieshouse.api.strikeoffobjections.model.chips;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.commons.lang.StringUtils;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Attachment;
@@ -11,6 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ChipsRequest {
 
     @JsonProperty("objection_id")
