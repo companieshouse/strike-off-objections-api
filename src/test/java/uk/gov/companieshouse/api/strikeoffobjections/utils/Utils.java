@@ -17,7 +17,6 @@ import uk.gov.companieshouse.api.strikeoffobjections.model.entity.CreatedBy;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Objection;
 import uk.gov.companieshouse.api.strikeoffobjections.model.email.EmailContent;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.ObjectionLinkKeys;
-import uk.gov.companieshouse.service.links.CoreLinkKeys;
 import uk.gov.companieshouse.service.links.Links;
 
 import java.io.File;

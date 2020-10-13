@@ -69,6 +69,9 @@ class ObjectionControllerTest {
     private static final String REASON = "REASON";
     private static final String ACCESS_URL = "/dummyUrl";
     private static final String FULL_NAME = "Joe Bloggs";
+    private static final String ATTACHMENT_NAME = "name";
+    private static final String ATTACHMENT_CONTENT = "Content";
+    private static final long ATTACHMENT_SIZE = 12L;
 
     @Mock
     private IObjectionService objectionService;
@@ -106,8 +109,10 @@ class ObjectionControllerTest {
         ObjectionResponseDTO objectionDTO = new ObjectionResponseDTO();
         objectionDTO.setId(OBJECTION_ID);
 
-        when(pluggableResponseEntityFactory.createResponse(any(ServiceResult.class))).thenReturn(
-                ResponseEntity.status(HttpStatus.CREATED).body(ChResponseBody.createNormalBody(objectionDTO)));
+        when(pluggableResponseEntityFactory.createResponse(any())).then(invocation -> {
+            ServiceResult serviceResult = invocation.getArgument(0, ServiceResult.class);
+            return ResponseEntity.status(HttpStatus.CREATED).body(ChResponseBody.createNormalBody(serviceResult.getData()));
+        });
 
         ResponseEntity<ChResponseBody<ObjectionResponseDTO>> response = objectionController.createObjection(
                 COMPANY_NUMBER,
@@ -229,12 +234,16 @@ class ObjectionControllerTest {
         objectionDTO.setStatus(ObjectionStatus.OPEN);
         when(objectionMapper.objectionEntityToObjectionResponseDTO(objection)).thenReturn(objectionDTO);
         when(objectionService.getObjection(any(), any())).thenReturn(objection);
-        when(pluggableResponseEntityFactory.createResponse(any(ServiceResult.class))).thenReturn(
-                ResponseEntity.status(HttpStatus.OK).body(ChResponseBody.createNormalBody(objectionDTO)));
+        when(pluggableResponseEntityFactory.createResponse(any())).then(invocation -> {
+            ServiceResult serviceResult = invocation.getArgument(0, ServiceResult.class);
+            return ResponseEntity.status(HttpStatus.OK).body(ChResponseBody.createNormalBody(serviceResult.getData()));
+        });
 
         ResponseEntity<ChResponseBody<ObjectionResponseDTO>> response =
                 objectionController.getObjection(COMPANY_NUMBER, OBJECTION_ID, REQUEST_ID);
         ChResponseBody<ObjectionResponseDTO> responseBody = response.getBody();
+
+        assertNotNull(responseBody);
         ObjectionResponseDTO responseDTO = responseBody.getSuccessBody();
 
         verify(objectionMapper, times(1)).objectionEntityToObjectionResponseDTO(objection);
@@ -245,7 +254,7 @@ class ObjectionControllerTest {
     @Test
     void getObjectionObjectionNotFoundTest() throws Exception {
         doThrow(new ObjectionNotFoundException("Message")).when(objectionService).getObjection(any(), any());
-        ResponseEntity response = objectionController.getObjection(COMPANY_NUMBER, OBJECTION_ID,
+        ResponseEntity<ChResponseBody<ObjectionResponseDTO>> response = objectionController.getObjection(COMPANY_NUMBER, OBJECTION_ID,
                 REQUEST_ID);
 
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
@@ -254,7 +263,7 @@ class ObjectionControllerTest {
     @Test
     void getObjectionUnexpectedExceptionThrownTest() throws Exception {
         doThrow(new RuntimeException()).when(objectionService).getObjection(any(), any());
-        ResponseEntity response = objectionController.getObjection(COMPANY_NUMBER, OBJECTION_ID,
+        ResponseEntity<ChResponseBody<ObjectionResponseDTO>> response = objectionController.getObjection(COMPANY_NUMBER, OBJECTION_ID,
                 REQUEST_ID);
 
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
@@ -262,31 +271,51 @@ class ObjectionControllerTest {
 
     @Test
     void getAttachmentsTest() throws Exception {
-        List<Attachment> attachments = new ArrayList<Attachment>();
+        Links links = new Links();
+        List<Attachment> attachments = new ArrayList<>();
         Attachment attachment = new Attachment();
+        attachment.setId(ATTACHMENT_ID);
+        attachment.setName(ATTACHMENT_NAME);
+        attachment.setContentType(ATTACHMENT_CONTENT);
+        attachment.setLinks(links);
+        attachment.setSize(ATTACHMENT_SIZE);
         attachments.add(attachment);
+
+        AttachmentResponseDTO attachmentResponseDTO = new AttachmentResponseDTO();
+        attachmentResponseDTO.setId(ATTACHMENT_ID);
+        attachmentResponseDTO.setName(ATTACHMENT_NAME);
+        attachmentResponseDTO.setContentType(ATTACHMENT_CONTENT);
+        attachmentResponseDTO.setLinks(links);
+        attachmentResponseDTO.setSize(ATTACHMENT_SIZE);
+
         when(objectionService.getAttachments(REQUEST_ID, COMPANY_NUMBER, OBJECTION_ID)).thenReturn(attachments);
-        when(pluggableResponseEntityFactory.createResponse(any(ServiceResult.class))).thenReturn(
-                ResponseEntity.status(HttpStatus.CREATED).body(ChResponseBody.createNormalBody(attachments)));
+        when(attachmentMapper.attachmentEntityToAttachmentResponseDTO(attachment)).thenReturn(attachmentResponseDTO);
+
+        when(pluggableResponseEntityFactory.createResponse(any())).then(invocation -> {
+            ServiceResult serviceResult = invocation.getArgument(0, ServiceResult.class);
+            return ResponseEntity.status(HttpStatus.FOUND).body(ChResponseBody.createNormalBody(serviceResult.getData()));
+        });
 
         ResponseEntity<ChResponseBody<List<AttachmentResponseDTO>>> response = objectionController.getAttachments(COMPANY_NUMBER, OBJECTION_ID, REQUEST_ID);
 
         verify(attachmentMapper, times(1)).attachmentEntityToAttachmentResponseDTO(attachment);
 
-        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+        assertEquals(HttpStatus.FOUND, response.getStatusCode());
 
         assertNotNull(response.getBody());
         ChResponseBody<List<AttachmentResponseDTO>> responseBody = response.getBody();
 
         assertNotNull(responseBody.getSuccessBody());
         assertEquals(1, responseBody.getSuccessBody().size());
-        assertEquals(attachment, responseBody.getSuccessBody().get(0));
+
+        AttachmentResponseDTO returnedAttachmentResponseDTO = responseBody.getSuccessBody().get(0);
+        assertEquals(attachmentResponseDTO, returnedAttachmentResponseDTO);
     }
 
     @Test
     void getAttachmentsObjectionNotFoundExceptionTest() throws Exception {
         doThrow(new ObjectionNotFoundException("Message")).when(objectionService).getAttachments(any(), any(), any());
-        ResponseEntity response = objectionController.getAttachments(COMPANY_NUMBER, OBJECTION_ID, REQUEST_ID);
+        ResponseEntity<ChResponseBody<List<AttachmentResponseDTO>>> response = objectionController.getAttachments(COMPANY_NUMBER, OBJECTION_ID, REQUEST_ID);
 
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     }
@@ -335,59 +364,59 @@ class ObjectionControllerTest {
     }
 
     @Test
-    public void willReturnCreatedIfSuccessful() throws ServiceException, IOException, ObjectionNotFoundException {
+    void willReturnCreatedIfSuccessful() throws ServiceException, IOException, ObjectionNotFoundException {
         when(servletRequest.getRequestURI()).thenReturn(ACCESS_URL);
         when(objectionService.addAttachment(anyString(), anyString(), any(MultipartFile.class), anyString()))
                 .thenReturn(ServiceResult.accepted("abc"));
-        ResponseEntity entity = objectionController.uploadAttachmentToObjection(Utils.mockMultipartFile(),
+        ResponseEntity<ObjectionResponseDTO> entity = objectionController.uploadAttachmentToObjection(Utils.mockMultipartFile(),
                 COMPANY_NUMBER, OBJECTION_ID, REQUEST_ID, servletRequest);
 
         assertEquals(HttpStatus.CREATED, entity.getStatusCode());
     }
 
     @Test
-    public void willReturn404IfInvalidRequestSuppliedPostRequest() throws Exception {
+    void willReturn404IfInvalidRequestSuppliedPostRequest() throws Exception {
         ObjectionNotFoundException objectionNotFoundException = new ObjectionNotFoundException("exception error");
         when(servletRequest.getRequestURI()).thenReturn("url");
         when(objectionService.addAttachment(anyString(), anyString(), any(MultipartFile.class), anyString()))
                 .thenThrow(objectionNotFoundException);
 
-        ResponseEntity entity = objectionController.uploadAttachmentToObjection(Utils.mockMultipartFile(),
+        ResponseEntity<ObjectionResponseDTO> entity = objectionController.uploadAttachmentToObjection(Utils.mockMultipartFile(),
                 COMPANY_NUMBER, OBJECTION_ID, REQUEST_ID, servletRequest);
 
         assertEquals(HttpStatus.NOT_FOUND, entity.getStatusCode());
     }
 
     @Test
-    public void willReturn415FromInvalidUpload() throws ServiceException, IOException, ObjectionNotFoundException {
+    void willReturn415FromInvalidUpload() throws ServiceException, IOException, ObjectionNotFoundException {
         HttpClientErrorException expectedException =
                 new HttpClientErrorException(HttpStatus.UNSUPPORTED_MEDIA_TYPE);
         when(servletRequest.getRequestURI()).thenReturn(ACCESS_URL);
         when(objectionService.addAttachment(anyString(), anyString(), any(MultipartFile.class), anyString()))
                 .thenThrow(expectedException);
 
-        ResponseEntity entity = objectionController.uploadAttachmentToObjection(Utils.mockMultipartFile(),
+        ResponseEntity<ObjectionResponseDTO> entity = objectionController.uploadAttachmentToObjection(Utils.mockMultipartFile(),
                 COMPANY_NUMBER, OBJECTION_ID, REQUEST_ID, servletRequest);
 
         assertEquals(HttpStatus.UNSUPPORTED_MEDIA_TYPE, entity.getStatusCode());
     }
 
     @Test
-    public void willReturn500FromFileTransferServerError() throws ServiceException, IOException, ObjectionNotFoundException {
+    void willReturn500FromFileTransferServerError() throws ServiceException, IOException, ObjectionNotFoundException {
         HttpServerErrorException expectedException =
                 new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR);
         when(servletRequest.getRequestURI()).thenReturn("url");
         when(objectionService.addAttachment(anyString(), anyString(), any(MultipartFile.class), anyString()))
                 .thenThrow(expectedException);
 
-        ResponseEntity entity = objectionController.uploadAttachmentToObjection(Utils.mockMultipartFile(),
+        ResponseEntity<ObjectionResponseDTO> entity = objectionController.uploadAttachmentToObjection(Utils.mockMultipartFile(),
                 COMPANY_NUMBER, OBJECTION_ID, REQUEST_ID, servletRequest);
 
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, entity.getStatusCode());
     }
 
     @Test
-    public void getAttachmentTest() throws ObjectionNotFoundException, AttachmentNotFoundException {
+    void getAttachmentTest() throws ObjectionNotFoundException, AttachmentNotFoundException {
         Attachment attachment = new Attachment();
         attachment.setId(ATTACHMENT_ID);
         AttachmentResponseDTO responseDTO = new AttachmentResponseDTO();
@@ -395,8 +424,10 @@ class ObjectionControllerTest {
         when(objectionService.getAttachment(REQUEST_ID, COMPANY_NUMBER, OBJECTION_ID, ATTACHMENT_ID))
                 .thenReturn(attachment);
         when(attachmentMapper.attachmentEntityToAttachmentResponseDTO(attachment)).thenReturn(responseDTO);
-        when(pluggableResponseEntityFactory.createResponse(any(ServiceResult.class))).thenReturn(
-                ResponseEntity.status(HttpStatus.OK).body(ChResponseBody.createNormalBody(responseDTO)));
+        when(pluggableResponseEntityFactory.createResponse(any())).then(invocation -> {
+            ServiceResult serviceResult = invocation.getArgument(0, ServiceResult.class);
+            return ResponseEntity.status(HttpStatus.OK).body(ChResponseBody.createNormalBody(serviceResult.getData()));
+        });
 
         ResponseEntity<ChResponseBody<AttachmentResponseDTO>> response = objectionController.getAttachment(
                 COMPANY_NUMBER,
@@ -417,25 +448,25 @@ class ObjectionControllerTest {
     }
 
     @Test
-    public void getAttachmentWhenObjectionNotFoundTest() throws ObjectionNotFoundException, AttachmentNotFoundException {
+    void getAttachmentWhenObjectionNotFoundTest() throws ObjectionNotFoundException, AttachmentNotFoundException {
         doThrow(new ObjectionNotFoundException("Message")).when(objectionService).getAttachment(any(), any(), any(), any());
-        ResponseEntity response = objectionController.getAttachment(COMPANY_NUMBER, OBJECTION_ID, ATTACHMENT_ID, REQUEST_ID);
+        ResponseEntity<ChResponseBody<AttachmentResponseDTO>> response = objectionController.getAttachment(COMPANY_NUMBER, OBJECTION_ID, ATTACHMENT_ID, REQUEST_ID);
 
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
 
     }
 
     @Test
-    public void getAttachmentWhenAttachmentNotFoundTest() throws ObjectionNotFoundException, AttachmentNotFoundException {
+    void getAttachmentWhenAttachmentNotFoundTest() throws ObjectionNotFoundException, AttachmentNotFoundException {
         doThrow(new AttachmentNotFoundException("Message")).when(objectionService).getAttachment(any(), any(), any(), any());
-        ResponseEntity response = objectionController.getAttachment(COMPANY_NUMBER, OBJECTION_ID, ATTACHMENT_ID, REQUEST_ID);
+        ResponseEntity<ChResponseBody<AttachmentResponseDTO>> response = objectionController.getAttachment(COMPANY_NUMBER, OBJECTION_ID, ATTACHMENT_ID, REQUEST_ID);
 
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
 
     }
 
     @Test
-    public void deleteAttachmentTest() {
+    void deleteAttachmentTest() {
 
         ResponseEntity response = objectionController.deleteAttachment(
                 COMPANY_NUMBER,
@@ -448,7 +479,7 @@ class ObjectionControllerTest {
     }
 
     @Test
-    public void deleteAttachmentWhenObjectionNotFoundTest()
+    void deleteAttachmentWhenObjectionNotFoundTest()
             throws ObjectionNotFoundException, AttachmentNotFoundException, ServiceException {
         doThrow(new ObjectionNotFoundException("Message")).when(objectionService).deleteAttachment(any(), any(), any());
         ResponseEntity response = objectionController.deleteAttachment(COMPANY_NUMBER, OBJECTION_ID, ATTACHMENT_ID, REQUEST_ID);
@@ -458,7 +489,7 @@ class ObjectionControllerTest {
     }
 
     @Test
-    public void deleteAttachmentWhenAttachmentNotFoundTest()
+    void deleteAttachmentWhenAttachmentNotFoundTest()
             throws ObjectionNotFoundException, AttachmentNotFoundException, ServiceException {
         doThrow(new AttachmentNotFoundException("Message")).when(objectionService).deleteAttachment(any(), any(), any());
         ResponseEntity response = objectionController.deleteAttachment(COMPANY_NUMBER, OBJECTION_ID, ATTACHMENT_ID, REQUEST_ID);
@@ -468,7 +499,7 @@ class ObjectionControllerTest {
     }
 
     @Test
-    public void deleteAttachmentWhenUnableToDelete()
+    void deleteAttachmentWhenUnableToDelete()
             throws ObjectionNotFoundException, AttachmentNotFoundException, ServiceException {
         doThrow(new ServiceException("Message")).when(objectionService).deleteAttachment(any(), any(), any());
         ResponseEntity response = objectionController.deleteAttachment(COMPANY_NUMBER, OBJECTION_ID, ATTACHMENT_ID, REQUEST_ID);
@@ -477,14 +508,14 @@ class ObjectionControllerTest {
     }
 
     @Test
-    public void testReturnOkStatusForDownload() throws ServiceException {
+    void testReturnOkStatusForDownload() throws ServiceException {
         HttpServletResponse httpServletResponse = new MockHttpServletResponse();
         FileTransferApiClientResponse dummyDownloadResponse = Utils.dummyDownloadResponse();
         dummyDownloadResponse.setHttpStatus(HttpStatus.OK);
         when(objectionService.downloadAttachment(REQUEST_ID, OBJECTION_ID, ATTACHMENT_ID, httpServletResponse))
                 .thenReturn(dummyDownloadResponse);
 
-        ResponseEntity responseEntity =
+        ResponseEntity<Void> responseEntity =
                 objectionController.downloadAttachment(
                         COMPANY_NUMBER, OBJECTION_ID, ATTACHMENT_ID, REQUEST_ID, httpServletResponse);
 
@@ -494,14 +525,14 @@ class ObjectionControllerTest {
     }
 
     @Test
-    public void testReturnUnauthorizedStatusForDownload() throws ServiceException {
+    void testReturnUnauthorizedStatusForDownload() throws ServiceException {
         HttpServletResponse httpServletResponse = new MockHttpServletResponse();
         FileTransferApiClientResponse dummyDownloadResponse = Utils.dummyDownloadResponse();
         dummyDownloadResponse.setHttpStatus(HttpStatus.UNAUTHORIZED);
         when(objectionService.downloadAttachment(REQUEST_ID, OBJECTION_ID, ATTACHMENT_ID, httpServletResponse))
                 .thenReturn(dummyDownloadResponse);
 
-        ResponseEntity responseEntity =
+        ResponseEntity<Void> responseEntity =
                 objectionController.downloadAttachment(
                         COMPANY_NUMBER, OBJECTION_ID, ATTACHMENT_ID, REQUEST_ID, httpServletResponse);
 
@@ -511,14 +542,14 @@ class ObjectionControllerTest {
     }
 
     @Test
-    public void testReturnForbiddenStatusForDownload() throws ServiceException {
+    void testReturnForbiddenStatusForDownload() throws ServiceException {
         HttpServletResponse httpServletResponse = new MockHttpServletResponse();
         FileTransferApiClientResponse dummyDownloadResponse = Utils.dummyDownloadResponse();
         dummyDownloadResponse.setHttpStatus(HttpStatus.FORBIDDEN);
         when(objectionService.downloadAttachment(REQUEST_ID, OBJECTION_ID, ATTACHMENT_ID, httpServletResponse))
                 .thenReturn(dummyDownloadResponse);
 
-        ResponseEntity responseEntity =
+        ResponseEntity<Void> responseEntity =
                 objectionController.downloadAttachment(
                         COMPANY_NUMBER, OBJECTION_ID, ATTACHMENT_ID, REQUEST_ID, httpServletResponse);
 
@@ -528,13 +559,13 @@ class ObjectionControllerTest {
     }
 
     @Test
-    public void testDownloadWillCatchHttpClientExceptions() throws ServiceException {
+    void testDownloadWillCatchHttpClientExceptions() throws ServiceException {
         HttpServletResponse httpServletResponse = new MockHttpServletResponse();
 
         when(objectionService.downloadAttachment(REQUEST_ID, OBJECTION_ID, ATTACHMENT_ID, httpServletResponse))
                 .thenThrow(new HttpClientErrorException(HttpStatus.BAD_REQUEST));
 
-        ResponseEntity responseEntity = objectionController.downloadAttachment(
+        ResponseEntity<Void> responseEntity = objectionController.downloadAttachment(
                 COMPANY_NUMBER, OBJECTION_ID, ATTACHMENT_ID, REQUEST_ID, httpServletResponse);
         Assert.assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
         assertNull(responseEntity.getBody());
@@ -542,13 +573,13 @@ class ObjectionControllerTest {
     }
 
     @Test
-    public void testDownloadWillCatchHttpServerExceptions() throws ServiceException {
+    void testDownloadWillCatchHttpServerExceptions() throws ServiceException {
         HttpServletResponse httpServletResponse = new MockHttpServletResponse();
 
         when(objectionService.downloadAttachment(REQUEST_ID, OBJECTION_ID, ATTACHMENT_ID, httpServletResponse))
                 .thenThrow(new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR));
 
-        ResponseEntity responseEntity = objectionController.downloadAttachment(
+        ResponseEntity<Void> responseEntity = objectionController.downloadAttachment(
                 COMPANY_NUMBER, OBJECTION_ID, ATTACHMENT_ID, REQUEST_ID, httpServletResponse);
 
         Assert.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, responseEntity.getStatusCode());
@@ -557,13 +588,13 @@ class ObjectionControllerTest {
     }
 
     @Test
-    public void willThrowServiceExceptionForDownload() throws ServiceException {
+    void willThrowServiceExceptionForDownload() throws ServiceException {
         HttpServletResponse httpServletResponse = new MockHttpServletResponse();
 
         when(objectionService.downloadAttachment(REQUEST_ID, OBJECTION_ID, ATTACHMENT_ID, httpServletResponse))
                 .thenThrow(ServiceException.class);
 
-        ResponseEntity responseEntity = objectionController.downloadAttachment(
+        ResponseEntity<Void> responseEntity = objectionController.downloadAttachment(
                 COMPANY_NUMBER, OBJECTION_ID, ATTACHMENT_ID, REQUEST_ID, httpServletResponse);
 
         Assert.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, responseEntity.getStatusCode());
@@ -577,6 +608,7 @@ class ObjectionControllerTest {
         when(objectionService.isCompanyEligible(COMPANY_NUMBER, REQUEST_ID)).thenReturn(objectionEligibility);
         ResponseEntity<ObjectionEligibility> responseEntity = objectionController.isCompanyEligibleForObjection(COMPANY_NUMBER, REQUEST_ID);
         assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+        assertNotNull(responseEntity.getBody());
         assertTrue(responseEntity.getBody().isEligible());
     }
 
@@ -586,6 +618,7 @@ class ObjectionControllerTest {
         when(objectionService.isCompanyEligible(COMPANY_NUMBER, REQUEST_ID)).thenReturn(objectionEligibility);
         ResponseEntity<ObjectionEligibility> responseEntity = objectionController.isCompanyEligibleForObjection(COMPANY_NUMBER, REQUEST_ID);
         assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+        assertNotNull(responseEntity.getBody());
         assertFalse(responseEntity.getBody().isEligible());
     }
 }
