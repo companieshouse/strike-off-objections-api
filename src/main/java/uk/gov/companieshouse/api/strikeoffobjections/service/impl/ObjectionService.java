@@ -23,6 +23,7 @@ import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Attachment;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.CreatedBy;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Objection;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.ObjectionStatus;
+import uk.gov.companieshouse.api.strikeoffobjections.model.entity.AttachmentLinks;
 import uk.gov.companieshouse.api.strikeoffobjections.model.patch.ObjectionPatch;
 import uk.gov.companieshouse.api.strikeoffobjections.model.patcher.ObjectionPatcher;
 import uk.gov.companieshouse.api.strikeoffobjections.processor.ObjectionProcessor;
@@ -32,7 +33,6 @@ import uk.gov.companieshouse.api.strikeoffobjections.validation.ActionCodeValida
 import uk.gov.companieshouse.api.strikeoffobjections.validation.ValidationException;
 import uk.gov.companieshouse.service.ServiceException;
 import uk.gov.companieshouse.service.ServiceResult;
-import uk.gov.companieshouse.service.links.Links;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotNull;
@@ -247,7 +247,7 @@ public class ObjectionService implements IObjectionService {
         );
         objection.addAttachment(attachment);
 
-        Links links = createLinks(attachmentsUri, attachmentId);
+        AttachmentLinks links = createLinks(attachmentsUri, attachmentId);
         attachment.setLinks(links);
 
         objectionRepository.save(objection);
@@ -272,9 +272,9 @@ public class ObjectionService implements IObjectionService {
         );
     }
 
-    private Links createLinks(String attachmentsUri, String attachmentId) {
+    private AttachmentLinks createLinks(String attachmentsUri, String attachmentId) {
         String linkToSelf = attachmentsUri + "/" + attachmentId;
-        Links links = new Links();
+        AttachmentLinks links = new AttachmentLinks();
         links.setLink(ObjectionsLinkKeys.SELF, linkToSelf);
         links.setLink(ObjectionsLinkKeys.DOWNLOAD, linkToSelf + "/download");
         return links;

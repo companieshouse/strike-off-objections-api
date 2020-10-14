@@ -17,7 +17,7 @@ import uk.gov.companieshouse.api.strikeoffobjections.model.entity.CreatedBy;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Objection;
 import uk.gov.companieshouse.api.strikeoffobjections.model.email.EmailContent;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.ObjectionLinkKeys;
-import uk.gov.companieshouse.service.links.Links;
+import uk.gov.companieshouse.api.strikeoffobjections.model.entity.AttachmentLinks;
 
 import java.io.File;
 import java.io.IOException;
@@ -99,12 +99,12 @@ public class Utils {
 
     public static void setTestAttachmentsWithLinks(List<Attachment> attachments) {
         Attachment attachment1 = Utils.buildTestAttachment("id1", "TestAttachment1");
-        Links links1 = new Links();
+        AttachmentLinks links1 = new AttachmentLinks();
         links1.setLink(ObjectionLinkKeys.DOWNLOAD, "/url1/download");
         attachment1.setLinks(links1);
         attachments.add(attachment1);
         Attachment attachment2 = Utils.buildTestAttachment("id1", "TestAttachment2");
-        Links links2 = new Links();
+        AttachmentLinks links2 = new AttachmentLinks();
         links2.setLink(ObjectionLinkKeys.DOWNLOAD, "/url2/download");
         attachment2.setLinks(links2);
         attachments.add(attachment2);
