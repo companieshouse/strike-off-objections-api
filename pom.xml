@@ -159,13 +159,6 @@
         </dependency>
     </dependencies>
 
-    <repositories>
-        <repository>
-            <id>virtual-release</id>
-            <url>http://repository.aws.chdev.org:8081/artifactory/virtual-release</url>
-        </repository>
-    </repositories>
-
     <build>
         <plugins>
             <plugin>
