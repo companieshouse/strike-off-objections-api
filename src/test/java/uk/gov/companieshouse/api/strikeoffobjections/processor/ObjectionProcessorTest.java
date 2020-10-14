@@ -97,8 +97,9 @@ class ObjectionProcessorTest {
         assertThrows(IllegalArgumentException.class,
                 () -> objectionProcessor.process(null, HTTP_REQUEST_ID));
 
+        Objection blankObjection = new Objection();
         assertThrows(IllegalArgumentException.class,
-                () -> objectionProcessor.process(new Objection(), null));
+                () -> objectionProcessor.process(blankObjection, null));
     }
 
     @Test
