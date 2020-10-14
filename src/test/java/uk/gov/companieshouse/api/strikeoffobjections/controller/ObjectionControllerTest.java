@@ -25,7 +25,6 @@ import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Attachment;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.CreatedBy;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Objection;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.ObjectionStatus;
-import uk.gov.companieshouse.api.strikeoffobjections.model.entity.AttachmentLinks;
 import uk.gov.companieshouse.api.strikeoffobjections.model.patch.ObjectionPatch;
 import uk.gov.companieshouse.api.strikeoffobjections.model.response.AttachmentResponseDTO;
 import uk.gov.companieshouse.api.strikeoffobjections.model.response.CreatedByResponseDTO;
@@ -35,6 +34,7 @@ import uk.gov.companieshouse.api.strikeoffobjections.utils.Utils;
 import uk.gov.companieshouse.service.ServiceException;
 import uk.gov.companieshouse.service.ServiceResult;
 import uk.gov.companieshouse.service.links.CoreLinkKeys;
+import uk.gov.companieshouse.service.links.Links;
 import uk.gov.companieshouse.service.rest.response.ChResponseBody;
 import uk.gov.companieshouse.service.rest.response.PluggableResponseEntityFactory;
 
@@ -271,7 +271,7 @@ class ObjectionControllerTest {
 
     @Test
     void getAttachmentsTest() throws Exception {
-        AttachmentLinks links = new AttachmentLinks();
+        Links links = new Links();
         List<Attachment> attachments = new ArrayList<>();
         Attachment attachment = new Attachment();
         attachment.setId(ATTACHMENT_ID);
@@ -328,7 +328,7 @@ class ObjectionControllerTest {
         attachment.setName("xyz");
         attachment.setSize(5);
         attachment.setContentType("TEXT");
-        AttachmentLinks links = new AttachmentLinks();
+        Links links = new Links();
         links.setLink(CoreLinkKeys.SELF, "link to SELF");
         attachment.setLinks(links);
 

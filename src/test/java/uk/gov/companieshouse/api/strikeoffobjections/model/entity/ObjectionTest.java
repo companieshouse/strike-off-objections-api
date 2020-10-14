@@ -3,6 +3,7 @@ package uk.gov.companieshouse.api.strikeoffobjections.model.entity;
 import org.junit.jupiter.api.Test;
 
 import uk.gov.companieshouse.api.strikeoffobjections.groups.Unit;
+import uk.gov.companieshouse.service.links.Links;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -25,7 +26,7 @@ class ObjectionTest {
        linksMap.put("download", "/abc/download");
        linksMap.put("self", "abc/self");
 
-       AttachmentLinks links = new AttachmentLinks();
+       Links links = new Links();
        links.setLinks(linksMap);
 
        Attachment attachment = new Attachment();

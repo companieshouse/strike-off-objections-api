@@ -1,16 +1,16 @@
 package uk.gov.companieshouse.api.strikeoffobjections.model.entity;
 
 import org.springframework.data.mongodb.core.mapping.Field;
+import uk.gov.companieshouse.service.links.Links;
 
-import java.io.Serializable;
 import java.util.Objects;
 
-public class Attachment implements Serializable {
+public class Attachment {
 
     @Field("id")
     private String id;
     @Field("links")
-    private AttachmentLinks links;
+    private Links links;
     @Field("name")
     private String name;
     @Field("content_type")
@@ -18,11 +18,11 @@ public class Attachment implements Serializable {
     @Field("size")
     private long size;
 
-    public AttachmentLinks getLinks() {
+    public Links getLinks() {
         return links;
     }
 
-    public void setLinks(AttachmentLinks links) {
+    public void setLinks(Links links) {
         this.links = links;
     }
 
