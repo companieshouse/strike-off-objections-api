@@ -191,7 +191,7 @@ public class ObjectionController {
      * @return ResponseEntity the api response
      */
     @PatchMapping("/{objectionId}")
-    public ResponseEntity patchObjection(
+    public ResponseEntity<Void> patchObjection(
             @PathVariable("companyNumber") String companyNumber,
             @PathVariable("objectionId") String objectionId,
             @RequestBody ObjectionPatch objectionPatch,
@@ -400,7 +400,7 @@ public class ObjectionController {
     }
 
     @DeleteMapping("/{objectionId}/attachments/{attachmentId}")
-    public ResponseEntity deleteAttachment(
+    public ResponseEntity<Void> deleteAttachment(
             @PathVariable String companyNumber,
             @PathVariable String objectionId,
             @PathVariable String attachmentId,
