@@ -21,6 +21,10 @@ public class ReferenceNumberGeneratorService implements IReferenceNumberGenerato
         this.dateTimeSupplier = dateTimeSupplier;
     }
 
+    /**
+     * Generates a 12 digit reference number based on the day and a random uuid, and inserts a hyphen every 4 characters
+     * @return a 12 digit reference with hyphens every 4 digits, prefixed with REFERENCE_NUMBER_PREFIX
+     */
     @Override
     public String generateReferenceNumber() {
         LocalDate dateNow = dateTimeSupplier.get().toLocalDate();
