@@ -7,7 +7,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.companieshouse.api.strikeoffobjections.groups.Unit;
 
-import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
 import java.time.Month;
 import java.util.function.Supplier;
@@ -17,20 +16,20 @@ import static org.mockito.Mockito.when;
 
 @Unit
 @ExtendWith(MockitoExtension.class)
-class IdGeneratorServiceTest {
+class ReferenceNumberGeneratorServiceTest {
 
     @Mock
     private Supplier<LocalDateTime> supplier;
 
     @InjectMocks
-    private IdGeneratorService idGeneratorService;
+    private ReferenceNumberGeneratorService referenceNumberGeneratorService;
 
     @Test
     void generateIdTest() {
         when(supplier.get()).thenReturn(LocalDateTime.of(2020, Month.OCTOBER, 6, 9, 30));
-        String id = idGeneratorService.generateId();
+        String referenceNumber = referenceNumberGeneratorService.generateReferenceNumber();
 
-        assertEquals("OBJ-", id.substring(0, 4));
-        assertEquals(18, id.length());
+        assertEquals("OBJ-", referenceNumber.substring(0, 4));
+        assertEquals(18, referenceNumber.length());
     }
 }
