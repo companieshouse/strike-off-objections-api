@@ -10,7 +10,7 @@ public enum ObjectionLinkKeys implements LinkKey {
 
     private final String key;
 
-    private ObjectionLinkKeys(String key) {
+    ObjectionLinkKeys(String key) {
         this.key = key;
     }
 

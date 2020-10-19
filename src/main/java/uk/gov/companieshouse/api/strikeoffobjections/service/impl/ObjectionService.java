@@ -1,6 +1,6 @@
 package uk.gov.companieshouse.api.strikeoffobjections.service.impl;
 
-import org.junit.platform.commons.util.StringUtils;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
