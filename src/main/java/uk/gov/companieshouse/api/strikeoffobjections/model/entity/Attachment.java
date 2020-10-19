@@ -3,10 +3,9 @@ package uk.gov.companieshouse.api.strikeoffobjections.model.entity;
 import org.springframework.data.mongodb.core.mapping.Field;
 import uk.gov.companieshouse.service.links.Links;
 
-import java.io.Serializable;
 import java.util.Objects;
 
-public class Attachment implements Serializable {
+public class Attachment {
 
     @Field("id")
     private String id;
