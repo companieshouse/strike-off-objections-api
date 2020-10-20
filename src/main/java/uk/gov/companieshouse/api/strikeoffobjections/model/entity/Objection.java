@@ -22,6 +22,7 @@ public class Objection {
         private Long actionCode;
         private String httpRequestId;
         private LocalDateTime statusChangedOn;
+        private String id;
 
         public Builder withCreatedOn(LocalDateTime createdOn) {
             this.createdOn = createdOn;
@@ -63,6 +64,11 @@ public class Objection {
             return this;
         }
 
+        public Builder withId(String id) {
+            this.id = id;
+            return this;
+        }
+
         public Objection build() {
             Objection objection = new Objection();
             objection.setCreatedOn(this.createdOn);
@@ -73,6 +79,7 @@ public class Objection {
             objection.setActionCode(actionCode);
             objection.setHttpRequestId(this.httpRequestId);
             objection.setStatusChangedOn(this.statusChangedOn);
+            objection.setId(this.id);
             return objection;
         }
     }

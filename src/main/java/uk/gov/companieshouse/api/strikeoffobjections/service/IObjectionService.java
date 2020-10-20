@@ -22,7 +22,7 @@ public interface IObjectionService {
                               String companyNumber,
                               String ericUserId,
                               String ericUserDetails,
-                              ObjectionCreate objectionCreate);
+                              ObjectionCreate objectionCreate) throws ServiceException;
 
     void patchObjection(String objectionId, ObjectionPatch objectionPatch, String requestId, String companyNumber)
             throws ObjectionNotFoundException, InvalidObjectionStatusException, ServiceException;

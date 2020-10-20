@@ -2,6 +2,7 @@ package uk.gov.companieshouse.api.strikeoffobjections.service.impl;
 
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
@@ -28,6 +29,7 @@ import uk.gov.companieshouse.api.strikeoffobjections.model.patcher.ObjectionPatc
 import uk.gov.companieshouse.api.strikeoffobjections.processor.ObjectionProcessor;
 import uk.gov.companieshouse.api.strikeoffobjections.repository.ObjectionRepository;
 import uk.gov.companieshouse.api.strikeoffobjections.service.IObjectionService;
+import uk.gov.companieshouse.api.strikeoffobjections.service.IReferenceNumberGeneratorService;
 import uk.gov.companieshouse.api.strikeoffobjections.validation.ActionCodeValidator;
 import uk.gov.companieshouse.api.strikeoffobjections.validation.ValidationException;
 import uk.gov.companieshouse.service.ServiceException;
@@ -79,12 +81,15 @@ public class ObjectionService implements IObjectionService {
     @Autowired
     private ActionCodeValidator actionCodeValidator;
 
+    @Autowired
+    private IReferenceNumberGeneratorService referenceNumberGeneratorService;
+
     @Override
     public Objection createObjection(String requestId,
                                      String companyNumber,
                                      String ericUserId,
                                      String ericUserDetails,
-                                     ObjectionCreate objectionCreate) {
+                                     ObjectionCreate objectionCreate) throws ServiceException {
 
         Map<String, Object> logMap = buildLogMap(companyNumber, null, null);
         logger.infoContext(requestId, "Creating objection", logMap);
@@ -100,9 +105,15 @@ public class ObjectionService implements IObjectionService {
                 .withActionCode(actionCode)
                 .withStatus(objectionStatus)
                 .withStatusChangedOn(dateTimeSupplier.get())
+                .withId(referenceNumberGeneratorService.generateReferenceNumber())
                 .build();
 
-        return objectionRepository.save(entity);
+        try {
+            return objectionRepository.insert(entity);
+        } catch (DuplicateKeyException e) {
+            logger.errorContext(requestId, "Reference Number already exists", e);
+            throw new ServiceException("Reference Number already exists", e);
+        }
     }
 
     private CreatedBy buildCreatedBy(String ericUserId,
