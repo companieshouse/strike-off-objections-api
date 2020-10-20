@@ -29,6 +29,8 @@ class ChipsClientTest {
     private static final String OBJECTION_ID = "OBJECTION_ID";
     private static final String COMPANY_NUMBER = "12345678";
     private static final List<Attachment> ATTACHMENTS = new ArrayList<>();
+    private static final String FULL_NAME = "Joe Bloggs";
+    private static final Boolean SHARE_IDENTITY = true;
     private static final String CUSTOMER_EMAIL = "test123@ch.gov.uk";
     private static final String REASON = "This is a test";
     private static final String CHIPS_REST_URL = "test.url";
@@ -52,6 +54,8 @@ class ChipsClientTest {
                 COMPANY_NUMBER,
                 ATTACHMENTS,
                 OBJECTION_ID,
+                FULL_NAME,
+                SHARE_IDENTITY,
                 CUSTOMER_EMAIL,
                 REASON,
                 DOWNLOAD_URL_PREFIX

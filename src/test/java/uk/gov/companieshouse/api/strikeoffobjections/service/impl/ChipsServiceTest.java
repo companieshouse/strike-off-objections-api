@@ -33,6 +33,8 @@ class ChipsServiceTest {
     private static final String OBJECTION_ID = "OBJECTION_ID";
     private static final String COMPANY_NUMBER = "COMPANY_NUMBER";
     private static final LocalDateTime LOCAL_DATE_TIME = LocalDateTime.of(2020, 12, 10, 8, 0);
+    private static final String FULL_NAME = "Joe Bloggs";
+    private static final Boolean SHARE_IDENTITY = false;
     private static final String EMAIL = "demo@ch.gov.uk";
     private static final String USER_ID = "32324";
     private static final String REASON = "THIS IS A REASON";
@@ -51,7 +53,7 @@ class ChipsServiceTest {
 
         Objection objection = Utils.getTestObjection(
                 OBJECTION_ID, REASON, COMPANY_NUMBER, USER_ID, EMAIL, LOCAL_DATE_TIME,
-                Utils.buildTestObjectionCreate("Joe Bloggs", false));
+                Utils.buildTestObjectionCreate(FULL_NAME, SHARE_IDENTITY));
         List<Attachment> attachments = new ArrayList<>();
         Utils.setTestAttachmentsWithLinks(attachments);
         objection.setAttachments(attachments);
@@ -66,6 +68,8 @@ class ChipsServiceTest {
         assertEquals(COMPANY_NUMBER, chipsRequest.getCompanyNumber());
         assertEquals(OBJECTION_ID, chipsRequest.getObjectionId());
         assertEquals(OBJECTION_ID, chipsRequest.getReferenceNumber());
+        assertEquals(FULL_NAME, chipsRequest.getFullName());
+        assertEquals(SHARE_IDENTITY, chipsRequest.isShareIdentity());
         assertEquals(EMAIL, chipsRequest.getCustomerEmail());
         assertEquals(REASON, chipsRequest.getReason());
 
@@ -82,7 +86,7 @@ class ChipsServiceTest {
 
         Objection objection = Utils.getTestObjection(
                 OBJECTION_ID, REASON, COMPANY_NUMBER, USER_ID, EMAIL, LOCAL_DATE_TIME,
-                Utils.buildTestObjectionCreate("Joe Bloggs", false));
+                Utils.buildTestObjectionCreate(FULL_NAME, SHARE_IDENTITY));
         objection.setAttachments(new ArrayList<>());
 
         chipsService.sendObjection(REQUEST_ID, objection);
@@ -95,6 +99,8 @@ class ChipsServiceTest {
         assertEquals(COMPANY_NUMBER, chipsRequest.getCompanyNumber());
         assertEquals(OBJECTION_ID, chipsRequest.getObjectionId());
         assertNull(chipsRequest.getReferenceNumber());
+        assertNull(chipsRequest.getFullName());
+        assertNull(chipsRequest.isShareIdentity());
         assertNull(chipsRequest.getCustomerEmail());
         assertNull(chipsRequest.getReason());
         assertNull(chipsRequest.getAttachments());

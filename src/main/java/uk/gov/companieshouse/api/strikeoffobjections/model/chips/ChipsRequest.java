@@ -27,6 +27,12 @@ public class ChipsRequest {
     @JsonProperty("reference_number")
     private final String referenceNumber;
 
+    @JsonProperty("full_name")
+    private String fullName;
+
+    @JsonProperty("share_identity")
+    private Boolean shareIdentity;
+
     @JsonProperty("customer_email")
     private final String customerEmail;
 
@@ -37,6 +43,8 @@ public class ChipsRequest {
                         String companyNumber,
                         List<Attachment> attachments,
                         String referenceNumber,
+                        String fullName,
+                        Boolean shareIdentity,
                         String customerEmail,
                         String reason,
                         String downloadPrefix) {
@@ -44,6 +52,8 @@ public class ChipsRequest {
         this.companyNumber = companyNumber;
         this.attachments = buildAttachmentsMap(downloadPrefix, attachments);
         this.referenceNumber = referenceNumber;
+        this.fullName = fullName;
+        this.shareIdentity = shareIdentity;
         this.customerEmail = customerEmail;
         this.reason = reason;
     }
@@ -62,6 +72,14 @@ public class ChipsRequest {
 
     public String getReferenceNumber() {
         return referenceNumber;
+    }
+
+    public String getFullName() {
+        return fullName;
+    }
+
+    public Boolean isShareIdentity() {
+        return shareIdentity;
     }
 
     public String getCustomerEmail() {
@@ -98,6 +116,8 @@ public class ChipsRequest {
             ",companyNumber='" + companyNumber + '\'' +
             ",attachments='" + getAttachmentsAsString() + '\'' +
             ",referenceNumber='" + referenceNumber + '\'' +
+            ",fullName='" + fullName + '\'' +
+            ",shareIdentity='" + shareIdentity + '\'' +
             ",customerEmail='" + customerEmail + '\'' +
             ",reason='" + reason + '\'' +
             "}";

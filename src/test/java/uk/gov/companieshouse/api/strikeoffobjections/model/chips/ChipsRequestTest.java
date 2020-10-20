@@ -20,6 +20,8 @@ class ChipsRequestTest {
     private static final String OBJECTION_ID = "test123";
     private static final String COMPANY_NUMBER = "12345678";
     private static final List<Attachment> ATTACHMENTS = new ArrayList<>();
+    private static final String FULL_NAME = "Joe Bloggs";
+    private static final Boolean SHARE_IDENTITY = true;
     private static final String CUSTOMER_EMAIL = "test123@ch.gov.uk";
     private static final String REASON = "This is a test";
     private static final String DOWNLOAD_URL_PREFIX = "http://chs-test-web:4000/strike-off-objections/download";
@@ -32,6 +34,8 @@ class ChipsRequestTest {
                 COMPANY_NUMBER,
                 ATTACHMENTS,
                 OBJECTION_ID,
+                FULL_NAME,
+                SHARE_IDENTITY,
                 CUSTOMER_EMAIL,
                 REASON,
                 DOWNLOAD_URL_PREFIX
@@ -43,6 +47,8 @@ class ChipsRequestTest {
         assertEquals(String.format("%s/url2/download", DOWNLOAD_URL_PREFIX),
                 chipsRequest.getAttachments().get("TestAttachment2"));
         assertEquals(OBJECTION_ID, chipsRequest.getReferenceNumber());
+        assertEquals(FULL_NAME, chipsRequest.getFullName());
+        assertEquals(SHARE_IDENTITY, chipsRequest.isShareIdentity());
         assertEquals(CUSTOMER_EMAIL, chipsRequest.getCustomerEmail());
         assertEquals(REASON, chipsRequest.getReason());
     }
@@ -54,6 +60,8 @@ class ChipsRequestTest {
                 COMPANY_NUMBER,
                 null,
                 OBJECTION_ID,
+                FULL_NAME,
+                SHARE_IDENTITY,
                 CUSTOMER_EMAIL,
                 REASON,
                 DOWNLOAD_URL_PREFIX
@@ -68,7 +76,8 @@ class ChipsRequestTest {
         String expectedOutput = "ChipsRequest{objectionId='test123',companyNumber='12345678'," +
                 "attachments='{TestAttachment2=http://chs-test-web:4000/strike-off-objections/download/url2/download, " +
                 "TestAttachment1=http://chs-test-web:4000/strike-off-objections/download/url1/download}'," +
-                "referenceNumber='test123',customerEmail='test123@ch.gov.uk',reason='This is a test'}";
+                "referenceNumber='test123',fullName='Joe Bloggs',shareIdentity='true'," +
+                "customerEmail='test123@ch.gov.uk',reason='This is a test'}";
 
         Utils.setTestAttachmentsWithLinks(ATTACHMENTS);
         ChipsRequest chipsRequest = new ChipsRequest(
@@ -76,6 +85,8 @@ class ChipsRequestTest {
                 COMPANY_NUMBER,
                 ATTACHMENTS,
                 OBJECTION_ID,
+                FULL_NAME,
+                SHARE_IDENTITY,
                 CUSTOMER_EMAIL,
                 REASON,
                 DOWNLOAD_URL_PREFIX
@@ -89,7 +100,8 @@ class ChipsRequestTest {
     @Test
     void testToStringNullAttachments() {
         String expectedOutput = "ChipsRequest{objectionId='test123',companyNumber='12345678',attachments=''," +
-                "referenceNumber='test123',customerEmail='test123@ch.gov.uk',reason='This is a test'}";
+                "referenceNumber='test123',fullName='Joe Bloggs',shareIdentity='true'," +
+                "customerEmail='test123@ch.gov.uk',reason='This is a test'}";
 
         Utils.setTestAttachmentsWithLinks(ATTACHMENTS);
         ChipsRequest chipsRequest = new ChipsRequest(
@@ -97,6 +109,8 @@ class ChipsRequestTest {
                 COMPANY_NUMBER,
                 null,
                 OBJECTION_ID,
+                FULL_NAME,
+                SHARE_IDENTITY,
                 CUSTOMER_EMAIL,
                 REASON,
                 DOWNLOAD_URL_PREFIX
@@ -117,6 +131,8 @@ class ChipsRequestTest {
                 null,
                 null,
                 null,
+                null,
+                null,
                 null
         );
 
@@ -126,6 +142,8 @@ class ChipsRequestTest {
         assertTrue(chipsRequestAsJsonString.contains("company_number"));
         assertFalse(chipsRequestAsJsonString.contains("attachments"));
         assertFalse(chipsRequestAsJsonString.contains("reference_number"));
+        assertFalse(chipsRequestAsJsonString.contains("full_name"));
+        assertFalse(chipsRequestAsJsonString.contains("share_identity"));
         assertFalse(chipsRequestAsJsonString.contains("customer_email"));
         assertFalse(chipsRequestAsJsonString.contains("reason"));
     }
