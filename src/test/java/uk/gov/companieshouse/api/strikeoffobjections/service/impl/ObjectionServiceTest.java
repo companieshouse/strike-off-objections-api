@@ -6,6 +6,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.web.client.HttpClientErrorException;
@@ -30,6 +31,7 @@ import uk.gov.companieshouse.api.strikeoffobjections.model.patcher.ObjectionPatc
 import uk.gov.companieshouse.api.strikeoffobjections.model.patch.ObjectionPatch;
 import uk.gov.companieshouse.api.strikeoffobjections.processor.ObjectionProcessor;
 import uk.gov.companieshouse.api.strikeoffobjections.repository.ObjectionRepository;
+import uk.gov.companieshouse.api.strikeoffobjections.service.IReferenceNumberGeneratorService;
 import uk.gov.companieshouse.api.strikeoffobjections.utils.Utils;
 import uk.gov.companieshouse.api.strikeoffobjections.validation.ActionCodeValidator;
 import uk.gov.companieshouse.api.strikeoffobjections.validation.ValidationException;
@@ -107,11 +109,14 @@ class ObjectionServiceTest {
     @Mock
     private ActionCodeValidator actionCodeValidator;
 
+    @Mock
+    private IReferenceNumberGeneratorService referenceNumberGeneratorService;
+
     @InjectMocks
     private ObjectionService objectionService;
 
     @Test
-    void createObjectionTest() throws ValidationException {
+    void createObjectionTest() throws ValidationException, ServiceException {
         Objection returnedEntity = new Objection.Builder()
                 .withCompanyNumber(COMPANY_NUMBER)
                 .build();
@@ -122,7 +127,7 @@ class ObjectionServiceTest {
         CreatedBy createdBy = new CreatedBy(AUTH_ID, E_MAIL, FULL_NAME, false);
         returnedEntity.setCreatedBy(createdBy);
 
-        when(objectionRepository.save(any())).thenReturn(returnedEntity);
+        when(objectionRepository.insert(any(Objection.class))).thenReturn(returnedEntity);
         when(localDateTimeSupplier.get()).thenReturn(MOCKED_TIME_STAMP);
         when(ericHeaderParser.getEmailAddress(AUTH_USER)).thenReturn(E_MAIL);
         when(oracleQueryClient.getCompanyActionCode(COMPANY_NUMBER)).thenReturn(ACTION_CODE_OK);
@@ -131,12 +136,12 @@ class ObjectionServiceTest {
                 objectionService.createObjection(REQUEST_ID, COMPANY_NUMBER, AUTH_ID, AUTH_USER,
                         Utils.buildTestObjectionCreate(FULL_NAME, false));
 
-        verify(objectionRepository).save(any());
+        verify(objectionRepository).insert(any(Objection.class));
         verify(oracleQueryClient).getCompanyActionCode(COMPANY_NUMBER);
         verify(actionCodeValidator).validate(ACTION_CODE_OK, REQUEST_ID);
 
         ArgumentCaptor<Objection> saveObjectionCaptor = ArgumentCaptor.forClass(Objection.class);
-        verify(objectionRepository, times(1)).save(saveObjectionCaptor.capture());
+        verify(objectionRepository, times(1)).insert(saveObjectionCaptor.capture());
 
         Objection savedObjection = saveObjectionCaptor.getValue();
         assertEquals(COMPANY_NUMBER, savedObjection.getCompanyNumber());
@@ -156,7 +161,7 @@ class ObjectionServiceTest {
     }
 
     @Test
-    void createObjectionIneligibleStatusTest() throws ValidationException {
+    void createObjectionIneligibleStatusTest() throws ValidationException, ServiceException {
         when(localDateTimeSupplier.get()).thenReturn(MOCKED_TIME_STAMP);
         when(ericHeaderParser.getEmailAddress(AUTH_USER)).thenReturn(E_MAIL);
         when(oracleQueryClient.getCompanyActionCode(COMPANY_NUMBER)).thenReturn(ACTION_CODE_INELIGIBLE);
@@ -168,7 +173,7 @@ class ObjectionServiceTest {
                 Utils.buildTestObjectionCreate(FULL_NAME, false));
 
         ArgumentCaptor<Objection> saveObjectionCaptor = ArgumentCaptor.forClass(Objection.class);
-        verify(objectionRepository, times(1)).save(saveObjectionCaptor.capture());
+        verify(objectionRepository, times(1)).insert(saveObjectionCaptor.capture());
 
         Objection savedObjection = saveObjectionCaptor.getValue();
         assertEquals(COMPANY_NUMBER, savedObjection.getCompanyNumber());
@@ -178,6 +183,14 @@ class ObjectionServiceTest {
         assertEquals(REQUEST_ID, savedObjection.getHttpRequestId());
         assertEquals(ACTION_CODE_INELIGIBLE, savedObjection.getActionCode());
         assertEquals(INELIGIBLE_COMPANY_STRUCK_OFF, savedObjection.getStatus());
+    }
+
+    @Test
+    void createObjectionThrowServiceExceptionIfIdExists () throws ValidationException, ServiceException {
+        when(objectionRepository.insert(any(Objection.class))).thenThrow(new DuplicateKeyException("Duplicate"));
+
+        assertThrows(ServiceException.class, () -> objectionService.createObjection(REQUEST_ID, COMPANY_NUMBER, AUTH_ID, AUTH_USER,
+                Utils.buildTestObjectionCreate(FULL_NAME, true)));
     }
 
     @Test

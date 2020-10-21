@@ -95,7 +95,7 @@ class ObjectionControllerTest {
     private ObjectionController objectionController;
 
     @Test
-    void createObjectionTest() {
+    void createObjectionTest() throws ServiceException {
         ObjectionCreate objectionCreate = new ObjectionCreate();
         objectionCreate.setFullName(FULL_NAME);
         objectionCreate.setShareIdentity(false);
@@ -131,7 +131,7 @@ class ObjectionControllerTest {
     }
 
     @Test
-    void createObjectionEligibilityErrorTest() {
+    void createObjectionEligibilityErrorTest() throws ServiceException{
         ObjectionCreate objectionCreate = new ObjectionCreate();
         objectionCreate.setFullName(FULL_NAME);
         objectionCreate.setShareIdentity(false);
@@ -152,7 +152,7 @@ class ObjectionControllerTest {
     }
 
     @Test
-    void createObjectionExceptionTest() {
+    void createObjectionExceptionTest() throws ServiceException{
         ObjectionCreate objectionCreate = new ObjectionCreate();
         objectionCreate.setFullName(FULL_NAME);
         objectionCreate.setShareIdentity(false);

@@ -31,7 +31,7 @@ public class ChipsService implements IChipsService {
                 objection.getId(),
                 objection.getCompanyNumber(),
                 getAsContactDataOrNull(objection.getAttachments()),
-                getAsContactDataOrNull(objection.getId()), // TODO OBJ-162 add ref number
+                getAsContactDataOrNull(objection.getId()),
                 getAsContactDataOrNull(objection.getCreatedBy().getFullName()),
                 getAsContactDataOrNull(objection.getCreatedBy().isShareIdentity()),
                 getAsContactDataOrNull(objection.getCreatedBy().getEmail()),
