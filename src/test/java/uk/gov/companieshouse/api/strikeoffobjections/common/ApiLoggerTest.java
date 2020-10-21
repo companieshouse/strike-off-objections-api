@@ -15,7 +15,7 @@ import uk.gov.companieshouse.api.strikeoffobjections.groups.Unit;
 
 @Unit
 @ExtendWith(MockitoExtension.class)
-public class ApiLoggerTest {
+class ApiLoggerTest {
 
     private static final String CONTEXT = "CONTEXT";
     private static final String TEST_MESSAGE = "TEST";
@@ -28,13 +28,13 @@ public class ApiLoggerTest {
     private Map<String, Object> logMap;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         logMap = new HashMap<>();
         logMap.put(LOG_MAP_KEY, LOG_MAP_VALUE);
     }
 
     @Test
-    public void testDebugContextLoggingDoesNotModifyLogMap() {
+    void testDebugContextLoggingDoesNotModifyLogMap() {
         apiLogger.debugContext(CONTEXT, TEST_MESSAGE, logMap);
         
         assertEquals(1, logMap.size());
@@ -42,7 +42,7 @@ public class ApiLoggerTest {
     }
 
     @Test
-    public void testInfoContextLoggingDoesNotModifyLogMap() {
+    void testInfoContextLoggingDoesNotModifyLogMap() {
         apiLogger.infoContext(CONTEXT, TEST_MESSAGE, logMap);
         
         assertEquals(1, logMap.size());
@@ -50,7 +50,7 @@ public class ApiLoggerTest {
     }
 
     @Test
-    public void testErrorContextLoggingDoesNotModifyLogMap() {
+    void testErrorContextLoggingDoesNotModifyLogMap() {
         apiLogger.errorContext(CONTEXT, TEST_MESSAGE, new Exception("TEST"), logMap);
 
         assertEquals(1, logMap.size());
