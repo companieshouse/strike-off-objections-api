@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
+import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -190,5 +191,11 @@ public class Objection {
 
     public void setStatusChangedOn(LocalDateTime statusChangedOn) {
         this.statusChangedOn = statusChangedOn;
+    }
+    
+    public boolean isDataEnteredByUserIncomplete() {
+        return StringUtils.isEmpty(reason)
+                || StringUtils.isEmpty(createdBy.getFullName())
+                || attachments.size() == 0;
     }
 }
