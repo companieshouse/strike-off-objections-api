@@ -58,6 +58,7 @@ public class Utils {
                 objectionCreate.getFullName(), objectionCreate.canShareIdentity());
         objection.setCreatedBy(createdBy);
         objection.setCreatedOn(localDatetime);
+        objection.getAttachments().addAll(getTestAttachments());
 
         return objection;
     }
@@ -71,7 +72,7 @@ public class Utils {
     }
 
 
-    public static List<Attachment> getTestAttachments(){
+    public static List<Attachment> getTestAttachments() {
         Attachment attachment1 = new Attachment();
         Attachment attachment2 = new Attachment();
         attachment1.setName("Name 1");
