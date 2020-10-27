@@ -196,6 +196,6 @@ public class Objection {
     public boolean isDataEnteredByUserIncomplete() {
         return StringUtils.isEmpty(reason)
                 || StringUtils.isEmpty(createdBy.getFullName())
-                || attachments.size() == 0;
+                || attachments.isEmpty();
     }
 }
