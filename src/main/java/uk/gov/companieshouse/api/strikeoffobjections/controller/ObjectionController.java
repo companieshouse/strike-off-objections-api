@@ -468,7 +468,7 @@ public class ObjectionController {
         logMap.put(LOG_COMPANY_NUMBER_KEY, companyNumber);
         logMap.put(LOG_OBJECTION_ID_KEY, objectionId);
 
-        try{
+        try {
             apiLogger.infoContext(
                     requestId,
                     "GET /{objectionId}/attachments/{attachmentId}/download request received",
@@ -497,7 +497,7 @@ public class ObjectionController {
         } finally {
             apiLogger.infoContext(
                     requestId,
-                    "Finished DOWNLOAD /{objectionId}/attachments/{attachmentId}/download request",
+                    "Finished GET /{objectionId}/attachments/{attachmentId}/download request",
                     logMap
             );
         }
@@ -505,8 +505,33 @@ public class ObjectionController {
 
     @GetMapping("/eligibility")
     public ResponseEntity<ObjectionEligibility> isCompanyEligibleForObjection(@PathVariable("companyNumber") String companyNumber,
-                                                                 @RequestHeader(value = ERIC_REQUEST_ID) String requestId) {
-        ObjectionEligibility result = objectionService.isCompanyEligible(companyNumber, requestId);
-        return new ResponseEntity<>(result, HttpStatus.OK);
+                                                                              @RequestHeader(value = ERIC_REQUEST_ID) String requestId) {
+        Map<String, Object> logMap = new HashMap<>();
+        logMap.put(LOG_COMPANY_NUMBER_KEY, companyNumber);
+
+        apiLogger.infoContext(
+                requestId,
+                "GET /eligibility request received",
+                logMap);
+
+        try {
+            ObjectionEligibility result = objectionService.isCompanyEligible(companyNumber, requestId);
+            return new ResponseEntity<>(result, HttpStatus.OK);
+
+        } catch (Exception e) {
+            apiLogger.errorContext(
+                    requestId,
+                    ERROR_500,
+                    e,
+                    logMap
+            );
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+
+        } finally {
+            apiLogger.infoContext(
+                    requestId,
+                    "Finished GET /eligibility request",
+                    logMap);
+        }
     }
 }
