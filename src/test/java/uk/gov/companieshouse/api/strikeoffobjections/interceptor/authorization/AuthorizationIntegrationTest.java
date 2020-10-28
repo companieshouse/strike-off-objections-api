@@ -29,6 +29,7 @@ import uk.gov.companieshouse.api.strikeoffobjections.exception.ObjectionNotFound
 import uk.gov.companieshouse.api.strikeoffobjections.file.FileTransferApiClientResponse;
 import uk.gov.companieshouse.api.strikeoffobjections.groups.Integration;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Objection;
+import uk.gov.companieshouse.api.strikeoffobjections.model.entity.ObjectionStatus;
 import uk.gov.companieshouse.api.strikeoffobjections.service.impl.ERICHeaderParser;
 import uk.gov.companieshouse.api.strikeoffobjections.service.impl.ObjectionService;
 import uk.gov.companieshouse.service.ServiceException;
@@ -63,6 +64,7 @@ class AuthorizationIntegrationTest {
     @BeforeEach
     public void setup() throws ServiceException, ObjectionNotFoundException {
         Objection objection = new Objection();
+        objection.setStatus(ObjectionStatus.OPEN);
         objection.setCompanyNumber("00006400");
         FileTransferApiClientResponse transferResponse = new FileTransferApiClientResponse();
         transferResponse.setFileId("123");

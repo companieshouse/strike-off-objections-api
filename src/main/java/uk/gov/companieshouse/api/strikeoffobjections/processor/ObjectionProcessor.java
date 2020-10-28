@@ -78,6 +78,8 @@ public class ObjectionProcessor {
         apiLogger.debugContext(httpRequestId, "Starting objection processing", logMap);
 
         validateObjectionStatus(objection, httpRequestId);
+        
+        validateObjectionData(objection, httpRequestId);
 
         sendObjectionToChips(objection, httpRequestId);
 
@@ -106,6 +108,18 @@ public class ObjectionProcessor {
         }
     }
 
+    private void validateObjectionData(Objection objection, String httpRequestId) throws ServiceException {
+        if (objection.isDataEnteredByUserIncomplete()) {
+            ServiceException serviceException = new ServiceException("Objection data entered by user is not complete");
+            Map<String, Object> logMap = new HashMap<>();
+            logMap.put(LOG_OBJECTION_ID_KEY, objection.getId());
+            apiLogger.errorContext(httpRequestId, serviceException.getMessage(), serviceException, logMap);
+
+            updateObjectionStatus(objection, httpRequestId, ObjectionStatus.ERROR_DATA_INCOMPLETE);
+            throw serviceException;
+        }
+    }
+    
     private void sendObjectionToChips(Objection objection, String httpRequestId) {
         try {
             chipsService.sendObjection(httpRequestId, objection);

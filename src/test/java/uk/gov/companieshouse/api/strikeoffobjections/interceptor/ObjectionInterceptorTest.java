@@ -12,6 +12,7 @@ import uk.gov.companieshouse.api.strikeoffobjections.common.ApiLogger;
 import uk.gov.companieshouse.api.strikeoffobjections.exception.ObjectionNotFoundException;
 import uk.gov.companieshouse.api.strikeoffobjections.groups.Unit;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Objection;
+import uk.gov.companieshouse.api.strikeoffobjections.model.entity.ObjectionStatus;
 import uk.gov.companieshouse.api.strikeoffobjections.service.IObjectionService;
 
 import javax.servlet.http.HttpServletRequest;
@@ -58,6 +59,7 @@ class ObjectionInterceptorTest {
     @Test
     void testObjectionInterceptor() throws Exception{
         Objection objection = new Objection();
+        objection.setStatus(ObjectionStatus.OPEN);
 
         when(request.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE)).thenReturn(PATH_VARIABLES);
         when(objectionService.getObjection(any(), any())).thenReturn(objection);
@@ -75,5 +77,18 @@ class ObjectionInterceptorTest {
         boolean result = objectionInterceptor.preHandle(request, response, null);
         assertFalse(result);
         verify(response, times(1)).setStatus(HttpStatus.NOT_FOUND.value());
+    }
+
+    @Test
+    void testObjectionInterceptorObjectionNoLongerOpen() throws Exception{
+        Objection objection = new Objection();
+        objection.setStatus(ObjectionStatus.PROCESSED);
+
+        when(request.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE)).thenReturn(PATH_VARIABLES);
+        when(objectionService.getObjection(any(), any())).thenReturn(objection);
+
+        boolean result = objectionInterceptor.preHandle(request, response, null);
+        assertFalse(result);
+        verify(response, times(1)).setStatus(HttpStatus.FORBIDDEN.value());
     }
 }

@@ -33,7 +33,7 @@ import static org.mockito.Mockito.when;
 @Integration
 @ExtendWith(SpringExtension.class)
 @WebMvcTest(value = { ObjectionController.class })
-class CompanyNumberInterceptorIntegrationTest {
+class ObjectionInterceptorIntegrationTest {
     @Autowired
     private MockMvc mockMvc;
 
@@ -57,18 +57,13 @@ class CompanyNumberInterceptorIntegrationTest {
 
     @BeforeEach
     public void setup() throws ObjectionNotFoundException {
-        Objection objection = new Objection();
-        objection.setStatus(ObjectionStatus.OPEN);
-        objection.setCompanyNumber("00006400");
-        CreatedBy createdBy = new CreatedBy("some id", "demo@ch.gov.uk",
-                "Joe Bloggs", false);
-        objection.setCreatedBy(createdBy);
-        when(objectionService.getObjection(any(), any())).thenReturn(objection);
         when(headerParser.getEmailAddress(any())).thenReturn("demo@ch.gov.uk");
     }
 
     @Test
-    void willAllowRequestWithMatchingCompanyNumbersToExecute() throws Exception {
+    void willAllowRequestsOnOpenObjectionsToBeProcessed() throws Exception {
+        when(objectionService.getObjection(any(), any())).thenReturn(getObjection(ObjectionStatus.OPEN));
+
         RequestBuilder requestBuilder = MockMvcRequestBuilders
                 .get("/company/00006400/strike-off-objections/5f05c3f24be29647ef076f21")
                 .accept(MediaType.APPLICATION_JSON)
@@ -79,13 +74,26 @@ class CompanyNumberInterceptorIntegrationTest {
     }
 
     @Test
-    void willBlockRequestWithoutMatchingCompanyNumbers() throws Exception {
+    void willBlockRequestsOnObjectionsThatAreNotOpen() throws Exception {
+        when(objectionService.getObjection(any(), any())).thenReturn(getObjection(ObjectionStatus.SUBMITTED));
+
         RequestBuilder requestBuilder = MockMvcRequestBuilders
                 .get("/company/00000099/strike-off-objections/5f05c3f24be29647ef076f21")
                 .accept(MediaType.APPLICATION_JSON)
                 .header("X-Request-Id", "444");
 
         MvcResult result = mockMvc.perform(requestBuilder).andReturn();
-        assertEquals(HttpStatus.BAD_REQUEST.value(), result.getResponse().getStatus());
+        assertEquals(HttpStatus.FORBIDDEN.value(), result.getResponse().getStatus());
+    }
+    
+    private Objection getObjection(ObjectionStatus status) {
+        Objection objection = new Objection();
+        objection.setStatus(status);
+        objection.setCompanyNumber("00006400");
+        CreatedBy createdBy = new CreatedBy("some id", "demo@ch.gov.uk",
+                "Joe Bloggs", false);
+        objection.setCreatedBy(createdBy);
+
+        return objection;
     }
 }
