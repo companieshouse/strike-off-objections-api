@@ -5,13 +5,13 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class ObjectionEligibility {
 
     @JsonProperty("is_eligible")
-    private boolean isEligible;
+    private boolean eligible;
 
-    public ObjectionEligibility(boolean isEligible) {
-        this.isEligible = isEligible;
+    public ObjectionEligibility(boolean eligible) {
+        this.eligible = eligible;
     }
 
     public boolean isEligible() {
-        return isEligible;
+        return eligible;
     }
 }
