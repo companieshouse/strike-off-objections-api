@@ -3,7 +3,6 @@ package uk.gov.companieshouse.api.strikeoffobjections.model.response;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
-import uk.gov.companieshouse.api.strikeoffobjections.model.entity.ObjectionLinkKeys;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.ObjectionStatus;
 import uk.gov.companieshouse.service.links.Links;
 
@@ -50,7 +49,6 @@ public class ObjectionResponseDTO {
 
     public void setId(String id) {
         this.id = id;
-        this.setLinks();
     }
 
     public String getCreatedOn() {
@@ -75,7 +73,6 @@ public class ObjectionResponseDTO {
 
     public void setCompanyNumber(String companyNumber) {
         this.companyNumber = companyNumber;
-        this.setLinks();
     }
 
     public String getReason() {
@@ -106,10 +103,7 @@ public class ObjectionResponseDTO {
         return links;
     }
 
-    public void setLinks() {
-        if (this.links == null) {
-            this.links = new Links();
-        }
-        this.links.setLink(ObjectionLinkKeys.SELF, "/company/" + getCompanyNumber() + "/strike-off-objections/" + getId());
+    public void setLinks(Links links) {
+        this.links = links;
     }
 }

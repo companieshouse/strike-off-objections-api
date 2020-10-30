@@ -131,6 +131,7 @@ class ObjectionServiceTest {
         when(localDateTimeSupplier.get()).thenReturn(MOCKED_TIME_STAMP);
         when(ericHeaderParser.getEmailAddress(AUTH_USER)).thenReturn(E_MAIL);
         when(oracleQueryClient.getCompanyActionCode(COMPANY_NUMBER)).thenReturn(ACTION_CODE_OK);
+        when(referenceNumberGeneratorService.generateReferenceNumber()).thenReturn(OBJECTION_ID);
 
         Objection objectionResponse =
                 objectionService.createObjection(REQUEST_ID, COMPANY_NUMBER, AUTH_ID, AUTH_USER,
@@ -151,6 +152,7 @@ class ObjectionServiceTest {
         assertEquals(REQUEST_ID, savedObjection.getHttpRequestId());
         assertEquals(ACTION_CODE_OK, savedObjection.getActionCode());
         assertEquals(OPEN, savedObjection.getStatus());
+        assertEquals("/company/" + COMPANY_NUMBER + "/strike-off-objections/" + OBJECTION_ID, savedObjection.getLinks().getLink(ObjectionsLinkKeys.SELF));
 
         assertEquals(OBJECTION_ID, objectionResponse.getId());
         assertEquals(MOCKED_TIME_STAMP, objectionResponse.getCreatedOn());

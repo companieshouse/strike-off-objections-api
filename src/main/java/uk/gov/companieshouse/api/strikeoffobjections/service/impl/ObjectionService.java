@@ -96,7 +96,8 @@ public class ObjectionService implements IObjectionService {
 
         final Long actionCode = getActionCode(companyNumber, requestId);
         final ObjectionStatus objectionStatus = getObjectionStatusForCreate(actionCode, companyNumber, requestId);
-
+        final String refNumber = referenceNumberGeneratorService.generateReferenceNumber();
+        
         Objection entity = new Objection.Builder()
                 .withCompanyNumber(companyNumber)
                 .withCreatedOn(dateTimeSupplier.get())
@@ -105,7 +106,8 @@ public class ObjectionService implements IObjectionService {
                 .withActionCode(actionCode)
                 .withStatus(objectionStatus)
                 .withStatusChangedOn(dateTimeSupplier.get())
-                .withId(referenceNumberGeneratorService.generateReferenceNumber())
+                .withId(refNumber)
+                .withLinks(createLinks("/company/" + companyNumber + "/strike-off-objections/" + refNumber, false))
                 .build();
 
         try {
@@ -258,7 +260,7 @@ public class ObjectionService implements IObjectionService {
         );
         objection.addAttachment(attachment);
 
-        Links links = createLinks(attachmentsUri, attachmentId);
+        Links links = createLinks(attachmentsUri + "/" + attachmentId, true);
         attachment.setLinks(links);
 
         objectionRepository.save(objection);
@@ -283,11 +285,12 @@ public class ObjectionService implements IObjectionService {
         );
     }
 
-    private Links createLinks(String attachmentsUri, String attachmentId) {
-        String linkToSelf = attachmentsUri + "/" + attachmentId;
+    private Links createLinks(String selfLink, boolean download) {
         Links links = new Links();
-        links.setLink(ObjectionsLinkKeys.SELF, linkToSelf);
-        links.setLink(ObjectionsLinkKeys.DOWNLOAD, linkToSelf + "/download");
+        links.setLink(ObjectionsLinkKeys.SELF, selfLink);
+        if (download) {
+            links.setLink(ObjectionsLinkKeys.DOWNLOAD, selfLink + "/download");
+        }
         return links;
     }
 
