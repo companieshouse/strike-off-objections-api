@@ -285,10 +285,10 @@ public class ObjectionService implements IObjectionService {
         );
     }
 
-    private Links createLinks(String selfLink, boolean download) {
+    private Links createLinks(String selfLink, boolean createDownloadLink) {
         Links links = new Links();
         links.setLink(ObjectionsLinkKeys.SELF, selfLink);
-        if (download) {
+        if (createDownloadLink) {
             links.setLink(ObjectionsLinkKeys.DOWNLOAD, selfLink + "/download");
         }
         return links;
