@@ -5,6 +5,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.util.StringUtils;
+import uk.gov.companieshouse.service.links.Links;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -24,6 +25,7 @@ public class Objection {
         private String httpRequestId;
         private LocalDateTime statusChangedOn;
         private String id;
+        private Links links;
 
         public Builder withCreatedOn(LocalDateTime createdOn) {
             this.createdOn = createdOn;
@@ -70,6 +72,11 @@ public class Objection {
             return this;
         }
 
+        public Builder withLinks(Links links) {
+            this.links = links;
+            return this;
+        }
+
         public Objection build() {
             Objection objection = new Objection();
             objection.setCreatedOn(this.createdOn);
@@ -81,6 +88,7 @@ public class Objection {
             objection.setHttpRequestId(this.httpRequestId);
             objection.setStatusChangedOn(this.statusChangedOn);
             objection.setId(this.id);
+            objection.setLinks(this.links);
             return objection;
         }
     }
@@ -106,6 +114,8 @@ public class Objection {
     private String httpRequestId;
     @Field("status_changed_on")
     private LocalDateTime statusChangedOn;
+    @Field("links")
+    private Links links;
 
     public String getId() {
         return id;
@@ -192,10 +202,18 @@ public class Objection {
     public void setStatusChangedOn(LocalDateTime statusChangedOn) {
         this.statusChangedOn = statusChangedOn;
     }
-    
+
     public boolean isDataEnteredByUserIncomplete() {
         return StringUtils.isEmpty(reason)
                 || StringUtils.isEmpty(createdBy.getFullName())
                 || attachments.isEmpty();
+    }
+
+    public Links getLinks() {
+        return links;
+    }
+
+    public void setLinks(Links links) {
+        this.links = links;
     }
 }
