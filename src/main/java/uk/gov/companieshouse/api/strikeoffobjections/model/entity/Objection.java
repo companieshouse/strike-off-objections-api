@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
+import org.springframework.util.StringUtils;
 import uk.gov.companieshouse.service.links.Links;
 
 import java.time.LocalDateTime;
@@ -200,6 +201,12 @@ public class Objection {
 
     public void setStatusChangedOn(LocalDateTime statusChangedOn) {
         this.statusChangedOn = statusChangedOn;
+    }
+
+    public boolean isDataEnteredByUserIncomplete() {
+        return StringUtils.isEmpty(reason)
+                || StringUtils.isEmpty(createdBy.getFullName())
+                || attachments.isEmpty();
     }
 
     public Links getLinks() {

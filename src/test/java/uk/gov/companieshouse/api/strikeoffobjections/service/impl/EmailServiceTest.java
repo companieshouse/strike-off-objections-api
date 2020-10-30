@@ -83,7 +83,6 @@ class EmailServiceTest {
         Objection objection = Utils.getTestObjection(
                 OBJECTION_ID, REASON, COMPANY_NUMBER, USER_ID, EMAIL, LOCAL_DATE_TIME,
                 Utils.buildTestObjectionCreate("Joe Bloggs", false));
-        attachments.forEach(objection::addAttachment);
 
         emailService.sendObjectionSubmittedCustomerEmail(
                 objection,
@@ -109,7 +108,6 @@ class EmailServiceTest {
         Objection objection = Utils.getTestObjection(
                 OBJECTION_ID, REASON, COMPANY_NUMBER, USER_ID, EMAIL, LOCAL_DATE_TIME,
                 Utils.buildTestObjectionCreate("Joe Bloggs", false));
-        Utils.getTestAttachments().forEach(objection::addAttachment);
 
         emailService.sendObjectionSubmittedDissolutionTeamEmail(
                 COMPANY_NAME,
@@ -137,7 +135,6 @@ class EmailServiceTest {
         Objection objection = Utils.getTestObjection(
                 OBJECTION_ID, REASON, COMPANY_NUMBER, USER_ID, EMAIL, LOCAL_DATE_TIME,
                 Utils.buildTestObjectionCreate("Joe Bloggs", false));
-        Utils.getTestAttachments().forEach(objection::addAttachment);
 
         emailService.sendObjectionSubmittedDissolutionTeamEmail(
                 COMPANY_NAME,
@@ -164,7 +161,6 @@ class EmailServiceTest {
         Objection objection = Utils.getTestObjection(
                 OBJECTION_ID, REASON, COMPANY_NUMBER, USER_ID, EMAIL, LOCAL_DATE_TIME,
                 Utils.buildTestObjectionCreate("Joe Bloggs", false));
-        Utils.getTestAttachments().forEach(objection::addAttachment);
 
         emailService.sendObjectionSubmittedDissolutionTeamEmail(
                 COMPANY_NAME,
@@ -190,7 +186,6 @@ class EmailServiceTest {
         Objection objection = Utils.getTestObjection(
                 OBJECTION_ID, REASON, COMPANY_NUMBER, USER_ID, EMAIL, LOCAL_DATE_TIME,
                 Utils.buildTestObjectionCreate("Joe Bloggs", false));
-        Utils.getTestAttachments().forEach(objection::addAttachment);
 
         emailService.sendObjectionSubmittedDissolutionTeamEmail(
                 COMPANY_NAME,
