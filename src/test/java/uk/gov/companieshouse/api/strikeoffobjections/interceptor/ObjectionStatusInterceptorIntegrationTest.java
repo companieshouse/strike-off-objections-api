@@ -77,7 +77,7 @@ class ObjectionStatusInterceptorIntegrationTest {
         when(objectionService.getObjection(any(), any())).thenReturn(getObjection(ObjectionStatus.SUBMITTED));
 
         RequestBuilder requestBuilder = MockMvcRequestBuilders
-                .get("/company/00006400/strike-off-objections/5f05c3f24be29647ef076f21")
+                .get("/company/00000099/strike-off-objections/5f05c3f24be29647ef076f21")
                 .accept(MediaType.APPLICATION_JSON)
                 .header("X-Request-Id", "444");
 

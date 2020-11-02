@@ -69,14 +69,14 @@ public class InterceptorConfig implements WebMvcConfigurer {
                 .excludePathPatterns(ELIGIBILITY_CHECK_PATH)
                 .order(1);
 
-        registry.addInterceptor(companyNumberInterceptor(logger))
-                .addPathPatterns(STRIKE_OFF_OBJECTIONS_OBJECTION_ID)
-                .excludePathPatterns(ELIGIBILITY_CHECK_PATH)
-                .order(2);
-
         registry.addInterceptor(objectionStatusInterceptor(logger))
                 .addPathPatterns(STRIKE_OFF_OBJECTIONS_OBJECTION_ID)
                 .excludePathPatterns(ELIGIBILITY_CHECK_PATH, ATTACHMENTS_DOWNLOAD_PATH)
+                .order(2);
+
+        registry.addInterceptor(companyNumberInterceptor(logger))
+                .addPathPatterns(STRIKE_OFF_OBJECTIONS_OBJECTION_ID)
+                .excludePathPatterns(ELIGIBILITY_CHECK_PATH)
                 .order(3);
 
         registry.addInterceptor(userAuthorizationInterceptor(logger, ericHeaderParser))
