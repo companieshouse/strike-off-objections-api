@@ -38,7 +38,7 @@ public class UserAuthorizationInterceptor implements HandlerInterceptor {
             return true;
         }
 
-        apiLogger.debugContext(requestId, "User not authorised to access objection");
+        apiLogger.errorContext(requestId, "User not authorised to access objection", null);
         response.setStatus(HttpStatus.UNAUTHORIZED.value());
         return false;
     }

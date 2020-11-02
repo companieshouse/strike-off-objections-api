@@ -6,7 +6,6 @@ import org.springframework.web.servlet.HandlerMapping;
 import uk.gov.companieshouse.api.strikeoffobjections.common.ApiLogger;
 import uk.gov.companieshouse.api.strikeoffobjections.exception.ObjectionNotFoundException;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Objection;
-import uk.gov.companieshouse.api.strikeoffobjections.model.entity.ObjectionStatus;
 import uk.gov.companieshouse.api.strikeoffobjections.service.IObjectionService;
 import uk.gov.companieshouse.api.strikeoffobjections.service.impl.ERICHeaderFields;
 
@@ -17,7 +16,6 @@ import java.util.Map;
 public class ObjectionInterceptor implements HandlerInterceptor {
 
     private static final String OBJECTION_NOT_FOUND = "Objection not found";
-    private static final String OBJECTION_STATUS_INVALID = "Objection is not in a valid state for this operation. Expected a status of OPEN but was %s";
 
     private final IObjectionService objectionService;
     private final ApiLogger apiLogger;
@@ -37,20 +35,6 @@ public class ObjectionInterceptor implements HandlerInterceptor {
 
         try {
             Objection objection = objectionService.getObjection(requestId, objectionId);
-            
-            // Operations on objections via the API REST interface are only allowed whilst the objection is
-            // still 'open', i.e. has not yet been submitted (to CHIPS) for processing
-            if (ObjectionStatus.OPEN != objection.getStatus()) {
-                apiLogger.errorContext(
-                        requestId,
-                        String.format(OBJECTION_STATUS_INVALID, objection.getStatus()),
-                        null
-                );
-
-                response.setStatus(HttpStatus.FORBIDDEN.value());
-                return false;
-            }
-            
             request.setAttribute(InterceptorConstants.OBJECTION_ATTRIBUTE, objection);
         } catch (ObjectionNotFoundException e) {
             apiLogger.errorContext(

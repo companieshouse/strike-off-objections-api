@@ -8,6 +8,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import uk.gov.companieshouse.api.strikeoffobjections.interceptor.CompanyNumberInterceptor;
 import uk.gov.companieshouse.api.strikeoffobjections.interceptor.ObjectionInterceptor;
+import uk.gov.companieshouse.api.strikeoffobjections.interceptor.ObjectionStatusInterceptor;
 import uk.gov.companieshouse.api.strikeoffobjections.interceptor.authorization.AttachmentDownloadAuthorizationInterceptor;
 import uk.gov.companieshouse.api.strikeoffobjections.interceptor.authorization.UserAuthorizationInterceptor;
 import uk.gov.companieshouse.api.strikeoffobjections.common.ApiLogger;
@@ -38,13 +39,12 @@ public class InterceptorConfig implements WebMvcConfigurer {
     @Bean
     public UserAuthorizationInterceptor userAuthorizationInterceptor(
             ApiLogger logger,
-            ERICHeaderParser ericHeaderParser
-    ) {
+            ERICHeaderParser ericHeaderParser) {
         return new UserAuthorizationInterceptor(logger, ericHeaderParser);
     }
 
     @Bean
-    public CompanyNumberInterceptor companyNumberInterceptor(ApiLogger apiLogger){
+    public CompanyNumberInterceptor companyNumberInterceptor(ApiLogger apiLogger) {
         return new CompanyNumberInterceptor(apiLogger);
     }
 
@@ -53,18 +53,35 @@ public class InterceptorConfig implements WebMvcConfigurer {
         return new ObjectionInterceptor(objectionService, apiLogger);
     }
 
+    @Bean
+    public ObjectionStatusInterceptor objectionStatusInterceptor(ApiLogger apiLogger) {
+        return new ObjectionStatusInterceptor(apiLogger);
+    }
+
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(attachmentDownloadAuthorizationInterceptor(logger))
-                .addPathPatterns(ATTACHMENTS_DOWNLOAD_PATH);
+                .addPathPatterns(ATTACHMENTS_DOWNLOAD_PATH)
+                .order(0);
+
         registry.addInterceptor(objectionInterceptor(objectionService, logger))
                 .addPathPatterns(STRIKE_OFF_OBJECTIONS_OBJECTION_ID)
-                .excludePathPatterns(ELIGIBILITY_CHECK_PATH);
+                .excludePathPatterns(ELIGIBILITY_CHECK_PATH)
+                .order(1);
+
         registry.addInterceptor(companyNumberInterceptor(logger))
                 .addPathPatterns(STRIKE_OFF_OBJECTIONS_OBJECTION_ID)
-                .excludePathPatterns(ELIGIBILITY_CHECK_PATH);
+                .excludePathPatterns(ELIGIBILITY_CHECK_PATH)
+                .order(2);
+
+        registry.addInterceptor(objectionStatusInterceptor(logger))
+                .addPathPatterns(STRIKE_OFF_OBJECTIONS_OBJECTION_ID)
+                .excludePathPatterns(ELIGIBILITY_CHECK_PATH, ATTACHMENTS_DOWNLOAD_PATH)
+                .order(3);
+
         registry.addInterceptor(userAuthorizationInterceptor(logger, ericHeaderParser))
                 .addPathPatterns(STRIKE_OFF_OBJECTIONS_OBJECTION_ID)
-                .excludePathPatterns(ATTACHMENTS_DOWNLOAD_PATH, ELIGIBILITY_CHECK_PATH);
+                .excludePathPatterns(ATTACHMENTS_DOWNLOAD_PATH, ELIGIBILITY_CHECK_PATH)
+                .order(4);
     }
 }
