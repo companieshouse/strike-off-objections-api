@@ -39,7 +39,7 @@ public class AttachmentDownloadAuthorizationInterceptor extends HandlerIntercept
             return true;
         }
 
-        logger.errorContext(requestId, "User is not authorized to download the attachment", null);
+        logger.infoContext(requestId, "User is not authorized to download the attachment");
         response.setStatus(HttpStatus.UNAUTHORIZED.value());
 
         return false;

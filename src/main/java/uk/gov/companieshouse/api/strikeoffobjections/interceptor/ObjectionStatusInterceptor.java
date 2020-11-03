@@ -29,10 +29,9 @@ public class ObjectionStatusInterceptor implements HandlerInterceptor {
         // Operations on objections via the API REST interface are only allowed whilst the objection is
         // still 'open', i.e. has not yet been submitted (to CHIPS) for processing
         if (ObjectionStatus.OPEN != objection.getStatus()) {
-            apiLogger.errorContext(
+            apiLogger.infoContext(
                     requestId,
-                    String.format(OBJECTION_STATUS_INVALID, objection.getStatus()),
-                    null
+                    String.format(OBJECTION_STATUS_INVALID, objection.getStatus())
             );
 
             response.setStatus(HttpStatus.FORBIDDEN.value());
