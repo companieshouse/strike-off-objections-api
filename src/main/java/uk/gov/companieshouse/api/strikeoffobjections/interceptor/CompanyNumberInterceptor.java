@@ -32,7 +32,7 @@ public class CompanyNumberInterceptor implements HandlerInterceptor {
         final boolean companyNumberMatches = doCompanyNumbersMatch(companyNumber, objection);
 
         if (!companyNumberMatches) {
-            apiLogger.debugContext(requestId, "Provided company number does not match objection company number");
+            apiLogger.infoContext(requestId, "Provided company number does not match objection company number");
             response.setStatus(HttpStatus.BAD_REQUEST.value());
         }
 

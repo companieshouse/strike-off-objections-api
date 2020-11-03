@@ -17,7 +17,6 @@ import uk.gov.companieshouse.api.strikeoffobjections.common.ApiLogger;
 import uk.gov.companieshouse.api.strikeoffobjections.controller.AttachmentMapper;
 import uk.gov.companieshouse.api.strikeoffobjections.controller.ObjectionController;
 import uk.gov.companieshouse.api.strikeoffobjections.controller.ObjectionMapper;
-import uk.gov.companieshouse.api.strikeoffobjections.exception.ObjectionNotFoundException;
 import uk.gov.companieshouse.api.strikeoffobjections.groups.Integration;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.CreatedBy;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Objection;
@@ -33,7 +32,7 @@ import static org.mockito.Mockito.when;
 @Integration
 @ExtendWith(SpringExtension.class)
 @WebMvcTest(value = { ObjectionController.class })
-class ObjectionInterceptorIntegrationTest {
+class ObjectionStatusInterceptorIntegrationTest {
     @Autowired
     private MockMvc mockMvc;
 
@@ -56,7 +55,7 @@ class ObjectionInterceptorIntegrationTest {
     private PluggableResponseEntityFactory responseEntityFactory;
 
     @BeforeEach
-    public void setup() throws ObjectionNotFoundException {
+    void setup() {
         when(headerParser.getEmailAddress(any())).thenReturn("demo@ch.gov.uk");
     }
 
