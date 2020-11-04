@@ -347,7 +347,7 @@
     "ObjectionEligibility": {
       "type": "object",
       "properties": {
-        "isEligible": {
+        "is_eligible": {
           "type": "boolean"
         }
       }
@@ -407,10 +407,10 @@
     "Create": {
       "type": "object",
       "properties": {
-        "fullName": {
+        "full_name": {
           "type": "string"
         },
-        "shareIdentity": {
+        "share_identity": {
           "type": "boolean"
         }
       }
@@ -418,10 +418,10 @@
     "Patch": {
       "type": "object",
       "properties": {
-        "fullName": {
+        "full_name": {
           "type": "string"
         },
-        "shareIdentity": {
+        "share_identity": {
           "type": "boolean"
         },
         "reason": {
