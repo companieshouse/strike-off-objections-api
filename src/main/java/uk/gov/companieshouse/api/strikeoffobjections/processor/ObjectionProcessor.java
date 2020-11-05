@@ -81,9 +81,9 @@ public class ObjectionProcessor {
         
         validateObjectionData(objection, httpRequestId);
 
-        sendObjectionToChips(objection, httpRequestId);
-
         CompanyProfileApi companyProfile = this.companyProfileService.getCompanyProfile(objection.getCompanyNumber(), httpRequestId);
+
+        sendObjectionToChips(objection, httpRequestId);
 
         sendInternalEmail(objection, companyProfile, httpRequestId);
 
