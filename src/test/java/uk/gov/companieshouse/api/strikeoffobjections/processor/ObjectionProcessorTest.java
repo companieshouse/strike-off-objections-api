@@ -133,7 +133,7 @@ class ObjectionProcessorTest {
         when(companyProfileService.getCompanyProfile(COMPANY_NUMBER, HTTP_REQUEST_ID))
                 .thenReturn(Utils.getDummyCompanyProfile(COMPANY_NUMBER, JURISDICTION));
         Objection dummyObjection = Utils.getTestObjection(
-                OBJECTION_ID, REASON, COMPANY_NUMBER, USER_ID, EMAIL, LOCAL_DATE_TIME,
+                OBJECTION_ID, "", COMPANY_NUMBER, USER_ID, EMAIL, LOCAL_DATE_TIME,
                 Utils.buildTestObjectionCreate(FULL_NAME, false));
         dummyObjection.setStatus(ObjectionStatus.SUBMITTED);
 
