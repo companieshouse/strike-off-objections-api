@@ -129,13 +129,20 @@ class ObjectionProcessorTest {
     }
 
     @Test
-    void processThrowsServiceExceptionIfUserDataIsMissingReason() {
+    void processShouldNotThrowServiceExceptionIfUserDataIsMissingReason() throws Exception {
+        when(companyProfileService.getCompanyProfile(COMPANY_NUMBER, HTTP_REQUEST_ID))
+                .thenReturn(Utils.getDummyCompanyProfile(COMPANY_NUMBER, JURISDICTION));
         Objection dummyObjection = Utils.getTestObjection(
                 OBJECTION_ID, "", COMPANY_NUMBER, USER_ID, EMAIL, LOCAL_DATE_TIME,
                 Utils.buildTestObjectionCreate(FULL_NAME, false));
         dummyObjection.setStatus(ObjectionStatus.SUBMITTED);
 
-        processObjectionAndCheckForError(dummyObjection);
+        ArgumentCaptor<Objection> objectionArgumentCaptor = ArgumentCaptor.forClass(Objection.class);
+        assertDoesNotThrow(() -> objectionProcessor.process(dummyObjection, HTTP_REQUEST_ID));
+        verify(objectionRepository, times(1)).save(objectionArgumentCaptor.capture());
+
+        Objection objection = objectionArgumentCaptor.getValue();
+        assertEquals(ObjectionStatus.PROCESSED, objection.getStatus());
     }
 
     @Test
