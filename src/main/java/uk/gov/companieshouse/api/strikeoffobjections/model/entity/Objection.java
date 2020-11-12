@@ -204,8 +204,7 @@ public class Objection {
     }
 
     public boolean isDataEnteredByUserIncomplete() {
-        return StringUtils.isEmpty(reason)
-                || StringUtils.isEmpty(createdBy.getFullName())
+        return StringUtils.isEmpty(createdBy.getFullName())
                 || attachments.isEmpty();
     }
 
