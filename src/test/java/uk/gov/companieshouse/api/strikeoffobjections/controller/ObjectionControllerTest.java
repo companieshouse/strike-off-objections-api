@@ -106,16 +106,15 @@ class ObjectionControllerTest {
         ObjectionCreate objectionCreate = new ObjectionCreate();
         objectionCreate.setFullName(FULL_NAME);
         objectionCreate.setShareIdentity(false);
+
         Objection objection = new Objection();
         objection.setId(OBJECTION_ID);
-        objection.setStatus(ObjectionStatus.SUBMITTED);
+        objection.setStatus(ObjectionStatus.OPEN);
 
         when(objectionService.createObjection(REQUEST_ID, COMPANY_NUMBER,
                 AUTH_ID, AUTH_USER, objectionCreate)).thenReturn(objection);
 
-        ObjectionResponseDTO objectionDTO = new ObjectionResponseDTO();
-        objectionDTO.setId(OBJECTION_ID);
-
+        // this is to copy the param used in the ServiceResult into the response factory
         when(pluggableResponseEntityFactory.createResponse(any())).then(invocation -> {
             ServiceResult serviceResult = invocation.getArgument(0, ServiceResult.class);
             return ResponseEntity.status(HttpStatus.CREATED).body(ChResponseBody.createNormalBody(serviceResult.getData()));
@@ -135,26 +134,36 @@ class ObjectionControllerTest {
 
         assertNotNull(responseBody.getSuccessBody());
         assertEquals(OBJECTION_ID, responseBody.getSuccessBody().getId());
+        assertEquals(ObjectionStatus.OPEN, responseBody.getSuccessBody().getStatus());
     }
 
     @Test
-    void createObjectionEligibilityErrorTest() throws ServiceException{
+    void createObjectionIneligibleTest() throws ServiceException{
         ObjectionCreate objectionCreate = new ObjectionCreate();
         objectionCreate.setFullName(FULL_NAME);
         objectionCreate.setShareIdentity(false);
+
         Objection objection = new Objection();
         objection.setId(OBJECTION_ID);
         objection.setStatus(ObjectionStatus.INELIGIBLE_COMPANY_STRUCK_OFF);
+
         when(objectionService.createObjection(REQUEST_ID, COMPANY_NUMBER,
                 AUTH_ID, AUTH_USER, objectionCreate)).thenReturn(objection);
+
+        // this is to copy the param used in the ServiceResult into the response factory
+        when(pluggableResponseEntityFactory.createResponse(any())).then(invocation -> {
+            ServiceResult serviceResult = invocation.getArgument(0, ServiceResult.class);
+            return ResponseEntity.status(HttpStatus.CREATED).body(ChResponseBody.createNormalBody(serviceResult.getData()));
+        });
 
         ResponseEntity<ChResponseBody<ObjectionResponseDTO>> response =
                 objectionController.createObjection(COMPANY_NUMBER, REQUEST_ID, AUTH_ID, AUTH_USER, objectionCreate);
 
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
         assertNotNull(response.getBody());
         ChResponseBody<ObjectionResponseDTO> responseBody = response.getBody();
         assertNotNull(responseBody.getSuccessBody());
+        assertEquals(OBJECTION_ID, responseBody.getSuccessBody().getId());
         assertEquals(ObjectionStatus.INELIGIBLE_COMPANY_STRUCK_OFF, responseBody.getSuccessBody().getStatus());
     }
 
