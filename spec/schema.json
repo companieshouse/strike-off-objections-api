@@ -62,12 +62,6 @@
             "schema": {
               "$ref": "#/definitions/ResourceCreated"
             }
-          },
-          "400": {
-            "description": "Company is ineligible for objecting to strike off",
-            "schema": {
-              "$ref": "#/definitions/Ineligible"
-            }
           }
         }
       }
@@ -358,6 +352,9 @@
         "id": {
           "type": "string",
           "format": "uuid"
+        },
+        "status": {
+          "$ref": "#/definitions/Status"
         }
       }
     },
@@ -429,18 +426,6 @@
         },
         "status": {
           "$ref": "#/definitions/Status"
-        }
-      }
-    },
-    "Ineligible": {
-      "type": "object",
-      "properties": {
-        "status": {
-          "type": "string",
-          "enum": [
-            "INELIGIBLE_COMPANY_STRUCK_OFF",
-            "INELIGIBLE_NO_DISSOLUTION_ACTION"
-          ]
         }
       }
     },
