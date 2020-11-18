@@ -15,9 +15,6 @@ public class ChipsService implements IChipsService {
     @Value("${EMAIL_ATTACHMENT_DOWNLOAD_URL_PREFIX}")
     private String attachmentDownloadUrlPrefix;
 
-    @Value("${FEATURE_FLAG_SEND_CHIPS_CONTACT_DATA}")
-    private boolean isFeatureFlagSendChipsContactDataEnabled;
-
     private final ChipsClient chipsClient;
 
     @Autowired
@@ -30,23 +27,15 @@ public class ChipsService implements IChipsService {
         ChipsRequest chipsRequest = new ChipsRequest(
                 objection.getId(),
                 objection.getCompanyNumber(),
-                getAsContactDataOrNull(objection.getAttachments()),
-                getAsContactDataOrNull(objection.getId()),
-                getAsContactDataOrNull(objection.getCreatedBy().getFullName()),
-                getAsContactDataOrNull(objection.getCreatedBy().isShareIdentity()),
-                getAsContactDataOrNull(objection.getCreatedBy().getEmail()),
-                getAsContactDataOrNull(objection.getReason()),
-                getAsContactDataOrNull(attachmentDownloadUrlPrefix)
+                objection.getAttachments(),
+                objection.getId(),
+                objection.getCreatedBy().getFullName(),
+                objection.getCreatedBy().isShareIdentity(),
+                objection.getCreatedBy().getEmail(),
+                objection.getReason(),
+                attachmentDownloadUrlPrefix
         );
 
         this.chipsClient.sendToChips(requestId, chipsRequest);
-    }
-
-    private <T> T getAsContactDataOrNull(T data) {
-        if (isFeatureFlagSendChipsContactDataEnabled) {
-            return data;
-        } else {
-            return null;
-        }
     }
 }
