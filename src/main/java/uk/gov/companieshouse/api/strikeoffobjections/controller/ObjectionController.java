@@ -156,12 +156,9 @@ public class ObjectionController {
                     ericUserDetails,
                     objectionCreate);
             ObjectionStatus objectionStatus = objection.getStatus();
-            if (objectionStatus.isIneligible()) {
-               ObjectionResponseDTO response = new ObjectionResponseDTO();
-               response.setStatus(objectionStatus);
-               return new ResponseEntity<>(ChResponseBody.createNormalBody(response), HttpStatus.BAD_REQUEST);
-            }
-            return responseEntityFactory.createResponse(ServiceResult.created(new ObjectionResponseDTO(objection.getId())));
+            ObjectionResponseDTO responseDTO = new ObjectionResponseDTO(objection.getId());
+            responseDTO.setStatus(objectionStatus);
+            return responseEntityFactory.createResponse(ServiceResult.created(responseDTO));
         } catch (Exception e) {
             apiLogger.errorContext(
                     requestId,
