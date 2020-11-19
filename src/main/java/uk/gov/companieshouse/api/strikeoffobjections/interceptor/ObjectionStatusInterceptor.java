@@ -23,7 +23,7 @@ public class ObjectionStatusInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         final String requestId = request.getHeader(ERICHeaderFields.ERIC_REQUEST_ID);
-        apiLogger.debugContext(requestId, "Checking provided company number matches objection company number");
+        apiLogger.debugContext(requestId, "Checking objection status is OPEN");
         final Objection objection = (Objection) request.getAttribute(InterceptorConstants.OBJECTION_ATTRIBUTE);
 
         // Operations on objections via the API REST interface are only allowed whilst the objection is
