@@ -33,7 +33,7 @@ public class InterceptorConfig implements WebMvcConfigurer {
 
     @Bean
     public AttachmentDownloadAuthorizationInterceptor attachmentDownloadAuthorizationInterceptor(ApiLogger logger) {
-        return new AttachmentDownloadAuthorizationInterceptor(logger);
+        return new AttachmentDownloadAuthorizationInterceptor(logger, ericHeaderParser);
     }
 
     @Bean
