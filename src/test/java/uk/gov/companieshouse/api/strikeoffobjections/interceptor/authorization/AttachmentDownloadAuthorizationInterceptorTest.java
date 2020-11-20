@@ -17,6 +17,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import uk.gov.companieshouse.api.strikeoffobjections.common.ApiLogger;
 import uk.gov.companieshouse.api.strikeoffobjections.groups.Unit;
+import uk.gov.companieshouse.api.strikeoffobjections.service.impl.ERICHeaderParser;
 
 @Unit
 @ExtendWith(MockitoExtension.class)
@@ -33,6 +34,9 @@ class AttachmentDownloadAuthorizationInterceptorTest {
 
     @Mock
     private ApiLogger logger;
+
+    @Mock
+    private ERICHeaderParser ericHeaderParser;
 
     @Test
     void willAuthoriseUserToDownloadAttachmentWhenOnlyDownloadRolePresent() {

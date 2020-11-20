@@ -11,6 +11,7 @@ import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
 import uk.gov.companieshouse.api.strikeoffobjections.common.ApiLogger;
 import uk.gov.companieshouse.api.strikeoffobjections.service.impl.ERICHeaderFields;
+import uk.gov.companieshouse.api.strikeoffobjections.service.impl.ERICHeaderParser;
 import uk.gov.companieshouse.service.ServiceException;
 
 public class AttachmentDownloadAuthorizationInterceptor extends HandlerInterceptorAdapter {
@@ -20,11 +21,12 @@ public class AttachmentDownloadAuthorizationInterceptor extends HandlerIntercept
      */
     private static final String ADMIN_DOWNLOAD_ROLE = "/admin/strike-off-objections-download";
 
-    private ApiLogger logger;
+    private final ApiLogger logger;
+    private final ERICHeaderParser ericHeaderParser;
 
-
-    public AttachmentDownloadAuthorizationInterceptor(ApiLogger logger) {
+    public AttachmentDownloadAuthorizationInterceptor(ApiLogger logger, ERICHeaderParser ericHeaderParser) {
         this.logger = logger;
+        this.ericHeaderParser = ericHeaderParser;
     }
 
     @Override
@@ -39,7 +41,11 @@ public class AttachmentDownloadAuthorizationInterceptor extends HandlerIntercept
             return true;
         }
 
-        logger.infoContext(requestId, "User is not authorized to download the attachment");
+        final String user = request.getHeader(ERICHeaderFields.ERIC_AUTHORISED_USER);
+        final String requestUserEmail = ericHeaderParser.getEmailAddress(user);
+
+        logger.infoContext(requestId, String.format("User: %s is not authorized to download the attachment"
+                , requestUserEmail));
         response.setStatus(HttpStatus.UNAUTHORIZED.value());
 
         return false;
