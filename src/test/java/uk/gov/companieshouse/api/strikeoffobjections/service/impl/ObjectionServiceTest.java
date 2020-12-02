@@ -34,6 +34,7 @@ import uk.gov.companieshouse.api.strikeoffobjections.repository.ObjectionReposit
 import uk.gov.companieshouse.api.strikeoffobjections.service.IReferenceNumberGeneratorService;
 import uk.gov.companieshouse.api.strikeoffobjections.utils.Utils;
 import uk.gov.companieshouse.api.strikeoffobjections.validation.ActionCodeValidator;
+import uk.gov.companieshouse.api.strikeoffobjections.validation.Gaz2RequestedValidator;
 import uk.gov.companieshouse.api.strikeoffobjections.validation.ValidationException;
 import uk.gov.companieshouse.service.ServiceException;
 import uk.gov.companieshouse.service.ServiceResult;
@@ -111,6 +112,9 @@ class ObjectionServiceTest {
 
     @Mock
     private IReferenceNumberGeneratorService referenceNumberGeneratorService;
+
+    @Mock
+    private Gaz2RequestedValidator gaz2RequestedValidator;
 
     @InjectMocks
     private ObjectionService objectionService;

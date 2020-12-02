@@ -22,4 +22,12 @@ public class OracleQueryClient {
 
         return response.getBody();
     }
+
+    public String getRequestedGaz2(String companyNumber) {
+        String getRequestedGaz2Url = String.format("%s/company/%s/gaz2-requested", oracleQueryApiUrl, companyNumber);
+
+        ResponseEntity<String> response = restTemplate.getForEntity(getRequestedGaz2Url, String.class);
+
+        return response.getBody();
+    }
 }
