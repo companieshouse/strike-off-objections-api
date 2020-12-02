@@ -198,9 +198,6 @@ class ObjectionServiceTest {
         when(ericHeaderParser.getEmailAddress(AUTH_USER)).thenReturn(E_MAIL);
         when(oracleQueryClient.getCompanyActionCode(COMPANY_NUMBER, REQUEST_ID)).thenReturn(ACTION_CODE_OK);
 
-        //ValidationException ve = new ValidationException(INELIGIBLE_COMPANY_STRUCK_OFF);
-        //doThrow(ve).when(actionCodeValidator).validate(ACTION_CODE_INELIGIBLE, REQUEST_ID);
-
         ValidationException ve = new ValidationException(INELIGIBLE_COMPANY_STRUCK_OFF);
         doThrow(ve).when(gaz2RequestedValidator).validate(COMPANY_NUMBER, ACTION_CODE_OK, REQUEST_ID);
 
