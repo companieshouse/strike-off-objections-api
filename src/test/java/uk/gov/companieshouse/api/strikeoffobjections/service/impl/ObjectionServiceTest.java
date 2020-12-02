@@ -134,7 +134,7 @@ class ObjectionServiceTest {
         when(objectionRepository.insert(any(Objection.class))).thenReturn(returnedEntity);
         when(localDateTimeSupplier.get()).thenReturn(MOCKED_TIME_STAMP);
         when(ericHeaderParser.getEmailAddress(AUTH_USER)).thenReturn(E_MAIL);
-        when(oracleQueryClient.getCompanyActionCode(COMPANY_NUMBER)).thenReturn(ACTION_CODE_OK);
+        when(oracleQueryClient.getCompanyActionCode(COMPANY_NUMBER, REQUEST_ID)).thenReturn(ACTION_CODE_OK);
         when(referenceNumberGeneratorService.generateReferenceNumber()).thenReturn(OBJECTION_ID);
 
         Objection objectionResponse =
@@ -142,8 +142,9 @@ class ObjectionServiceTest {
                         Utils.buildTestObjectionCreate(FULL_NAME, false));
 
         verify(objectionRepository).insert(any(Objection.class));
-        verify(oracleQueryClient).getCompanyActionCode(COMPANY_NUMBER);
+        verify(oracleQueryClient).getCompanyActionCode(COMPANY_NUMBER, REQUEST_ID);
         verify(actionCodeValidator).validate(ACTION_CODE_OK, REQUEST_ID);
+        verify(gaz2RequestedValidator, times(1)).validate(COMPANY_NUMBER, ACTION_CODE_OK, REQUEST_ID);
 
         ArgumentCaptor<Objection> saveObjectionCaptor = ArgumentCaptor.forClass(Objection.class);
         verify(objectionRepository, times(1)).insert(saveObjectionCaptor.capture());
@@ -170,7 +171,7 @@ class ObjectionServiceTest {
     void createObjectionIneligibleStatusTest() throws ValidationException, ServiceException {
         when(localDateTimeSupplier.get()).thenReturn(MOCKED_TIME_STAMP);
         when(ericHeaderParser.getEmailAddress(AUTH_USER)).thenReturn(E_MAIL);
-        when(oracleQueryClient.getCompanyActionCode(COMPANY_NUMBER)).thenReturn(ACTION_CODE_INELIGIBLE);
+        when(oracleQueryClient.getCompanyActionCode(COMPANY_NUMBER, REQUEST_ID)).thenReturn(ACTION_CODE_INELIGIBLE);
 
         ValidationException ve = new ValidationException(INELIGIBLE_COMPANY_STRUCK_OFF);
         doThrow(ve).when(actionCodeValidator).validate(ACTION_CODE_INELIGIBLE, REQUEST_ID);
@@ -188,6 +189,35 @@ class ObjectionServiceTest {
         assertEquals(E_MAIL, savedObjection.getCreatedBy().getEmail());
         assertEquals(REQUEST_ID, savedObjection.getHttpRequestId());
         assertEquals(ACTION_CODE_INELIGIBLE, savedObjection.getActionCode());
+        assertEquals(INELIGIBLE_COMPANY_STRUCK_OFF, savedObjection.getStatus());
+    }
+
+    @Test
+    void createObjectionActionCodeOkGaz2Requested() throws ValidationException, ServiceException {
+        when(localDateTimeSupplier.get()).thenReturn(MOCKED_TIME_STAMP);
+        when(ericHeaderParser.getEmailAddress(AUTH_USER)).thenReturn(E_MAIL);
+        when(oracleQueryClient.getCompanyActionCode(COMPANY_NUMBER, REQUEST_ID)).thenReturn(ACTION_CODE_OK);
+
+        //ValidationException ve = new ValidationException(INELIGIBLE_COMPANY_STRUCK_OFF);
+        //doThrow(ve).when(actionCodeValidator).validate(ACTION_CODE_INELIGIBLE, REQUEST_ID);
+
+        ValidationException ve = new ValidationException(INELIGIBLE_COMPANY_STRUCK_OFF);
+        doThrow(ve).when(gaz2RequestedValidator).validate(COMPANY_NUMBER, ACTION_CODE_OK, REQUEST_ID);
+
+        objectionService.createObjection(REQUEST_ID, COMPANY_NUMBER, AUTH_ID, AUTH_USER,
+                Utils.buildTestObjectionCreate(FULL_NAME, false));
+
+        ArgumentCaptor<Objection> saveObjectionCaptor = ArgumentCaptor.forClass(Objection.class);
+        verify(objectionRepository, times(1)).insert(saveObjectionCaptor.capture());
+        verify(gaz2RequestedValidator, times(1)).validate(COMPANY_NUMBER, ACTION_CODE_OK, REQUEST_ID);
+
+        Objection savedObjection = saveObjectionCaptor.getValue();
+        assertEquals(COMPANY_NUMBER, savedObjection.getCompanyNumber());
+        assertEquals(MOCKED_TIME_STAMP, savedObjection.getCreatedOn());
+        assertEquals(AUTH_ID, savedObjection.getCreatedBy().getId());
+        assertEquals(E_MAIL, savedObjection.getCreatedBy().getEmail());
+        assertEquals(REQUEST_ID, savedObjection.getHttpRequestId());
+        assertEquals(ACTION_CODE_OK, savedObjection.getActionCode());
         assertEquals(INELIGIBLE_COMPANY_STRUCK_OFF, savedObjection.getStatus());
     }
 
@@ -720,11 +750,12 @@ class ObjectionServiceTest {
     @Test
     void willReturnTrueEligibilityResponseWhenActionCodeOk() throws ValidationException {
 
-        when(oracleQueryClient.getCompanyActionCode(COMPANY_NUMBER)).thenReturn(ACTION_CODE_OK);
+        when(oracleQueryClient.getCompanyActionCode(COMPANY_NUMBER, REQUEST_ID)).thenReturn(ACTION_CODE_OK);
         ObjectionEligibility response = objectionService.isCompanyEligible(COMPANY_NUMBER, REQUEST_ID);
 
-        verify(oracleQueryClient).getCompanyActionCode(COMPANY_NUMBER);
+        verify(oracleQueryClient).getCompanyActionCode(COMPANY_NUMBER, REQUEST_ID);
         verify(actionCodeValidator).validate(ACTION_CODE_OK, REQUEST_ID);
+        verify(gaz2RequestedValidator, times(1)).validate(COMPANY_NUMBER, ACTION_CODE_OK, REQUEST_ID);
 
         assertTrue(response.isEligible());
     }
@@ -732,12 +763,13 @@ class ObjectionServiceTest {
     @Test
     void willReturnFalseEligibilityResponseWhenActionCodeIneligible() throws ValidationException {
 
-        when(oracleQueryClient.getCompanyActionCode(COMPANY_NUMBER)).thenReturn(ACTION_CODE_INELIGIBLE);
+        when(oracleQueryClient.getCompanyActionCode(COMPANY_NUMBER, REQUEST_ID)).thenReturn(ACTION_CODE_INELIGIBLE);
         doThrow(new ValidationException(INELIGIBLE_COMPANY_STRUCK_OFF)).when(actionCodeValidator).validate(ACTION_CODE_INELIGIBLE, REQUEST_ID);
         ObjectionEligibility response = objectionService.isCompanyEligible(COMPANY_NUMBER, REQUEST_ID);
 
-        verify(oracleQueryClient).getCompanyActionCode(COMPANY_NUMBER);
+        verify(oracleQueryClient).getCompanyActionCode(COMPANY_NUMBER, REQUEST_ID);
         verify(actionCodeValidator).validate(ACTION_CODE_INELIGIBLE, REQUEST_ID);
+        verify(gaz2RequestedValidator, times(0)).validate(COMPANY_NUMBER, ACTION_CODE_INELIGIBLE, REQUEST_ID);
 
         assertFalse(response.isEligible());
     }

@@ -27,14 +27,14 @@ public class Gaz2RequestedValidator {
     }
 
     public void validate(String companyNumber, Long actionCode, String logContext) throws ValidationException{
-        if ( gaz1ActionCode == actionCode) {
+        if (gaz1ActionCode == actionCode) {
             Map<String, Object> logMap = new HashMap<>();
             logMap.put(LogConstants.COMPANY_NUMBER.getValue(), companyNumber);
             logMap.put(LogConstants.ACTION_CODE.getValue(), actionCode);
 
             apiLogger.debugContext(logContext, "Company action code is GAZ1, checking for requested GAZ2");
 
-            String requestedGaz2Result = oracleQueryClient.getRequestedGaz2(companyNumber);
+            String requestedGaz2Result = oracleQueryClient.getRequestedGaz2(companyNumber, logContext);
 
             if (requestedGaz2Result != null) {
                 apiLogger.infoContext(logContext, "Company has a requested GAZ2 transaction ,failing validation", logMap);

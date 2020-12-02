@@ -41,27 +41,27 @@ class Gaz2RequestedValidatorTest {
 
     @Test
     void validatePassTest() throws ValidationException {
-        when(oracleQueryClient.getRequestedGaz2(COMPANY_NUMBER)).thenReturn(null);
+        when(oracleQueryClient.getRequestedGaz2(COMPANY_NUMBER, REQUEST_ID)).thenReturn(null);
 
         gaz2RequestedValidator.validate(COMPANY_NUMBER, GAZ1_ACTION_CODE, REQUEST_ID);
 
-        verify(oracleQueryClient, times(1)).getRequestedGaz2(COMPANY_NUMBER);
+        verify(oracleQueryClient, times(1)).getRequestedGaz2(COMPANY_NUMBER, REQUEST_ID);
     }
 
     @Test
     void verifyOracleIsNotCalledIfActionCodeNotGaz1() throws ValidationException {
         gaz2RequestedValidator.validate(COMPANY_NUMBER, NON_GAZ1_ACTION_CODE, REQUEST_ID);
 
-        verify(oracleQueryClient, times(0)).getRequestedGaz2(COMPANY_NUMBER);
+        verify(oracleQueryClient, times(0)).getRequestedGaz2(COMPANY_NUMBER, REQUEST_ID);
     }
 
     @Test
     void validateFailsValidationGaz2RequestedTest() {
-        when(oracleQueryClient.getRequestedGaz2(COMPANY_NUMBER)).thenReturn("Some value");
+        when(oracleQueryClient.getRequestedGaz2(COMPANY_NUMBER, REQUEST_ID)).thenReturn("Some value");
 
         assertThrows(ValidationException.class,
                 () -> gaz2RequestedValidator.validate(COMPANY_NUMBER, GAZ1_ACTION_CODE, REQUEST_ID));
 
-        verify(oracleQueryClient, times(1)).getRequestedGaz2(COMPANY_NUMBER);
+        verify(oracleQueryClient, times(1)).getRequestedGaz2(COMPANY_NUMBER, REQUEST_ID);
     }
 }

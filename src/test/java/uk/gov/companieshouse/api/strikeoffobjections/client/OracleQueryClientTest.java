@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.client.RestTemplate;
 
+import uk.gov.companieshouse.api.strikeoffobjections.common.ApiLogger;
 import uk.gov.companieshouse.api.strikeoffobjections.groups.Unit;
 
 @Unit
@@ -24,9 +25,13 @@ class OracleQueryClientTest {
     private static final String COMPANY_NUMBER = "12345678";
     private static final Long ACTION_CODE = 88L;
     private static final String GAZ2_TRANSACTION = "GAZ2";
+    private static final String REQUEST_ID = "1234";
 
     @Mock
     private RestTemplate restTemplate;
+
+    @Mock
+    private ApiLogger apiLogger;
 
     @InjectMocks
     private OracleQueryClient oracleQueryClient;
@@ -41,7 +46,7 @@ class OracleQueryClientTest {
         when(restTemplate.getForEntity(DUMMY_URL + "/company/" + COMPANY_NUMBER + "/action-code", Long.class))
                 .thenReturn(new ResponseEntity<>(ACTION_CODE, HttpStatus.OK));
 
-        Long actionCode = oracleQueryClient.getCompanyActionCode(COMPANY_NUMBER);
+        Long actionCode = oracleQueryClient.getCompanyActionCode(COMPANY_NUMBER, REQUEST_ID);
         
         assertEquals(ACTION_CODE, actionCode);
     }
@@ -51,7 +56,7 @@ class OracleQueryClientTest {
         when(restTemplate.getForEntity(DUMMY_URL + "/company/" + COMPANY_NUMBER + "/gaz2-requested", String.class))
                 .thenReturn(new ResponseEntity<>(GAZ2_TRANSACTION, HttpStatus.OK));
 
-        String gaz2Transaction = oracleQueryClient.getRequestedGaz2(COMPANY_NUMBER);
+        String gaz2Transaction = oracleQueryClient.getRequestedGaz2(COMPANY_NUMBER, REQUEST_ID);
 
         assertEquals(GAZ2_TRANSACTION, gaz2Transaction);
     }

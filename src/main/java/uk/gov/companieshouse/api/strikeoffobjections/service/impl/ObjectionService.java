@@ -131,7 +131,7 @@ public class ObjectionService implements IObjectionService {
     }
 
     private Long getActionCode(String companyNumber, String requestId) {
-        Long actionCode = oracleQueryClient.getCompanyActionCode(companyNumber);
+        Long actionCode = oracleQueryClient.getCompanyActionCode(companyNumber, requestId);
 
         logger.debugContext(requestId, "Company action code is " + actionCode);
 
