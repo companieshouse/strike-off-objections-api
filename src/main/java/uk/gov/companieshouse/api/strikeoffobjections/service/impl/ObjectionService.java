@@ -31,6 +31,7 @@ import uk.gov.companieshouse.api.strikeoffobjections.repository.ObjectionReposit
 import uk.gov.companieshouse.api.strikeoffobjections.service.IObjectionService;
 import uk.gov.companieshouse.api.strikeoffobjections.service.IReferenceNumberGeneratorService;
 import uk.gov.companieshouse.api.strikeoffobjections.validation.ActionCodeValidator;
+import uk.gov.companieshouse.api.strikeoffobjections.validation.Gaz2RequestedValidator;
 import uk.gov.companieshouse.api.strikeoffobjections.validation.ValidationException;
 import uk.gov.companieshouse.service.ServiceException;
 import uk.gov.companieshouse.service.ServiceResult;
@@ -84,6 +85,9 @@ public class ObjectionService implements IObjectionService {
     @Autowired
     private IReferenceNumberGeneratorService referenceNumberGeneratorService;
 
+    @Autowired
+    private Gaz2RequestedValidator gaz2RequestedValidator;
+
     @Override
     public Objection createObjection(String requestId,
                                      String companyNumber,
@@ -127,7 +131,7 @@ public class ObjectionService implements IObjectionService {
     }
 
     private Long getActionCode(String companyNumber, String requestId) {
-        Long actionCode = oracleQueryClient.getCompanyActionCode(companyNumber);
+        Long actionCode = oracleQueryClient.getCompanyActionCode(companyNumber, requestId);
 
         logger.debugContext(requestId, "Company action code is " + actionCode);
 
@@ -137,7 +141,7 @@ public class ObjectionService implements IObjectionService {
     private ObjectionStatus getObjectionStatusForCreate(Long actionCode, String companyNumber, String logContext) {
         ObjectionStatus objectionStatus = ObjectionStatus.OPEN;
         try {
-            validateActionCode(actionCode, companyNumber, logContext);
+            validateCompanyIsEligible(actionCode, companyNumber, logContext);
         } catch (ValidationException validationException) {
             objectionStatus = validationException.getStatus();
         }
@@ -149,16 +153,17 @@ public class ObjectionService implements IObjectionService {
 
         boolean isCompanyEligible = true;
         try {
-            validateActionCode(actionCode, companyNumber, requestId);
+            validateCompanyIsEligible(actionCode, companyNumber, requestId);
         } catch (ValidationException validationException) {
             isCompanyEligible = false;
         }
         return new ObjectionEligibility(isCompanyEligible);
     }
 
-    private void validateActionCode(Long actionCode, String companyNumber, String logContext) throws ValidationException {
+    private void validateCompanyIsEligible(Long actionCode, String companyNumber, String logContext) throws ValidationException {
         try {
             actionCodeValidator.validate(actionCode, logContext);
+            gaz2RequestedValidator.validate(companyNumber, actionCode, logContext);
         } catch (ValidationException validationException) {
             Map<String, Object> logMap = buildLogMap(companyNumber, null, null);
             logMap.put(LogConstants.ACTION_CODE.getValue(), actionCode);
