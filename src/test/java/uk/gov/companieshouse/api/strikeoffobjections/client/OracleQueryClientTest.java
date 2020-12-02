@@ -23,6 +23,7 @@ class OracleQueryClientTest {
     private static final String DUMMY_URL = "http://test";
     private static final String COMPANY_NUMBER = "12345678";
     private static final Long ACTION_CODE = 88L;
+    private static final String GAZ2_TRANSACTION = "GAZ2";
 
     @Mock
     private RestTemplate restTemplate;
@@ -43,5 +44,15 @@ class OracleQueryClientTest {
         Long actionCode = oracleQueryClient.getCompanyActionCode(COMPANY_NUMBER);
         
         assertEquals(ACTION_CODE, actionCode);
+    }
+
+    @Test
+    void testUrlCorrectlyConstructedAndGaz2Returned() {
+        when(restTemplate.getForEntity(DUMMY_URL + "/company/" + COMPANY_NUMBER + "/gaz2-requested", String.class))
+                .thenReturn(new ResponseEntity<>(GAZ2_TRANSACTION, HttpStatus.OK));
+
+        String gaz2Transaction = oracleQueryClient.getRequestedGaz2(COMPANY_NUMBER);
+
+        assertEquals(GAZ2_TRANSACTION, gaz2Transaction);
     }
 }
