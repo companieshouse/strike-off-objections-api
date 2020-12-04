@@ -22,6 +22,7 @@ import uk.gov.companieshouse.api.strikeoffobjections.exception.ObjectionNotFound
 import uk.gov.companieshouse.api.strikeoffobjections.file.FileTransferApiClientResponse;
 import uk.gov.companieshouse.api.strikeoffobjections.groups.Unit;
 import uk.gov.companieshouse.api.strikeoffobjections.model.create.ObjectionCreate;
+import uk.gov.companieshouse.api.strikeoffobjections.model.eligibility.EligibilityStatus;
 import uk.gov.companieshouse.api.strikeoffobjections.model.eligibility.ObjectionEligibility;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Attachment;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.CreatedBy;
@@ -620,7 +621,7 @@ class ObjectionControllerTest {
 
     @Test
     void isCompanyEligibleForObjectionTestTrueReturned() {
-        ObjectionEligibility objectionEligibility = new ObjectionEligibility(true);
+        ObjectionEligibility objectionEligibility = new ObjectionEligibility(true, EligibilityStatus.ELIGIBLE);
         when(objectionService.isCompanyEligible(COMPANY_NUMBER, REQUEST_ID)).thenReturn(objectionEligibility);
         ResponseEntity<ObjectionEligibility> responseEntity = objectionController.isCompanyEligibleForObjection(COMPANY_NUMBER, REQUEST_ID);
         assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
@@ -630,7 +631,7 @@ class ObjectionControllerTest {
 
     @Test
     void isCompanyEligibleForObjectionTestFalseReturned() {
-        ObjectionEligibility objectionEligibility = new ObjectionEligibility(false);
+        ObjectionEligibility objectionEligibility = new ObjectionEligibility(false, EligibilityStatus.INELIGIBLE_COMPANY_STRUCK_OFF);
         when(objectionService.isCompanyEligible(COMPANY_NUMBER, REQUEST_ID)).thenReturn(objectionEligibility);
         ResponseEntity<ObjectionEligibility> responseEntity = objectionController.isCompanyEligibleForObjection(COMPANY_NUMBER, REQUEST_ID);
         assertEquals(HttpStatus.OK, responseEntity.getStatusCode());

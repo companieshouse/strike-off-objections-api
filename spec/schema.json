@@ -343,6 +343,15 @@
       "properties": {
         "is_eligible": {
           "type": "boolean"
+        },
+        "eligibility_status": {
+          "type": "string",
+          "enum": [
+            "ELIGIBLE",
+            "INELIGIBLE_COMPANY_STRUCK_OFF",
+            "INELIGIBLE_NO_DISSOLUTION_ACTION",
+            "INELIGIBLE_GAZ2_REQUESTED"
+          ]
         }
       }
     },

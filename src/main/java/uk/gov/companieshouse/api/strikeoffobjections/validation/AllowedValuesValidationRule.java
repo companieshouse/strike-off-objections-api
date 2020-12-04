@@ -1,6 +1,7 @@
 package uk.gov.companieshouse.api.strikeoffobjections.validation;
 
 import uk.gov.companieshouse.api.strikeoffobjections.common.ApiLogger;
+import uk.gov.companieshouse.api.strikeoffobjections.model.eligibility.EligibilityStatus;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.ObjectionStatus;
 
 import java.util.List;
@@ -8,11 +9,11 @@ import java.util.List;
 public class AllowedValuesValidationRule<T> implements ValidationRule<T> {
 
     private List<T> allowableValues;
-    private ObjectionStatus failureStatus;
+    private EligibilityStatus failureStatus;
     private ApiLogger apiLogger;
 
     public AllowedValuesValidationRule(List<T> allowableValues,
-                                       ObjectionStatus failureStatus,
+                                       EligibilityStatus failureStatus,
                                        ApiLogger apiLogger) {
         this.allowableValues = allowableValues;
         this.failureStatus = failureStatus;

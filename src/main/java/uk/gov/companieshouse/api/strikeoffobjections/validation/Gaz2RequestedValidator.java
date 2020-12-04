@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 import uk.gov.companieshouse.api.strikeoffobjections.client.OracleQueryClient;
 import uk.gov.companieshouse.api.strikeoffobjections.common.ApiLogger;
 import uk.gov.companieshouse.api.strikeoffobjections.common.LogConstants;
-import uk.gov.companieshouse.api.strikeoffobjections.model.entity.ObjectionStatus;
+import uk.gov.companieshouse.api.strikeoffobjections.model.eligibility.EligibilityStatus;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -38,7 +38,7 @@ public class Gaz2RequestedValidator {
 
             if (requestedGaz2Result != null) {
                 apiLogger.infoContext(logContext, "Company has a requested GAZ2 transaction ,failing validation", logMap);
-                throw new ValidationException(ObjectionStatus.INELIGIBLE_COMPANY_STRUCK_OFF);
+                throw new ValidationException(EligibilityStatus.INELIGIBLE_GAZ2_REQUESTED);
             }
 
             apiLogger.debugContext(logContext, "Company does not have requested GAZ2 transaction, passing validation");

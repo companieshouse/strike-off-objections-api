@@ -9,6 +9,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.companieshouse.api.strikeoffobjections.common.ApiLogger;
 import uk.gov.companieshouse.api.strikeoffobjections.groups.Unit;
+import uk.gov.companieshouse.api.strikeoffobjections.model.eligibility.EligibilityStatus;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.ObjectionStatus;
 
 import java.util.Arrays;
@@ -60,7 +61,7 @@ class ActionCodeValidatorTest {
     @Test
     void validateThrowsExceptionTest() throws ValidationException {
         Long actionCode = 123L;
-        ValidationException ve = new ValidationException(ObjectionStatus.INELIGIBLE_COMPANY_STRUCK_OFF);
+        ValidationException ve = new ValidationException(EligibilityStatus.INELIGIBLE_COMPANY_STRUCK_OFF);
         doThrow(ve).when(ruleB).validate(actionCode, LOG_CONTEXT);
 
         Assertions.assertThrows(
