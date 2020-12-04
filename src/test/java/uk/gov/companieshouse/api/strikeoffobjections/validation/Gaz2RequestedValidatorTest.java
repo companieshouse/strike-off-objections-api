@@ -10,7 +10,9 @@ import org.springframework.test.util.ReflectionTestUtils;
 import uk.gov.companieshouse.api.strikeoffobjections.client.OracleQueryClient;
 import uk.gov.companieshouse.api.strikeoffobjections.common.ApiLogger;
 import uk.gov.companieshouse.api.strikeoffobjections.groups.Unit;
+import uk.gov.companieshouse.api.strikeoffobjections.model.entity.ObjectionStatus;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -59,9 +61,10 @@ class Gaz2RequestedValidatorTest {
     void validateFailsValidationGaz2RequestedTest() {
         when(oracleQueryClient.getRequestedGaz2(COMPANY_NUMBER, REQUEST_ID)).thenReturn("Some value");
 
-        assertThrows(ValidationException.class,
+        ValidationException ve = assertThrows(ValidationException.class,
                 () -> gaz2RequestedValidator.validate(COMPANY_NUMBER, GAZ1_ACTION_CODE, REQUEST_ID));
 
         verify(oracleQueryClient, times(1)).getRequestedGaz2(COMPANY_NUMBER, REQUEST_ID);
+        assertEquals(ObjectionStatus.INELIGIBLE_GAZ2_REQUESTED, ve.getObjectionStatus());
     }
 }

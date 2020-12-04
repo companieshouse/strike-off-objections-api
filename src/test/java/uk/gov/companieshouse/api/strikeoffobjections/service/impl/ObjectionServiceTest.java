@@ -22,6 +22,7 @@ import uk.gov.companieshouse.api.strikeoffobjections.file.FileTransferApiClient;
 import uk.gov.companieshouse.api.strikeoffobjections.file.FileTransferApiClientResponse;
 import uk.gov.companieshouse.api.strikeoffobjections.file.ObjectionsLinkKeys;
 import uk.gov.companieshouse.api.strikeoffobjections.groups.Unit;
+import uk.gov.companieshouse.api.strikeoffobjections.model.eligibility.EligibilityStatus;
 import uk.gov.companieshouse.api.strikeoffobjections.model.eligibility.ObjectionEligibility;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Attachment;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.CreatedBy;
@@ -173,7 +174,7 @@ class ObjectionServiceTest {
         when(ericHeaderParser.getEmailAddress(AUTH_USER)).thenReturn(E_MAIL);
         when(oracleQueryClient.getCompanyActionCode(COMPANY_NUMBER, REQUEST_ID)).thenReturn(ACTION_CODE_INELIGIBLE);
 
-        ValidationException ve = new ValidationException(INELIGIBLE_COMPANY_STRUCK_OFF);
+        ValidationException ve = new ValidationException(EligibilityStatus.INELIGIBLE_COMPANY_STRUCK_OFF);
         doThrow(ve).when(actionCodeValidator).validate(ACTION_CODE_INELIGIBLE, REQUEST_ID);
 
         objectionService.createObjection(REQUEST_ID, COMPANY_NUMBER, AUTH_ID, AUTH_USER,
@@ -198,7 +199,7 @@ class ObjectionServiceTest {
         when(ericHeaderParser.getEmailAddress(AUTH_USER)).thenReturn(E_MAIL);
         when(oracleQueryClient.getCompanyActionCode(COMPANY_NUMBER, REQUEST_ID)).thenReturn(ACTION_CODE_OK);
 
-        ValidationException ve = new ValidationException(INELIGIBLE_COMPANY_STRUCK_OFF);
+        ValidationException ve = new ValidationException(EligibilityStatus.INELIGIBLE_COMPANY_STRUCK_OFF);
         doThrow(ve).when(gaz2RequestedValidator).validate(COMPANY_NUMBER, ACTION_CODE_OK, REQUEST_ID);
 
         objectionService.createObjection(REQUEST_ID, COMPANY_NUMBER, AUTH_ID, AUTH_USER,
@@ -755,13 +756,14 @@ class ObjectionServiceTest {
         verify(gaz2RequestedValidator, times(1)).validate(COMPANY_NUMBER, ACTION_CODE_OK, REQUEST_ID);
 
         assertTrue(response.isEligible());
+        assertEquals(EligibilityStatus.ELIGIBLE, response.getEligibilityStatus());
     }
 
     @Test
     void willReturnFalseEligibilityResponseWhenActionCodeIneligible() throws ValidationException {
 
         when(oracleQueryClient.getCompanyActionCode(COMPANY_NUMBER, REQUEST_ID)).thenReturn(ACTION_CODE_INELIGIBLE);
-        doThrow(new ValidationException(INELIGIBLE_COMPANY_STRUCK_OFF)).when(actionCodeValidator).validate(ACTION_CODE_INELIGIBLE, REQUEST_ID);
+        doThrow(new ValidationException(EligibilityStatus.INELIGIBLE_COMPANY_STRUCK_OFF)).when(actionCodeValidator).validate(ACTION_CODE_INELIGIBLE, REQUEST_ID);
         ObjectionEligibility response = objectionService.isCompanyEligible(COMPANY_NUMBER, REQUEST_ID);
 
         verify(oracleQueryClient).getCompanyActionCode(COMPANY_NUMBER, REQUEST_ID);
@@ -769,5 +771,22 @@ class ObjectionServiceTest {
         verify(gaz2RequestedValidator, times(0)).validate(COMPANY_NUMBER, ACTION_CODE_INELIGIBLE, REQUEST_ID);
 
         assertFalse(response.isEligible());
+        assertEquals(EligibilityStatus.INELIGIBLE_COMPANY_STRUCK_OFF, response.getEligibilityStatus());
+    }
+
+    @Test
+    void willReturnCorrectEligibilityStatusWhenGaz2Requested() throws ValidationException {
+
+        when(oracleQueryClient.getCompanyActionCode(COMPANY_NUMBER, REQUEST_ID)).thenReturn(ACTION_CODE_OK);
+        doThrow(new ValidationException(EligibilityStatus.INELIGIBLE_GAZ2_REQUESTED)).when(gaz2RequestedValidator)
+                .validate(COMPANY_NUMBER, ACTION_CODE_OK, REQUEST_ID);
+        ObjectionEligibility response = objectionService.isCompanyEligible(COMPANY_NUMBER, REQUEST_ID);
+
+        verify(oracleQueryClient).getCompanyActionCode(COMPANY_NUMBER, REQUEST_ID);
+        verify(actionCodeValidator).validate(ACTION_CODE_OK, REQUEST_ID);
+        verify(gaz2RequestedValidator, times(1)).validate(COMPANY_NUMBER, ACTION_CODE_OK, REQUEST_ID);
+
+        assertFalse(response.isEligible());
+        assertEquals(EligibilityStatus.INELIGIBLE_GAZ2_REQUESTED, response.getEligibilityStatus());
     }
 }

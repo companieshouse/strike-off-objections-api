@@ -7,6 +7,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.companieshouse.api.strikeoffobjections.common.ApiLogger;
 import uk.gov.companieshouse.api.strikeoffobjections.groups.Unit;
+import uk.gov.companieshouse.api.strikeoffobjections.model.eligibility.EligibilityStatus;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.ObjectionStatus;
 
 import java.util.Arrays;
@@ -21,7 +22,7 @@ class AllowedValuesValidationRuleTest {
 
     private static final List<Long> ALLOWED_VALUES = Arrays.asList(10L, 200L, 3000L);
     private static final String LOG_CONTEXT = "context";
-    private static final ObjectionStatus FAILURE_STATUS = ObjectionStatus.INELIGIBLE_NO_DISSOLUTION_ACTION;
+    private static final EligibilityStatus FAILURE_STATUS = EligibilityStatus.INELIGIBLE_NO_DISSOLUTION_ACTION;
 
     @Mock
     private ApiLogger apiLogger;
@@ -48,7 +49,7 @@ class AllowedValuesValidationRuleTest {
                 ValidationException.class,
                 () -> allowedValuesValidationRule.validate(20L, LOG_CONTEXT));
 
-        assertEquals(FAILURE_STATUS, ve.getStatus());
+        assertEquals(FAILURE_STATUS.getObjectionStatus(), ve.getObjectionStatus());
     }
 
     @Test
@@ -57,6 +58,6 @@ class AllowedValuesValidationRuleTest {
                 ValidationException.class,
                 () -> allowedValuesValidationRule.validate(null, LOG_CONTEXT));
 
-        assertEquals(FAILURE_STATUS, ve.getStatus());
+        assertEquals(FAILURE_STATUS.getObjectionStatus(), ve.getObjectionStatus());
     }
 }

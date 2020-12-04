@@ -5,7 +5,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import uk.gov.companieshouse.api.strikeoffobjections.common.ApiLogger;
-import uk.gov.companieshouse.api.strikeoffobjections.model.entity.ObjectionStatus;
+import uk.gov.companieshouse.api.strikeoffobjections.model.eligibility.EligibilityStatus;
 import uk.gov.companieshouse.api.strikeoffobjections.validation.AllowedValuesValidationRule;
 import uk.gov.companieshouse.api.strikeoffobjections.validation.DisallowedValuesValidationRule;
 import uk.gov.companieshouse.api.strikeoffobjections.validation.ValidationRule;
@@ -33,11 +33,11 @@ public class ValidationConfig {
         return Arrays.asList(
                 new DisallowedValuesValidationRule<>(
                         companyStruckOffActionCodes,
-                        ObjectionStatus.INELIGIBLE_COMPANY_STRUCK_OFF,
+                        EligibilityStatus.INELIGIBLE_COMPANY_STRUCK_OFF,
                         apiLogger),
                 new AllowedValuesValidationRule<>(
                         strikeOffNoticeActionCodes,
-                        ObjectionStatus.INELIGIBLE_NO_DISSOLUTION_ACTION,
+                        EligibilityStatus.INELIGIBLE_NO_DISSOLUTION_ACTION,
                         apiLogger)
         );
     }

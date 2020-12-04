@@ -1,16 +1,21 @@
 package uk.gov.companieshouse.api.strikeoffobjections.validation;
 
+import uk.gov.companieshouse.api.strikeoffobjections.model.eligibility.EligibilityStatus;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.ObjectionStatus;
 
 public class ValidationException extends Exception {
 
-    private final ObjectionStatus status;
+    private final EligibilityStatus eligibilityStatus;
 
-    public ValidationException(ObjectionStatus status) {
-        this.status = status;
+    public ValidationException(EligibilityStatus eligibilityStatus) {
+        this.eligibilityStatus = eligibilityStatus;
     }
 
-    public ObjectionStatus getStatus() {
-        return status;
+    public EligibilityStatus getEligibilityStatus() {
+        return eligibilityStatus;
+    }
+
+    public ObjectionStatus getObjectionStatus() {
+        return eligibilityStatus.getObjectionStatus();
     }
 }

@@ -19,6 +19,7 @@ import uk.gov.companieshouse.api.strikeoffobjections.file.FileTransferApiClient;
 import uk.gov.companieshouse.api.strikeoffobjections.file.FileTransferApiClientResponse;
 import uk.gov.companieshouse.api.strikeoffobjections.file.ObjectionsLinkKeys;
 import uk.gov.companieshouse.api.strikeoffobjections.model.create.ObjectionCreate;
+import uk.gov.companieshouse.api.strikeoffobjections.model.eligibility.EligibilityStatus;
 import uk.gov.companieshouse.api.strikeoffobjections.model.eligibility.ObjectionEligibility;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Attachment;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.CreatedBy;
@@ -143,7 +144,7 @@ public class ObjectionService implements IObjectionService {
         try {
             validateCompanyIsEligible(actionCode, companyNumber, logContext);
         } catch (ValidationException validationException) {
-            objectionStatus = validationException.getStatus();
+            objectionStatus = validationException.getObjectionStatus();
         }
         return objectionStatus;
     }
@@ -152,12 +153,15 @@ public class ObjectionService implements IObjectionService {
         Long actionCode = getActionCode(companyNumber, requestId);
 
         boolean isCompanyEligible = true;
+        EligibilityStatus eligibilityStatus = EligibilityStatus.ELIGIBLE;
+
         try {
             validateCompanyIsEligible(actionCode, companyNumber, requestId);
         } catch (ValidationException validationException) {
+            eligibilityStatus = validationException.getEligibilityStatus();
             isCompanyEligible = false;
         }
-        return new ObjectionEligibility(isCompanyEligible);
+        return new ObjectionEligibility(isCompanyEligible, eligibilityStatus);
     }
 
     private void validateCompanyIsEligible(Long actionCode, String companyNumber, String logContext) throws ValidationException {
@@ -167,7 +171,7 @@ public class ObjectionService implements IObjectionService {
         } catch (ValidationException validationException) {
             Map<String, Object> logMap = buildLogMap(companyNumber, null, null);
             logMap.put(LogConstants.ACTION_CODE.getValue(), actionCode);
-            logMap.put(LogConstants.OBJECTION_STATUS.getValue(), validationException.getStatus());
+            logMap.put(LogConstants.OBJECTION_STATUS.getValue(), validationException.getObjectionStatus());
             logger.infoContext(logContext, "Action Code validation failed", logMap);
             throw validationException;
         }

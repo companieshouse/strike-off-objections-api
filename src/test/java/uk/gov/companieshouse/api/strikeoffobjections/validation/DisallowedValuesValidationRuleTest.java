@@ -7,6 +7,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.companieshouse.api.strikeoffobjections.common.ApiLogger;
 import uk.gov.companieshouse.api.strikeoffobjections.groups.Unit;
+import uk.gov.companieshouse.api.strikeoffobjections.model.eligibility.EligibilityStatus;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.ObjectionStatus;
 
 import java.util.Arrays;
@@ -21,7 +22,7 @@ class DisallowedValuesValidationRuleTest {
 
     private static final List<Long> DISALLOWED_VALUES = Arrays.asList(4000L, 5000L, 6000L);
     private static final String LOG_CONTEXT = "context";
-    private static final ObjectionStatus FAILURE_STATUS = ObjectionStatus.INELIGIBLE_COMPANY_STRUCK_OFF;
+    private static final EligibilityStatus FAILURE_STATUS = EligibilityStatus.INELIGIBLE_COMPANY_STRUCK_OFF;
 
     @Mock
     private ApiLogger apiLogger;
@@ -53,6 +54,6 @@ class DisallowedValuesValidationRuleTest {
                 ValidationException.class,
                 () -> disallowedValuesValidationRule.validate(5000L, LOG_CONTEXT));
 
-        assertEquals(FAILURE_STATUS, ve.getStatus());
+        assertEquals(FAILURE_STATUS.getObjectionStatus(), ve.getObjectionStatus());
     }
 }
