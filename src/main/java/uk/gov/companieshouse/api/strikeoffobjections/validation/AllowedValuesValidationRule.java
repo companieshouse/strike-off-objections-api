@@ -2,7 +2,6 @@ package uk.gov.companieshouse.api.strikeoffobjections.validation;
 
 import uk.gov.companieshouse.api.strikeoffobjections.common.ApiLogger;
 import uk.gov.companieshouse.api.strikeoffobjections.model.eligibility.EligibilityStatus;
-import uk.gov.companieshouse.api.strikeoffobjections.model.entity.ObjectionStatus;
 
 import java.util.List;
 
