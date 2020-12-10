@@ -17,10 +17,13 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 import uk.gov.companieshouse.api.strikeoffobjections.common.ApiLogger;
 
+import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 @Component
 public class FileTransferApiClient {
@@ -29,8 +32,8 @@ public class FileTransferApiClient {
     private static final String UPLOAD = "upload";
     private static final String CONTENT_DISPOSITION_VALUE = "form-data; name=%s; filename=%s";
     private static final String NULL_RESPONSE_MESSAGE = "null response from file transfer api url";
-    private static final String FILE_TRANSFER_URI_TEMPLATE = "%s/%s";
-    private static final String DOWNLOAD_URI = "%s/%s/download";
+    private static final String FILE_TRANSFER_URI_TEMPLATE = "%s/{fileId}";
+    private static final String DOWNLOAD_URI = "%s/{fileId}/download";
     private static final String CONTENT_TYPE = "Content-Type";
     private static final String CONTENT_LENGTH = "Content-Length";
     private static final String CONTENT_DISPOSITION = "Content-Disposition";
@@ -47,6 +50,14 @@ public class FileTransferApiClient {
     @Value("${FILE_TRANSFER_API_KEY}")
     private String fileTransferApiKey;
 
+    private String fileTransferUriTemplate;
+    private String downloadUriTemplate;
+
+    @PostConstruct
+    void init() {
+        downloadUriTemplate = String.format(DOWNLOAD_URI, fileTransferApiURL);
+        fileTransferUriTemplate = String.format(FILE_TRANSFER_URI_TEMPLATE, fileTransferApiURL);
+    }
 
     private <T> FileTransferApiClientResponse makeApiCall(String requestId,
                                                           FileTransferOperation <T> operation,
@@ -149,12 +160,14 @@ public class FileTransferApiClient {
      * @return FileTransferApiClientResponse containing the http status
      */
     public FileTransferApiClientResponse delete(String requestId, String fileId) {
-        String deleteUrl = String.format(FILE_TRANSFER_URI_TEMPLATE, fileTransferApiURL, fileId);
+        Map<String, String> uriVariables = new HashMap<>();
+        uriVariables.put("fileId", fileId);
+
         return makeApiCall(
             requestId,
             () -> {
                 HttpEntity<Void> request = new HttpEntity<>(createApiKeyHeader());
-                return restTemplate.exchange(deleteUrl, HttpMethod.DELETE, request, String.class);
+                return restTemplate.exchange(fileTransferUriTemplate, HttpMethod.DELETE, request, String.class, uriVariables);
             },
             responseEntity -> {
                 FileTransferApiClientResponse response = new FileTransferApiClientResponse();
@@ -175,15 +188,17 @@ public class FileTransferApiClient {
      */
     public FileTransferApiClientResponse download(String requestId, String fileId, HttpServletResponse httpServletResponse) {
 
-        String downloadUri = String.format(DOWNLOAD_URI, fileTransferApiURL, fileId);
+        Map<String, String> uriVariables = new HashMap<>();
+        uriVariables.put("fileId", fileId);
         return makeApiCall(
                 requestId,
                 //FileTransferOperation
                 () -> restTemplate.execute(
-                        downloadUri,
+                        downloadUriTemplate,
                         HttpMethod.GET,
                         this::handleRequestCallback,
-                        clientHttpResponse -> copyClientHttpDataToServletResponse(httpServletResponse, clientHttpResponse)
+                        clientHttpResponse -> copyClientHttpDataToServletResponse(httpServletResponse, clientHttpResponse),
+                        uriVariables
                         ),
                 clientHttpResponse -> getFileTransferApiClientResponse(requestId, clientHttpResponse)
         );

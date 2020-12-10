@@ -41,6 +41,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -75,6 +76,7 @@ class FileTransferApiClientUnitTest {
     void setup() {
         ReflectionTestUtils.setField(fileTransferApiClient, "fileTransferApiURL", DUMMY_URL);
         file = new MockMultipartFile("testFile", new byte[10]);
+        fileTransferApiClient.init();
     }
 
     @Test
@@ -163,8 +165,9 @@ class FileTransferApiClientUnitTest {
 
         HttpHeaders httpHeaders = Utils.getDummyHttpHeaders(contentDisposition, contentLength, contentType);
 
+        String newUri = "http://test/{fileId}/download";
         //tell mocks what to return when download method is executed
-        when(restTemplate.execute(eq(DOWNLOAD_URI), eq(HttpMethod.GET), any(RequestCallback.class), ArgumentMatchers.<ResponseExtractor<ClientHttpResponse>>any(), any(FileTransferApiClientResponse.class)))
+        when(restTemplate.execute(eq(newUri), eq(HttpMethod.GET), any(RequestCallback.class), ArgumentMatchers.<ResponseExtractor<ClientHttpResponse>>any(), any(FileTransferApiClientResponse.class), anyMap()))
                 .thenReturn(responseFromFileTransferApi);
         when(responseFromFileTransferApi.getBody()).thenReturn(fileInputStream);
         when(responseFromFileTransferApi.getStatusCode()).thenReturn(HttpStatus.OK);
@@ -174,7 +177,7 @@ class FileTransferApiClientUnitTest {
 
         //need to capture the responseExtractor lambda passed to the restTemplate so we can test it - this is what actually does the file copy
         verify(restTemplate).execute(eq(DOWNLOAD_URI), eq(HttpMethod.GET), any(RequestCallback.class),
-                responseExtractorArgCaptor.capture(), any(FileTransferApiClientResponse.class));
+                responseExtractorArgCaptor.capture(), any(FileTransferApiClientResponse.class), anyMap());
 
         //now executing the responseExtractor should cause input stream (file) to be copied to output stream (servletResponse)
         ResponseExtractor<ClientHttpResponse> responseExtractor = responseExtractorArgCaptor.getValue();
