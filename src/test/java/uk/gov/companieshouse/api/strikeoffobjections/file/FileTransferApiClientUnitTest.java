@@ -41,6 +41,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -54,8 +55,8 @@ class FileTransferApiClientUnitTest {
     private static final String DUMMY_URL = "http://test";
     private static final String FILE_ID = "12345";
     private static final String EXCEPTION_MESSAGE = "BAD THINGS";
-    private static final String DELETE_URL = DUMMY_URL + "/" + FILE_ID;
-    private static final String DOWNLOAD_URI = DUMMY_URL + "/" + FILE_ID + "/download";
+    private static final String DELETE_URL_TEMPLATE = DUMMY_URL + "/{fileId}";
+    private static final String DOWNLOAD_URI_TEMPLATE = DUMMY_URL + "/{fileId}/download";
 
     @Captor
     private ArgumentCaptor<ResponseExtractor<ClientHttpResponse>> responseExtractorArgCaptor;
@@ -75,6 +76,7 @@ class FileTransferApiClientUnitTest {
     void setup() {
         ReflectionTestUtils.setField(fileTransferApiClient, "fileTransferApiURL", DUMMY_URL);
         file = new MockMultipartFile("testFile", new byte[10]);
+        fileTransferApiClient.init();
     }
 
     @Test
@@ -116,7 +118,7 @@ class FileTransferApiClientUnitTest {
     @Test
     void testDeleteSuccess() {
         final ResponseEntity<String> apiResponse = new ResponseEntity<>("", HttpStatus.NO_CONTENT);
-        when(restTemplate.exchange(eq(DELETE_URL), eq(HttpMethod.DELETE), any(), eq(String.class)))
+        when(restTemplate.exchange(eq(DELETE_URL_TEMPLATE), eq(HttpMethod.DELETE), any(), eq(String.class), anyMap()))
                 .thenReturn(apiResponse);
         FileTransferApiClientResponse fileTransferApiClientResponse = fileTransferApiClient.delete(REQUEST_ID, FILE_ID);
         assertEquals(HttpStatus.NO_CONTENT, fileTransferApiClientResponse.getHttpStatus());
@@ -126,7 +128,7 @@ class FileTransferApiClientUnitTest {
     void testDeleteApiReturnsError() {
         final ResponseEntity<String> apiResponse = new ResponseEntity<>("", HttpStatus.INTERNAL_SERVER_ERROR);
 
-        when(restTemplate.exchange(eq(DELETE_URL), eq(HttpMethod.DELETE), any(), eq(String.class)))
+        when(restTemplate.exchange(eq(DELETE_URL_TEMPLATE), eq(HttpMethod.DELETE), any(), eq(String.class), anyMap()))
                 .thenReturn(apiResponse);
 
         FileTransferApiClientResponse fileTransferApiClientResponse = fileTransferApiClient.delete(REQUEST_ID, FILE_ID);
@@ -139,7 +141,7 @@ class FileTransferApiClientUnitTest {
     void testDeleteGenericExceptionResponse() {
         final RestClientException exception = new RestClientException(EXCEPTION_MESSAGE);
 
-        when(restTemplate.exchange(eq(DELETE_URL), eq(HttpMethod.DELETE), any(), eq(String.class))).thenThrow(exception);
+        when(restTemplate.exchange(eq(DELETE_URL_TEMPLATE), eq(HttpMethod.DELETE), any(), eq(String.class), anyMap())).thenThrow(exception);
 
         RestClientException thrown = assertThrows(RestClientException.class, () -> fileTransferApiClient.delete(REQUEST_ID, FILE_ID));
         assertEquals(exception.getMessage(), thrown.getMessage());
@@ -164,7 +166,7 @@ class FileTransferApiClientUnitTest {
         HttpHeaders httpHeaders = Utils.getDummyHttpHeaders(contentDisposition, contentLength, contentType);
 
         //tell mocks what to return when download method is executed
-        when(restTemplate.execute(eq(DOWNLOAD_URI), eq(HttpMethod.GET), any(RequestCallback.class), ArgumentMatchers.<ResponseExtractor<ClientHttpResponse>>any(), any(FileTransferApiClientResponse.class)))
+        when(restTemplate.execute(eq(DOWNLOAD_URI_TEMPLATE), eq(HttpMethod.GET), any(RequestCallback.class), ArgumentMatchers.<ResponseExtractor<ClientHttpResponse>>any(), anyMap()))
                 .thenReturn(responseFromFileTransferApi);
         when(responseFromFileTransferApi.getBody()).thenReturn(fileInputStream);
         when(responseFromFileTransferApi.getStatusCode()).thenReturn(HttpStatus.OK);
@@ -173,8 +175,8 @@ class FileTransferApiClientUnitTest {
         FileTransferApiClientResponse downloadResponse = fileTransferApiClient.download(REQUEST_ID, FILE_ID, servletResponse);
 
         //need to capture the responseExtractor lambda passed to the restTemplate so we can test it - this is what actually does the file copy
-        verify(restTemplate).execute(eq(DOWNLOAD_URI), eq(HttpMethod.GET), any(RequestCallback.class),
-                responseExtractorArgCaptor.capture(), any(FileTransferApiClientResponse.class));
+        verify(restTemplate).execute(eq(DOWNLOAD_URI_TEMPLATE), eq(HttpMethod.GET), any(RequestCallback.class),
+                responseExtractorArgCaptor.capture(), anyMap());
 
         //now executing the responseExtractor should cause input stream (file) to be copied to output stream (servletResponse)
         ResponseExtractor<ClientHttpResponse> responseExtractor = responseExtractorArgCaptor.getValue();
@@ -194,14 +196,14 @@ class FileTransferApiClientUnitTest {
         MockHttpServletResponse servletResponse = new MockHttpServletResponse();
 
         //tell mocks what to return when download method is executed
-        when(restTemplate.execute(eq(DOWNLOAD_URI), eq(HttpMethod.GET), any(RequestCallback.class), ArgumentMatchers.<ResponseExtractor<ClientHttpResponse>>any(), any(FileTransferApiClientResponse.class)))
+        when(restTemplate.execute(eq(DOWNLOAD_URI_TEMPLATE), eq(HttpMethod.GET), any(RequestCallback.class), ArgumentMatchers.<ResponseExtractor<ClientHttpResponse>>any(), anyMap()))
                 .thenReturn(null);
 
         FileTransferApiClientResponse downloadResponse = fileTransferApiClient.download(REQUEST_ID, FILE_ID, servletResponse);
 
         //need to capture the responseExtractor lambda passed to the restTemplate so we can test it - this is what actually does the file copy
-        verify(restTemplate, times(1)).execute(eq(DOWNLOAD_URI), eq(HttpMethod.GET), any(RequestCallback.class),
-                ArgumentMatchers.<ResponseExtractor<ClientHttpResponse>>any(), any(FileTransferApiClientResponse.class));
+        verify(restTemplate, times(1)).execute(eq(DOWNLOAD_URI_TEMPLATE), eq(HttpMethod.GET), any(RequestCallback.class),
+                ArgumentMatchers.<ResponseExtractor<ClientHttpResponse>>any(), anyMap());
 
         //check status is Internal Server Error
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, downloadResponse.getHttpStatus());
@@ -212,11 +214,11 @@ class FileTransferApiClientUnitTest {
         final MockHttpServletResponse servletResponse = new MockHttpServletResponse();
         final RestClientException exception = new RestClientException(EXCEPTION_MESSAGE);
 
-        when(restTemplate.execute(eq(DOWNLOAD_URI),
+        when(restTemplate.execute(eq(DOWNLOAD_URI_TEMPLATE),
                 eq(HttpMethod.GET),
                 any(RequestCallback.class),
                 ArgumentMatchers.<ResponseExtractor<ClientHttpResponse>>any(),
-                any(FileTransferApiClientResponse.class)))
+                anyMap()))
                 .thenThrow(exception);
 
         RestClientException thrown = assertThrows(RestClientException.class, () -> fileTransferApiClient.download(REQUEST_ID, FILE_ID, servletResponse));
