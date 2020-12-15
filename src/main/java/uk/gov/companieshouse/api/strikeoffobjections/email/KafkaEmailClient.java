@@ -3,6 +3,7 @@ package uk.gov.companieshouse.api.strikeoffobjections.email;
 import org.apache.avro.Schema;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import uk.gov.companieshouse.api.strikeoffobjections.model.email.EmailContent;
@@ -28,7 +29,7 @@ public class KafkaEmailClient {
     @Autowired
     public KafkaEmailClient(CHKafkaProducer producer,
                             AvroSerializer avroSerializer,
-                            Schema schema) {
+                            @Qualifier("email-send") Schema schema) {
         this.producer = producer;
         this.avroSerializer = avroSerializer;
         this.schema = schema;

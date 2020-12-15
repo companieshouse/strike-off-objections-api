@@ -2,6 +2,7 @@ package uk.gov.companieshouse.api.strikeoffobjections.chips;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
@@ -12,7 +13,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Component
-public class ChipsClient {
+@Profile("!kafka")
+public class ChipsRestClient implements ChipsSender {
 
     private final ApiLogger apiLogger;
     private final RestTemplate restTemplate;
@@ -21,11 +23,12 @@ public class ChipsClient {
     private String chipsRestUrl;
 
     @Autowired
-    public ChipsClient(ApiLogger apiLogger, RestTemplate restTemplate) {
+    public ChipsRestClient(ApiLogger apiLogger, RestTemplate restTemplate) {
         this.apiLogger = apiLogger;
         this.restTemplate = restTemplate;
     }
 
+    @Override
     public void sendToChips(String requestId, ChipsRequest chipsRequest){
         Map<String, Object> logMap = new HashMap<>();
         logMap.put("chipsRestUrl", chipsRestUrl);

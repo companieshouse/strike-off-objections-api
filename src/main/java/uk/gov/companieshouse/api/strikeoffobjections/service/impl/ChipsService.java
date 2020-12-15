@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import uk.gov.companieshouse.api.strikeoffobjections.chips.ChipsClient;
+import uk.gov.companieshouse.api.strikeoffobjections.chips.ChipsSender;
 import uk.gov.companieshouse.api.strikeoffobjections.model.chips.ChipsRequest;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Objection;
 import uk.gov.companieshouse.api.strikeoffobjections.service.IChipsService;
@@ -15,10 +15,10 @@ public class ChipsService implements IChipsService {
     @Value("${EMAIL_ATTACHMENT_DOWNLOAD_URL_PREFIX}")
     private String attachmentDownloadUrlPrefix;
 
-    private final ChipsClient chipsClient;
+    private final ChipsSender chipsClient;
 
     @Autowired
-    public ChipsService(ChipsClient chipsClient) {
+    public ChipsService(ChipsSender chipsClient) {
         this.chipsClient = chipsClient;
     }
 

@@ -3,6 +3,7 @@ package uk.gov.companieshouse.api.strikeoffobjections.config;
 import org.apache.avro.Schema;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,11 +20,22 @@ public class KafkaConfiguration {
     private String schemaRegistryUrl;
     @Value("${EMAIL_SCHEMA_URI}")
     private String emailSchemaUri;
+    @Value("${CHIPS_KAFKA_SCHEMA_URI:testing}")
+    private String chipsKafkaSchemaUri;
     @Value("${EMAIL_SCHEMA_MAXIMUM_RETRY_ATTEMPTS}")
-    private String maximumReytryAttempts;
+    private String maximumRetryAttempts;
 
     @Bean
+    @Qualifier("email-send")
     public Schema fetchSchema(KafkaRestClient restClient) throws JSONException {
+        byte[] bytes = restClient.getSchema(schemaRegistryUrl, emailSchemaUri);
+        String schemaJson = new JSONObject(new String(bytes)).getString("schema");
+        return new Schema.Parser().parse(schemaJson);
+    }
+
+    @Bean
+    @Qualifier("chips-kafka-send")
+    public Schema fetchChipsKafkaSendSchema(KafkaRestClient restClient) throws JSONException {
         byte[] bytes = restClient.getSchema(schemaRegistryUrl, emailSchemaUri);
         String schemaJson = new JSONObject(new String(bytes)).getString("schema");
         return new Schema.Parser().parse(schemaJson);
@@ -36,7 +48,7 @@ public class KafkaConfiguration {
 
         config.setRoundRobinPartitioner(true);
         config.setAcks(Acks.WAIT_FOR_ALL);
-        config.setRetries(Integer.parseInt(maximumReytryAttempts));
+        config.setRetries(Integer.parseInt(maximumRetryAttempts));
         return new CHKafkaProducer(config);
     }
 }
