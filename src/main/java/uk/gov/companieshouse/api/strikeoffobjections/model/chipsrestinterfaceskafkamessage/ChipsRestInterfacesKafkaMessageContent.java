@@ -1,28 +1,29 @@
-package uk.gov.companieshouse.api.strikeoffobjections.model.chipsRestInterfacesKafkaMessage;
+package uk.gov.companieshouse.api.strikeoffobjections.model.chipsrestinterfaceskafkamessage;
 
+import java.time.LocalDateTime;
 import java.util.Map;
 
 public class ChipsRestInterfacesKafkaMessageContent {
 
-    private Map<String, Object> appId;
-    private Map<String, Object> messageId;
+    private String appId;
+    private String messageId;
     private Map<String, Object> data;
-    private Map<String, Object> chipsRestEndpoint;
-    private Map<String, Object> createdAt;
+    private String chipsRestEndpoint;
+    private LocalDateTime createdAt;
 
-    public Map<String, Object> getAppId() {
+    public String getAppId() {
         return appId;
     }
 
-    public void setAppId(Map<String, Object> appId) {
+    public void setAppId(String appId) {
         this.appId = appId;
     }
 
-    public Map<String, Object> getMessageId() {
+    public String getMessageId() {
         return messageId;
     }
 
-    public void setMessageId(Map<String, Object> messageId) {
+    public void setMessageId(String messageId) {
         this.messageId = messageId;
     }
 
@@ -34,19 +35,19 @@ public class ChipsRestInterfacesKafkaMessageContent {
         this.data = data;
     }
 
-    public Map<String, Object> getChipsRestEndpoint() {
+    public String getChipsRestEndpoint() {
         return chipsRestEndpoint;
     }
 
-    public void setChipsRestEndpoint(Map<String, Object> chipsRestEndpoint) {
+    public void setChipsRestEndpoint(String chipsRestEndpoint) {
         this.chipsRestEndpoint = chipsRestEndpoint;
     }
 
-    public Map<String, Object> getCreatedAt() {
+    public LocalDateTime getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(Map<String, Object> createdAt) {
+    public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
 
