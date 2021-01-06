@@ -1,9 +1,9 @@
-package uk.gov.companieshouse.api.strikeoffobjections.model.chipsrestinterfaceskafkamessage;
+package uk.gov.companieshouse.api.strikeoffobjections.model.chipsrestinterfacesconsumer;
 
 import java.time.LocalDateTime;
 import java.util.Map;
 
-public class ChipsRestInterfacesKafkaMessageContent {
+public class ChipsRestInterfacesConsumerContent {
 
     public static final class Builder {
         private String appId;
@@ -12,33 +12,33 @@ public class ChipsRestInterfacesKafkaMessageContent {
         private String chipsRestEndpoint;
         private LocalDateTime createdAt;
 
-        public ChipsRestInterfacesKafkaMessageContent.Builder withAppId(String val) {
+        public ChipsRestInterfacesConsumerContent.Builder withAppId(String val) {
             appId = val;
             return this;
         }
 
-        public ChipsRestInterfacesKafkaMessageContent.Builder withMessageId(String val) {
+        public ChipsRestInterfacesConsumerContent.Builder withMessageId(String val) {
             messageId = val;
             return this;
         }
 
-        public ChipsRestInterfacesKafkaMessageContent.Builder withData(Map<String, Object> val) {
+        public ChipsRestInterfacesConsumerContent.Builder withData(Map<String, Object> val) {
             data = val;
             return this;
         }
 
-        public ChipsRestInterfacesKafkaMessageContent.Builder withChipsRestEndpoint(String val) {
+        public ChipsRestInterfacesConsumerContent.Builder withChipsRestEndpoint(String val) {
             chipsRestEndpoint = val;
             return this;
         }
 
-        public ChipsRestInterfacesKafkaMessageContent.Builder withCreatedAt(LocalDateTime val) {
+        public ChipsRestInterfacesConsumerContent.Builder withCreatedAt(LocalDateTime val) {
             createdAt = val;
             return this;
         }
 
-        public ChipsRestInterfacesKafkaMessageContent build() {
-            return new ChipsRestInterfacesKafkaMessageContent(this);
+        public ChipsRestInterfacesConsumerContent build() {
+            return new ChipsRestInterfacesConsumerContent(this);
         }
     }
 
@@ -48,7 +48,7 @@ public class ChipsRestInterfacesKafkaMessageContent {
     private final String chipsRestEndpoint;
     private final LocalDateTime createdAt;
 
-    private ChipsRestInterfacesKafkaMessageContent(ChipsRestInterfacesKafkaMessageContent.Builder builder) {
+    private ChipsRestInterfacesConsumerContent(ChipsRestInterfacesConsumerContent.Builder builder) {
         this.appId = builder.appId;
         this.messageId = builder.messageId;
         this.data = builder.data;

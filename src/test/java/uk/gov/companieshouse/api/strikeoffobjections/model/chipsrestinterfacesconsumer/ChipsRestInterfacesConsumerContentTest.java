@@ -1,4 +1,4 @@
-package uk.gov.companieshouse.api.strikeoffobjections.model.chipsrestinterfaceskafkamessage;
+package uk.gov.companieshouse.api.strikeoffobjections.model.chipsrestinterfacesconsumer;
 
 import org.junit.jupiter.api.Test;
 
@@ -11,7 +11,7 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @Unit
-public class ChipsRestInterfacesKafkaMessageContentTest {
+public class ChipsRestInterfacesConsumerContentTest {
 
     private static final String APP_ID = "APP_ID";
     private static final String MESSAGE_ID = "MESSAGE_ID";
@@ -22,8 +22,8 @@ public class ChipsRestInterfacesKafkaMessageContentTest {
 
     @Test
     void toStringTest() {
-        ChipsRestInterfacesKafkaMessageContent chipsRestInterfacesKafkaMessageContent =
-                new ChipsRestInterfacesKafkaMessageContent.Builder()
+        ChipsRestInterfacesConsumerContent chipsRestInterfacesConsumerContent =
+                new ChipsRestInterfacesConsumerContent.Builder()
                 .withAppId(APP_ID)
                 .withMessageId(MESSAGE_ID)
                 .withData(DATA)
@@ -34,6 +34,6 @@ public class ChipsRestInterfacesKafkaMessageContentTest {
         String expectedOutput = String.format(
                 "ChipsKafkaMessage{" + "appId='%s', messageId='%s', data='%s', chipsRestEndpoint='%s', createdAt='%s'}",
                 APP_ID, MESSAGE_ID, DATA, CHIPS_REST_ENDPOINT, CREATED_AT);
-        assertEquals(expectedOutput, chipsRestInterfacesKafkaMessageContent.toString());
+        assertEquals(expectedOutput, chipsRestInterfacesConsumerContent.toString());
     }
 }
