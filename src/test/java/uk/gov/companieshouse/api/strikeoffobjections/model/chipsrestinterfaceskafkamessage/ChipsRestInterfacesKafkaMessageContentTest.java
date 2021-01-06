@@ -31,7 +31,9 @@ public class ChipsRestInterfacesKafkaMessageContentTest {
                 .withCreatedAt(CREATED_AT)
                 .build();
 
-        String expectedOutput = String.format("ChipsKafkaMessage{appId='%s', messageId='%s', data='%s', chipsRestEndpoint='%s', createdAt='%s'}", APP_ID, MESSAGE_ID, DATA, CHIPS_REST_ENDPOINT, CREATED_AT);
+        String expectedOutput = String.format(
+                "ChipsKafkaMessage{" + "appId='%s', messageId='%s', data='%s', chipsRestEndpoint='%s', createdAt='%s'}",
+                APP_ID, MESSAGE_ID, DATA, CHIPS_REST_ENDPOINT, CREATED_AT);
         assertEquals(expectedOutput, chipsRestInterfacesKafkaMessageContent.toString());
     }
 }
