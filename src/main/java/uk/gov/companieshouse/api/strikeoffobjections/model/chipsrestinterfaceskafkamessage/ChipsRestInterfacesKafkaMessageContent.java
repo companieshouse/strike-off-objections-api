@@ -5,50 +5,75 @@ import java.util.Map;
 
 public class ChipsRestInterfacesKafkaMessageContent {
 
-    private String appId;
-    private String messageId;
-    private Map<String, Object> data;
-    private String chipsRestEndpoint;
-    private LocalDateTime createdAt;
+    public static final class Builder {
+        private String appId;
+        private String messageId;
+        private Map<String, Object> data;
+        private String chipsRestEndpoint;
+        private LocalDateTime createdAt;
+
+        public ChipsRestInterfacesKafkaMessageContent.Builder withAppId(String val) {
+            appId = val;
+            return this;
+        }
+
+        public ChipsRestInterfacesKafkaMessageContent.Builder withMessageId(String val) {
+            messageId = val;
+            return this;
+        }
+
+        public ChipsRestInterfacesKafkaMessageContent.Builder withData(Map<String, Object> val) {
+            data = val;
+            return this;
+        }
+
+        public ChipsRestInterfacesKafkaMessageContent.Builder withChipsRestEndpoint(String val) {
+            chipsRestEndpoint = val;
+            return this;
+        }
+
+        public ChipsRestInterfacesKafkaMessageContent.Builder withCreatedAt(LocalDateTime val) {
+            createdAt = val;
+            return this;
+        }
+
+        public ChipsRestInterfacesKafkaMessageContent build() {
+            return new ChipsRestInterfacesKafkaMessageContent(this);
+        }
+    }
+
+    private final String appId;
+    private final String messageId;
+    private final Map<String, Object> data;
+    private final String chipsRestEndpoint;
+    private final LocalDateTime createdAt;
+
+    private ChipsRestInterfacesKafkaMessageContent(ChipsRestInterfacesKafkaMessageContent.Builder builder) {
+        this.appId = builder.appId;
+        this.messageId = builder.messageId;
+        this.data = builder.data;
+        this.chipsRestEndpoint = builder.chipsRestEndpoint;
+        this.createdAt = builder.createdAt;
+    }
 
     public String getAppId() {
         return appId;
-    }
-
-    public void setAppId(String appId) {
-        this.appId = appId;
     }
 
     public String getMessageId() {
         return messageId;
     }
 
-    public void setMessageId(String messageId) {
-        this.messageId = messageId;
-    }
-
     public Map<String, Object> getData() {
         return data;
-    }
-
-    public void setData(Map<String, Object> data) {
-        this.data = data;
     }
 
     public String getChipsRestEndpoint() {
         return chipsRestEndpoint;
     }
 
-    public void setChipsRestEndpoint(String chipsRestEndpoint) {
-        this.chipsRestEndpoint = chipsRestEndpoint;
-    }
-
     public LocalDateTime getCreatedAt() {
         return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
     }
 
     @Override
