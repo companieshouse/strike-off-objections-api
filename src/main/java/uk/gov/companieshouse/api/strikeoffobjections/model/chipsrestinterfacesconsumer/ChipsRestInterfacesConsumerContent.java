@@ -12,27 +12,27 @@ public class ChipsRestInterfacesConsumerContent {
         private String chipsRestEndpoint;
         private LocalDateTime createdAt;
 
-        public ChipsRestInterfacesConsumerContent.Builder withAppId(String val) {
+        public Builder withAppId(String val) {
             appId = val;
             return this;
         }
 
-        public ChipsRestInterfacesConsumerContent.Builder withMessageId(String val) {
+        public Builder withMessageId(String val) {
             messageId = val;
             return this;
         }
 
-        public ChipsRestInterfacesConsumerContent.Builder withData(Map<String, Object> val) {
+        public Builder withData(Map<String, Object> val) {
             data = val;
             return this;
         }
 
-        public ChipsRestInterfacesConsumerContent.Builder withChipsRestEndpoint(String val) {
+        public Builder withChipsRestEndpoint(String val) {
             chipsRestEndpoint = val;
             return this;
         }
 
-        public ChipsRestInterfacesConsumerContent.Builder withCreatedAt(LocalDateTime val) {
+        public Builder withCreatedAt(LocalDateTime val) {
             createdAt = val;
             return this;
         }
