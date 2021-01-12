@@ -8,6 +8,7 @@ import uk.gov.companieshouse.api.strikeoffobjections.chips.ChipsSender;
 import uk.gov.companieshouse.api.strikeoffobjections.model.chips.ChipsRequest;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Objection;
 import uk.gov.companieshouse.api.strikeoffobjections.service.IChipsService;
+import uk.gov.companieshouse.service.ServiceException;
 
 @Service
 public class ChipsService implements IChipsService {
@@ -23,7 +24,7 @@ public class ChipsService implements IChipsService {
     }
 
     @Override
-    public void sendObjection(String requestId, Objection objection) {
+    public void sendObjection(String requestId, Objection objection) throws ServiceException {
         ChipsRequest chipsRequest = new ChipsRequest(
                 objection.getId(),
                 objection.getCompanyNumber(),

@@ -13,7 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Component
-@Profile("!kafka")
+@Profile("!chips-kafka")
 public class ChipsRestClient implements ChipsSender {
 
     private final ApiLogger apiLogger;

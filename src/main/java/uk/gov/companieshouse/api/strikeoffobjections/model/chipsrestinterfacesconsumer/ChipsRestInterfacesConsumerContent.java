@@ -1,14 +1,13 @@
 package uk.gov.companieshouse.api.strikeoffobjections.model.chipsrestinterfacesconsumer;
 
 import java.time.LocalDateTime;
-import java.util.Map;
 
 public class ChipsRestInterfacesConsumerContent {
 
     public static final class Builder {
         private String appId;
         private String messageId;
-        private Map<String, Object> data;
+        private String data;
         private String chipsRestEndpoint;
         private LocalDateTime createdAt;
 
@@ -22,7 +21,7 @@ public class ChipsRestInterfacesConsumerContent {
             return this;
         }
 
-        public Builder withData(Map<String, Object> val) {
+        public Builder withData(String val) {
             data = val;
             return this;
         }
@@ -44,11 +43,11 @@ public class ChipsRestInterfacesConsumerContent {
 
     private final String appId;
     private final String messageId;
-    private final Map<String, Object> data;
+    private final String data;
     private final String chipsRestEndpoint;
     private final LocalDateTime createdAt;
 
-    private ChipsRestInterfacesConsumerContent(ChipsRestInterfacesConsumerContent.Builder builder) {
+    private ChipsRestInterfacesConsumerContent(Builder builder) {
         this.appId = builder.appId;
         this.messageId = builder.messageId;
         this.data = builder.data;
@@ -64,7 +63,7 @@ public class ChipsRestInterfacesConsumerContent {
         return messageId;
     }
 
-    public Map<String, Object> getData() {
+    public String getData() {
         return data;
     }
 
