@@ -32,8 +32,8 @@ public class KafkaConfiguration {
     }
 
     @Bean
-    @Qualifier("chips-kafka-send")
-    public Schema fetchChipsKafkaSendSchema(KafkaRestClient restClient) throws JSONException {
+    @Qualifier("chips-rest-interfaces-send")
+    public Schema fetchChipsRestInterfacesSendSchema(KafkaRestClient restClient) throws JSONException {
         return getSchema(restClient, chipsRestInterfacesSchemaUri);
     }
 

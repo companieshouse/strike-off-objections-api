@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import org.apache.avro.Schema;
-import org.apache.avro.generic.GenericData;
 import org.apache.avro.generic.GenericRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +38,7 @@ public class ChipsKafkaClient implements ChipsSender {
     private AvroSerializer avroSerializer;
 
     @Autowired
-    @Qualifier("chips-kafka-send")
+    @Qualifier("chips-rest-interfaces-send")
     private Schema schema;
 
     @Value("${OBJECT_TO_STRIKE_OFF_CHIPS_REST_ENDPOINT}")
@@ -77,14 +76,14 @@ public class ChipsKafkaClient implements ChipsSender {
     }
 
     private GenericRecord getGenericRecord(ChipsRequest chipsRequest, Long timestamp) throws JsonProcessingException {
-        GenericRecord genericRecord = new GenericData.Record(schema);
-        genericRecord.put("app_id", Application.APP_NAMESPACE);
-        genericRecord.put("message_id", UUID.randomUUID().toString());
-        genericRecord.put("data", convertToJSON(chipsRequest));
-        genericRecord.put("created_at", timestamp.toString());
-        genericRecord.put("chips_rest_endpoint", chipsRestEndpoint);
-        genericRecord.put("attempt", 1);
-        return genericRecord;
+        return new GenericRecordBuilder(schema)
+                .withSourceAppId(Application.APP_NAMESPACE)
+                .withMessageId(UUID.randomUUID().toString())
+                .withData(convertToJSON(chipsRequest))
+                .withCreatedAtTimestampInSeconds(timestamp)
+                .withChipsRestEndpoint(chipsRestEndpoint)
+                .withAttemptNumber(1)
+                .build();
     }
 
     private String convertToJSON(ChipsRequest chipsRequest) throws JsonProcessingException {
