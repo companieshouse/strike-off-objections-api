@@ -1,7 +1,6 @@
 package uk.gov.companieshouse.api.strikeoffobjections.email;
 
 import org.apache.avro.Schema;
-import org.apache.avro.generic.GenericRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -41,8 +40,7 @@ public class KafkaEmailClient {
             throws ServiceException {
         try {
             Message message = new Message();
-            GenericRecord genericRecord = avroSerializer.buildAvroGenericRecord(emailContent, schema);
-            byte[] serializedData = avroSerializer.serialize(genericRecord, schema);
+            byte[] serializedData = avroSerializer.serialize(emailContent, schema);
             message.setValue(serializedData);
             message.setTopic(emailSendQueueTopic);
             message.setTimestamp(emailContent.getCreatedAt().atZone(ZoneId.systemDefault()).toEpochSecond());
