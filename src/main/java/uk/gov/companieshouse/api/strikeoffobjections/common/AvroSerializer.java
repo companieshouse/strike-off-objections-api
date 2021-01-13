@@ -50,7 +50,6 @@ public class AvroSerializer {
 
     public GenericRecord buildAvroGenericRecord(EmailContent emailContent, Schema schema)
             throws JsonProcessingException {
-
         GenericRecord documentData = new GenericData.Record(schema);
         documentData.put("app_id", emailContent.getOriginatingAppId());
         documentData.put("message_id", emailContent.getMessageId());

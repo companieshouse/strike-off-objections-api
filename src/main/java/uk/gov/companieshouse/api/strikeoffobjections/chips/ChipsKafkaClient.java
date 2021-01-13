@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import org.apache.avro.Schema;
-import org.apache.avro.specific.SpecificRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -23,13 +22,15 @@ import uk.gov.companieshouse.service.ServiceException;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.function.Supplier;
 
 @Component
-@Profile("chips-kafka")
+@Profile("chips-rest-interfaces-kafka")
 public class ChipsKafkaClient implements ChipsSender {
 
     @Autowired
@@ -41,6 +42,9 @@ public class ChipsKafkaClient implements ChipsSender {
     @Autowired
     @Qualifier("chips-rest-interfaces-send")
     private Schema schema;
+
+    @Value("${CHIPS_REST_INTERFACES_SEND_TOPIC}")
+    private String chipsRestInterfacesSendTopic;
 
     @Value("${OBJECT_TO_STRIKE_OFF_CHIPS_REST_ENDPOINT}")
     private String chipsRestEndpoint;
@@ -55,24 +59,38 @@ public class ChipsKafkaClient implements ChipsSender {
     public void sendToChips(String requestId, ChipsRequest chipsRequest) throws ServiceException {
         try {
             Long timestamp = dateTimeSupplier.get().atZone(ZoneId.systemDefault()).toEpochSecond();
-            SpecificRecord chipsRestInterfacesSend = getChipsRestInterfacesSend(chipsRequest, timestamp);
+            ChipsRestInterfacesSend chipsRestInterfacesSend = getChipsRestInterfacesSend(chipsRequest, timestamp);
 
-            logger.infoContext(requestId, "About to send to chips via kafka");
+            Map<String, Object> dataForInfoLogMessage = new HashMap<>();
+            dataForInfoLogMessage.put("topic", chipsRestInterfacesSendTopic);
+            dataForInfoLogMessage.put("message_id", chipsRestInterfacesSend.getMessageId());
+
+            String logMessageSendText = "About to send kafka message to Chips Rest Interfaces Consumer";
+            logger.infoContext(requestId, logMessageSendText, dataForInfoLogMessage);
+
+            Map<String, Object> dataForDebugLogMessage = new HashMap<>(dataForInfoLogMessage);
+            dataForDebugLogMessage.put("message contents", chipsRestInterfacesSend);
+            logger.debugContext(requestId, logMessageSendText, dataForDebugLogMessage);
 
             Message message = new Message();
             byte[] serializedData = avroSerializer.serialize(chipsRestInterfacesSend);
             message.setValue(serializedData);
-            message.setTopic("chips-rest-interfaces-send");
+            message.setTopic(chipsRestInterfacesSendTopic);
             message.setTimestamp(timestamp);
+
             Future<RecordMetadata> future = producer.sendAndReturnFuture(message);
             future.get();
+
+            logger.infoContext(requestId,
+                    "Finished sending kafka message to Chips Rest Interfaces Consumer",
+                    dataForInfoLogMessage);
         } catch (IOException | ExecutionException e) {
             logger.errorContext(requestId, e);
             throw new ServiceException(e.getMessage());
         } catch (InterruptedException ie) {
             Thread.currentThread().interrupt();
             logger.errorContext(requestId, ie);
-            throw new ServiceException("Thread Interrupted when Chips future was sent and returned");
+            throw new ServiceException("Thread Interrupted when ChipsRestInterfacesConsumer future was sent and returned");
         }
     }
 
