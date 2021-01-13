@@ -81,12 +81,10 @@ class KafkaEmailClientUnitTest {
     @Test
     void checkServiceExceptionIsThrownWhenSerializerThrowsIOExcpetion()
             throws IOException {
-//        doThrow(IOException.class).when(faultyAvroSerializer).serialize(emailContent, testSchema);
-//        kafkaEmailClient = new KafkaEmailClient(producer,
-//                faultyAvroSerializer, testSchema);
-//        assertThrows(ServiceException.class, () -> {
-//            kafkaEmailClient.sendEmailToKafka(emailContent);
-//        });
+        doThrow(IOException.class).when(faultyAvroSerializer).serialize(emailContent, testSchema);
+        kafkaEmailClient = new KafkaEmailClient(producer,
+                faultyAvroSerializer, testSchema);
+        assertThrows(ServiceException.class, () -> kafkaEmailClient.sendEmailToKafka(emailContent));
     }
 
     @Test
@@ -96,9 +94,7 @@ class KafkaEmailClientUnitTest {
         kafkaEmailClient = new KafkaEmailClient(producer,
                 avroSerializer, testSchema);
         doThrow(ExecutionException.class).when(FAULTY_MOCKED_FUTURE).get();
-        assertThrows(ServiceException.class, () -> {
-            kafkaEmailClient.sendEmailToKafka(emailContent);
-        });
+        assertThrows(ServiceException.class, () -> kafkaEmailClient.sendEmailToKafka(emailContent));
     }
 }
 
