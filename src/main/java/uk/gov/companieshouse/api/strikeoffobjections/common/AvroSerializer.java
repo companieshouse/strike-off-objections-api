@@ -7,7 +7,11 @@ import org.apache.avro.generic.GenericData;
 import org.apache.avro.generic.GenericDatumWriter;
 import org.apache.avro.generic.GenericRecord;
 import org.apache.avro.io.BinaryEncoder;
+import org.apache.avro.io.DatumWriter;
+import org.apache.avro.io.Encoder;
 import org.apache.avro.io.EncoderFactory;
+import org.apache.avro.specific.SpecificDatumWriter;
+import org.apache.avro.specific.SpecificRecord;
 import org.springframework.stereotype.Component;
 import uk.gov.companieshouse.api.strikeoffobjections.model.email.EmailContent;
 
@@ -26,6 +30,22 @@ public class AvroSerializer {
         datumWriter.write(genericRecord, encoder);
         encoder.flush();
         return stream.toByteArray();
+    }
+
+    public byte[] serialize(SpecificRecord data) throws IOException {
+        DatumWriter<SpecificRecord> datumWriter = new SpecificDatumWriter<>();
+
+        try(ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+            Encoder encoder = EncoderFactory.get().binaryEncoder(out, null);
+            datumWriter.setSchema(data.getSchema());
+            datumWriter.write(data, encoder);
+            encoder.flush();
+
+            byte[] serializedData = out.toByteArray();
+            encoder.flush();
+
+            return serializedData;
+        }
     }
 
     public GenericRecord buildAvroGenericRecord(EmailContent emailContent, Schema schema)

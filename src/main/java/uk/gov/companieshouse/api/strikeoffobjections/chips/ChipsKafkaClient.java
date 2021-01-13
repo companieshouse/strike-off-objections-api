@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import org.apache.avro.Schema;
-import org.apache.avro.generic.GenericRecord;
+import org.apache.avro.specific.SpecificRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -15,6 +15,7 @@ import uk.gov.companieshouse.api.strikeoffobjections.Application;
 import uk.gov.companieshouse.api.strikeoffobjections.common.ApiLogger;
 import uk.gov.companieshouse.api.strikeoffobjections.common.AvroSerializer;
 import uk.gov.companieshouse.api.strikeoffobjections.model.chips.ChipsRequest;
+import uk.gov.companieshouse.chips.ChipsRestInterfacesSend;
 import uk.gov.companieshouse.kafka.message.Message;
 import uk.gov.companieshouse.kafka.producer.CHKafkaProducer;
 import uk.gov.companieshouse.service.ServiceException;
@@ -54,12 +55,12 @@ public class ChipsKafkaClient implements ChipsSender {
     public void sendToChips(String requestId, ChipsRequest chipsRequest) throws ServiceException {
         try {
             Long timestamp = dateTimeSupplier.get().atZone(ZoneId.systemDefault()).toEpochSecond();
-            GenericRecord genericRecord = getGenericRecord(chipsRequest, timestamp);
+            SpecificRecord chipsRestInterfacesSend = getChipsRestInterfacesSend(chipsRequest, timestamp);
 
             logger.infoContext(requestId, "About to send to chips via kafka");
 
             Message message = new Message();
-            byte[] serializedData = avroSerializer.serialize(genericRecord, schema);
+            byte[] serializedData = avroSerializer.serialize(chipsRestInterfacesSend);
             message.setValue(serializedData);
             message.setTopic("chips-rest-interfaces-send");
             message.setTimestamp(timestamp);
@@ -75,8 +76,8 @@ public class ChipsKafkaClient implements ChipsSender {
         }
     }
 
-    private GenericRecord getGenericRecord(ChipsRequest chipsRequest, Long timestamp) throws JsonProcessingException {
-        return new GenericRecordBuilder(schema)
+    private ChipsRestInterfacesSend getChipsRestInterfacesSend(ChipsRequest chipsRequest, Long timestamp) throws JsonProcessingException {
+        return new ChipsRestInterfacesSendBuilder()
                 .withSourceAppId(Application.APP_NAMESPACE)
                 .withMessageId(UUID.randomUUID().toString())
                 .withData(convertToJSON(chipsRequest))
