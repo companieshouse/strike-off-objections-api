@@ -70,7 +70,7 @@ class KafkaEmailClientUnitTest {
 
     @Test
     void checkFutureIsCalledWhenSendingEmailToKafka()
-            throws ServiceException, ExecutionException, IOException, InterruptedException {
+            throws ServiceException, ExecutionException, InterruptedException {
         when(producer.sendAndReturnFuture(any())).thenReturn(MOCKED_FUTURE);
         kafkaEmailClient = new KafkaEmailClient(producer,
                 avroSerializer, testSchema);
@@ -88,7 +88,7 @@ class KafkaEmailClientUnitTest {
     }
 
     @Test
-    void checkServiceExcpetionIsThrownWhenFutureThrowsExecutionException()
+    void checkServiceExceptionIsThrownWhenFutureThrowsExecutionException()
             throws ExecutionException, InterruptedException {
         when(producer.sendAndReturnFuture(any())).thenReturn(FAULTY_MOCKED_FUTURE);
         kafkaEmailClient = new KafkaEmailClient(producer,
