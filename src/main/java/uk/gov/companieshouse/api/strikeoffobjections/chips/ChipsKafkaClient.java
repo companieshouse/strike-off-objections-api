@@ -46,8 +46,8 @@ public class ChipsKafkaClient implements ChipsSender {
     @Value("${CHIPS_REST_INTERFACES_SEND_TOPIC}")
     private String chipsRestInterfacesSendTopic;
 
-    @Value("${OBJECT_TO_STRIKE_OFF_CHIPS_REST_ENDPOINT}")
-    private String chipsRestEndpoint;
+    @Value("${OBJECT_TO_STRIKE_OFF_CHIPS_REST_INTERFACES_ENDPOINT}")
+    private String chipsRestInterfacesEndpoint;
 
     @Autowired
     private ApiLogger logger;
@@ -99,9 +99,9 @@ public class ChipsKafkaClient implements ChipsSender {
                 .withSourceAppId(Application.APP_NAMESPACE)
                 .withMessageId(UUID.randomUUID().toString())
                 .withData(convertToJSON(chipsRequest))
-                .withCreatedAtTimestampInSeconds(timestamp)
-                .withChipsRestEndpoint(chipsRestEndpoint)
-                .withAttemptNumber(1)
+                .withCreatedAtTimestampInSeconds(timestamp.toString())
+                .withChipsRestEndpoint(chipsRestInterfacesEndpoint)
+                .withAttemptNumber(0)
                 .build();
     }
 

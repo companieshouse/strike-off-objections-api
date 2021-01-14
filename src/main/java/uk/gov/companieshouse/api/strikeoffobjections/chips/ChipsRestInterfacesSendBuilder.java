@@ -7,7 +7,7 @@ public class ChipsRestInterfacesSendBuilder {
     private String sourceAppId;
     private String messageId;
     private String data;
-    private Long createdAtTimestampInSeconds;
+    private String createdAtTimestampInSeconds;
     private String chipsRestEndpoint;
     private int attemptNumber;
 
@@ -26,7 +26,7 @@ public class ChipsRestInterfacesSendBuilder {
         return this;
     }
 
-    ChipsRestInterfacesSendBuilder withCreatedAtTimestampInSeconds(Long createdAtTimestampInSeconds) {
+    ChipsRestInterfacesSendBuilder withCreatedAtTimestampInSeconds(String createdAtTimestampInSeconds) {
         this.createdAtTimestampInSeconds = createdAtTimestampInSeconds;
         return this;
     }
@@ -46,7 +46,7 @@ public class ChipsRestInterfacesSendBuilder {
         chipsRestInterfacesSend.setAppId(sourceAppId);
         chipsRestInterfacesSend.setMessageId(messageId);
         chipsRestInterfacesSend.setData(data);
-        chipsRestInterfacesSend.setCreatedAt(createdAtTimestampInSeconds.toString());
+        chipsRestInterfacesSend.setCreatedAt(createdAtTimestampInSeconds);
         chipsRestInterfacesSend.setChipsRestEndpoint(chipsRestEndpoint);
         chipsRestInterfacesSend.setAttempt(attemptNumber);
         return chipsRestInterfacesSend;

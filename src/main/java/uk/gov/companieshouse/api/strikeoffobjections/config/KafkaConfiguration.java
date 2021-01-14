@@ -18,10 +18,13 @@ public class KafkaConfiguration {
 
     @Value("${SCHEMA_REGISTRY_URL}")
     private String schemaRegistryUrl;
+
     @Value("${EMAIL_SCHEMA_URI}")
     private String emailSchemaUri;
-    @Value("${CHIPS_REST_INTERFACES_SCHEMA_URI}")
-    private String chipsRestInterfacesSchemaUri;
+
+    @Value("${CHIPS_REST_INTERFACES_SEND_SCHEMA_URI}")
+    private String chipsRestInterfacesSendSchemaUri;
+
     @Value("${KAFKA_PRODUCER_MAXIMUM_RETRY_ATTEMPTS}")
     private String maximumRetryAttempts;
 
@@ -34,7 +37,7 @@ public class KafkaConfiguration {
     @Bean
     @Qualifier("chips-rest-interfaces-send")
     public Schema fetchChipsRestInterfacesSendSchema(KafkaRestClient restClient) throws JSONException {
-        return getSchema(restClient, chipsRestInterfacesSchemaUri);
+        return getSchema(restClient, chipsRestInterfacesSendSchemaUri);
     }
 
     private Schema getSchema(KafkaRestClient restClient, String schemaUri) throws JSONException {
