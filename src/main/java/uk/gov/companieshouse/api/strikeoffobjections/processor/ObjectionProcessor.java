@@ -120,7 +120,7 @@ public class ObjectionProcessor {
         }
     }
     
-    private void sendObjectionToChips(Objection objection, String httpRequestId) {
+    private void sendObjectionToChips(Objection objection, String httpRequestId) throws ServiceException {
         try {
             chipsService.sendObjection(httpRequestId, objection);
         } catch (Exception e) {

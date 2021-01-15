@@ -23,6 +23,7 @@ import uk.gov.companieshouse.api.strikeoffobjections.model.chips.ChipsRequest;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Attachment;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Objection;
 import uk.gov.companieshouse.api.strikeoffobjections.utils.Utils;
+import uk.gov.companieshouse.service.ServiceException;
 
 @Unit
 @ExtendWith(MockitoExtension.class)
@@ -46,7 +47,7 @@ class ChipsServiceTest {
     private ChipsService chipsService;
 
     @Test
-    void testSendingToChipsCreatesCorrectRequest() {
+    void testSendingToChipsCreatesCorrectRequest() throws ServiceException {
         ReflectionTestUtils.setField(chipsService, "attachmentDownloadUrlPrefix", DOWNLOAD_URL_PREFIX);
 
         Objection objection = Utils.getTestObjection(

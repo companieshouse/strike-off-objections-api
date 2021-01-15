@@ -18,25 +18,30 @@ public class KafkaConfiguration {
 
     @Value("${SCHEMA_REGISTRY_URL}")
     private String schemaRegistryUrl;
+
     @Value("${EMAIL_SCHEMA_URI}")
     private String emailSchemaUri;
-    @Value("${CHIPS_KAFKA_SCHEMA_URI:testing}")
-    private String chipsKafkaSchemaUri;
-    @Value("${EMAIL_SCHEMA_MAXIMUM_RETRY_ATTEMPTS}")
+
+    @Value("${CHIPS_REST_INTERFACES_SEND_SCHEMA_URI}")
+    private String chipsRestInterfacesSendSchemaUri;
+
+    @Value("${KAFKA_PRODUCER_MAXIMUM_RETRY_ATTEMPTS}")
     private String maximumRetryAttempts;
 
     @Bean
     @Qualifier("email-send")
     public Schema fetchSchema(KafkaRestClient restClient) throws JSONException {
-        byte[] bytes = restClient.getSchema(schemaRegistryUrl, emailSchemaUri);
-        String schemaJson = new JSONObject(new String(bytes)).getString("schema");
-        return new Schema.Parser().parse(schemaJson);
+       return getSchema(restClient, emailSchemaUri);
     }
 
     @Bean
-    @Qualifier("chips-kafka-send")
-    public Schema fetchChipsKafkaSendSchema(KafkaRestClient restClient) throws JSONException {
-        byte[] bytes = restClient.getSchema(schemaRegistryUrl, emailSchemaUri);
+    @Qualifier("chips-rest-interfaces-send")
+    public Schema fetchChipsRestInterfacesSendSchema(KafkaRestClient restClient) throws JSONException {
+        return getSchema(restClient, chipsRestInterfacesSendSchemaUri);
+    }
+
+    private Schema getSchema(KafkaRestClient restClient, String schemaUri) throws JSONException {
+        byte[] bytes = restClient.getSchema(schemaRegistryUrl, schemaUri);
         String schemaJson = new JSONObject(new String(bytes)).getString("schema");
         return new Schema.Parser().parse(schemaJson);
     }
