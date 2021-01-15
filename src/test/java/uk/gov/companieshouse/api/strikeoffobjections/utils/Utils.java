@@ -35,6 +35,10 @@ public class Utils {
 
     public static final String ORIGINAL_FILE_NAME = "original.png";
     public static final String UPLOAD_ID = "5agf-g6hh";
+    public static final String TEST_ATTACHMENT_1_ID = "TestAttachment1";
+    public static final String TEST_ATTACHMENT_2_ID = "TestAttachment2";
+    public static final String TEST_ATTACHMENT_1_URL = "/url1/download";
+    public static final String TEST_ATTACHMENT_2_URL = "/url2/download";
 
     public static Objection getSimpleTestObjection(String objectionId){
         Objection objection = new Objection();
@@ -99,14 +103,14 @@ public class Utils {
     }
 
     public static void setTestAttachmentsWithLinks(List<Attachment> attachments) {
-        Attachment attachment1 = Utils.buildTestAttachment("id1", "TestAttachment1");
+        Attachment attachment1 = Utils.buildTestAttachment("id1", TEST_ATTACHMENT_1_ID);
         Links links1 = new Links();
-        links1.setLink(ObjectionLinkKeys.DOWNLOAD, "/url1/download");
+        links1.setLink(ObjectionLinkKeys.DOWNLOAD, TEST_ATTACHMENT_1_URL);
         attachment1.setLinks(links1);
         attachments.add(attachment1);
-        Attachment attachment2 = Utils.buildTestAttachment("id1", "TestAttachment2");
+        Attachment attachment2 = Utils.buildTestAttachment("id1", TEST_ATTACHMENT_2_ID);
         Links links2 = new Links();
-        links2.setLink(ObjectionLinkKeys.DOWNLOAD, "/url2/download");
+        links2.setLink(ObjectionLinkKeys.DOWNLOAD, TEST_ATTACHMENT_2_URL);
         attachment2.setLinks(links2);
         attachments.add(attachment2);
     }

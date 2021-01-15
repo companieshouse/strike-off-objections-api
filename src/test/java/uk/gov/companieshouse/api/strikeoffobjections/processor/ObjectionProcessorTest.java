@@ -306,7 +306,7 @@ class ObjectionProcessorTest {
     }
 
     @Test
-    void processHandlesChipsUncheckedException() {
+    void processHandlesChipsUncheckedException() throws ServiceException {
         Objection dummyObjection = Utils.getTestObjection(
                 OBJECTION_ID, REASON, COMPANY_NUMBER, USER_ID, EMAIL, LOCAL_DATE_TIME,
                 Utils.buildTestObjectionCreate(FULL_NAME, false));

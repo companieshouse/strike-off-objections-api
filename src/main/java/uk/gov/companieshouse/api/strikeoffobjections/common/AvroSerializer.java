@@ -1,4 +1,4 @@
-package uk.gov.companieshouse.api.strikeoffobjections.email;
+package uk.gov.companieshouse.api.strikeoffobjections.common;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -7,9 +7,12 @@ import org.apache.avro.generic.GenericData;
 import org.apache.avro.generic.GenericDatumWriter;
 import org.apache.avro.generic.GenericRecord;
 import org.apache.avro.io.BinaryEncoder;
+import org.apache.avro.io.DatumWriter;
+import org.apache.avro.io.Encoder;
 import org.apache.avro.io.EncoderFactory;
+import org.apache.avro.specific.SpecificDatumWriter;
+import org.apache.avro.specific.SpecificRecord;
 import org.springframework.stereotype.Component;
-import uk.gov.companieshouse.api.strikeoffobjections.common.FormatUtils;
 import uk.gov.companieshouse.api.strikeoffobjections.model.email.EmailContent;
 
 import java.io.ByteArrayOutputStream;
@@ -29,9 +32,24 @@ public class AvroSerializer {
         return stream.toByteArray();
     }
 
+    public byte[] serialize(SpecificRecord data) throws IOException {
+        DatumWriter<SpecificRecord> datumWriter = new SpecificDatumWriter<>();
+
+        try(ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+            Encoder encoder = EncoderFactory.get().binaryEncoder(out, null);
+            datumWriter.setSchema(data.getSchema());
+            datumWriter.write(data, encoder);
+            encoder.flush();
+
+            byte[] serializedData = out.toByteArray();
+            encoder.flush();
+
+            return serializedData;
+        }
+    }
+
     private GenericRecord buildAvroGenericRecord(EmailContent emailContent, Schema schema)
             throws JsonProcessingException {
-
         GenericRecord documentData = new GenericData.Record(schema);
         documentData.put("app_id", emailContent.getOriginatingAppId());
         documentData.put("message_id", emailContent.getMessageId());
