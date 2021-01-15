@@ -86,11 +86,11 @@ public class ChipsKafkaClient implements ChipsSender {
                     dataForInfoLogMessage);
         } catch (IOException | ExecutionException e) {
             logger.errorContext(requestId, e);
-            throw new ServiceException(e.getMessage());
+            throw new ServiceException(e.getMessage(), e);
         } catch (InterruptedException ie) {
             Thread.currentThread().interrupt();
             logger.errorContext(requestId, ie);
-            throw new ServiceException("Thread Interrupted when ChipsRestInterfacesConsumer future was sent and returned");
+            throw new ServiceException("Thread Interrupted when ChipsRestInterfacesConsumer future was sent and returned", ie);
         }
     }
 

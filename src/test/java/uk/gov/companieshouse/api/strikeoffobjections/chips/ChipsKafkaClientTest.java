@@ -193,6 +193,7 @@ class ChipsKafkaClientTest {
 
         verify(logger, times(1)).errorContext(REQUEST_ID, ioException);
         assertEquals(ioException.getMessage(), serviceException.getMessage());
+        assertEquals(ioException, serviceException.getCause());
     }
 
     @Test
@@ -208,6 +209,7 @@ class ChipsKafkaClientTest {
 
         verify(logger, times(1)).errorContext(REQUEST_ID, executionException);
         assertEquals(executionException.getMessage(), serviceException.getMessage());
+        assertEquals(executionException, serviceException.getCause());
     }
 
     @Test
@@ -224,6 +226,7 @@ class ChipsKafkaClientTest {
         assertTrue(Thread.currentThread().isInterrupted());
         verify(logger, times(1)).errorContext(REQUEST_ID, interruptedException);
         assertTrue(serviceException.getMessage().contains("Thread Interrupted"));
+        assertEquals(interruptedException, serviceException.getCause());
     }
 
     private ChipsRequest getChipsRequest() {
@@ -239,6 +242,4 @@ class ChipsKafkaClientTest {
                 DOWNLOAD_URL_PREFIX
         );
     }
-
-
 }
