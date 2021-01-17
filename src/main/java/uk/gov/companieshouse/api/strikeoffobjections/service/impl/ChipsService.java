@@ -1,6 +1,7 @@
 package uk.gov.companieshouse.api.strikeoffobjections.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -19,7 +20,7 @@ public class ChipsService implements IChipsService {
     private final ChipsSender chipsClient;
 
     @Autowired
-    public ChipsService(ChipsSender chipsClient) {
+    public ChipsService(@Qualifier("chips-sender") ChipsSender chipsClient) {
         this.chipsClient = chipsClient;
     }
 
