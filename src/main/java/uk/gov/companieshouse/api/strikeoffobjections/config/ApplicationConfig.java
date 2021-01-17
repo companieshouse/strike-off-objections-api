@@ -34,9 +34,9 @@ public class ApplicationConfig {
 
     @Bean("chips-sender")
     ChipsSender getChipsSender(ChipsKafkaClient chipsKafkaClient,
-                                      ChipsRestClient chipsRestClient,
-                                      @Value("${FEATURE_FLAG_USE_KAFKA_FOR_CHIPS_CALL_170121}") boolean isChipsKafkaFeatureFlagOn,
-                                      ApiLogger logger) {
+                               ChipsRestClient chipsRestClient,
+                               @Value("${FEATURE_FLAG_USE_KAFKA_FOR_CHIPS_CALL_170121}") boolean isChipsKafkaFeatureFlagOn,
+                               ApiLogger logger) {
         logger.info("CHS ENV CONFIG - FEATURE_FLAG_USE_KAFKA_FOR_CHIPS_CALL_170121 = " + isChipsKafkaFeatureFlagOn);
 
         return (isChipsKafkaFeatureFlagOn) ? chipsKafkaClient : chipsRestClient;
