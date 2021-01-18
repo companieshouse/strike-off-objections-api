@@ -29,15 +29,15 @@ These instructions are for a local docker environment.
 
 Method    | Path                                                                         | Description
 :---------|:-----------------------------------------------------------------------------|:-----------
-**GET**   | `/eligibility`       | Returns information describing the strike-off eligibility of the company
-**GET**   | `/{objectionId}`       | Returns the objection identified by objectionId
-**GET**   | `/{objectionId}/attachments`       | Get all attachments from the Objection
-**GET**   | `/{objectionId}/attachments/{attachmentId}`       | get this attachment
-**GET**   | `/{objectionId}/attachments/{attachmentId}/download`       | download this attachment
-**POST**   | `/`                                | Create a new strike-off objection 
-**POST**   | `/{objectionId}/attachments`                                | Add an attachment to the Objection
+**GET**   | `/eligibility`       | Returns information describing the strike-off eligibility of the company.
+**GET**   | `/{objectionId}`       | Returns the objection identified by objectionId.
+**GET**   | `/{objectionId}/attachments`       | Get all attachments from the Objection.
+**GET**   | `/{objectionId}/attachments/{attachmentId}`       | Get this attachment.
+**GET**   | `/{objectionId}/attachments/{attachmentId}/download`       | Download this attachment.
+**POST**   | `/`                                | Create a new strike-off objection.
+**POST**   | `/{objectionId}/attachments`                                | Add an attachment to the Objection.
 **PATCH**   | `/{objectionId}` | Updates the strike-off objection identified by objectionId with the values provided. If status set to SUBMITTED, this will trigger the Objection processing.
-**DELETE**   | `/{objectionId}/attachments/{attachmentId}` | Delete this attachment from the Objection
+**DELETE**   | `/{objectionId}/attachments/{attachmentId}` | Delete this attachment from the Objection.
 
 
 ### Config variables
