@@ -27,6 +27,12 @@ These instructions are for a local docker environment.
 
 ### Endpoints
 
+The full path for each endpoint begins with the app url:
+
+`${API_URL}/company/{COMPANY_NUMBER}/strike-off-objections`
+
+This is common to all the endpoints.
+
 Method    | Path                                                                         | Description
 :---------|:-----------------------------------------------------------------------------|:-----------
 **GET**   | `/eligibility`       | Returns information describing the strike-off eligibility of the company.
