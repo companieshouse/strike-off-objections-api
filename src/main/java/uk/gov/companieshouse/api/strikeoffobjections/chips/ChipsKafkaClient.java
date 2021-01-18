@@ -67,7 +67,7 @@ public class ChipsKafkaClient implements ChipsSender {
             logger.infoContext(requestId, logMessageSendText, dataForInfoLogMessage);
 
             Map<String, Object> dataForDebugLogMessage = new HashMap<>(dataForInfoLogMessage);
-            dataForDebugLogMessage.put("message_contents", chipsRestInterfacesSend);
+            dataForDebugLogMessage.put("message_contents", chipsRestInterfacesSend.getData());
             logger.debugContext(requestId, logMessageSendText, dataForDebugLogMessage);
 
             Message message = new Message();
