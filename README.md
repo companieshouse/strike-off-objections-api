@@ -7,8 +7,10 @@ API for handling objections to a company being struck off the register
 
 In order to run the service locally you will need the following:
 
-- [Java]
+- [Java 8](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)
+- [Maven](https://maven.apache.org/download.cgi)
 - [Git](https://git-scm.com/downloads)
+- [MongoDB](https://www.mongodb.com/)
 
 ### Getting started
 
@@ -25,6 +27,8 @@ These instructions are for a local docker environment.
 
 ### Config variables
 
+Key             | Example Value   | Description
+----------------|---------------- |------------------------------------
 ACTION_CODES_COMPANY_STRUCK_OFF | 90,9000,9100 | Company already struck off. Objections cannot be raised
 ACTION_CODES_STRIKE_OFF_NOTICE | 4100,4300,4400,5000 | Notice given, but not struck off objections allowed
 API_URL | http://api.chs.local:4001 |
@@ -33,7 +37,7 @@ EMAIL_ATTACHMENT_DOWNLOAD_URL_PREFIX | http://chs.local/strike-off-objections/do
 EMAIL_SCHEMA_MAXIMUM_RETRY_ATTEMPTS | 6 |
 EMAIL_SCHEMA_URI | /subjects/email-send/versions/latest |
 EMAIL_SEND_QUEUE_TOPIC | email-send | kafka queue for the internal and external confirmation emails
-EMAIL_SENDER_APP_ID | strike_off_objections | 
+EMAIL_SENDER_APP_ID | strike_off_objections |
 EMAIL_RECIPIENTS_BELFAST | <NAME>@companieshouse.gov.uk | Internal email addresses
 EMAIL_RECIPIENTS_CARDIFF | <NAME>@companieshouse.gov.uk | Internal email addresses
 EMAIL_RECIPIENTS_EDINBURGH | <NAME>@companieshouse.gov.uk | Internal email addresses
