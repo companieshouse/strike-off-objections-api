@@ -172,7 +172,7 @@ class ChipsKafkaClientTest {
         logMap = logMapArgumentCaptor.getValue();
         assertEquals(CHIPS_REST_INTERFACES_SEND_TOPIC, logMap.get(topicKey));
         assertTrue(StringUtils.isNotBlank((String)logMap.get(messageIdKey)));
-        assertEquals(chipsRestInterfacesSend, logMap.get(messageContentsKey));
+        assertEquals(chipsRestInterfacesSend.getData(), logMap.get(messageContentsKey));
 
         verify(logger, times(1)).infoContext(eq(REQUEST_ID), eq(finishedSendingLogMessage), logMapArgumentCaptor.capture());
 
