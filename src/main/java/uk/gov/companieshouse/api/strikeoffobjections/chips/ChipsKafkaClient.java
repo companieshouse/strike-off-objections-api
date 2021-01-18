@@ -3,10 +3,8 @@ package uk.gov.companieshouse.api.strikeoffobjections.chips;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
-import org.apache.avro.Schema;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import uk.gov.companieshouse.api.strikeoffobjections.Application;
@@ -36,10 +34,6 @@ public class ChipsKafkaClient implements ChipsSender {
 
     @Autowired
     private AvroSerializer avroSerializer;
-
-    @Autowired
-    @Qualifier("chips-rest-interfaces-send")
-    private Schema schema;
 
     @Value("${CHIPS_REST_INTERFACES_SEND_TOPIC}")
     private String chipsRestInterfacesSendTopic;

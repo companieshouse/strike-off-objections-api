@@ -3,7 +3,6 @@ package uk.gov.companieshouse.api.strikeoffobjections.config;
 import org.apache.avro.Schema;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -22,22 +21,12 @@ public class KafkaConfiguration {
     @Value("${EMAIL_SCHEMA_URI}")
     private String emailSchemaUri;
 
-    @Value("${CHIPS_REST_INTERFACES_SEND_SCHEMA_URI}")
-    private String chipsRestInterfacesSendSchemaUri;
-
     @Value("${KAFKA_PRODUCER_MAXIMUM_RETRY_ATTEMPTS}")
     private String maximumRetryAttempts;
 
     @Bean
-    @Qualifier("email-send")
     public Schema fetchSchema(KafkaRestClient restClient) throws JSONException {
        return getSchema(restClient, emailSchemaUri);
-    }
-
-    @Bean
-    @Qualifier("chips-rest-interfaces-send")
-    public Schema fetchChipsRestInterfacesSendSchema(KafkaRestClient restClient) throws JSONException {
-        return getSchema(restClient, chipsRestInterfacesSendSchemaUri);
     }
 
     private Schema getSchema(KafkaRestClient restClient, String schemaUri) throws JSONException {

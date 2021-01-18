@@ -1,6 +1,5 @@
 package uk.gov.companieshouse.api.strikeoffobjections.chips;
 
-import org.apache.avro.Schema;
 import org.apache.commons.lang.StringUtils;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.junit.jupiter.api.BeforeEach;
@@ -67,9 +66,6 @@ class ChipsKafkaClientTest {
 
     @Mock
     private AvroSerializer avroSerializer;
-
-    @Mock
-    private Schema schema;
 
     @Mock
     private ApiLogger logger;
