@@ -38,9 +38,9 @@ EMAIL_SCHEMA_MAXIMUM_RETRY_ATTEMPTS | 6 |
 EMAIL_SCHEMA_URI | /subjects/email-send/versions/latest |
 EMAIL_SEND_QUEUE_TOPIC | email-send | kafka queue for the internal and external confirmation emails
 EMAIL_SENDER_APP_ID | strike_off_objections |
-EMAIL_RECIPIENTS_BELFAST | <NAME>@companieshouse.gov.uk | Internal email addresses
-EMAIL_RECIPIENTS_CARDIFF | <NAME>@companieshouse.gov.uk | Internal email addresses
-EMAIL_RECIPIENTS_EDINBURGH | <NAME>@companieshouse.gov.uk | Internal email addresses
+EMAIL_RECIPIENTS_BELFAST | NAME@companieshouse.gov.uk | Internal email addresses
+EMAIL_RECIPIENTS_CARDIFF | NAME@companieshouse.gov.uk | Internal email addresses
+EMAIL_RECIPIENTS_EDINBURGH | NAME@companieshouse.gov.uk | Internal email addresses
 EMAIL_SUBJECT | {{ COMPANY_NUMBER }}: Objection Application Submitted | Reference to company objection is raised against
 EMAIL_SUBMITTED_EXTERNAL_TEMPLATE_MESSAGE_TYPE | strike_off_objections_application_submitted_external | Ensures notification api sends the correct email relating to what the user has requested
 EMAIL_SUBMITTED_INTERNAL_TEMPLATE_MESSAGE_TYPE | strike_off_objections_application_submitted_internal | Ensures notification api sends the correct email relating to what the user has requested
