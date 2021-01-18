@@ -8,7 +8,6 @@ import org.apache.kafka.clients.producer.RecordMetadata;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import uk.gov.companieshouse.api.strikeoffobjections.Application;
 import uk.gov.companieshouse.api.strikeoffobjections.common.ApiLogger;
@@ -30,7 +29,6 @@ import java.util.concurrent.Future;
 import java.util.function.Supplier;
 
 @Component
-@Profile("chips-rest-interfaces-kafka")
 public class ChipsKafkaClient implements ChipsSender {
 
     @Autowired
