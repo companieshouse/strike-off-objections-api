@@ -71,7 +71,12 @@ public class ChipsKafkaClient implements ChipsSender {
             message.setTimestamp(timestamp);
 
             Future<RecordMetadata> future = producer.sendAndReturnFuture(message);
-            future.get();
+            RecordMetadata recordMetadata = future.get();
+            long offset = recordMetadata.offset();
+            int partition = recordMetadata.partition();
+
+            dataForInfoLogMessage.put("Offset", offset);
+            dataForInfoLogMessage.put("Partition", partition);
 
             logger.infoContext(requestId,
                     "Finished sending kafka message to Chips Rest Interfaces Consumer",

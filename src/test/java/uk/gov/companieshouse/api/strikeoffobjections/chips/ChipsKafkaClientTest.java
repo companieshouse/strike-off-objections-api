@@ -2,6 +2,7 @@ package uk.gov.companieshouse.api.strikeoffobjections.chips;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.kafka.clients.producer.RecordMetadata;
+import org.apache.kafka.common.TopicPartition;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -76,6 +77,8 @@ class ChipsKafkaClientTest {
     @Mock
     private Future<RecordMetadata> future;
 
+    private RecordMetadata recordMetadata;
+
     @Captor
     private ArgumentCaptor<ChipsRestInterfacesSend> chipsRestInterfacesSendArgumentCaptor;
 
@@ -95,6 +98,9 @@ class ChipsKafkaClientTest {
         ReflectionTestUtils.setField(chipsKafkaClient, "chipsRestInterfacesSendTopic", CHIPS_REST_INTERFACES_SEND_TOPIC);
 
         when(dateTimeSupplier.get()).thenReturn(DATE_TIME);
+
+        TopicPartition topicPartition = new TopicPartition("test",1);
+        recordMetadata = new RecordMetadata(topicPartition, 0,0,0,0L,0, 0);
     }
 
     @Test
@@ -104,6 +110,7 @@ class ChipsKafkaClientTest {
 
         when(avroSerializer.serialize(any(ChipsRestInterfacesSend.class))).thenReturn(serializedData);
         when(producer.sendAndReturnFuture(any(Message.class))).thenReturn(future);
+        when(future.get()).thenReturn(recordMetadata);
 
         chipsKafkaClient.sendToChips(REQUEST_ID, chipsRequest);
 
@@ -141,7 +148,7 @@ class ChipsKafkaClientTest {
     }
 
     @Test
-    void testSendToChipsLogging() throws ServiceException, IOException {
+    void testSendToChipsLogging() throws ServiceException, IOException, InterruptedException, ExecutionException {
         final ChipsRequest chipsRequest = getChipsRequest();
         final String sendingLogMessage = "About to send kafka message to Chips Rest Interfaces Consumer";
         final String finishedSendingLogMessage = "Finished sending kafka message to Chips Rest Interfaces Consumer";
@@ -150,6 +157,7 @@ class ChipsKafkaClientTest {
         final String messageContentsKey = "message_contents";
 
         when(producer.sendAndReturnFuture(any(Message.class))).thenReturn(future);
+        when(future.get()).thenReturn(recordMetadata);
 
         chipsKafkaClient.sendToChips(REQUEST_ID, chipsRequest);
 
