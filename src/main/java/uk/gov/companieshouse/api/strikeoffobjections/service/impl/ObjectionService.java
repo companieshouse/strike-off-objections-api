@@ -225,7 +225,6 @@ public class ObjectionService implements IObjectionService {
                                            Objection existingObjection,
                                            String requestId,
                                            String companyNumber) throws InvalidObjectionStatusException {
-        // TODO OBJ-177 Implement a status manager that will do the throwing if status change not allowed
         if (ObjectionStatus.SUBMITTED == objectionPatch.getStatus() && ObjectionStatus.OPEN != existingObjection.getStatus()) {
             String objectionId = existingObjection.getId();
 
@@ -382,7 +381,6 @@ public class ObjectionService implements IObjectionService {
         return fileTransferApiClient.download(requestId, attachmentId, response);
     }
 
-    // TODO OBJ-141 repetitive logging in codebase, needs centralized handler that allows for different parameters.
     private Map<String, Object> buildLogMap(String companyNumber, String objectionId, String attachmentId) {
         Map<String, Object> logMap = new HashMap<>();
         if (StringUtils.isNotBlank(companyNumber)) {
