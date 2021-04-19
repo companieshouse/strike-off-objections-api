@@ -407,12 +407,18 @@
         "email": {
           "type": "string",
           "format": "email"
-        }
+        },
+        "objector": {
+          "type": "string"
+        },
       }
     },
     "Create": {
       "type": "object",
       "properties": {
+        "objector": {
+          "type": "string"
+        },
         "full_name": {
           "type": "string"
         },
@@ -424,6 +430,9 @@
     "Patch": {
       "type": "object",
       "properties": {
+        "objector": {
+          "type": "string"
+        },
         "full_name": {
           "type": "string"
         },
