@@ -62,7 +62,7 @@ class UserAuthorizationInterceptorIntegrationTest {
         objection.setStatus(ObjectionStatus.OPEN);
         objection.setCompanyNumber("00006400");
         CreatedBy createdBy = new CreatedBy("some id", "demo@ch.gov.uk",
-                "Joe Bloggs", false);
+                "client", "Joe Bloggs", false);
         objection.setCreatedBy(createdBy);
         when(objectionService.getObjection(any(), any())).thenReturn(objection);
     }

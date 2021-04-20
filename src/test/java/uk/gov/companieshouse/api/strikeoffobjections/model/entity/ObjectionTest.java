@@ -20,7 +20,7 @@ class ObjectionTest {
     void enityBuilderTest() {
 
        CreatedBy createdBy = new CreatedBy("1", "jBloggs@ch.gov.uk",
-               "Joe Bloggs", false);
+               "client", "Joe Bloggs", false);
 
        Map<String, String> linksMap = new HashMap<>();
        linksMap.put("download", "/abc/download");

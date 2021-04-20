@@ -58,7 +58,7 @@ public class Utils {
         objection.setReason(reason);
         objection.setId(objectionId);
         objection.setCompanyNumber(companyNumber);
-        CreatedBy createdBy = new CreatedBy(userId, email,
+        CreatedBy createdBy = new CreatedBy(userId, email, objectionCreate.getObjector(),
                 objectionCreate.getFullName(), objectionCreate.canShareIdentity());
         objection.setCreatedBy(createdBy);
         objection.setCreatedOn(localDatetime);
@@ -67,9 +67,10 @@ public class Utils {
         return objection;
     }
 
-    public static ObjectionCreate buildTestObjectionCreate(String fullName,
+    public static ObjectionCreate buildTestObjectionCreate(String objector, String fullName,
                                                            boolean shareIdentity) {
         ObjectionCreate objectionCreate = new ObjectionCreate();
+        objectionCreate.setObjector(objector);
         objectionCreate.setFullName(fullName);
         objectionCreate.setShareIdentity(shareIdentity);
         return objectionCreate;

@@ -43,6 +43,8 @@ class EmailServiceTest {
     private static final String USER_ID = "32324";
     private static final String REASON = "THIS IS A REASON";
     private static final String DOWNLOAD_URL_PREFIX = "http://chs-test-web:4000/strike-off-objections/download";
+    private static final String OBJECTOR = "client";
+    private static final String FULL_NAME = "Joe Bloggs";
 
     private static final String EMAIL_RECIPIENTS_CARDIFF_TEST = "test1@cardiff.gov.uk,test2@cardiff.gov.uk,test3@cardiff.gov.uk";
     private static final String EMAIL_RECIPIENTS_CARDIFF_TEST_SPACE = "test1@cardiff.gov.uk, test2@cardiff.gov.uk, test3@cardiff.gov.uk";
@@ -82,7 +84,7 @@ class EmailServiceTest {
 
         Objection objection = Utils.getTestObjection(
                 OBJECTION_ID, REASON, COMPANY_NUMBER, USER_ID, EMAIL, LOCAL_DATE_TIME,
-                Utils.buildTestObjectionCreate("Joe Bloggs", false));
+                Utils.buildTestObjectionCreate(OBJECTOR, FULL_NAME, false));
 
         emailService.sendObjectionSubmittedCustomerEmail(
                 objection,
@@ -107,7 +109,7 @@ class EmailServiceTest {
         when(dateTimeSupplier.get()).thenReturn(LOCAL_DATE_TIME);
         Objection objection = Utils.getTestObjection(
                 OBJECTION_ID, REASON, COMPANY_NUMBER, USER_ID, EMAIL, LOCAL_DATE_TIME,
-                Utils.buildTestObjectionCreate("Joe Bloggs", false));
+                Utils.buildTestObjectionCreate(OBJECTOR, FULL_NAME, false));
 
         emailService.sendObjectionSubmittedDissolutionTeamEmail(
                 COMPANY_NAME,
@@ -134,7 +136,7 @@ class EmailServiceTest {
         ReflectionTestUtils.setField(emailService, "emailRecipientsCardiff", EMAIL_RECIPIENTS_CARDIFF_TEST_SPACE);
         Objection objection = Utils.getTestObjection(
                 OBJECTION_ID, REASON, COMPANY_NUMBER, USER_ID, EMAIL, LOCAL_DATE_TIME,
-                Utils.buildTestObjectionCreate("Joe Bloggs", false));
+                Utils.buildTestObjectionCreate(OBJECTOR, FULL_NAME, false));
 
         emailService.sendObjectionSubmittedDissolutionTeamEmail(
                 COMPANY_NAME,
@@ -160,7 +162,7 @@ class EmailServiceTest {
         when(dateTimeSupplier.get()).thenReturn(LOCAL_DATE_TIME);
         Objection objection = Utils.getTestObjection(
                 OBJECTION_ID, REASON, COMPANY_NUMBER, USER_ID, EMAIL, LOCAL_DATE_TIME,
-                Utils.buildTestObjectionCreate("Joe Bloggs", false));
+                Utils.buildTestObjectionCreate(OBJECTOR, FULL_NAME, false));
 
         emailService.sendObjectionSubmittedDissolutionTeamEmail(
                 COMPANY_NAME,
@@ -185,7 +187,7 @@ class EmailServiceTest {
         when(dateTimeSupplier.get()).thenReturn(LOCAL_DATE_TIME);
         Objection objection = Utils.getTestObjection(
                 OBJECTION_ID, REASON, COMPANY_NUMBER, USER_ID, EMAIL, LOCAL_DATE_TIME,
-                Utils.buildTestObjectionCreate("Joe Bloggs", false));
+                Utils.buildTestObjectionCreate(OBJECTOR, FULL_NAME, false));
 
         emailService.sendObjectionSubmittedDissolutionTeamEmail(
                 COMPANY_NAME,

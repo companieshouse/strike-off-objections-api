@@ -20,6 +20,11 @@ public class ObjectionPatcher {
 
     public Objection patchObjection(ObjectionPatch objectionPatch, String requestId, Objection existingObjection) {
         existingObjection.setHttpRequestId(requestId);
+
+        if (objectionPatch.getObjector() != null) {
+            existingObjection.getCreatedBy().setObjector(objectionPatch.getObjector());
+        }
+
         if (objectionPatch.getFullName() != null) {
             existingObjection.getCreatedBy().setFullName(objectionPatch.getFullName());
         }

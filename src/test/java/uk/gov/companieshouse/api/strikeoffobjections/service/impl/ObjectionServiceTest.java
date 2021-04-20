@@ -83,6 +83,7 @@ class ObjectionServiceTest {
     private static final Long ACTION_CODE_INELIGIBLE = 200L;
     private static final LocalDateTime MOCKED_TIME_STAMP = LocalDateTime.of(2020, 2,2, 0, 0);
     private static final String FULL_NAME = "Joe Bloggs";
+    private static final String OBJECTOR = "client";
 
     @Mock
     private ApiLogger apiLogger;
@@ -129,7 +130,7 @@ class ObjectionServiceTest {
         returnedEntity.setCreatedOn(MOCKED_TIME_STAMP);
         returnedEntity.setStatus(OPEN);
 
-        CreatedBy createdBy = new CreatedBy(AUTH_ID, E_MAIL, FULL_NAME, false);
+        CreatedBy createdBy = new CreatedBy(AUTH_ID, E_MAIL, OBJECTOR, FULL_NAME,false);
         returnedEntity.setCreatedBy(createdBy);
 
         when(objectionRepository.insert(any(Objection.class))).thenReturn(returnedEntity);
@@ -140,7 +141,7 @@ class ObjectionServiceTest {
 
         Objection objectionResponse =
                 objectionService.createObjection(REQUEST_ID, COMPANY_NUMBER, AUTH_ID, AUTH_USER,
-                        Utils.buildTestObjectionCreate(FULL_NAME, false));
+                        Utils.buildTestObjectionCreate(OBJECTOR, FULL_NAME, false));
 
         verify(objectionRepository).insert(any(Objection.class));
         verify(oracleQueryClient).getCompanyActionCode(COMPANY_NUMBER, REQUEST_ID);
@@ -178,7 +179,7 @@ class ObjectionServiceTest {
         doThrow(ve).when(actionCodeValidator).validate(ACTION_CODE_INELIGIBLE, REQUEST_ID);
 
         objectionService.createObjection(REQUEST_ID, COMPANY_NUMBER, AUTH_ID, AUTH_USER,
-                Utils.buildTestObjectionCreate(FULL_NAME, false));
+                Utils.buildTestObjectionCreate(OBJECTOR, FULL_NAME, false));
 
         ArgumentCaptor<Objection> saveObjectionCaptor = ArgumentCaptor.forClass(Objection.class);
         verify(objectionRepository, times(1)).insert(saveObjectionCaptor.capture());
@@ -203,7 +204,7 @@ class ObjectionServiceTest {
         doThrow(ve).when(gaz2RequestedValidator).validate(COMPANY_NUMBER, ACTION_CODE_OK, REQUEST_ID);
 
         objectionService.createObjection(REQUEST_ID, COMPANY_NUMBER, AUTH_ID, AUTH_USER,
-                Utils.buildTestObjectionCreate(FULL_NAME, false));
+                Utils.buildTestObjectionCreate(OBJECTOR, FULL_NAME, false));
 
         ArgumentCaptor<Objection> saveObjectionCaptor = ArgumentCaptor.forClass(Objection.class);
         verify(objectionRepository, times(1)).insert(saveObjectionCaptor.capture());
@@ -224,7 +225,7 @@ class ObjectionServiceTest {
         when(objectionRepository.insert(any(Objection.class))).thenThrow(new DuplicateKeyException("Duplicate"));
 
         assertThrows(ServiceException.class, () -> objectionService.createObjection(REQUEST_ID, COMPANY_NUMBER, AUTH_ID, AUTH_USER,
-                Utils.buildTestObjectionCreate(FULL_NAME, true)));
+                Utils.buildTestObjectionCreate(OBJECTOR, FULL_NAME, true)));
     }
 
     @Test

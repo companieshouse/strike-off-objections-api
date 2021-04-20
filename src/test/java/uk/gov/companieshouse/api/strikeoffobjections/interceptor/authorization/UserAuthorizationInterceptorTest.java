@@ -53,7 +53,7 @@ class UserAuthorizationInterceptorTest {
     void testUserAuthorised() throws Exception {
         Objection objection = new Objection();
         CreatedBy createdBy = new CreatedBy("id", USER_EMAIL,
-               "Joe Bloggs", false);
+               "client", "Joe Bloggs", false);
         objection.setCreatedBy(createdBy);
         when(ericHeaderParser.getEmailAddress(any())).thenReturn(USER_EMAIL);
         when(request.getAttribute("objection")).thenReturn(objection);
@@ -67,7 +67,7 @@ class UserAuthorizationInterceptorTest {
     void testUserNotAuthorised() throws Exception {
         Objection objection = new Objection();
         CreatedBy createdBy = new CreatedBy("id", USER_EMAIL,
-                "Joe Bloggs", false);
+                "client", "Joe Bloggs", false);
         objection.setCreatedBy(createdBy);
         when(ericHeaderParser.getEmailAddress(any())).thenReturn(DIFFERENT_USER_EMAIL);
         when(request.getAttribute("objection")).thenReturn(objection);
