@@ -89,7 +89,7 @@ class ObjectionStatusInterceptorIntegrationTest {
         Objection objection = new Objection();
         objection.setStatus(status);
         objection.setCompanyNumber("00006400");
-        CreatedBy createdBy = new CreatedBy("some id", "demo@ch.gov.uk",
+        CreatedBy createdBy = new CreatedBy("some id", "demo@ch.gov.uk", "client",
                 "Joe Bloggs", false);
         objection.setCreatedBy(createdBy);
 

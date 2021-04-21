@@ -27,6 +27,7 @@ class ObjectionPatcherTest {
     private static final String COMPANY_NUMBER = "COMPANY_NUMBER";
     private static final String REQUEST_ID = "REQUEST_ID";
     private static final String FULL_NAME = "Joe Bloggs";
+    private static final String OBJECTOR = "client";
     private static final LocalDateTime CREATED_ON = LocalDateTime.of(2020, 1, 1, 1, 1);
     private static final LocalDateTime STATUS_CHANGED_ON = LocalDateTime.of(2021, 1, 1, 1, 1);
 
@@ -39,12 +40,13 @@ class ObjectionPatcherTest {
     @Test
     void requestToObjectionCreationTest() {
         ObjectionPatch objectionPatch = new ObjectionPatch();
+        objectionPatch.setObjector(OBJECTOR);
         objectionPatch.setFullName(FULL_NAME);
         objectionPatch.setShareIdentity(Boolean.TRUE);
         objectionPatch.setReason(REASON);
         objectionPatch.setStatus(ObjectionStatus.OPEN);
 
-        CreatedBy createdBy = new CreatedBy( "", "","Not Joe Bloggs", Boolean.FALSE);
+        CreatedBy createdBy = new CreatedBy( "", "","myself-or-company", "Not Joe Bloggs", Boolean.FALSE);
         Objection existingObjection = new Objection();
         existingObjection.setCreatedOn(CREATED_ON);
         existingObjection.setId(OBJECTION_ID);
@@ -57,6 +59,7 @@ class ObjectionPatcherTest {
         assertEquals(REASON, objection.getReason());
         assertEquals(OBJECTION_ID, objection.getId());
         assertEquals(COMPANY_NUMBER, objection.getCompanyNumber());
+        assertEquals(OBJECTOR, objection.getCreatedBy().getObjector());
         assertEquals(FULL_NAME, objection.getCreatedBy().getFullName());
         assertEquals(Boolean.TRUE, objection.getCreatedBy().isShareIdentity());
         assertEquals(ObjectionStatus.OPEN, objection.getStatus());
@@ -68,12 +71,13 @@ class ObjectionPatcherTest {
     @Test
     void testShareIdNotChangedWhenNullInPatch() {
         ObjectionPatch objectionPatch = new ObjectionPatch();
+        objectionPatch.setObjector(OBJECTOR);
         objectionPatch.setFullName(FULL_NAME);
         objectionPatch.setShareIdentity(null);
         objectionPatch.setReason(REASON);
         objectionPatch.setStatus(ObjectionStatus.OPEN);
 
-        CreatedBy createdBy = new CreatedBy( "", "","Not Joe Bloggs", Boolean.TRUE);
+        CreatedBy createdBy = new CreatedBy( "", "", "myself-or-company", "Not Joe Bloggs", Boolean.TRUE);
         Objection existingObjection = new Objection();
         existingObjection.setCreatedOn(CREATED_ON);
         existingObjection.setId(OBJECTION_ID);
@@ -86,6 +90,7 @@ class ObjectionPatcherTest {
         assertEquals(REASON, objection.getReason());
         assertEquals(OBJECTION_ID, objection.getId());
         assertEquals(COMPANY_NUMBER, objection.getCompanyNumber());
+        assertEquals(OBJECTOR, objection.getCreatedBy().getObjector());
         assertEquals(FULL_NAME, objection.getCreatedBy().getFullName());
         assertEquals(Boolean.TRUE, objection.getCreatedBy().isShareIdentity());
         assertEquals(ObjectionStatus.OPEN, objection.getStatus());

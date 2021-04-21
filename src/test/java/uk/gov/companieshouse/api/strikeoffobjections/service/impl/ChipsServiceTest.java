@@ -39,6 +39,7 @@ class ChipsServiceTest {
     private static final String USER_ID = "32324";
     private static final String REASON = "THIS IS A REASON";
     private static final String DOWNLOAD_URL_PREFIX = "http://chs-test-web:4000/strike-off-objections/download";
+    private static final String OBJECTOR = "client";
 
     @Mock
     private ChipsRestClient chipsRestClient;
@@ -52,7 +53,7 @@ class ChipsServiceTest {
 
         Objection objection = Utils.getTestObjection(
                 OBJECTION_ID, REASON, COMPANY_NUMBER, USER_ID, EMAIL, LOCAL_DATE_TIME,
-                Utils.buildTestObjectionCreate(FULL_NAME, SHARE_IDENTITY));
+                Utils.buildTestObjectionCreate(OBJECTOR, FULL_NAME, SHARE_IDENTITY));
         List<Attachment> attachments = new ArrayList<>();
         Utils.setTestAttachmentsWithLinks(attachments);
         objection.setAttachments(attachments);

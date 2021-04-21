@@ -46,6 +46,7 @@ class ObjectionProcessorTest {
     private static final String USER_ID = "32324";
     private static final String REASON = "THIS IS A REASON";
     private static final String FULL_NAME = "Joe Bloggs";
+    private static final String OBJECTOR = "client";
     private static final LocalDateTime LOCAL_DATE_TIME =
             LocalDateTime.of(2020, 12, 10, 8, 0);
 
@@ -73,7 +74,7 @@ class ObjectionProcessorTest {
                 .thenReturn(Utils.getDummyCompanyProfile(COMPANY_NUMBER, JURISDICTION));
         Objection dummyObjection = Utils.getTestObjection(
                 OBJECTION_ID, REASON, COMPANY_NUMBER, USER_ID, EMAIL, LOCAL_DATE_TIME,
-                Utils.buildTestObjectionCreate(FULL_NAME, false));
+                Utils.buildTestObjectionCreate(OBJECTOR, FULL_NAME, false));
         dummyObjection.setStatus(ObjectionStatus.SUBMITTED);
 
         ArgumentCaptor<Objection> objectionArgumentCaptor = ArgumentCaptor.forClass(Objection.class);
@@ -90,7 +91,7 @@ class ObjectionProcessorTest {
                 .thenReturn(Utils.getDummyCompanyProfile(COMPANY_NUMBER, JURISDICTION));
         Objection dummyObjection = Utils.getTestObjection(
                 OBJECTION_ID, REASON, COMPANY_NUMBER, USER_ID, EMAIL, LOCAL_DATE_TIME,
-                Utils.buildTestObjectionCreate(FULL_NAME, false));
+                Utils.buildTestObjectionCreate(OBJECTOR, FULL_NAME, false));
         dummyObjection.setStatus(ObjectionStatus.SUBMITTED);
 
         assertDoesNotThrow(() -> objectionProcessor.process(dummyObjection, HTTP_REQUEST_ID));
@@ -111,7 +112,7 @@ class ObjectionProcessorTest {
     void processThrowsInvalidObjectionStatusTest() {
         Objection dummyObjection = Utils.getTestObjection(
                 OBJECTION_ID, REASON, COMPANY_NUMBER, USER_ID, EMAIL, LOCAL_DATE_TIME,
-                Utils.buildTestObjectionCreate(FULL_NAME, false));
+                Utils.buildTestObjectionCreate(OBJECTOR, FULL_NAME, false));
         dummyObjection.setStatus(ObjectionStatus.OPEN);
 
         assertThrows(InvalidObjectionStatusException.class,
@@ -134,7 +135,7 @@ class ObjectionProcessorTest {
                 .thenReturn(Utils.getDummyCompanyProfile(COMPANY_NUMBER, JURISDICTION));
         Objection dummyObjection = Utils.getTestObjection(
                 OBJECTION_ID, "", COMPANY_NUMBER, USER_ID, EMAIL, LOCAL_DATE_TIME,
-                Utils.buildTestObjectionCreate(FULL_NAME, false));
+                Utils.buildTestObjectionCreate(OBJECTOR, FULL_NAME, false));
         dummyObjection.setStatus(ObjectionStatus.SUBMITTED);
 
         ArgumentCaptor<Objection> objectionArgumentCaptor = ArgumentCaptor.forClass(Objection.class);
@@ -149,7 +150,7 @@ class ObjectionProcessorTest {
     void processThrowsServiceExceptionIfUserDataIsMissingFullName() {
         Objection dummyObjection = Utils.getTestObjection(
                 OBJECTION_ID, REASON, COMPANY_NUMBER, USER_ID, EMAIL, LOCAL_DATE_TIME,
-                Utils.buildTestObjectionCreate("", false));
+                Utils.buildTestObjectionCreate(OBJECTOR, "", false));
         dummyObjection.setStatus(ObjectionStatus.SUBMITTED);
 
         processObjectionAndCheckForError(dummyObjection);
@@ -159,7 +160,7 @@ class ObjectionProcessorTest {
     void processThrowsServiceExceptionIfUserDataIsMissingAttachments() {
         Objection dummyObjection = Utils.getTestObjection(
                 OBJECTION_ID, REASON, COMPANY_NUMBER, USER_ID, EMAIL, LOCAL_DATE_TIME,
-                Utils.buildTestObjectionCreate(FULL_NAME, false));
+                Utils.buildTestObjectionCreate(OBJECTOR, FULL_NAME, false));
         dummyObjection.getAttachments().clear();
         dummyObjection.setStatus(ObjectionStatus.SUBMITTED);
 
@@ -170,7 +171,7 @@ class ObjectionProcessorTest {
     void processSendsDissolutionTeamEmail() throws Exception {
         Objection dummyObjection = Utils.getTestObjection(
                 OBJECTION_ID, REASON, COMPANY_NUMBER, USER_ID, EMAIL, LOCAL_DATE_TIME,
-                Utils.buildTestObjectionCreate(FULL_NAME, false));
+                Utils.buildTestObjectionCreate(OBJECTOR, FULL_NAME, false));
         dummyObjection.setStatus(ObjectionStatus.SUBMITTED);
 
         when(companyProfileService.getCompanyProfile(COMPANY_NUMBER,  HTTP_REQUEST_ID))
@@ -197,7 +198,7 @@ class ObjectionProcessorTest {
 
         Objection dummyObjection = Utils.getTestObjection(
                 OBJECTION_ID, REASON, COMPANY_NUMBER, USER_ID, EMAIL, LOCAL_DATE_TIME,
-                Utils.buildTestObjectionCreate(FULL_NAME, false));
+                Utils.buildTestObjectionCreate(OBJECTOR, FULL_NAME, false));
         dummyObjection.setStatus(ObjectionStatus.SUBMITTED);
 
         doThrow(new ServiceException("blah")).when(emailService).sendObjectionSubmittedDissolutionTeamEmail(any(), any(), any(), any());
@@ -220,7 +221,7 @@ class ObjectionProcessorTest {
 
         Objection dummyObjection = Utils.getTestObjection(
                 OBJECTION_ID, REASON, COMPANY_NUMBER, USER_ID, EMAIL, LOCAL_DATE_TIME,
-                Utils.buildTestObjectionCreate(FULL_NAME, false));
+                Utils.buildTestObjectionCreate(OBJECTOR, FULL_NAME, false));
         dummyObjection.setStatus(ObjectionStatus.SUBMITTED);
 
         doThrow(new RuntimeException("blah")).when(emailService).sendObjectionSubmittedDissolutionTeamEmail(any(), any(), any(), any());
@@ -240,7 +241,7 @@ class ObjectionProcessorTest {
     void processCallsChipsAndSendsCustomerEmail() throws Exception {
         Objection dummyObjection = Utils.getTestObjection(
                 OBJECTION_ID, REASON, COMPANY_NUMBER, USER_ID, EMAIL, LOCAL_DATE_TIME,
-                Utils.buildTestObjectionCreate(FULL_NAME, false));
+                Utils.buildTestObjectionCreate(OBJECTOR, FULL_NAME, false));
         dummyObjection.setStatus(ObjectionStatus.SUBMITTED);
 
         when(companyProfileService.getCompanyProfile(COMPANY_NUMBER,  HTTP_REQUEST_ID))
@@ -266,7 +267,7 @@ class ObjectionProcessorTest {
 
         Objection dummyObjection = Utils.getTestObjection(
                 OBJECTION_ID, REASON, COMPANY_NUMBER, USER_ID, EMAIL, LOCAL_DATE_TIME,
-                Utils.buildTestObjectionCreate(FULL_NAME, false));
+                Utils.buildTestObjectionCreate(OBJECTOR, FULL_NAME, false));
         dummyObjection.setStatus(ObjectionStatus.SUBMITTED);
 
         doThrow(new ServiceException("blah")).when(emailService).sendObjectionSubmittedCustomerEmail(any(), any(), any());
@@ -289,7 +290,7 @@ class ObjectionProcessorTest {
 
         Objection dummyObjection = Utils.getTestObjection(
                 OBJECTION_ID, REASON, COMPANY_NUMBER, USER_ID, EMAIL, LOCAL_DATE_TIME,
-                Utils.buildTestObjectionCreate(FULL_NAME, false));
+                Utils.buildTestObjectionCreate(OBJECTOR, FULL_NAME, false));
         dummyObjection.setStatus(ObjectionStatus.SUBMITTED);
 
         ArgumentCaptor<Objection> objectionArgumentCaptor = ArgumentCaptor.forClass(Objection.class);
@@ -309,7 +310,7 @@ class ObjectionProcessorTest {
     void processHandlesChipsUncheckedException() throws ServiceException {
         Objection dummyObjection = Utils.getTestObjection(
                 OBJECTION_ID, REASON, COMPANY_NUMBER, USER_ID, EMAIL, LOCAL_DATE_TIME,
-                Utils.buildTestObjectionCreate(FULL_NAME, false));
+                Utils.buildTestObjectionCreate(OBJECTOR, FULL_NAME, false));
         dummyObjection.setStatus(ObjectionStatus.SUBMITTED);
 
         doThrow(new RuntimeException("blah")).when(chipsService).sendObjection(any(), any());

@@ -80,6 +80,7 @@ class ObjectionControllerTest {
     private static final String ATTACHMENT_NAME = "name";
     private static final String ATTACHMENT_CONTENT = "Content";
     private static final long ATTACHMENT_SIZE = 12L;
+    private static final String OBJECTOR = "client";
 
     @Mock
     private IObjectionService objectionService;
@@ -105,6 +106,7 @@ class ObjectionControllerTest {
     @Test
     void createObjectionTest() throws ServiceException {
         ObjectionCreate objectionCreate = new ObjectionCreate();
+        objectionCreate.setObjector(OBJECTOR);
         objectionCreate.setFullName(FULL_NAME);
         objectionCreate.setShareIdentity(false);
 
@@ -141,6 +143,7 @@ class ObjectionControllerTest {
     @Test
     void createObjectionIneligibleTest() throws ServiceException{
         ObjectionCreate objectionCreate = new ObjectionCreate();
+        objectionCreate.setObjector(OBJECTOR);
         objectionCreate.setFullName(FULL_NAME);
         objectionCreate.setShareIdentity(false);
 
@@ -171,6 +174,7 @@ class ObjectionControllerTest {
     @Test
     void createObjectionExceptionTest() throws ServiceException{
         ObjectionCreate objectionCreate = new ObjectionCreate();
+        objectionCreate.setObjector(OBJECTOR);
         objectionCreate.setFullName(FULL_NAME);
         objectionCreate.setShareIdentity(false);
         when(objectionService.createObjection(REQUEST_ID, COMPANY_NUMBER,
@@ -366,7 +370,7 @@ class ObjectionControllerTest {
     @Test
     void testCreatedByMapper() {
         //given
-        CreatedBy createdBy = new CreatedBy("abc-123", "jb@ch.gov.uk", "Joe Bloggs", true);
+        CreatedBy createdBy = new CreatedBy("abc-123", "jb@ch.gov.uk", OBJECTOR, "Joe Bloggs", true);
 
         //when
         CreatedByMapper mapper = Mappers.getMapper(CreatedByMapper.class);
@@ -374,6 +378,7 @@ class ObjectionControllerTest {
 
         //then
         assertNotNull(createdByResponseDTO);
+        assertEquals(OBJECTOR, createdByResponseDTO.getObjector());
         assertEquals("abc-123", createdByResponseDTO.getId());
         assertEquals("jb@ch.gov.uk", createdByResponseDTO.getEmail());
         assertEquals("Joe Bloggs", createdByResponseDTO.getFullName());

@@ -128,7 +128,7 @@ public class ObjectionService implements IObjectionService {
                                      ObjectionCreate objectionCreate) {
         final String userEmailAddress = ericHeaderParser.getEmailAddress(ericUserDetails);
         return new CreatedBy(ericUserId, userEmailAddress,
-                objectionCreate.getFullName(), objectionCreate.canShareIdentity());
+                objectionCreate.getObjector(), objectionCreate.getFullName(), objectionCreate.canShareIdentity());
     }
 
     private Long getActionCode(String companyNumber, String requestId) {
