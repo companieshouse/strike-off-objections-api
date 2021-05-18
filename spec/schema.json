@@ -410,8 +410,11 @@
         },
         "objector": {
           "type": "string"
-        },
-      }
+        }
+      },
+      "required": [
+        "objector"
+      ]
     },
     "Create": {
       "type": "object",
@@ -425,7 +428,10 @@
         "share_identity": {
           "type": "boolean"
         }
-      }
+      },
+      "required": [
+        "objector"
+      ]
     },
     "Patch": {
       "type": "object",
