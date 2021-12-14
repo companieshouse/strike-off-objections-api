@@ -18,7 +18,7 @@
 
     <properties>
         <java.version>1.8</java.version>
-        <structured-logging.version>1.9.3</structured-logging.version>
+        <structured-logging.version>1.9.10</structured-logging.version>
         <rest-service-common-library.version>0.0.5</rest-service-common-library.version>
         <avro.version>1.8.1</avro.version>
         <ch-kafka.version>1.4.4</ch-kafka.version>
@@ -32,6 +32,21 @@
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-core</artifactId>
+                <version>2.15.0</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-api</artifactId>
+                <version>2.15.0</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-to-slf4j</artifactId>
+                <version>2.15.0</version>
+            </dependency>
             <dependency>
                 <groupId>org.junit.jupiter</groupId>
                 <artifactId>junit-jupiter-api</artifactId>
