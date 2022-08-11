@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +20,7 @@ import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @Unit
 @ExtendWith(MockitoExtension.class)
@@ -40,6 +41,9 @@ class OracleQueryClientTest {
 
     @InjectMocks
     private OracleQueryClient oracleQueryClient;
+
+    @Spy
+    private OracleQueryClient corruptableClient;
 
     @BeforeEach
     public void setup() {
@@ -103,5 +107,31 @@ class OracleQueryClientTest {
         String gaz2Transaction = oracleQueryClient.getRequestedGaz2(UNSAFE_COMPANY_NUMBER, REQUEST_ID);
 
         assertEquals(GAZ2_TRANSACTION, gaz2Transaction);
+    }
+
+    @Test
+    void testActionCodeWithUnaccountedCompanyNumber() {
+        ReflectionTestUtils.setField(corruptableClient, "oracleQueryApiUrl", DUMMY_URL);
+        ReflectionTestUtils.setField(corruptableClient, "apiLogger", apiLogger);
+
+        doReturn("url-is-corrupted-by-company-number")
+                .when(corruptableClient)
+                .formatUrl(SAFE_COMPANY_NUMBER, "action-code");
+
+        assertThrows(UnsafeUrlException.class,
+                () -> corruptableClient.getCompanyActionCode(SAFE_COMPANY_NUMBER, REQUEST_ID));
+    }
+
+    @Test
+    void testGaz2WithUnaccountedCompanyNumber() {
+        ReflectionTestUtils.setField(corruptableClient, "oracleQueryApiUrl", DUMMY_URL);
+        ReflectionTestUtils.setField(corruptableClient, "apiLogger", apiLogger);
+
+        doReturn("url-is-corrupted-by-company-number")
+                .when(corruptableClient)
+                .formatUrl(SAFE_COMPANY_NUMBER, "gaz2-requested");
+
+        assertThrows(UnsafeUrlException.class,
+                () -> corruptableClient.getRequestedGaz2(SAFE_COMPANY_NUMBER, REQUEST_ID));
     }
 }

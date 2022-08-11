@@ -7,7 +7,8 @@ public class UnsafeUrlException extends RuntimeException {
 
     public enum ExceptionType {
 
-        UNSAFE_COMPANY_NUMBER("Unsafe Company Number %s is passed");
+        UNSAFE_COMPANY_NUMBER("Unsafe Company Number [%s] is passed"),
+        UNSAFE_URL("Url [%s] is corrupted");
 
         private final String message;
 
