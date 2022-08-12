@@ -75,25 +75,6 @@ public class ChipsRequest {
         return reason;
     }
 
-    private Map<String, String> buildAttachmentsMap(String downloadPrefix,
-                                                    List<Attachment> attachments) {
-        if (attachments == null) {
-            return null;
-        }
-
-        Map<String, String> attachmentsMap = new HashMap<>();
-        for (Attachment attachment : attachments) {
-            String name = attachment.getName();
-            Links links = attachment.getLinks();
-            if (links != null) {
-                String downloadLink = String.format("%s%s", downloadPrefix,
-                        links.getLink(ObjectionLinkKeys.DOWNLOAD));
-                attachmentsMap.put(name, downloadLink);
-            }
-        }
-        return attachmentsMap;
-    }
-
     @Override
     public String toString() {
         return "ChipsRequest{" +
@@ -127,7 +108,7 @@ public class ChipsRequest {
             ChipsRequest chipsRequest = new ChipsRequest();
             chipsRequest.objectionId = this.objectionId;
             chipsRequest.companyNumber = this.companyNumber;
-            chipsRequest.attachments = chipsRequest.buildAttachmentsMap(downloadPrefix, attachments);
+            chipsRequest.attachments = buildAttachmentsMap(downloadPrefix, attachments);
             chipsRequest.referenceNumber = this.referenceNumber;
             chipsRequest.fullName = this.fullName;
             chipsRequest.shareIdentity = this.shareIdentity;
@@ -173,6 +154,25 @@ public class ChipsRequest {
         public Builder reason(String reason) {
             this.reason = reason;
             return this;
+        }
+
+        private Map<String, String> buildAttachmentsMap(String downloadPrefix,
+                                                        List<Attachment> attachments) {
+            if (attachments == null) {
+                return null;
+            }
+
+            Map<String, String> attachmentsMap = new HashMap<>();
+            for (Attachment attachment : attachments) {
+                String name = attachment.getName();
+                Links links = attachment.getLinks();
+                if (links != null) {
+                    String downloadLink = String.format("%s%s", downloadPrefix,
+                            links.getLink(ObjectionLinkKeys.DOWNLOAD));
+                    attachmentsMap.put(name, downloadLink);
+                }
+            }
+            return Collections.unmodifiableMap(attachmentsMap);
         }
     }
 }

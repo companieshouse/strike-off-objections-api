@@ -12,6 +12,7 @@ import uk.gov.companieshouse.api.strikeoffobjections.exception.UnsafeUrlExceptio
 import java.util.List;
 
 import static uk.gov.companieshouse.api.strikeoffobjections.exception.UnsafeUrlException.ExceptionType.UNSAFE_COMPANY_NUMBER;
+import static uk.gov.companieshouse.api.strikeoffobjections.exception.UnsafeUrlException.ExceptionType.UNSAFE_URL;
 
 @Component
 public class OracleQueryClient {
@@ -30,11 +31,16 @@ public class OracleQueryClient {
 
     public Long getCompanyActionCode(String companyNumber, String requestId) {
 
-        String getCompanyActionCodeUrl = String.format("%s/company/%s/action-code", oracleQueryApiUrl, companyNumber);
+        String getCompanyActionCodeUrl = formatUrl(companyNumber, "action-code");
         apiLogger.infoContext(requestId, "Calling Oracle Query APi at: " + getCompanyActionCodeUrl);
 
         if (isDangerous(companyNumber)) {
             throw new UnsafeUrlException(UNSAFE_COMPANY_NUMBER, companyNumber);
+        }
+
+        // Need this check for cwe, owasp-a5, sans-top25-risky
+        if (!getCompanyActionCodeUrl.startsWith(oracleQueryApiUrl)) {
+            throw new UnsafeUrlException(UNSAFE_URL, getCompanyActionCodeUrl);
         }
 
         ResponseEntity<Long> response = restTemplate.getForEntity(getCompanyActionCodeUrl, Long.class);
@@ -43,11 +49,16 @@ public class OracleQueryClient {
     }
 
     public String getRequestedGaz2(String companyNumber, String requestId) {
-        String getRequestedGaz2Url = String.format("%s/company/%s/gaz2-requested", oracleQueryApiUrl, companyNumber);
+        String getRequestedGaz2Url = formatUrl(companyNumber, "gaz2-requested");
         apiLogger.infoContext(requestId, "Calling Oracle Query APi at: " + getRequestedGaz2Url);
 
         if (isDangerous(companyNumber)) {
             throw new UnsafeUrlException(UNSAFE_COMPANY_NUMBER, companyNumber);
+        }
+
+        // Need this check for cwe, owasp-a5, sans-top25-risky
+        if (!getRequestedGaz2Url.startsWith(oracleQueryApiUrl)) {
+            throw new UnsafeUrlException(UNSAFE_URL, getRequestedGaz2Url);
         }
 
         ResponseEntity<String> response = restTemplate.getForEntity(getRequestedGaz2Url, String.class);
@@ -65,5 +76,9 @@ public class OracleQueryClient {
                 .filter(regEx -> regEx.startsWith("^"))
                 .filter(regEx -> regEx.endsWith("$"))
                 .noneMatch(companyNumber::matches);
+    }
+
+    protected String formatUrl(String companyNumber, String action) {
+        return String.format("%s/company/%s/%s", oracleQueryApiUrl, companyNumber, action);
     }
 }
