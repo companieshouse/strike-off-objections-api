@@ -16,16 +16,16 @@ import java.util.Map;
 public class ChipsRequest {
 
     @JsonProperty("objection_id")
-    private String objectionId;
+    private final String objectionId;
 
     @JsonProperty("company_number")
-    private String companyNumber;
+    private final String companyNumber;
 
     @JsonProperty("attachments")
-    private Map<String, String> attachments;
+    private final Map<String, String> attachments;
 
     @JsonProperty("reference_number")
-    private String referenceNumber;
+    private final String referenceNumber;
 
     @JsonProperty("full_name")
     private String fullName;
@@ -34,13 +34,28 @@ public class ChipsRequest {
     private Boolean shareIdentity;
 
     @JsonProperty("customer_email")
-    private String customerEmail;
+    private final String customerEmail;
 
     @JsonProperty("reason")
-    private String reason;
+    private final String reason;
 
-    private ChipsRequest() {
-        // intentionally blank
+    public ChipsRequest(String objectionId,
+                        String companyNumber,
+                        List<Attachment> attachments,
+                        String referenceNumber,
+                        String fullName,
+                        Boolean shareIdentity,
+                        String customerEmail,
+                        String reason,
+                        String downloadPrefix) {
+        this.objectionId = objectionId;
+        this.companyNumber = companyNumber;
+        this.attachments = buildAttachmentsMap(downloadPrefix, attachments);
+        this.referenceNumber = referenceNumber;
+        this.fullName = fullName;
+        this.shareIdentity = shareIdentity;
+        this.customerEmail = customerEmail;
+        this.reason = reason;
     }
 
     public String getObjectionId() {
@@ -75,104 +90,40 @@ public class ChipsRequest {
         return reason;
     }
 
+    private Map<String, String> buildAttachmentsMap(String downloadPrefix,
+                                                    List<Attachment> attachments) {
+        if (attachments == null) {
+            return null;
+        }
+
+        Map<String, String> attachmentsMap = new HashMap<>();
+        for (Attachment attachment : attachments) {
+            String name = attachment.getName();
+            Links links = attachment.getLinks();
+            if (links != null) {
+                String downloadLink = String.format("%s%s", downloadPrefix,
+                        links.getLink(ObjectionLinkKeys.DOWNLOAD));
+                attachmentsMap.put(name, downloadLink);
+            }
+        }
+        return attachmentsMap;
+    }
+
     @Override
     public String toString() {
         return "ChipsRequest{" +
-            "objectionId='" + objectionId + '\'' +
-            ",companyNumber='" + companyNumber + '\'' +
-            ",attachments='" + getAttachmentsAsString() + '\'' +
-            ",referenceNumber='" + referenceNumber + '\'' +
-            ",fullName='" + fullName + '\'' +
-            ",shareIdentity='" + shareIdentity + '\'' +
-            ",customerEmail='" + customerEmail + '\'' +
-            ",reason='" + reason + '\'' +
-            "}";
+                "objectionId='" + objectionId + '\'' +
+                ",companyNumber='" + companyNumber + '\'' +
+                ",attachments='" + getAttachmentsAsString() + '\'' +
+                ",referenceNumber='" + referenceNumber + '\'' +
+                ",fullName='" + fullName + '\'' +
+                ",shareIdentity='" + shareIdentity + '\'' +
+                ",customerEmail='" + customerEmail + '\'' +
+                ",reason='" + reason + '\'' +
+                "}";
     }
 
     private String getAttachmentsAsString() {
         return StringUtils.join(Collections.singleton(attachments), ',');
-    }
-
-    public static class Builder {
-        private String objectionId;
-        private String companyNumber;
-        private List<Attachment> attachments;
-        private String referenceNumber;
-        private String fullName;
-        private Boolean shareIdentity;
-        private String customerEmail;
-        private String reason;
-        private String downloadPrefix;
-
-        public ChipsRequest build() {
-            ChipsRequest chipsRequest = new ChipsRequest();
-            chipsRequest.objectionId = this.objectionId;
-            chipsRequest.companyNumber = this.companyNumber;
-            chipsRequest.attachments = buildAttachmentsMap(downloadPrefix, attachments);
-            chipsRequest.referenceNumber = this.referenceNumber;
-            chipsRequest.fullName = this.fullName;
-            chipsRequest.shareIdentity = this.shareIdentity;
-            chipsRequest.customerEmail = this.customerEmail;
-            chipsRequest.reason = this.reason;
-            return chipsRequest;
-        }
-
-        public Builder objectionId(String objectionId) {
-            this.objectionId = objectionId;
-            return this;
-        }
-
-        public Builder companyNumber(String companyNumber) {
-            this.companyNumber = companyNumber;
-            return this;
-        }
-
-        public Builder attachments (String downloadPrefixm, List<Attachment> attachments) {
-            this.downloadPrefix = downloadPrefixm;
-            this.attachments = attachments;
-            return this;
-        }
-
-        public Builder referenceNumber(String referenceNumber) {
-            this.referenceNumber = referenceNumber;
-            return this;
-        }
-
-        public Builder fullName(String fullName) {
-            this.fullName = fullName;
-            return this;
-        }
-        public Builder shareIdentity(Boolean shareIdentity) {
-            this.shareIdentity = shareIdentity;
-            return this;
-        }
-
-        public Builder customerEmail(String customerEmail) {
-            this.customerEmail = customerEmail;
-            return this;
-        }
-        public Builder reason(String reason) {
-            this.reason = reason;
-            return this;
-        }
-
-        private Map<String, String> buildAttachmentsMap(String downloadPrefix,
-                                                        List<Attachment> attachments) {
-            if (attachments == null) {
-                return null;
-            }
-
-            Map<String, String> attachmentsMap = new HashMap<>();
-            for (Attachment attachment : attachments) {
-                String name = attachment.getName();
-                Links links = attachment.getLinks();
-                if (links != null) {
-                    String downloadLink = String.format("%s%s", downloadPrefix,
-                            links.getLink(ObjectionLinkKeys.DOWNLOAD));
-                    attachmentsMap.put(name, downloadLink);
-                }
-            }
-            return Collections.unmodifiableMap(attachmentsMap);
-        }
     }
 }
