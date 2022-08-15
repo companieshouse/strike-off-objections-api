@@ -234,16 +234,16 @@ class ChipsKafkaClientTest {
     }
 
     private ChipsRequest getChipsRequest() {
-        return new ChipsRequest
-                .Builder()
-                .objectionId(OBJECTION_ID)
-                .companyNumber(COMPANY_NUMBER)
-                .attachments(DOWNLOAD_URL_PREFIX, ATTACHMENTS)
-                .referenceNumber(OBJECTION_ID)
-                .fullName(FULL_NAME)
-                .shareIdentity(SHARE_IDENTITY)
-                .customerEmail(CUSTOMER_EMAIL)
-                .reason(REASON)
-                .build();
+        return new ChipsRequest(
+                OBJECTION_ID,
+                COMPANY_NUMBER,
+                ATTACHMENTS,
+                OBJECTION_ID,
+                FULL_NAME,
+                SHARE_IDENTITY,
+                CUSTOMER_EMAIL,
+                REASON,
+                DOWNLOAD_URL_PREFIX
+        );
     }
 }

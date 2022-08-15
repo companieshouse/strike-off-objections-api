@@ -26,18 +26,17 @@ public class ChipsService implements IChipsService {
 
     @Override
     public void sendObjection(String requestId, Objection objection) throws ServiceException {
-        final ChipsRequest chipsRequest = new ChipsRequest
-                .Builder()
-                .objectionId(objection.getId())
-                .companyNumber(objection.getCompanyNumber())
-                .attachments(attachmentDownloadUrlPrefix, objection.getAttachments())
-                .referenceNumber(objection.getId())
-                .fullName(objection.getCreatedBy().getFullName())
-                .shareIdentity(
-                        objection.getCreatedBy().isShareIdentity())
-                .customerEmail(objection.getCreatedBy().getEmail())
-                .reason(objection.getReason())
-                .build();
+        ChipsRequest chipsRequest = new ChipsRequest(
+                objection.getId(),
+                objection.getCompanyNumber(),
+                objection.getAttachments(),
+                objection.getId(),
+                objection.getCreatedBy().getFullName(),
+                objection.getCreatedBy().isShareIdentity(),
+                objection.getCreatedBy().getEmail(),
+                objection.getReason(),
+                attachmentDownloadUrlPrefix
+        );
 
         this.chipsClient.sendToChips(requestId, chipsRequest);
     }
