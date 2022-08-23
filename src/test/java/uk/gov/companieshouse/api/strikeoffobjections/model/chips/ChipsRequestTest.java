@@ -29,17 +29,17 @@ class ChipsRequestTest {
     @Test
     void testConstruction() {
         Utils.setTestAttachmentsWithLinks(ATTACHMENTS);
-        ChipsRequest chipsRequest = new ChipsRequest(
-                OBJECTION_ID,
-                COMPANY_NUMBER,
-                ATTACHMENTS,
-                OBJECTION_ID,
-                FULL_NAME,
-                SHARE_IDENTITY,
-                CUSTOMER_EMAIL,
-                REASON,
-                DOWNLOAD_URL_PREFIX
-        );
+        ChipsRequest chipsRequest = new ChipsRequest
+                .Builder()
+                .objectionId(OBJECTION_ID)
+                .companyNumber(COMPANY_NUMBER)
+                .attachments(DOWNLOAD_URL_PREFIX, ATTACHMENTS)
+                .referenceNumber(OBJECTION_ID)
+                .fullName(FULL_NAME)
+                .shareIdentity(SHARE_IDENTITY)
+                .customerEmail(CUSTOMER_EMAIL)
+                .reason(REASON)
+                .build();
 
         assertEquals(COMPANY_NUMBER, chipsRequest.getCompanyNumber());
         assertEquals(String.format("%s/url1/download", DOWNLOAD_URL_PREFIX),
@@ -55,17 +55,17 @@ class ChipsRequestTest {
 
     @Test
     void testConstructionWithNullAttachment() {
-        ChipsRequest chipsRequest = new ChipsRequest(
-                OBJECTION_ID,
-                COMPANY_NUMBER,
-                null,
-                OBJECTION_ID,
-                FULL_NAME,
-                SHARE_IDENTITY,
-                CUSTOMER_EMAIL,
-                REASON,
-                DOWNLOAD_URL_PREFIX
-        );
+        ChipsRequest chipsRequest = new ChipsRequest
+                .Builder()
+                .objectionId(OBJECTION_ID)
+                .companyNumber(COMPANY_NUMBER)
+                .referenceNumber(OBJECTION_ID)
+                .fullName(FULL_NAME)
+                .shareIdentity(SHARE_IDENTITY)
+                .customerEmail(CUSTOMER_EMAIL)
+                .reason(REASON)
+                .attachments(DOWNLOAD_URL_PREFIX, null)
+                .build();
 
         // should not throw null pointer exception
         assertNull(chipsRequest.getAttachments());
@@ -80,17 +80,17 @@ class ChipsRequestTest {
                 "customerEmail='test123@ch.gov.uk',reason='This is a test'}";
 
         Utils.setTestAttachmentsWithLinks(ATTACHMENTS);
-        ChipsRequest chipsRequest = new ChipsRequest(
-                OBJECTION_ID,
-                COMPANY_NUMBER,
-                ATTACHMENTS,
-                OBJECTION_ID,
-                FULL_NAME,
-                SHARE_IDENTITY,
-                CUSTOMER_EMAIL,
-                REASON,
-                DOWNLOAD_URL_PREFIX
-        );
+        ChipsRequest chipsRequest = new ChipsRequest
+                .Builder()
+                .objectionId(OBJECTION_ID)
+                .companyNumber(COMPANY_NUMBER)
+                .attachments(DOWNLOAD_URL_PREFIX, ATTACHMENTS)
+                .referenceNumber(OBJECTION_ID)
+                .fullName(FULL_NAME)
+                .shareIdentity(SHARE_IDENTITY)
+                .customerEmail(CUSTOMER_EMAIL)
+                .reason(REASON)
+                .build();
 
         String actualOutput = chipsRequest.toString();
 
@@ -104,17 +104,17 @@ class ChipsRequestTest {
                 "customerEmail='test123@ch.gov.uk',reason='This is a test'}";
 
         Utils.setTestAttachmentsWithLinks(ATTACHMENTS);
-        ChipsRequest chipsRequest = new ChipsRequest(
-                OBJECTION_ID,
-                COMPANY_NUMBER,
-                null,
-                OBJECTION_ID,
-                FULL_NAME,
-                SHARE_IDENTITY,
-                CUSTOMER_EMAIL,
-                REASON,
-                DOWNLOAD_URL_PREFIX
-        );
+        ChipsRequest chipsRequest = new ChipsRequest
+                .Builder()
+                .objectionId(OBJECTION_ID)
+                .companyNumber(COMPANY_NUMBER)
+                .attachments(DOWNLOAD_URL_PREFIX, null)
+                .referenceNumber(OBJECTION_ID)
+                .fullName(FULL_NAME)
+                .shareIdentity(SHARE_IDENTITY)
+                .customerEmail(CUSTOMER_EMAIL)
+                .reason(REASON)
+                .build();
 
         String actualOutput = chipsRequest.toString();
 
@@ -124,17 +124,11 @@ class ChipsRequestTest {
     @Test
     void testNullsIgnoredWhenConvertingChipsRequestToJson() throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
-        ChipsRequest chipsRequest = new ChipsRequest(
-                OBJECTION_ID,
-                COMPANY_NUMBER,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null
-        );
+        ChipsRequest chipsRequest = new ChipsRequest
+                .Builder()
+                .objectionId(OBJECTION_ID)
+                .companyNumber(COMPANY_NUMBER)
+                .build();
 
         String chipsRequestAsJsonString = mapper.writeValueAsString(chipsRequest);
 

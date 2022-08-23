@@ -49,17 +49,17 @@ class ChipsRestClientTest {
     void testSendMessageToChips() {
         Utils.setTestAttachmentsWithLinks(ATTACHMENTS);
         ReflectionTestUtils.setField(chipsRestClient, "chipsRestUrl", CHIPS_REST_URL);
-        ChipsRequest chipsRequest = new ChipsRequest(
-                OBJECTION_ID,
-                COMPANY_NUMBER,
-                ATTACHMENTS,
-                OBJECTION_ID,
-                FULL_NAME,
-                SHARE_IDENTITY,
-                CUSTOMER_EMAIL,
-                REASON,
-                DOWNLOAD_URL_PREFIX
-        );
+        ChipsRequest chipsRequest = new ChipsRequest
+                .Builder()
+                .objectionId(OBJECTION_ID)
+                .companyNumber(COMPANY_NUMBER)
+                .attachments(DOWNLOAD_URL_PREFIX, ATTACHMENTS)
+                .referenceNumber(OBJECTION_ID)
+                .fullName(FULL_NAME)
+                .shareIdentity(SHARE_IDENTITY)
+                .customerEmail(CUSTOMER_EMAIL)
+                .reason(REASON)
+                .build();
 
         when(restTemplate.postForEntity(CHIPS_REST_URL, chipsRequest, String.class)).thenReturn(new ResponseEntity<>(HttpStatus.OK));
 

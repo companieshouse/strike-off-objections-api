@@ -1,21 +1,24 @@
 package uk.gov.companieshouse.api.strikeoffobjections.client;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.when;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.client.RestTemplate;
-
 import uk.gov.companieshouse.api.strikeoffobjections.common.ApiLogger;
+import uk.gov.companieshouse.api.strikeoffobjections.exception.UnsafeUrlException;
 import uk.gov.companieshouse.api.strikeoffobjections.groups.Unit;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.when;
 
 @Unit
 @ExtendWith(MockitoExtension.class)
@@ -35,6 +38,9 @@ class OracleQueryClientTest {
 
     @InjectMocks
     private OracleQueryClient oracleQueryClient;
+
+    @Spy
+    private OracleQueryClient corruptibleClient;
 
     @BeforeEach
     public void setup() {
@@ -59,5 +65,31 @@ class OracleQueryClientTest {
         String gaz2Transaction = oracleQueryClient.getRequestedGaz2(COMPANY_NUMBER, REQUEST_ID);
 
         assertEquals(GAZ2_TRANSACTION, gaz2Transaction);
+    }
+
+    @Test
+    void testActionCodeWithUnaccountedCompanyNumber() {
+        ReflectionTestUtils.setField(corruptibleClient, "oracleQueryApiUrl", DUMMY_URL);
+        ReflectionTestUtils.setField(corruptibleClient, "apiLogger", apiLogger);
+
+        doReturn("url-is-corrupted-by-company-number")
+                .when(corruptibleClient)
+                .formatUrl(COMPANY_NUMBER, "action-code");
+
+        assertThrows(UnsafeUrlException.class,
+                () -> corruptibleClient.getCompanyActionCode(COMPANY_NUMBER, REQUEST_ID));
+    }
+
+    @Test
+    void testGaz2WithUnaccountedCompanyNumber() {
+        ReflectionTestUtils.setField(corruptibleClient, "oracleQueryApiUrl", DUMMY_URL);
+        ReflectionTestUtils.setField(corruptibleClient, "apiLogger", apiLogger);
+
+        doReturn("url-is-corrupted-by-company-number")
+                .when(corruptibleClient)
+                .formatUrl(COMPANY_NUMBER, "gaz2-requested");
+
+        assertThrows(UnsafeUrlException.class,
+                () -> corruptibleClient.getRequestedGaz2(COMPANY_NUMBER, REQUEST_ID));
     }
 }
