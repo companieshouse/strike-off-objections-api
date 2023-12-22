@@ -145,14 +145,11 @@ public class EmailService implements IEmailService {
     }
 
     protected String[] getDissolutionTeamRecipients(String jurisdiction) {
-        switch(jurisdiction) {
-            case "scotland":
-                return splitAndStrip(emailRecipientsEdinburgh);
-            case "northern-ireland":
-                return splitAndStrip(emailRecipientsBelfast);
-            default:
-                return splitAndStrip(emailRecipientsCardiff);
-        }
+        return switch (jurisdiction) {
+            case "scotland" -> splitAndStrip(emailRecipientsEdinburgh);
+            case "northern-ireland" -> splitAndStrip(emailRecipientsBelfast);
+            default -> splitAndStrip(emailRecipientsCardiff);
+        };
     }
 
     private String[] splitAndStrip(String commaSeparatedString) {

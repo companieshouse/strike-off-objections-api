@@ -42,7 +42,7 @@ public interface IObjectionService {
             throws ObjectionNotFoundException, AttachmentNotFoundException, ServiceException;
 
     FileTransferApiClientResponse downloadAttachment(
-            String requestId, String objectionId, String attachmentId, HttpServletResponse response) throws ServiceException;
+            String requestId, String objectionId, String attachmentId, HttpServletResponse response);
 
     ObjectionEligibility isCompanyEligible(String companyNumber, String requestId);
 }

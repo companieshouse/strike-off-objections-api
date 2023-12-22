@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
-import org.springframework.util.StringUtils;
+import org.springframework.util.ObjectUtils;
 import uk.gov.companieshouse.service.links.Links;
 
 import java.time.LocalDateTime;
@@ -204,7 +204,7 @@ public class Objection {
     }
 
     public boolean isDataEnteredByUserIncomplete() {
-        return StringUtils.isEmpty(createdBy.getFullName())
+        return ObjectUtils.isEmpty(createdBy.getFullName())
                 || attachments.isEmpty();
     }
 

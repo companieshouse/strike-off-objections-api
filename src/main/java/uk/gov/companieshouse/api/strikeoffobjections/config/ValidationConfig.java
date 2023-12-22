@@ -1,6 +1,5 @@
 package uk.gov.companieshouse.api.strikeoffobjections.config;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -25,8 +24,11 @@ public class ValidationConfig {
     @Value("#{'${ACTION_CODES_STRIKE_OFF_NOTICE}'.split(',')}")
     private List<Long> strikeOffNoticeActionCodes;
 
-    @Autowired
-    private ApiLogger apiLogger;
+    private final ApiLogger apiLogger;
+
+    public ValidationConfig(ApiLogger apiLogger) {
+        this.apiLogger = apiLogger;
+    }
 
     @Bean
     public List<ValidationRule<Long>> getActionCodeValidationRules() {

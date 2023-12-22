@@ -39,7 +39,7 @@ class ObjectionStatusInterceptorTest {
     private ObjectionStatusInterceptor objectionStatusInterceptor;
 
     @Test
-    void testObjectionInterceptorObjectionNoLongerOpen() throws Exception {
+    void testObjectionInterceptorObjectionNoLongerOpen() {
         Objection objection = new Objection();
         objection.setStatus(ObjectionStatus.PROCESSED);
 
@@ -52,7 +52,7 @@ class ObjectionStatusInterceptorTest {
     }
 
     @Test
-    void testObjectionInterceptorObjectionOpen() throws Exception {
+    void testObjectionInterceptorObjectionOpen() {
         Objection objection = new Objection();
         objection.setStatus(ObjectionStatus.OPEN);
 

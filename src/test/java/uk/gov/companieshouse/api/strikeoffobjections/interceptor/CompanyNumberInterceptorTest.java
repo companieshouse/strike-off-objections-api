@@ -50,7 +50,7 @@ class CompanyNumberInterceptorTest {
     }
 
     @Test
-    void companyNumbersMatch() throws Exception {
+    void companyNumbersMatch() {
         Objection objection = new Objection();
         objection.setCompanyNumber(COMPANY_NUMBER);
         when(request.getAttribute("objection")).thenReturn(objection);
@@ -61,7 +61,7 @@ class CompanyNumberInterceptorTest {
     }
 
     @Test
-    void companyNumbersDoNotMatch() throws Exception {
+    void companyNumbersDoNotMatch() {
         Objection objection = new Objection();
         objection.setCompanyNumber(WRONG_COMPANY_NUMBER);
         when(request.getAttribute("objection")).thenReturn(objection);

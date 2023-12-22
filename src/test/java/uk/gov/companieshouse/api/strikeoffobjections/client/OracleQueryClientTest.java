@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,8 +16,7 @@ import uk.gov.companieshouse.api.strikeoffobjections.groups.Unit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @Unit
 @ExtendWith(MockitoExtension.class)
@@ -39,8 +37,7 @@ class OracleQueryClientTest {
     @InjectMocks
     private OracleQueryClient oracleQueryClient;
 
-    @Spy
-    private OracleQueryClient corruptibleClient;
+    private OracleQueryClient corruptibleClient = spy(new OracleQueryClient(restTemplate, apiLogger));
 
     @BeforeEach
     public void setup() {

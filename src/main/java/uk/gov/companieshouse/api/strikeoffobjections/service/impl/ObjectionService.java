@@ -1,9 +1,7 @@
 package uk.gov.companieshouse.api.strikeoffobjections.service.impl;
 
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.validation.constraints.NotNull;
 import org.apache.commons.lang.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -40,6 +38,7 @@ import uk.gov.companieshouse.service.ServiceException;
 import uk.gov.companieshouse.service.ServiceResult;
 import uk.gov.companieshouse.service.links.Links;
 
+import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -56,38 +55,41 @@ public class ObjectionService implements IObjectionService {
     private static final String ATTACHMENT_NOT_DELETED_SHORT = "Unable to delete attachment %s";
     private static final String INVALID_PATCH_STATUS = "Unable to patch status to %s for Objection id: %s";
 
-    @Autowired
-    private ObjectionRepository objectionRepository;
+    private final ObjectionRepository objectionRepository;
 
-    @Autowired
-    private ApiLogger logger;
+    private final ApiLogger logger;
 
-    @Autowired
-    private Supplier<LocalDateTime> dateTimeSupplier;
+    private final Supplier<LocalDateTime> dateTimeSupplier;
 
-    @Autowired
-    private ObjectionPatcher objectionPatcher;
+    private final ObjectionPatcher objectionPatcher;
 
-    @Autowired
-    private FileTransferApiClient fileTransferApiClient;
+    private final FileTransferApiClient fileTransferApiClient;
 
-    @Autowired
-    private ERICHeaderParser ericHeaderParser;
+    private final ERICHeaderParser ericHeaderParser;
 
-    @Autowired
-    private ObjectionProcessor objectionProcessor;
+    private final ObjectionProcessor objectionProcessor;
 
-    @Autowired
-    private OracleQueryClient oracleQueryClient;
+    private final OracleQueryClient oracleQueryClient;
 
-    @Autowired
-    private ActionCodeValidator actionCodeValidator;
+    private final ActionCodeValidator actionCodeValidator;
 
-    @Autowired
-    private IReferenceNumberGeneratorService referenceNumberGeneratorService;
+    private final IReferenceNumberGeneratorService referenceNumberGeneratorService;
 
-    @Autowired
-    private Gaz2RequestedValidator gaz2RequestedValidator;
+    private final Gaz2RequestedValidator gaz2RequestedValidator;
+
+    public ObjectionService(FileTransferApiClient fileTransferApiClient, ObjectionRepository objectionRepository, ApiLogger logger, Supplier<LocalDateTime> dateTimeSupplier, ObjectionPatcher objectionPatcher, ERICHeaderParser ericHeaderParser, ObjectionProcessor objectionProcessor, OracleQueryClient oracleQueryClient, ActionCodeValidator actionCodeValidator, IReferenceNumberGeneratorService referenceNumberGeneratorService, Gaz2RequestedValidator gaz2RequestedValidator) {
+        this.fileTransferApiClient = fileTransferApiClient;
+        this.objectionRepository = objectionRepository;
+        this.logger = logger;
+        this.dateTimeSupplier = dateTimeSupplier;
+        this.objectionPatcher = objectionPatcher;
+        this.ericHeaderParser = ericHeaderParser;
+        this.objectionProcessor = objectionProcessor;
+        this.oracleQueryClient = oracleQueryClient;
+        this.actionCodeValidator = actionCodeValidator;
+        this.referenceNumberGeneratorService = referenceNumberGeneratorService;
+        this.gaz2RequestedValidator = gaz2RequestedValidator;
+    }
 
     @Override
     public Objection createObjection(String requestId,
@@ -201,7 +203,7 @@ public class ObjectionService implements IObjectionService {
 
         Optional<Objection> existingObjectionOptional = objectionRepository.findById(objectionId);
 
-        if (!existingObjectionOptional.isPresent()) {
+        if (existingObjectionOptional.isEmpty()) {
             logger.infoContext(requestId, "Objection does not exist", logMap);
             throw new ObjectionNotFoundException(String.format(OBJECTION_NOT_FOUND_MESSAGE, objectionId));
         }
@@ -377,7 +379,7 @@ public class ObjectionService implements IObjectionService {
     public FileTransferApiClientResponse downloadAttachment(String requestId,
                                                             String objectionId,
                                                             String attachmentId,
-                                                            HttpServletResponse response) throws ServiceException {
+                                                            HttpServletResponse response) {
         return fileTransferApiClient.download(requestId, attachmentId, response);
     }
 

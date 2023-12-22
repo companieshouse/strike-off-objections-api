@@ -89,7 +89,7 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
-            <!-- Without this exclusion, SLF4J warns about multiple bindings at start-up and we want
+            <!-- Without this exclusion, SLF4J warns about multiple bindings at start-up, and we want
                  to ensure that only the one directly embedded in the 'structured-logging' library is
                  present and used -->
             <exclusions>
@@ -123,7 +123,7 @@
             <groupId>uk.gov.companieshouse</groupId>
             <artifactId>structured-logging</artifactId>
             <version>${structured-logging.version}</version>
-            <!-- Without this exclusion, SLF4J warns about multiple bindings at start-up and we want
+            <!-- Without this exclusion, SLF4J warns about multiple bindings at start-up, and we want
                  to ensure that only the one directly embedded in the 'structured-logging' JAR is
                  present and used -->
             <exclusions>

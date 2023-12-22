@@ -38,6 +38,8 @@ class AttachmentDownloadAuthorizationInterceptorTest {
     @Mock
     private ERICHeaderParser ericHeaderParser;
 
+    Object object = new Object();
+
     @Test
     void willAuthoriseUserToDownloadAttachmentWhenOnlyDownloadRolePresent() {
         when(request.getHeader("X-Request-Id"))
@@ -58,7 +60,7 @@ class AttachmentDownloadAuthorizationInterceptorTest {
         when(request.getHeader("ERIC-Authorised-Roles"))
                 .thenReturn("permission /admin/another-role-not-for-download /admin/strike-off-objections-download /admin/yet-another-role-not-for-download");
 
-        boolean result = interceptor.preHandle(request, response, null);
+        boolean result = interceptor.preHandle(request, response, object);
 
         assertTrue(result);
         verify(request, times(1)).getHeader("ERIC-Authorised-Roles");
@@ -71,7 +73,7 @@ class AttachmentDownloadAuthorizationInterceptorTest {
         when(request.getHeader("ERIC-Authorised-Roles"))
                 .thenReturn("permission /admin/another-role-not-for-download");
 
-        boolean result = interceptor.preHandle(request, response, null);
+        boolean result = interceptor.preHandle(request, response, object);
 
         assertFalse(result);
         verify(request, times(1)).getHeader("ERIC-Authorised-Roles");
@@ -79,7 +81,7 @@ class AttachmentDownloadAuthorizationInterceptorTest {
 
     @Test
     void willNotAuthoriseUserToDownloadAttachmentWhenListOfRolesIsMissingFromERICHeader() {
-        boolean result = interceptor.preHandle(request, response, null);
+        boolean result = interceptor.preHandle(request, response, object);
 
         assertFalse(result);
         verify(request, times(1)).getHeader("ERIC-Authorised-Roles");

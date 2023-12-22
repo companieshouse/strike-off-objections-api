@@ -1,9 +1,7 @@
 package uk.gov.companieshouse.api.strikeoffobjections.file;
 
-import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.tomcat.util.http.fileupload.IOUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -19,6 +17,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 import uk.gov.companieshouse.api.strikeoffobjections.common.ApiLogger;
 
+import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collections;
@@ -40,11 +39,9 @@ public class FileTransferApiClient {
     private static final String CONTENT_LENGTH = "Content-Length";
     private static final String CONTENT_DISPOSITION = "Content-Disposition";
 
-    @Autowired
-    private ApiLogger logger;
+    private final ApiLogger logger;
 
-    @Autowired
-    private RestTemplate restTemplate;
+    private final RestTemplate restTemplate;
 
     @Value("${FILE_TRANSFER_API_URL}")
     private String fileTransferApiURL;
@@ -54,6 +51,11 @@ public class FileTransferApiClient {
 
     private String fileTransferUriTemplate;
     private String downloadUriTemplate;
+
+    public FileTransferApiClient(ApiLogger logger, RestTemplate restTemplate) {
+        this.logger = logger;
+        this.restTemplate = restTemplate;
+    }
 
     @PostConstruct
     void init() {

@@ -481,15 +481,6 @@ public class ObjectionController {
                     logMap
             );
             return ResponseEntity.status(e.getStatusCode()).build();
-        } catch (ServiceException e) {
-            apiLogger.errorContext(
-                    requestId,
-                    DOWNLOAD_ERROR,
-                    e,
-                    logMap
-            );
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-
         } finally {
             apiLogger.infoContext(
                     requestId,

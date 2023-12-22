@@ -89,7 +89,7 @@ public class Utils {
     }
 
     public static List<Attachment> getTestAttachmentsContainingKey(String keyContained) {
-        List<Attachment> attachments = new ArrayList<Attachment>();
+        List<Attachment> attachments = new ArrayList<>();
         attachments.add(buildTestAttachment("123", "test1.txt"));
         attachments.add(buildTestAttachment(keyContained, "test2.txt"));
         attachments.add(buildTestAttachment("abc", "test3.txt"));

@@ -4,7 +4,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -12,14 +11,9 @@ import uk.gov.companieshouse.api.strikeoffobjections.common.ApiLogger;
 import uk.gov.companieshouse.api.strikeoffobjections.groups.Unit;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.CreatedBy;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Objection;
-import uk.gov.companieshouse.api.strikeoffobjections.service.IObjectionService;
 import uk.gov.companieshouse.api.strikeoffobjections.service.impl.ERICHeaderParser;
-import uk.gov.companieshouse.api.strikeoffobjections.utils.Utils;
-import uk.gov.companieshouse.service.ServiceException;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
@@ -49,7 +43,7 @@ class UserAuthorizationInterceptorTest {
     private UserAuthorizationInterceptor userAuthorizationInterceptor;
 
     @Test
-    void testUserAuthorised() throws Exception {
+    void testUserAuthorised() {
         Objection objection = new Objection();
         CreatedBy createdBy = new CreatedBy("id", USER_EMAIL,
                "client", "Joe Bloggs", false);
@@ -63,7 +57,7 @@ class UserAuthorizationInterceptorTest {
     }
 
     @Test
-    void testUserNotAuthorised() throws Exception {
+    void testUserNotAuthorised() {
         Objection objection = new Objection();
         CreatedBy createdBy = new CreatedBy("id", USER_EMAIL,
                 "client", "Joe Bloggs", false);

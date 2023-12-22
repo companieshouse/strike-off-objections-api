@@ -12,6 +12,8 @@ import uk.gov.companieshouse.api.strikeoffobjections.service.impl.ERICHeaderFiel
 import uk.gov.companieshouse.api.strikeoffobjections.service.impl.ERICHeaderParser;
 import uk.gov.companieshouse.service.ServiceException;
 
+import javax.validation.constraints.NotNull;
+
 public class AttachmentDownloadAuthorizationInterceptor implements HandlerInterceptor {
 
     /**
@@ -28,7 +30,7 @@ public class AttachmentDownloadAuthorizationInterceptor implements HandlerInterc
     }
 
     @Override
-    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
+    public boolean preHandle(HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull Object handler) {
         final String requestId = request.getHeader(ERICHeaderFields.ERIC_REQUEST_ID);
 
         logger.debugContext(requestId, "Check if user is authorized to download the attachment");
@@ -64,11 +66,10 @@ public class AttachmentDownloadAuthorizationInterceptor implements HandlerInterc
     private boolean userHasPrivilege(HttpServletRequest request, String privilege, String requestId) throws ServiceException {
         logger.debugContext(requestId, "Checking admin privileges for user");
 
-        return Arrays.stream(
+        return Arrays.asList(
                 Optional.ofNullable(request.getHeader(ERICHeaderFields.ERIC_AUTHORISED_ROLES))
                         .orElseThrow(() -> new ServiceException("Header missing: " + ERICHeaderFields.ERIC_AUTHORISED_ROLES))
-                        .split(" "))
-                .anyMatch(privilege::equals);
+                        .split(" ")).contains(privilege);
     }
 }
 

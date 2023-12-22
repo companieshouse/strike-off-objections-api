@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @Unit
 class ObjectionTest {
 
-    private static final LocalDateTime MOCK_PRESENT = LocalDateTime.of(2020, 6, 30, 10, 00);
+    private static final LocalDateTime MOCK_PRESENT = LocalDateTime.of(2020, 6, 30, 10, 0);
 
     @Test
     void enityBuilderTest() {
@@ -53,12 +53,12 @@ class ObjectionTest {
        assertEquals("jBloggs@ch.gov.uk", objection.getCreatedBy().getEmail());
        assertEquals("00006400", objection.getCompanyNumber());
 
-       assertEquals("1", objection.getAttachments().get(0).getId());
-       assertEquals("/abc/download", objection.getAttachments().get(0).getLinks().getLink(ObjectionLinkKeys.DOWNLOAD));
-       assertEquals("abc/self", objection.getAttachments().get(0).getLinks().getLink(ObjectionLinkKeys.SELF));
-       assertEquals("test.jpg", objection.getAttachments().get(0).getName());
-       assertEquals("image/jpeg", objection.getAttachments().get(0).getContentType());
-       assertEquals(5000L, objection.getAttachments().get(0).getSize());
+       assertEquals("1", objection.getAttachments().getFirst().getId());
+       assertEquals("/abc/download", objection.getAttachments().getFirst().getLinks().getLink(ObjectionLinkKeys.DOWNLOAD));
+       assertEquals("abc/self", objection.getAttachments().getFirst().getLinks().getLink(ObjectionLinkKeys.SELF));
+       assertEquals("test.jpg", objection.getAttachments().getFirst().getName());
+       assertEquals("image/jpeg", objection.getAttachments().getFirst().getContentType());
+       assertEquals(5000L, objection.getAttachments().getFirst().getSize());
 
        assertEquals("This is a test", objection.getReason());
        assertEquals(ObjectionStatus.OPEN, objection.getStatus());
