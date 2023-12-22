@@ -26,7 +26,7 @@ import uk.gov.companieshouse.api.strikeoffobjections.service.impl.ERICHeaderPars
 import uk.gov.companieshouse.api.strikeoffobjections.service.impl.ObjectionService;
 import uk.gov.companieshouse.service.rest.response.PluggableResponseEntityFactory;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 

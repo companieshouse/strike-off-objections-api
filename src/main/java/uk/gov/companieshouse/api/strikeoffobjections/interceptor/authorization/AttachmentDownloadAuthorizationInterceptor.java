@@ -3,18 +3,16 @@ package uk.gov.companieshouse.api.strikeoffobjections.interceptor.authorization;
 import java.util.Arrays;
 import java.util.Optional;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
-
+import org.springframework.web.servlet.HandlerInterceptor;
 import uk.gov.companieshouse.api.strikeoffobjections.common.ApiLogger;
 import uk.gov.companieshouse.api.strikeoffobjections.service.impl.ERICHeaderFields;
 import uk.gov.companieshouse.api.strikeoffobjections.service.impl.ERICHeaderParser;
 import uk.gov.companieshouse.service.ServiceException;
 
-public class AttachmentDownloadAuthorizationInterceptor extends HandlerInterceptorAdapter {
+public class AttachmentDownloadAuthorizationInterceptor implements HandlerInterceptor {
 
     /**
      * The admin role that is assigned to CHS users who are allowed to download objection attachments.
