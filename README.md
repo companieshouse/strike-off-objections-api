@@ -7,7 +7,7 @@ API for handling objections to a company being struck off the register
 
 In order to run the service locally you will need the following:
 
-- [Java 8](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)
+- [OpenJDK 21](https://jdk.java.net/21/)
 - [Maven](https://maven.apache.org/download.cgi)
 - [Git](https://git-scm.com/downloads)
 
