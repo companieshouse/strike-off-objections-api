@@ -17,7 +17,8 @@ import uk.gov.companieshouse.api.strikeoffobjections.groups.Unit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.when;
 
 @Unit
 @ExtendWith(MockitoExtension.class)

@@ -127,7 +127,7 @@ variable "log_level" {
 }
 variable "strike_off_objections_api_version" {
   type        = string
-  description = "The version of the psc-discrepancies.api.ch.gov.uk container to run."
+  description = "The version of the strike off objections api container to run."
 }
 variable "eric_version" {
   type        = string
