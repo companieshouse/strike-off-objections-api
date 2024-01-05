@@ -2,6 +2,7 @@ package uk.gov.companieshouse.api.strikeoffobjections.file;
 
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.tomcat.util.http.fileupload.IOUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -24,8 +25,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.springframework.http.HttpStatus.valueOf;
-
 @Component
 public class FileTransferApiClient {
 
@@ -39,9 +38,11 @@ public class FileTransferApiClient {
     private static final String CONTENT_LENGTH = "Content-Length";
     private static final String CONTENT_DISPOSITION = "Content-Disposition";
 
-    private final ApiLogger logger;
+    @Autowired
+    private ApiLogger logger;
 
-    private final RestTemplate restTemplate;
+    @Autowired
+    private RestTemplate restTemplate;
 
     @Value("${FILE_TRANSFER_API_URL}")
     private String fileTransferApiURL;
@@ -51,11 +52,6 @@ public class FileTransferApiClient {
 
     private String fileTransferUriTemplate;
     private String downloadUriTemplate;
-
-    public FileTransferApiClient(ApiLogger logger, RestTemplate restTemplate) {
-        this.logger = logger;
-        this.restTemplate = restTemplate;
-    }
 
     @PostConstruct
     void init() {
@@ -122,7 +118,7 @@ public class FileTransferApiClient {
         FileTransferApiClientResponse fileTransferApiClientResponse = new FileTransferApiClientResponse();
         if (responseEntity != null) {
             fileTransferApiClientResponse.setHttpHeaders(responseEntity.getHeaders());
-            fileTransferApiClientResponse.setHttpStatus(valueOf(responseEntity.getStatusCode().value()));
+            fileTransferApiClientResponse.setHttpStatus(responseEntity.getStatusCode());
             FileTransferApiResponse apiResponse = responseEntity.getBody();
             if (apiResponse != null) {
                 fileTransferApiClientResponse.setFileId(apiResponse.getId());
@@ -175,7 +171,7 @@ public class FileTransferApiClient {
             },
             responseEntity -> {
                 FileTransferApiClientResponse response = new FileTransferApiClientResponse();
-                response.setHttpStatus(valueOf(responseEntity.getStatusCode().value()));
+                response.setHttpStatus(responseEntity.getStatusCode());
                 return response;
             }
         );
@@ -228,7 +224,7 @@ public class FileTransferApiClient {
                                                                            ClientHttpResponse clientHttpResponse) throws IOException {
         FileTransferApiClientResponse fileTransferApiClientResponse = new FileTransferApiClientResponse();
         if (clientHttpResponse != null) {
-            fileTransferApiClientResponse.setHttpStatus(valueOf(clientHttpResponse.getStatusCode().value()));
+            fileTransferApiClientResponse.setHttpStatus(clientHttpResponse.getStatusCode());
         } else {
             logger.debugContext(requestId, NULL_RESPONSE_MESSAGE + " " + fileTransferApiURL);
             fileTransferApiClientResponse.setHttpStatus(HttpStatus.INTERNAL_SERVER_ERROR);

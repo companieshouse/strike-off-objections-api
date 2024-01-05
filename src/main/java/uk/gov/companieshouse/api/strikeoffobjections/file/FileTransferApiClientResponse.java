@@ -2,6 +2,9 @@ package uk.gov.companieshouse.api.strikeoffobjections.file;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
+
+import static org.springframework.http.HttpStatus.valueOf;
 
 public class FileTransferApiClientResponse {
 
@@ -24,6 +27,11 @@ public class FileTransferApiClientResponse {
     public void setHttpStatus(HttpStatus httpStatus) {
         this.httpStatus = httpStatus;
     }
+
+    public void setHttpStatus(HttpStatusCode httpStatusCode) {
+        this.httpStatus = valueOf(httpStatusCode.value());
+    }
+
 
     public HttpHeaders getHttpHeaders() {
         return httpHeaders;

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import org.apache.kafka.clients.producer.RecordMetadata;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import uk.gov.companieshouse.api.strikeoffobjections.Application;
@@ -28,26 +29,23 @@ import java.util.function.Supplier;
 @Component
 public class ChipsKafkaClient implements ChipsSender {
 
+    @Autowired
+    private CHKafkaProducer producer;
+
+    @Autowired
+    private AvroSerializer avroSerializer;
+
     @Value("${CHIPS_REST_INTERFACES_SEND_TOPIC}")
     private String chipsRestInterfacesSendTopic;
 
     @Value("${OBJECT_TO_STRIKE_OFF_CHIPS_REST_INTERFACES_ENDPOINT}")
     private String chipsRestInterfacesEndpoint;
 
-    private final ApiLogger logger;
+    @Autowired
+    private ApiLogger logger;
 
-    private final Supplier<LocalDateTime> dateTimeSupplier;
-
-    private final CHKafkaProducer producer;
-
-    private final AvroSerializer avroSerializer;
-
-    public ChipsKafkaClient(Supplier<LocalDateTime> dateTimeSupplier, CHKafkaProducer producer, AvroSerializer avroSerializer, ApiLogger logger) {
-        this.producer = producer;
-        this.avroSerializer = avroSerializer;
-        this.logger = logger;
-        this.dateTimeSupplier = dateTimeSupplier;
-    }
+    @Autowired
+    private Supplier<LocalDateTime> dateTimeSupplier;
 
     @Override
     public void sendToChips(String requestId, ChipsRequest chipsRequest) throws ServiceException {

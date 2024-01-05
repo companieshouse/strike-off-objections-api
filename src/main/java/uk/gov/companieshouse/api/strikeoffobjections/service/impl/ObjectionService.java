@@ -2,6 +2,7 @@ package uk.gov.companieshouse.api.strikeoffobjections.service.impl;
 
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -55,41 +56,38 @@ public class ObjectionService implements IObjectionService {
     private static final String ATTACHMENT_NOT_DELETED_SHORT = "Unable to delete attachment %s";
     private static final String INVALID_PATCH_STATUS = "Unable to patch status to %s for Objection id: %s";
 
-    private final ObjectionRepository objectionRepository;
+    @Autowired
+    private ObjectionRepository objectionRepository;
 
-    private final ApiLogger logger;
+    @Autowired
+    private ApiLogger logger;
 
-    private final Supplier<LocalDateTime> dateTimeSupplier;
+    @Autowired
+    private Supplier<LocalDateTime> dateTimeSupplier;
 
-    private final ObjectionPatcher objectionPatcher;
+    @Autowired
+    private ObjectionPatcher objectionPatcher;
 
-    private final FileTransferApiClient fileTransferApiClient;
+    @Autowired
+    private FileTransferApiClient fileTransferApiClient;
 
-    private final ERICHeaderParser ericHeaderParser;
+    @Autowired
+    private ERICHeaderParser ericHeaderParser;
 
-    private final ObjectionProcessor objectionProcessor;
+    @Autowired
+    private ObjectionProcessor objectionProcessor;
 
-    private final OracleQueryClient oracleQueryClient;
+    @Autowired
+    private OracleQueryClient oracleQueryClient;
 
-    private final ActionCodeValidator actionCodeValidator;
+    @Autowired
+    private ActionCodeValidator actionCodeValidator;
 
-    private final IReferenceNumberGeneratorService referenceNumberGeneratorService;
+    @Autowired
+    private IReferenceNumberGeneratorService referenceNumberGeneratorService;
 
-    private final Gaz2RequestedValidator gaz2RequestedValidator;
-
-    public ObjectionService(FileTransferApiClient fileTransferApiClient, ObjectionRepository objectionRepository, ApiLogger logger, Supplier<LocalDateTime> dateTimeSupplier, ObjectionPatcher objectionPatcher, ERICHeaderParser ericHeaderParser, ObjectionProcessor objectionProcessor, OracleQueryClient oracleQueryClient, ActionCodeValidator actionCodeValidator, IReferenceNumberGeneratorService referenceNumberGeneratorService, Gaz2RequestedValidator gaz2RequestedValidator) {
-        this.fileTransferApiClient = fileTransferApiClient;
-        this.objectionRepository = objectionRepository;
-        this.logger = logger;
-        this.dateTimeSupplier = dateTimeSupplier;
-        this.objectionPatcher = objectionPatcher;
-        this.ericHeaderParser = ericHeaderParser;
-        this.objectionProcessor = objectionProcessor;
-        this.oracleQueryClient = oracleQueryClient;
-        this.actionCodeValidator = actionCodeValidator;
-        this.referenceNumberGeneratorService = referenceNumberGeneratorService;
-        this.gaz2RequestedValidator = gaz2RequestedValidator;
-    }
+    @Autowired
+    private Gaz2RequestedValidator gaz2RequestedValidator;
 
     @Override
     public Objection createObjection(String requestId,

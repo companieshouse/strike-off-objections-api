@@ -1,5 +1,6 @@
 package uk.gov.companieshouse.api.strikeoffobjections.client;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
@@ -12,17 +13,14 @@ import static uk.gov.companieshouse.api.strikeoffobjections.exception.UnsafeUrlE
 @Component
 public class OracleQueryClient {
 
-    private final RestTemplate restTemplate;
+    @Autowired
+    private RestTemplate restTemplate;
 
-    private final ApiLogger apiLogger;
+    @Autowired
+    private ApiLogger apiLogger;
 
     @Value("${ORACLE_QUERY_API_URL}")
     private String oracleQueryApiUrl;
-
-    public OracleQueryClient(RestTemplate restTemplate, ApiLogger apiLogger) {
-        this.restTemplate = restTemplate;
-        this.apiLogger = apiLogger;
-    }
 
     public Long getCompanyActionCode(String companyNumber, String requestId) {
         String getCompanyActionCodeUrl = formatUrl(companyNumber, "action-code");

@@ -1,5 +1,6 @@
 package uk.gov.companieshouse.api.strikeoffobjections.config;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
@@ -21,17 +22,14 @@ public class InterceptorConfig implements WebMvcConfigurer {
     private static final String STRIKE_OFF_OBJECTIONS_OBJECTION_ID = "/**/strike-off-objections/?**/**";
     private static final String ELIGIBILITY_CHECK_PATH = "/**/strike-off-objections/eligibility";
 
-    private final ApiLogger logger;
+    @Autowired
+    private ApiLogger logger;
 
-    private final IObjectionService objectionService;
+    @Autowired
+    private IObjectionService objectionService;
 
-    private final ERICHeaderParser ericHeaderParser;
-
-    public InterceptorConfig(ApiLogger logger, IObjectionService objectionService, ERICHeaderParser ericHeaderParser) {
-        this.logger = logger;
-        this.objectionService = objectionService;
-        this.ericHeaderParser = ericHeaderParser;
-    }
+    @Autowired
+    private ERICHeaderParser ericHeaderParser;
 
     @Bean
     public AttachmentDownloadAuthorizationInterceptor attachmentDownloadAuthorizationInterceptor(ApiLogger logger) {
