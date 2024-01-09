@@ -60,9 +60,7 @@ public class ApiLogger {
      * @return A cloned copy of the map data
      */
     private Map<String, Object> cloneMapData(Map<String, Object> dataMap) {
-        Map<String, Object> clonedMapData = new HashMap<>();
-        clonedMapData.putAll(dataMap);
 
-        return clonedMapData;
+        return new HashMap<>(dataMap);
     }
 }

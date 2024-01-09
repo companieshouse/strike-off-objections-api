@@ -2,6 +2,7 @@ package uk.gov.companieshouse.api.strikeoffobjections.service;
 
 import java.util.List;
 
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.web.multipart.MultipartFile;
 import uk.gov.companieshouse.api.strikeoffobjections.exception.AttachmentNotFoundException;
 import uk.gov.companieshouse.api.strikeoffobjections.exception.InvalidObjectionStatusException;
@@ -14,8 +15,6 @@ import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Objection;
 import uk.gov.companieshouse.api.strikeoffobjections.model.patch.ObjectionPatch;
 import uk.gov.companieshouse.service.ServiceException;
 import uk.gov.companieshouse.service.ServiceResult;
-
-import javax.servlet.http.HttpServletResponse;
 
 public interface IObjectionService {
     Objection createObjection(String requestId,
@@ -43,7 +42,7 @@ public interface IObjectionService {
             throws ObjectionNotFoundException, AttachmentNotFoundException, ServiceException;
 
     FileTransferApiClientResponse downloadAttachment(
-            String requestId, String objectionId, String attachmentId, HttpServletResponse response) throws ServiceException;
+            String requestId, String objectionId, String attachmentId, HttpServletResponse response);
 
     ObjectionEligibility isCompanyEligible(String companyNumber, String requestId);
 }

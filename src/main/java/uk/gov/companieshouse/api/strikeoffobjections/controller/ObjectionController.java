@@ -1,5 +1,7 @@
 package uk.gov.companieshouse.api.strikeoffobjections.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -35,9 +37,6 @@ import uk.gov.companieshouse.service.ServiceException;
 import uk.gov.companieshouse.service.ServiceResult;
 import uk.gov.companieshouse.service.rest.response.ChResponseBody;
 import uk.gov.companieshouse.service.rest.response.PluggableResponseEntityFactory;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -482,15 +481,6 @@ public class ObjectionController {
                     logMap
             );
             return ResponseEntity.status(e.getStatusCode()).build();
-        } catch (ServiceException e) {
-            apiLogger.errorContext(
-                    requestId,
-                    DOWNLOAD_ERROR,
-                    e,
-                    logMap
-            );
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-
         } finally {
             apiLogger.infoContext(
                     requestId,

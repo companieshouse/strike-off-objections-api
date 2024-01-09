@@ -1,7 +1,6 @@
 package uk.gov.companieshouse.api.strikeoffobjections.email;
 
 import org.apache.avro.Schema;
-import org.apache.kafka.clients.producer.RecordMetadata;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -33,8 +32,8 @@ class KafkaEmailClientUnitTest {
 
     private static final LocalDateTime CREATED_AT =
             LocalDateTime.of(2019, 1, 1, 0, 0);
-    private static final Future<RecordMetadata> MOCKED_FUTURE = Mockito.mock(Future.class);
-    private static final Future<RecordMetadata> FAULTY_MOCKED_FUTURE = Mockito.mock(Future.class);
+    private static final Future MOCKED_FUTURE = Mockito.mock(Future.class);
+    private static final Future FAULTY_MOCKED_FUTURE = Mockito.mock(Future.class);
 
     private static final String MESSAGE_ID = "abc";
     private static final String NO_LONGER_REQUIRED_TEMPLATE_MESSAGE_TYPE = "promise_to_file_no_longer_required";

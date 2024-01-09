@@ -1,5 +1,6 @@
 package uk.gov.companieshouse.api.strikeoffobjections.service.impl;
 
+import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -40,7 +41,6 @@ import uk.gov.companieshouse.api.strikeoffobjections.validation.ValidationExcept
 import uk.gov.companieshouse.service.ServiceException;
 import uk.gov.companieshouse.service.ServiceResult;
 
-import javax.servlet.http.HttpServletResponse;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -221,7 +221,7 @@ class ObjectionServiceTest {
     }
 
     @Test
-    void createObjectionThrowServiceExceptionIfIdExists () throws ValidationException, ServiceException {
+    void createObjectionThrowServiceExceptionIfIdExists () {
         when(objectionRepository.insert(any(Objection.class))).thenThrow(new DuplicateKeyException("Duplicate"));
 
         assertThrows(ServiceException.class, () -> objectionService.createObjection(REQUEST_ID, COMPANY_NUMBER, AUTH_ID, AUTH_USER,
@@ -445,7 +445,7 @@ class ObjectionServiceTest {
         List<Attachment> attachments = objectionService.getAttachments(REQUEST_ID, COMPANY_NUMBER, OBJECTION_ID);
 
         assertEquals(1, attachments.size());
-        assertEquals(attachment, attachments.get(0));
+        assertEquals(attachment, attachments.getFirst());
     }
 
     @Test
@@ -730,7 +730,7 @@ class ObjectionServiceTest {
     }
 
     @Test
-    void willCallFileTransferApiForDownload() throws ServiceException {
+    void willCallFileTransferApiForDownload() {
         HttpServletResponse httpServletResponse = new MockHttpServletResponse();
         FileTransferApiClientResponse dummyDownloadResponse = Utils.dummyDownloadResponse();
 

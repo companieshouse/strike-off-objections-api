@@ -1,5 +1,6 @@
 package uk.gov.companieshouse.api.strikeoffobjections.service.impl;
 
+import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
@@ -38,7 +39,6 @@ import uk.gov.companieshouse.service.ServiceException;
 import uk.gov.companieshouse.service.ServiceResult;
 import uk.gov.companieshouse.service.links.Links;
 
-import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -201,7 +201,7 @@ public class ObjectionService implements IObjectionService {
 
         Optional<Objection> existingObjectionOptional = objectionRepository.findById(objectionId);
 
-        if (!existingObjectionOptional.isPresent()) {
+        if (existingObjectionOptional.isEmpty()) {
             logger.infoContext(requestId, "Objection does not exist", logMap);
             throw new ObjectionNotFoundException(String.format(OBJECTION_NOT_FOUND_MESSAGE, objectionId));
         }
@@ -377,7 +377,7 @@ public class ObjectionService implements IObjectionService {
     public FileTransferApiClientResponse downloadAttachment(String requestId,
                                                             String objectionId,
                                                             String attachmentId,
-                                                            HttpServletResponse response) throws ServiceException {
+                                                            HttpServletResponse response) {
         return fileTransferApiClient.download(requestId, attachmentId, response);
     }
 

@@ -100,7 +100,7 @@ class ChipsKafkaClientTest {
         when(dateTimeSupplier.get()).thenReturn(DATE_TIME);
 
         TopicPartition topicPartition = new TopicPartition("test",1);
-        recordMetadata = new RecordMetadata(topicPartition, 0,0,0,0L,0, 0);
+        recordMetadata = new RecordMetadata(topicPartition, 0,0,0,0, 0);
     }
 
     @Test

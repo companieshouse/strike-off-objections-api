@@ -3,18 +3,18 @@ package uk.gov.companieshouse.api.strikeoffobjections.interceptor.authorization;
 import java.util.Arrays;
 import java.util.Optional;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
-
+import org.springframework.web.servlet.HandlerInterceptor;
 import uk.gov.companieshouse.api.strikeoffobjections.common.ApiLogger;
 import uk.gov.companieshouse.api.strikeoffobjections.service.impl.ERICHeaderFields;
 import uk.gov.companieshouse.api.strikeoffobjections.service.impl.ERICHeaderParser;
 import uk.gov.companieshouse.service.ServiceException;
 
-public class AttachmentDownloadAuthorizationInterceptor extends HandlerInterceptorAdapter {
+import javax.validation.constraints.NotNull;
+
+public class AttachmentDownloadAuthorizationInterceptor implements HandlerInterceptor {
 
     /**
      * The admin role that is assigned to CHS users who are allowed to download objection attachments.
@@ -30,7 +30,7 @@ public class AttachmentDownloadAuthorizationInterceptor extends HandlerIntercept
     }
 
     @Override
-    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
+    public boolean preHandle(HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull Object handler) {
         final String requestId = request.getHeader(ERICHeaderFields.ERIC_REQUEST_ID);
 
         logger.debugContext(requestId, "Check if user is authorized to download the attachment");
@@ -66,11 +66,10 @@ public class AttachmentDownloadAuthorizationInterceptor extends HandlerIntercept
     private boolean userHasPrivilege(HttpServletRequest request, String privilege, String requestId) throws ServiceException {
         logger.debugContext(requestId, "Checking admin privileges for user");
 
-        return Arrays.stream(
+        return Arrays.asList(
                 Optional.ofNullable(request.getHeader(ERICHeaderFields.ERIC_AUTHORISED_ROLES))
                         .orElseThrow(() -> new ServiceException("Header missing: " + ERICHeaderFields.ERIC_AUTHORISED_ROLES))
-                        .split(" "))
-                .anyMatch(privilege::equals);
+                        .split(" ")).contains(privilege);
     }
 }
 

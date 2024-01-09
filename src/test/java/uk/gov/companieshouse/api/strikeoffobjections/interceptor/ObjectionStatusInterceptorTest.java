@@ -1,5 +1,7 @@
 package uk.gov.companieshouse.api.strikeoffobjections.interceptor;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -10,9 +12,6 @@ import uk.gov.companieshouse.api.strikeoffobjections.common.ApiLogger;
 import uk.gov.companieshouse.api.strikeoffobjections.groups.Unit;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Objection;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.ObjectionStatus;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -40,7 +39,7 @@ class ObjectionStatusInterceptorTest {
     private ObjectionStatusInterceptor objectionStatusInterceptor;
 
     @Test
-    void testObjectionInterceptorObjectionNoLongerOpen() throws Exception {
+    void testObjectionInterceptorObjectionNoLongerOpen() {
         Objection objection = new Objection();
         objection.setStatus(ObjectionStatus.PROCESSED);
 
@@ -53,7 +52,7 @@ class ObjectionStatusInterceptorTest {
     }
 
     @Test
-    void testObjectionInterceptorObjectionOpen() throws Exception {
+    void testObjectionInterceptorObjectionOpen() {
         Objection objection = new Objection();
         objection.setStatus(ObjectionStatus.OPEN);
 

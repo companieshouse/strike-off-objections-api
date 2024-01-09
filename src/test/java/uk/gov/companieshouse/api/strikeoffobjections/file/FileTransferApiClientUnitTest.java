@@ -174,7 +174,7 @@ class FileTransferApiClientUnitTest {
 
         FileTransferApiClientResponse downloadResponse = fileTransferApiClient.download(REQUEST_ID, FILE_ID, servletResponse);
 
-        //need to capture the responseExtractor lambda passed to the restTemplate so we can test it - this is what actually does the file copy
+        //need to capture the responseExtractor lambda passed to the restTemplate, so we can test it - this is what actually does the file copy
         verify(restTemplate).execute(eq(DOWNLOAD_URI_TEMPLATE), eq(HttpMethod.GET), any(RequestCallback.class),
                 responseExtractorArgCaptor.capture(), anyMap());
 
@@ -201,7 +201,7 @@ class FileTransferApiClientUnitTest {
 
         FileTransferApiClientResponse downloadResponse = fileTransferApiClient.download(REQUEST_ID, FILE_ID, servletResponse);
 
-        //need to capture the responseExtractor lambda passed to the restTemplate so we can test it - this is what actually does the file copy
+        //need to capture the responseExtractor lambda passed to the restTemplate, so we can test it - this is what actually does the file copy
         verify(restTemplate, times(1)).execute(eq(DOWNLOAD_URI_TEMPLATE), eq(HttpMethod.GET), any(RequestCallback.class),
                 ArgumentMatchers.<ResponseExtractor<ClientHttpResponse>>any(), anyMap());
 

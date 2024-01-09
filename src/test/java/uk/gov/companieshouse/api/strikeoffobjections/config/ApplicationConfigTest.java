@@ -11,7 +11,7 @@ import uk.gov.companieshouse.api.strikeoffobjections.chips.ChipsSender;
 import uk.gov.companieshouse.api.strikeoffobjections.common.ApiLogger;
 import uk.gov.companieshouse.api.strikeoffobjections.groups.Unit;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -45,7 +45,7 @@ class ApplicationConfigTest {
                 true,
                 apiLogger);
 
-        assertTrue(chipsSender instanceof ChipsKafkaClient);
+        assertInstanceOf(ChipsKafkaClient.class, chipsSender);
         verify(apiLogger, times(1))
                 .info(String.format(CHIPS_KAFKA_CONFIG_MESSAGE, true));
     }
@@ -58,7 +58,7 @@ class ApplicationConfigTest {
                 false,
                 apiLogger);
 
-        assertTrue(chipsSender instanceof ChipsRestClient);
+        assertInstanceOf(ChipsRestClient.class, chipsSender);
         verify(apiLogger, times(1))
                 .info(String.format(CHIPS_KAFKA_CONFIG_MESSAGE, false));
     }

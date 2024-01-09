@@ -1,7 +1,5 @@
 package uk.gov.companieshouse.api.strikeoffobjections.model.email;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-
 import org.junit.jupiter.api.Test;
 
 import uk.gov.companieshouse.api.strikeoffobjections.groups.Unit;
@@ -20,7 +18,7 @@ class EmailContentTest {
     private static final LocalDateTime CREATED_AT =
             LocalDateTime.of(2020, 1, 1, 0, 0);
    @Test
-    void emailBuilderTest() throws JsonProcessingException {
+    void emailBuilderTest() {
         EmailContent emailContent = new EmailContent.Builder()
                 .withOriginatingAppId(ORIGINATING_APP_ID)
                 .withEmailAddress(EMAIL_ADDRESS)

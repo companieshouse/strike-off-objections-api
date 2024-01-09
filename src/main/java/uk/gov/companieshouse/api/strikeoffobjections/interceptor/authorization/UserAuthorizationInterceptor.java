@@ -1,5 +1,7 @@
 package uk.gov.companieshouse.api.strikeoffobjections.interceptor.authorization;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.servlet.HandlerInterceptor;
 import uk.gov.companieshouse.api.strikeoffobjections.common.ApiLogger;
@@ -7,9 +9,6 @@ import uk.gov.companieshouse.api.strikeoffobjections.interceptor.InterceptorCons
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Objection;
 import uk.gov.companieshouse.api.strikeoffobjections.service.impl.ERICHeaderFields;
 import uk.gov.companieshouse.api.strikeoffobjections.service.impl.ERICHeaderParser;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 public class UserAuthorizationInterceptor implements HandlerInterceptor {
 
@@ -22,7 +21,7 @@ public class UserAuthorizationInterceptor implements HandlerInterceptor {
     }
 
     @Override
-    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
 
         final String requestId = request.getHeader(ERICHeaderFields.ERIC_REQUEST_ID);
         apiLogger.debugContext(requestId, "Checking current user is authorised to access objection");

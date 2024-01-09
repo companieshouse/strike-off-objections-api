@@ -3,7 +3,7 @@ package uk.gov.companieshouse.api.strikeoffobjections.config;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.mongodb.MongoDbFactory;
+import org.springframework.data.mongodb.MongoDatabaseFactory;
 import org.springframework.data.mongodb.core.convert.DbRefResolver;
 import org.springframework.data.mongodb.core.convert.DefaultDbRefResolver;
 import org.springframework.data.mongodb.core.convert.DefaultMongoTypeMapper;
@@ -18,7 +18,7 @@ public class SpringMongoConfig {
      */
     @Bean
     public MappingMongoConverter mappingMongoConverter(@Autowired MongoMappingContext mongoMappingContext,
-                                                       @Autowired MongoDbFactory mongoDbFactory) {
+                                                       @Autowired MongoDatabaseFactory mongoDbFactory) {
 
         DbRefResolver dbRefResolver = new DefaultDbRefResolver(mongoDbFactory);
         MappingMongoConverter converter = new MappingMongoConverter(dbRefResolver, mongoMappingContext);
