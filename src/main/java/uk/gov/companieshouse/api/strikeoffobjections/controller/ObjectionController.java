@@ -94,7 +94,7 @@ public class ObjectionController {
 
         apiLogger.infoContext(
                 requestId,
-                "GET /{objectionId}/attachments/{attachmentId} request received",
+                "Processing GET /{objectionId}/attachments/{attachmentId} request",
                 logMap
         );
 
@@ -102,6 +102,11 @@ public class ObjectionController {
             Attachment attachment = objectionService.getAttachment(requestId, companyNumber, objectionId, attachmentId);
             AttachmentResponseDTO responseDTO = attachmentMapper.attachmentEntityToAttachmentResponseDTO(attachment);
 
+            apiLogger.infoContext(
+                    requestId,
+                    "Successfully processed GET /{objectionId}/attachments/{attachmentId} request",
+                    logMap
+            );
             return responseEntityFactory.createResponse(ServiceResult.found(responseDTO));
         } catch (ObjectionNotFoundException e) {
             apiLogger.errorContext(
@@ -121,12 +126,6 @@ public class ObjectionController {
             );
 
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        } finally {
-            apiLogger.infoContext(
-                    requestId,
-                    "Finished GET /{objectionId}/attachments/{attachmentId} request",
-                    logMap
-            );
         }
     }
 
@@ -143,7 +142,7 @@ public class ObjectionController {
 
         apiLogger.infoContext(
                 requestId,
-                "POST / request received",
+                "Processing POST / request",
                 logMap
         );
 
@@ -154,9 +153,16 @@ public class ObjectionController {
                     ericUserId,
                     ericUserDetails,
                     objectionCreate);
+
             ObjectionStatus objectionStatus = objection.getStatus();
             ObjectionResponseDTO responseDTO = new ObjectionResponseDTO(objection.getId());
             responseDTO.setStatus(objectionStatus);
+
+            apiLogger.infoContext(
+                    requestId,
+                    "Successfully processed POST / request",
+                    logMap
+            );
             return responseEntityFactory.createResponse(ServiceResult.created(responseDTO));
         } catch (Exception e) {
             apiLogger.errorContext(
@@ -167,12 +173,6 @@ public class ObjectionController {
             );
 
             return responseEntityFactory.createEmptyInternalServerError();
-        } finally {
-            apiLogger.infoContext(
-                    requestId,
-                    "Finished POST / request",
-                    logMap
-            );
         }
     }
 
@@ -200,13 +200,17 @@ public class ObjectionController {
 
         apiLogger.infoContext(
                 requestId,
-                "PATCH /{objectionId} request received",
+                "Processing PATCH /{objectionId} request",
                 logMap
         );
 
         try {
             objectionService.patchObjection(objectionId, objectionPatch, requestId, companyNumber);
-
+            apiLogger.infoContext(
+                    requestId,
+                    "Successfully processed PATCH /{objectionId} request",
+                    logMap
+            );
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } catch (ObjectionNotFoundException e) {
             apiLogger.errorContext(
@@ -237,13 +241,6 @@ public class ObjectionController {
             );
 
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-
-        } finally {
-            apiLogger.infoContext(
-                    requestId,
-                    "Finished PATCH /{objectionId} request",
-                    logMap
-            );
         }
     }
 
@@ -259,7 +256,7 @@ public class ObjectionController {
 
         apiLogger.infoContext(
                 requestId,
-                "GET /{objectionId} request received",
+                "Processing GET /{objectionId} request",
                 logMap
         );
 
@@ -267,6 +264,12 @@ public class ObjectionController {
             Objection objection = objectionService.getObjection(requestId, objectionId);
             ObjectionResponseDTO responseDTO =
                     objectionMapper.objectionEntityToObjectionResponseDTO(objection);
+
+            apiLogger.infoContext(
+                    requestId,
+                    "Successfully processed GET /{objectionId} request",
+                    logMap
+            );
             return responseEntityFactory.createResponse(ServiceResult.found(responseDTO));
         } catch (ObjectionNotFoundException e) {
             apiLogger.errorContext(
@@ -286,12 +289,6 @@ public class ObjectionController {
             );
 
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        } finally {
-            apiLogger.infoContext(
-                    requestId,
-                    "Finished GET /{objectionId} request",
-                    logMap
-            );
         }
     }
 
@@ -307,7 +304,7 @@ public class ObjectionController {
 
         apiLogger.infoContext(
                 requestId,
-                "GET /{objectionId}/attachments request received",
+                "Processing GET /{objectionId}/attachments request",
                 logMap
         );
 
@@ -317,6 +314,11 @@ public class ObjectionController {
             List<AttachmentResponseDTO> attachmentResponseDTOs = attachments.stream()
                     .map(attachmentMapper::attachmentEntityToAttachmentResponseDTO).collect(Collectors.toList());
 
+            apiLogger.infoContext(
+                    requestId,
+                    "Successfully processed GET /{objectionId}/attachments request",
+                    logMap
+            );
             return responseEntityFactory.createResponse(ServiceResult.found(attachmentResponseDTOs));
         } catch (ObjectionNotFoundException e) {
             apiLogger.errorContext(
@@ -327,12 +329,6 @@ public class ObjectionController {
             );
 
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        } finally {
-            apiLogger.infoContext(
-                    requestId,
-                    "Finished GET /{objectionId}/attachments request",
-                    logMap
-            );
         }
     }
 
@@ -350,13 +346,20 @@ public class ObjectionController {
 
         apiLogger.infoContext(
                 requestId,
-                "POST /{objectionId}/attachments request received",
+                "Processing POST /{objectionId}/attachments request",
                 logMap
         );
 
         try {
             ServiceResult<String> result = objectionService.addAttachment(requestId, objectionId, file, servletRequest.getRequestURI());
             ObjectionResponseDTO objectionResponseDTO = new ObjectionResponseDTO(result.getData());
+        
+            apiLogger.infoContext(
+                requestId,
+                "Successfully processed POST /{objectionId}/attachments request",
+                logMap
+        );
+
             return new ResponseEntity<>(objectionResponseDTO, HttpStatus.CREATED);
         } catch(ServiceException e) {
 
@@ -383,15 +386,8 @@ public class ObjectionController {
                     OBJECTION_NOT_FOUND,
                     e,
                     logMap
-            );
-
+            );     
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        } finally {
-            apiLogger.infoContext(
-                    requestId,
-                    "Finished POST /{objectionId}/attachments request",
-                    logMap
-            );
         }
     }
 
@@ -409,13 +405,18 @@ public class ObjectionController {
 
         apiLogger.infoContext(
                 requestId,
-                "DELETE /{objectionId}/attachments/{attachmentId} request received",
+                "Processing DELETE /{objectionId}/attachments/{attachmentId} request",
                 logMap
         );
 
         try {
             objectionService.deleteAttachment(requestId, objectionId, attachmentId);
 
+            apiLogger.infoContext(
+                    requestId,
+                    "Successfully processed DELETE /{objectionId}/attachments/{attachmentId} request",
+                    logMap
+            );
             return ResponseEntity.noContent().build();
         } catch (ObjectionNotFoundException e) {
             apiLogger.errorContext(
@@ -435,22 +436,9 @@ public class ObjectionController {
             );
 
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-
         } catch (ServiceException e) {
-            apiLogger.errorContext(
-                    requestId,
-                    COULD_NOT_DELETE,
-                    e,
-                    logMap
-            );
+            apiLogger.errorContext(requestId,COULD_NOT_DELETE,e,logMap);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-
-        } finally {
-            apiLogger.infoContext(
-                    requestId,
-                    "Finished DELETE /{objectionId}/attachments/{attachmentId} request",
-                    logMap
-            );
         }
     }
 
@@ -464,14 +452,20 @@ public class ObjectionController {
         logMap.put(LOG_COMPANY_NUMBER_KEY, companyNumber);
         logMap.put(LOG_OBJECTION_ID_KEY, objectionId);
 
+        apiLogger.infoContext(
+                requestId,
+                "Processing GET /{objectionId}/attachments/{attachmentId}/download request",
+                logMap);
+
         try {
-            apiLogger.infoContext(
-                    requestId,
-                    "GET /{objectionId}/attachments/{attachmentId}/download request received",
-                    logMap
-            );
             FileTransferApiClientResponse downloadServiceResult = objectionService.downloadAttachment(
                     requestId, objectionId, attachmentId, response);
+
+            apiLogger.infoContext(
+                    requestId,
+                    "Successfully processed GET /{objectionId}/attachments/{attachmentId}/download request",
+                    logMap);
+
             return ResponseEntity.status(downloadServiceResult.getHttpStatus()).build();
         } catch (HttpClientErrorException | HttpServerErrorException e) {
             apiLogger.errorContext(
@@ -481,12 +475,6 @@ public class ObjectionController {
                     logMap
             );
             return ResponseEntity.status(e.getStatusCode()).build();
-        } finally {
-            apiLogger.infoContext(
-                    requestId,
-                    "Finished GET /{objectionId}/attachments/{attachmentId}/download request",
-                    logMap
-            );
         }
     }
 
@@ -498,11 +486,15 @@ public class ObjectionController {
 
         apiLogger.infoContext(
                 requestId,
-                "GET /eligibility request received",
+                "Processing GET /eligibility request",
                 logMap);
 
         try {
             ObjectionEligibility result = objectionService.isCompanyEligible(companyNumber, requestId);
+            apiLogger.infoContext(
+                    requestId,
+                    "Successfully processed GET /eligibility request",
+                    logMap);
             return new ResponseEntity<>(result, HttpStatus.OK);
 
         } catch (Exception e) {
@@ -513,12 +505,6 @@ public class ObjectionController {
                     logMap
             );
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-
-        } finally {
-            apiLogger.infoContext(
-                    requestId,
-                    "Finished GET /eligibility request",
-                    logMap);
         }
     }
 }

@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -11,7 +12,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import uk.gov.companieshouse.api.strikeoffobjections.Application;
 import uk.gov.companieshouse.api.strikeoffobjections.groups.Unit;
+import uk.gov.companieshouse.logging.LoggerFactory;
 
 @Unit
 @ExtendWith(MockitoExtension.class)
@@ -36,7 +39,7 @@ class ApiLoggerTest {
     @Test
     void testDebugContextLoggingDoesNotModifyLogMap() {
         apiLogger.debugContext(CONTEXT, TEST_MESSAGE, logMap);
-        
+
         assertEquals(1, logMap.size());
         assertEquals(LOG_MAP_VALUE, logMap.get(LOG_MAP_KEY));
     }

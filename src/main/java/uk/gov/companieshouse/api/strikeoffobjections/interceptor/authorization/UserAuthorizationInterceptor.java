@@ -22,6 +22,7 @@ public class UserAuthorizationInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
+        boolean userIsAuthorised = false;
 
         final String requestId = request.getHeader(ERICHeaderFields.ERIC_REQUEST_ID);
         apiLogger.debugContext(requestId, "Checking current user is authorised to access objection");
@@ -34,12 +35,12 @@ public class UserAuthorizationInterceptor implements HandlerInterceptor {
 
         if(createdByUserEmail.equals(requestUserEmail)) {
             apiLogger.debugContext(requestId, "User is authorised to access objection");
-            return true;
+            userIsAuthorised = true;
+        }else {
+            apiLogger.infoContext(requestId, String.format("User: %s not authorised to access objection %s",
+                    requestUserEmail, objection.getId()));
+            response.setStatus(HttpStatus.UNAUTHORIZED.value());
         }
-
-        apiLogger.infoContext(requestId, String.format("User: %s not authorised to access objection %s",
-                requestUserEmail, objection.getId()));
-        response.setStatus(HttpStatus.UNAUTHORIZED.value());
-        return false;
+        return userIsAuthorised;
     }
 }

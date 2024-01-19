@@ -32,7 +32,11 @@
         <api-sdk-java.version>6.0.7</api-sdk-java.version>
         <api-sdk-manager-java-library.version>3.0.5</api-sdk-manager-java-library.version>
         <kafka-models.version>3.0.6</kafka-models.version>
-
+        <rest-service-common-library.version>2.0.2</rest-service-common-library.version>
+        <ch-kafka.version>3.0.1</ch-kafka.version>
+        <api-sdk-java.version>6.0.7</api-sdk-java.version>
+        <api-sdk-manager-java-library.version>3.0.5</api-sdk-manager-java-library.version>
+        <kafka-models.version>3.0.6</kafka-models.version>
         <sonar-maven-plugin.version>3.10.0.2594</sonar-maven-plugin.version>
         <jib-maven-plugin.version>3.4.0</jib-maven-plugin.version>
         <jacoco-maven-plugin.version>0.8.11</jacoco-maven-plugin.version>
@@ -40,9 +44,9 @@
         <maven-surefire-plugin.version>3.1.2</maven-surefire-plugin.version>
         <pitest-junit5-plugin.version>1.2.1</pitest-junit5-plugin.version>
 
-        <mockito.version>5.4.0</mockito.version>
         <junit-jupiter.version>5.10.0</junit-jupiter.version>
         <pitest.version>1.15.3</pitest.version>
+        <mockito.version>5.4.0</mockito.version>
     </properties>
 
     <dependencyManagement>
@@ -276,9 +280,18 @@
                 <artifactId>pitest-maven</artifactId>
                 <version>${pitest.version}</version>
                 <configuration>
-                    <testStrengthThreshold>78</testStrengthThreshold>
-                    <coverageThreshold>69</coverageThreshold>
+                    <testStrengthThreshold>80</testStrengthThreshold>
+                    <coverageThreshold>80</coverageThreshold>
                     <withHistory>true</withHistory>
+                    <excludedClasses>
+                        <excludedClass>uk.gov.companieshouse.api.strikeoffobjections.exception*</excludedClass>
+                        <excludedClass>uk.gov.companieshouse.api.strikeoffobjections.Application</excludedClass>
+                        <excludedClass>uk.gov.companieshouse.api.strikeoffobjections.service.impl.ApiSdkClient</excludedClass>
+                        <excludedClass>uk.gov.companieshouse.api.strikeoffobjections.config.*</excludedClass>
+                        <excludedClass>uk.gov.companieshouse.api.strikeoffobjections.controller.ObjectionMapperImpl</excludedClass>
+                        <excludedClass>uk.gov.companieshouse.api.strikeoffobjections.model.create.ObjectionCreate</excludedClass>
+                        <excludedClass>uk.gov.companieshouse.api.strikeoffobjections.model.response.*</excludedClass>
+                    </excludedClasses>
                 </configuration>
                 <dependencies>
                     <dependency>
@@ -295,7 +308,7 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin>
+            </plugin> 
         </plugins>
     </build>
 </project>
