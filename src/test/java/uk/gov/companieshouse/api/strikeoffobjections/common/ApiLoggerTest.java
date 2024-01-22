@@ -10,7 +10,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
-
 import uk.gov.companieshouse.api.strikeoffobjections.groups.Unit;
 
 @Unit
@@ -36,7 +35,7 @@ class ApiLoggerTest {
     @Test
     void testDebugContextLoggingDoesNotModifyLogMap() {
         apiLogger.debugContext(CONTEXT, TEST_MESSAGE, logMap);
-        
+
         assertEquals(1, logMap.size());
         assertEquals(LOG_MAP_VALUE, logMap.get(LOG_MAP_KEY));
     }

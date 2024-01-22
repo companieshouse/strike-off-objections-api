@@ -16,7 +16,9 @@ import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Attachment;
 import uk.gov.companieshouse.api.strikeoffobjections.utils.Utils;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -62,9 +64,14 @@ class ChipsRestClientTest {
                 .build();
 
         when(restTemplate.postForEntity(CHIPS_REST_URL, chipsRequest, String.class)).thenReturn(new ResponseEntity<>(HttpStatus.OK));
-
         chipsRestClient.sendToChips(REQUEST_ID, chipsRequest);
         verify(restTemplate, times(1)).postForEntity(CHIPS_REST_URL, chipsRequest, String.class);
+
+        Map<String, Object> logMap = new HashMap<>();
+        logMap.put("chipsRestUrl", "test.url");
+        verify(apiLogger).infoContext(REQUEST_ID,String.format("Posting %s to CHIPS rest interfaces", chipsRequest), logMap);
+        verify(apiLogger).infoContext(REQUEST_ID,"Sent data to CHIPS, received status code: 200 OK");
+
     }
 
 }
