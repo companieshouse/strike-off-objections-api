@@ -9,8 +9,8 @@ locals {
   docker_repo                 = "stike-off-objections-api"
   kms_alias                   = "alias/${var.aws_profile}/environment-services-kms"
   lb_listener_rule_priority   = 31
-  lb_listener_paths           = ["/stike-off-objections-api-reports*"]
-  healthcheck_path            = "/stike-off-objections-api-reports/healthcheck" #healthcheck path for stike-off-objections-api
+  lb_listener_paths           = ["/company/*/strike-off-objections*"]
+  healthcheck_path            = "/strike-off-objections-api/healthcheck" #healthcheck path for stike-off-objections-api
   healthcheck_matcher         = "200"
   vpc_name                    = local.stack_secrets["vpc_name"]
   s3_config_bucket            = data.vault_generic_secret.shared_s3.data["config_bucket_name"]
