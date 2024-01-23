@@ -8,7 +8,7 @@ locals {
   eric_port                   = "10000"
   docker_repo                 = "strike-off-objections-api"
   kms_alias                   = "alias/${var.aws_profile}/environment-services-kms"
-  lb_listener_rule_priority   = 31
+  lb_listener_rule_priority   = 33
   lb_listener_paths           = ["/company/*/strike-off-objections*"]
   healthcheck_path            = "/strike-off-objections-api/healthcheck" #healthcheck path for strike-off-objections-api
   healthcheck_matcher         = "200"
