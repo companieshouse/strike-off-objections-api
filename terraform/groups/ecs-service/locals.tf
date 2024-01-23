@@ -3,18 +3,18 @@ locals {
   stack_name                  = "company-requests" # this must match the stack name the service deploys into
   name_prefix                 = "${local.stack_name}-${var.environment}"
   global_prefix               = "global-${var.environment}"
-  service_name                = "stike-off-objections-api"
+  service_name                = "strike-off-objections-api"
   container_port              = "8080"
   eric_port                   = "10000"
-  docker_repo                 = "stike-off-objections-api"
+  docker_repo                 = "strike-off-objections-api"
   kms_alias                   = "alias/${var.aws_profile}/environment-services-kms"
   lb_listener_rule_priority   = 31
   lb_listener_paths           = ["/company/*/strike-off-objections*"]
-  healthcheck_path            = "/strike-off-objections-api/healthcheck" #healthcheck path for stike-off-objections-api
+  healthcheck_path            = "/strike-off-objections-api/healthcheck" #healthcheck path for strike-off-objections-api
   healthcheck_matcher         = "200"
   vpc_name                    = local.stack_secrets["vpc_name"]
   s3_config_bucket            = data.vault_generic_secret.shared_s3.data["config_bucket_name"]
-  app_environment_filename    = "stike-off-objections-api.env"
+  app_environment_filename    = "strike-off-objections-api.env"
   use_set_environment_files   = var.use_set_environment_files
   application_subnet_ids      = data.aws_subnets.application.ids
 
