@@ -4,7 +4,7 @@ locals {
   name_prefix                 = "${local.stack_name}-${var.environment}"
   global_prefix               = "global-${var.environment}"
   service_name                = "strike-off-objections-api"
-  container_port              = "8080"
+  container_port              = "5009"
   eric_port                   = "10000"
   docker_repo                 = "strike-off-objections-api"
   kms_alias                   = "alias/${var.aws_profile}/environment-services-kms"

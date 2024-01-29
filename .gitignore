@@ -38,3 +38,6 @@ bin/
 # Mac files
 .DS_Store
 ._*
+
+# Vscode files
+.vscode/
