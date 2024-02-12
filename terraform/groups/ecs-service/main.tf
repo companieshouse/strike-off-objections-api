@@ -38,6 +38,10 @@ module "ecs-service" {
           listener_arn           = data.aws_lb_listener.secondary_lb_listener.arn,
           load_balancer_arn      = data.aws_lb.secondary_lb.arn
       }
+      "internal-api-lb": {
+          listener_arn           = data.aws_lb_listener.third_lb_listener.arn,
+          load_balancer_arn      = data.aws_lb.third_lb.arn
+      }
   } 
 
   # ECS Task container health check

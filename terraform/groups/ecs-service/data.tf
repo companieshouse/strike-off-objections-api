@@ -51,6 +51,15 @@ data "aws_lb_listener" "secondary_lb_listener" {
   port = 443
 }
 
+data "aws_lb" "third_lb" {
+  name = "${var.environment}-chs-internalapi"
+}
+
+data "aws_lb_listener" "third_lb_listener" {
+  load_balancer_arn = data.aws_lb.third_lb.arn
+  port = 443
+}
+
 # retrieve all secrets for this stack using the stack path
 data "aws_ssm_parameters_by_path" "secrets" {
   path = "/${local.name_prefix}"
