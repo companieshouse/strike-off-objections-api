@@ -1,7 +1,11 @@
 package uk.gov.companieshouse.api.strikeoffobjections.model.patcher;
 
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.when;
 
+import java.time.LocalDateTime;
+import java.util.function.Supplier;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -11,12 +15,6 @@ import uk.gov.companieshouse.api.strikeoffobjections.model.entity.CreatedBy;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Objection;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.ObjectionStatus;
 import uk.gov.companieshouse.api.strikeoffobjections.model.patch.ObjectionPatch;
-
-import java.time.LocalDateTime;
-import java.util.function.Supplier;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.when;
 
 @Unit
 @ExtendWith(MockitoExtension.class)
@@ -31,11 +29,9 @@ class ObjectionPatcherTest {
     private static final LocalDateTime CREATED_ON = LocalDateTime.of(2020, 1, 1, 1, 1);
     private static final LocalDateTime STATUS_CHANGED_ON = LocalDateTime.of(2021, 1, 1, 1, 1);
 
-    @Mock
-    Supplier<LocalDateTime> dateTimeSupplier;
+    @Mock Supplier<LocalDateTime> dateTimeSupplier;
 
-    @InjectMocks
-    private ObjectionPatcher objectionPatcher;
+    @InjectMocks private ObjectionPatcher objectionPatcher;
 
     @Test
     void requestToObjectionCreationTest() {
@@ -46,7 +42,8 @@ class ObjectionPatcherTest {
         objectionPatch.setReason(REASON);
         objectionPatch.setStatus(ObjectionStatus.OPEN);
 
-        CreatedBy createdBy = new CreatedBy( "", "","myself-or-company", "Not Joe Bloggs", Boolean.FALSE);
+        CreatedBy createdBy =
+                new CreatedBy("", "", "myself-or-company", "Not Joe Bloggs", Boolean.FALSE);
         Objection existingObjection = new Objection();
         existingObjection.setCreatedOn(CREATED_ON);
         existingObjection.setId(OBJECTION_ID);
@@ -54,7 +51,8 @@ class ObjectionPatcherTest {
         existingObjection.setCompanyNumber(COMPANY_NUMBER);
 
         when(dateTimeSupplier.get()).thenReturn(STATUS_CHANGED_ON);
-        Objection objection = objectionPatcher.patchObjection(objectionPatch, REQUEST_ID, existingObjection);
+        Objection objection =
+                objectionPatcher.patchObjection(objectionPatch, REQUEST_ID, existingObjection);
 
         assertEquals(REASON, objection.getReason());
         assertEquals(OBJECTION_ID, objection.getId());
@@ -77,7 +75,8 @@ class ObjectionPatcherTest {
         objectionPatch.setReason(REASON);
         objectionPatch.setStatus(ObjectionStatus.OPEN);
 
-        CreatedBy createdBy = new CreatedBy( "", "", "myself-or-company", "Not Joe Bloggs", Boolean.TRUE);
+        CreatedBy createdBy =
+                new CreatedBy("", "", "myself-or-company", "Not Joe Bloggs", Boolean.TRUE);
         Objection existingObjection = new Objection();
         existingObjection.setCreatedOn(CREATED_ON);
         existingObjection.setId(OBJECTION_ID);
@@ -85,7 +84,8 @@ class ObjectionPatcherTest {
         existingObjection.setCompanyNumber(COMPANY_NUMBER);
 
         when(dateTimeSupplier.get()).thenReturn(STATUS_CHANGED_ON);
-        Objection objection = objectionPatcher.patchObjection(objectionPatch, REQUEST_ID, existingObjection);
+        Objection objection =
+                objectionPatcher.patchObjection(objectionPatch, REQUEST_ID, existingObjection);
 
         assertEquals(REASON, objection.getReason());
         assertEquals(OBJECTION_ID, objection.getId());

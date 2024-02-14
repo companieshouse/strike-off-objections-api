@@ -1,7 +1,15 @@
 package uk.gov.companieshouse.api.strikeoffobjections.interceptor;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.util.HashMap;
+import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -14,15 +22,6 @@ import uk.gov.companieshouse.api.strikeoffobjections.common.ApiLogger;
 import uk.gov.companieshouse.api.strikeoffobjections.groups.Unit;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Objection;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 @Unit
 @ExtendWith(MockitoExtension.class)
 class CompanyNumberInterceptorTest {
@@ -31,17 +30,13 @@ class CompanyNumberInterceptorTest {
     private static final String WRONG_COMPANY_NUMBER = "87654321";
     private static Map<String, String> PATH_VARIABLES;
 
-    @Mock
-    private ApiLogger apiLogger;
+    @Mock private ApiLogger apiLogger;
 
-    @Mock
-    private HttpServletRequest request;
+    @Mock private HttpServletRequest request;
 
-    @Mock
-    private HttpServletResponse response;
+    @Mock private HttpServletResponse response;
 
-    @InjectMocks
-    private CompanyNumberInterceptor companyNumberInterceptor;
+    @InjectMocks private CompanyNumberInterceptor companyNumberInterceptor;
 
     @BeforeEach
     void init() {
@@ -54,7 +49,8 @@ class CompanyNumberInterceptorTest {
         Objection objection = new Objection();
         objection.setCompanyNumber(COMPANY_NUMBER);
         when(request.getAttribute("objection")).thenReturn(objection);
-        when(request.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE)).thenReturn(PATH_VARIABLES);
+        when(request.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE))
+                .thenReturn(PATH_VARIABLES);
         boolean result = companyNumberInterceptor.preHandle(request, response, null);
 
         assertTrue(result);
@@ -65,7 +61,8 @@ class CompanyNumberInterceptorTest {
         Objection objection = new Objection();
         objection.setCompanyNumber(WRONG_COMPANY_NUMBER);
         when(request.getAttribute("objection")).thenReturn(objection);
-        when(request.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE)).thenReturn(PATH_VARIABLES);
+        when(request.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE))
+                .thenReturn(PATH_VARIABLES);
         boolean result = companyNumberInterceptor.preHandle(request, response, null);
 
         assertFalse(result);

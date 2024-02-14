@@ -1,20 +1,23 @@
 package uk.gov.companieshouse.api.strikeoffobjections.model.entity;
 
+import java.util.Objects;
 import org.springframework.data.mongodb.core.mapping.Field;
 import uk.gov.companieshouse.service.links.Links;
-
-import java.util.Objects;
 
 public class Attachment {
 
     @Field("id")
     private String id;
+
     @Field("links")
     private Links links;
+
     @Field("name")
     private String name;
+
     @Field("content_type")
     private String contentType;
+
     @Field("size")
     private long size;
 
@@ -63,11 +66,11 @@ public class Attachment {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Attachment that = (Attachment) o;
-        return getSize() == that.getSize() &&
-                Objects.equals(getId(), that.getId()) &&
-                Objects.equals(getLinks(), that.getLinks()) &&
-                Objects.equals(getName(), that.getName()) &&
-                Objects.equals(getContentType(), that.getContentType());
+        return getSize() == that.getSize()
+                && Objects.equals(getId(), that.getId())
+                && Objects.equals(getLinks(), that.getLinks())
+                && Objects.equals(getName(), that.getName())
+                && Objects.equals(getContentType(), that.getContentType());
     }
 
     @Override

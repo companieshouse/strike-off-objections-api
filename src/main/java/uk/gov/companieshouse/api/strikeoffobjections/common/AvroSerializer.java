@@ -2,6 +2,8 @@ package uk.gov.companieshouse.api.strikeoffobjections.common;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
 import org.apache.avro.generic.GenericDatumWriter;
@@ -14,9 +16,6 @@ import org.apache.avro.specific.SpecificDatumWriter;
 import org.apache.avro.specific.SpecificRecord;
 import org.springframework.stereotype.Component;
 import uk.gov.companieshouse.api.strikeoffobjections.model.email.EmailContent;
-
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 
 @Component
 public class AvroSerializer {
@@ -35,7 +34,7 @@ public class AvroSerializer {
     public byte[] serialize(SpecificRecord data) throws IOException {
         DatumWriter<SpecificRecord> datumWriter = new SpecificDatumWriter<>();
 
-        try(ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+        try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
             Encoder encoder = EncoderFactory.get().binaryEncoder(out, null);
             datumWriter.setSchema(data.getSchema());
             datumWriter.write(data, encoder);

@@ -2,7 +2,6 @@ package uk.gov.companieshouse.api.strikeoffobjections.model.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
-
 import uk.gov.companieshouse.service.links.Links;
 
 public class AttachmentResponseDTO {
@@ -15,7 +14,7 @@ public class AttachmentResponseDTO {
 
     @JsonProperty("content_type")
     private String contentType;
-    
+
     @JsonProperty("size")
     private long size;
 

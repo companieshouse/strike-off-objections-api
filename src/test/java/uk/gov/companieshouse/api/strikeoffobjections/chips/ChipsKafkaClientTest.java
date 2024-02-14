@@ -1,5 +1,24 @@
 package uk.gov.companieshouse.api.strikeoffobjections.chips;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.function.Supplier;
 import org.apache.commons.lang.StringUtils;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.apache.kafka.common.TopicPartition;
@@ -24,26 +43,6 @@ import uk.gov.companieshouse.kafka.message.Message;
 import uk.gov.companieshouse.kafka.producer.CHKafkaProducer;
 import uk.gov.companieshouse.service.ServiceException;
 
-import java.io.IOException;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-import java.util.function.Supplier;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 @Unit
 @ExtendWith(MockitoExtension.class)
 class ChipsKafkaClientTest {
@@ -56,55 +55,50 @@ class ChipsKafkaClientTest {
     private static final Boolean SHARE_IDENTITY = true;
     private static final String CUSTOMER_EMAIL = "test123@ch.gov.uk";
     private static final String REASON = "This is a test";
-    private static final String DOWNLOAD_URL_PREFIX = "http://chs-test-web:4000/strike-off-objections/download";
+    private static final String DOWNLOAD_URL_PREFIX =
+            "http://chs-test-web:4000/strike-off-objections/download";
     private static final String CHIPS_REST_ENDPOINT = "/endpoint";
     private static final String CHIPS_REST_INTERFACES_SEND_TOPIC = "chips-topic";
     private static final LocalDateTime DATE_TIME = LocalDateTime.of(2020, 11, 24, 15, 34);
     private static final Long TIMESTAMP = DATE_TIME.atZone(ZoneId.systemDefault()).toEpochSecond();
 
-    @Mock
-    private CHKafkaProducer producer;
+    @Mock private CHKafkaProducer producer;
 
-    @Mock
-    private AvroSerializer avroSerializer;
+    @Mock private AvroSerializer avroSerializer;
 
-    @Mock
-    private ApiLogger logger;
+    @Mock private ApiLogger logger;
 
-    @Mock
-    private Supplier<LocalDateTime> dateTimeSupplier;
+    @Mock private Supplier<LocalDateTime> dateTimeSupplier;
 
-    @Mock
-    private Future<RecordMetadata> future;
+    @Mock private Future<RecordMetadata> future;
 
     private RecordMetadata recordMetadata;
 
-    @Captor
-    private ArgumentCaptor<ChipsRestInterfacesSend> chipsRestInterfacesSendArgumentCaptor;
+    @Captor private ArgumentCaptor<ChipsRestInterfacesSend> chipsRestInterfacesSendArgumentCaptor;
 
-    @Captor
-    private ArgumentCaptor<Message> messageArgumentCaptor;
+    @Captor private ArgumentCaptor<Message> messageArgumentCaptor;
 
-    @Captor
-    private ArgumentCaptor<Map<String, Object>> logMapArgumentCaptor;
+    @Captor private ArgumentCaptor<Map<String, Object>> logMapArgumentCaptor;
 
-    @InjectMocks
-    private ChipsKafkaClient chipsKafkaClient;
+    @InjectMocks private ChipsKafkaClient chipsKafkaClient;
 
     @BeforeEach
     void setup() {
         Utils.setTestAttachmentsWithLinks(ATTACHMENTS);
-        ReflectionTestUtils.setField(chipsKafkaClient, "chipsRestInterfacesEndpoint", CHIPS_REST_ENDPOINT);
-        ReflectionTestUtils.setField(chipsKafkaClient, "chipsRestInterfacesSendTopic", CHIPS_REST_INTERFACES_SEND_TOPIC);
+        ReflectionTestUtils.setField(
+                chipsKafkaClient, "chipsRestInterfacesEndpoint", CHIPS_REST_ENDPOINT);
+        ReflectionTestUtils.setField(
+                chipsKafkaClient, "chipsRestInterfacesSendTopic", CHIPS_REST_INTERFACES_SEND_TOPIC);
 
         when(dateTimeSupplier.get()).thenReturn(DATE_TIME);
 
-        TopicPartition topicPartition = new TopicPartition("test",1);
-        recordMetadata = new RecordMetadata(topicPartition, 0,0,0,0, 0);
+        TopicPartition topicPartition = new TopicPartition("test", 1);
+        recordMetadata = new RecordMetadata(topicPartition, 0, 0, 0, 0, 0);
     }
 
     @Test
-    void testSendToChips() throws ServiceException, IOException, ExecutionException, InterruptedException {
+    void testSendToChips()
+            throws ServiceException, IOException, ExecutionException, InterruptedException {
         final byte[] serializedData = new byte[1];
         final ChipsRequest chipsRequest = getChipsRequest();
 
@@ -116,7 +110,8 @@ class ChipsKafkaClientTest {
 
         verify(avroSerializer, times(1)).serialize(chipsRestInterfacesSendArgumentCaptor.capture());
 
-        ChipsRestInterfacesSend chipsRestInterfacesSend = chipsRestInterfacesSendArgumentCaptor.getValue();
+        ChipsRestInterfacesSend chipsRestInterfacesSend =
+                chipsRestInterfacesSendArgumentCaptor.getValue();
         assertEquals(Application.APP_NAMESPACE, chipsRestInterfacesSend.getAppId());
         assertTrue(StringUtils.isNotBlank(chipsRestInterfacesSend.getMessageId()));
         assertEquals(String.valueOf(TIMESTAMP), chipsRestInterfacesSend.getCreatedAt());
@@ -148,11 +143,14 @@ class ChipsKafkaClientTest {
     }
 
     @Test
-    void testSendToChipsLogging() throws ServiceException, IOException, InterruptedException, ExecutionException {
+    void testSendToChipsLogging()
+            throws ServiceException, IOException, InterruptedException, ExecutionException {
         final ChipsRequest chipsRequest = getChipsRequest();
-        final String sendingLogMessage = "About to send kafka message to Chips Rest Interfaces Consumer";
-        final String finishedSendingLogMessage = "Finished sending kafka message to Chips Rest Interfaces Consumer";
-        final String topicKey  = "topic";
+        final String sendingLogMessage =
+                "About to send kafka message to Chips Rest Interfaces Consumer";
+        final String finishedSendingLogMessage =
+                "Finished sending kafka message to Chips Rest Interfaces Consumer";
+        final String topicKey = "topic";
         final String messageIdKey = "message_id";
         final String messageContentsKey = "message_contents";
 
@@ -163,26 +161,30 @@ class ChipsKafkaClientTest {
 
         verify(avroSerializer, times(1)).serialize(chipsRestInterfacesSendArgumentCaptor.capture());
 
-        ChipsRestInterfacesSend chipsRestInterfacesSend = chipsRestInterfacesSendArgumentCaptor.getValue();
+        ChipsRestInterfacesSend chipsRestInterfacesSend =
+                chipsRestInterfacesSendArgumentCaptor.getValue();
 
-        verify(logger, times(1)).infoContext(eq(REQUEST_ID), eq(sendingLogMessage), logMapArgumentCaptor.capture());
+        verify(logger, times(1))
+                .infoContext(eq(REQUEST_ID), eq(sendingLogMessage), logMapArgumentCaptor.capture());
 
         Map<String, Object> logMap = logMapArgumentCaptor.getValue();
         assertEquals(CHIPS_REST_INTERFACES_SEND_TOPIC, logMap.get(topicKey));
-        assertTrue(StringUtils.isNotBlank((String)logMap.get(messageIdKey)));
+        assertTrue(StringUtils.isNotBlank((String) logMap.get(messageIdKey)));
 
-        verify(logger, times(1)).debugContext(eq(REQUEST_ID), eq(sendingLogMessage), logMapArgumentCaptor.capture());
+        verify(logger, times(1))
+                .debugContext(eq(REQUEST_ID), eq(sendingLogMessage), logMapArgumentCaptor.capture());
 
         logMap = logMapArgumentCaptor.getValue();
         assertEquals(CHIPS_REST_INTERFACES_SEND_TOPIC, logMap.get(topicKey));
-        assertTrue(StringUtils.isNotBlank((String)logMap.get(messageIdKey)));
+        assertTrue(StringUtils.isNotBlank((String) logMap.get(messageIdKey)));
         assertEquals(chipsRestInterfacesSend.getData(), logMap.get(messageContentsKey));
 
-        verify(logger, times(1)).infoContext(eq(REQUEST_ID), eq(finishedSendingLogMessage), logMapArgumentCaptor.capture());
+        verify(logger, times(1))
+                .infoContext(eq(REQUEST_ID), eq(finishedSendingLogMessage), logMapArgumentCaptor.capture());
 
         logMap = logMapArgumentCaptor.getValue();
         assertEquals(CHIPS_REST_INTERFACES_SEND_TOPIC, logMap.get(topicKey));
-        assertTrue(StringUtils.isNotBlank((String)logMap.get(messageIdKey)));
+        assertTrue(StringUtils.isNotBlank((String) logMap.get(messageIdKey)));
     }
 
     @Test
@@ -192,8 +194,9 @@ class ChipsKafkaClientTest {
 
         doThrow(ioException).when(avroSerializer).serialize(any(ChipsRestInterfacesSend.class));
 
-        ServiceException serviceException = assertThrows(ServiceException.class,
-                () -> chipsKafkaClient.sendToChips(REQUEST_ID, chipsRequest));
+        ServiceException serviceException =
+                assertThrows(
+                        ServiceException.class, () -> chipsKafkaClient.sendToChips(REQUEST_ID, chipsRequest));
 
         verify(logger, times(1)).errorContext(REQUEST_ID, ioException);
         assertEquals(ioException.getMessage(), serviceException.getMessage());
@@ -208,8 +211,9 @@ class ChipsKafkaClientTest {
         when(producer.sendAndReturnFuture(any(Message.class))).thenReturn(future);
         doThrow(executionException).when(future).get();
 
-        ServiceException serviceException = assertThrows(ServiceException.class,
-                () -> chipsKafkaClient.sendToChips(REQUEST_ID, chipsRequest));
+        ServiceException serviceException =
+                assertThrows(
+                        ServiceException.class, () -> chipsKafkaClient.sendToChips(REQUEST_ID, chipsRequest));
 
         verify(logger, times(1)).errorContext(REQUEST_ID, executionException);
         assertEquals(executionException.getMessage(), serviceException.getMessage());
@@ -217,15 +221,17 @@ class ChipsKafkaClientTest {
     }
 
     @Test
-    void testSendToChipsInterruptedExceptionHandling() throws ExecutionException, InterruptedException {
+    void testSendToChipsInterruptedExceptionHandling()
+            throws ExecutionException, InterruptedException {
         final ChipsRequest chipsRequest = getChipsRequest();
         final InterruptedException interruptedException = new InterruptedException();
 
         when(producer.sendAndReturnFuture(any(Message.class))).thenReturn(future);
         doThrow(interruptedException).when(future).get();
 
-        ServiceException serviceException = assertThrows(ServiceException.class,
-                () -> chipsKafkaClient.sendToChips(REQUEST_ID, chipsRequest));
+        ServiceException serviceException =
+                assertThrows(
+                        ServiceException.class, () -> chipsKafkaClient.sendToChips(REQUEST_ID, chipsRequest));
 
         assertTrue(Thread.currentThread().isInterrupted());
         verify(logger, times(1)).errorContext(REQUEST_ID, interruptedException);
@@ -234,8 +240,7 @@ class ChipsKafkaClientTest {
     }
 
     private ChipsRequest getChipsRequest() {
-        return new ChipsRequest
-                .Builder()
+        return new ChipsRequest.Builder()
                 .objectionId(OBJECTION_ID)
                 .companyNumber(COMPANY_NUMBER)
                 .attachments(DOWNLOAD_URL_PREFIX, ATTACHMENTS)

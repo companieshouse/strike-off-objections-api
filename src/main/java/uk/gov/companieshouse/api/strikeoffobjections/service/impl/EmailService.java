@@ -1,5 +1,11 @@
 package uk.gov.companieshouse.api.strikeoffobjections.service.impl;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+import java.util.function.Supplier;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -10,13 +16,6 @@ import uk.gov.companieshouse.api.strikeoffobjections.model.email.EmailContent;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Objection;
 import uk.gov.companieshouse.api.strikeoffobjections.service.IEmailService;
 import uk.gov.companieshouse.service.ServiceException;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-import java.util.function.Supplier;
 
 @Service
 public class EmailService implements IEmailService {
@@ -53,8 +52,7 @@ public class EmailService implements IEmailService {
     public EmailService(
             ApiLogger logger,
             KafkaEmailClient kafkaEmailClient,
-            Supplier<LocalDateTime> dateTimeSupplier
-    ) {
+            Supplier<LocalDateTime> dateTimeSupplier) {
         this.logger = logger;
         this.kafkaEmailClient = kafkaEmailClient;
         this.dateTimeSupplier = dateTimeSupplier;
@@ -62,19 +60,12 @@ public class EmailService implements IEmailService {
 
     @Override
     public void sendObjectionSubmittedCustomerEmail(
-            Objection objection,
-            String companyName,
-            String requestId
-    ) throws ServiceException {
+            Objection objection, String companyName, String requestId) throws ServiceException {
 
         String emailAddress = objection.getCreatedBy().getEmail();
-        Map<String, Object> data = constructCommonEmailMap(
-                companyName,
-                objection,
-                emailAddress);
+        Map<String, Object> data = constructCommonEmailMap(companyName, objection, emailAddress);
 
-        EmailContent emailContent = constructEmailContent(EmailType.CUSTOMER,
-                emailAddress, data);
+        EmailContent emailContent = constructEmailContent(EmailType.CUSTOMER, emailAddress, data);
 
         logger.debugContext(requestId, "Calling Kafka client to send customer email");
         kafkaEmailClient.sendEmailToKafka(emailContent);
@@ -83,35 +74,30 @@ public class EmailService implements IEmailService {
 
     @Override
     public void sendObjectionSubmittedDissolutionTeamEmail(
-            String companyName,
-            String jurisdiction,
-            Objection objection,
-            String requestId
-    ) throws ServiceException {
-
+            String companyName, String jurisdiction, Objection objection, String requestId)
+            throws ServiceException {
 
         for (String emailAddress : getDissolutionTeamRecipients(jurisdiction)) {
-            Map<String, Object> data = constructCommonEmailMap(
-                    companyName,
-                    objection,
-                    emailAddress);
+            Map<String, Object> data = constructCommonEmailMap(companyName, objection, emailAddress);
 
             data.put("customer_email", objection.getCreatedBy().getEmail());
-            EmailContent emailContent = constructEmailContent(EmailType.DISSOLUTION_TEAM,
-                    emailAddress, data);
-            logger.debugContext(requestId, String.format("Calling Kafka client to send dissolution team email to %s",
-                    emailAddress));
+            EmailContent emailContent =
+                    constructEmailContent(EmailType.DISSOLUTION_TEAM, emailAddress, data);
+            logger.debugContext(
+                    requestId,
+                    String.format("Calling Kafka client to send dissolution team email to %s", emailAddress));
             kafkaEmailClient.sendEmailToKafka(emailContent);
             logger.debugContext(requestId, "Successfully called Kafka client");
         }
     }
 
-    private EmailContent constructEmailContent(EmailType emailType,
-                                               String emailAddress,
-                                               Map<String, Object> data) {
+    private EmailContent constructEmailContent(
+            EmailType emailType, String emailAddress, Map<String, Object> data) {
 
-        String typeOfEmail = (emailType == EmailType.CUSTOMER)? submittedCustomerEmailType
-                : submittedDissolutionTeamEmailType;
+        String typeOfEmail =
+                (emailType == EmailType.CUSTOMER)
+                        ? submittedCustomerEmailType
+                        : submittedDissolutionTeamEmailType;
 
         return new EmailContent.Builder()
                 .withOriginatingAppId(originatingAppId)
@@ -123,7 +109,8 @@ public class EmailService implements IEmailService {
                 .build();
     }
 
-    private Map<String, Object> constructCommonEmailMap(String companyName, Objection objection, String email) {
+    private Map<String, Object> constructCommonEmailMap(
+            String companyName, Objection objection, String email) {
         Map<String, Object> data = new HashMap<>();
 
         LocalDate submittedOn = objection.getCreatedOn().toLocalDate();

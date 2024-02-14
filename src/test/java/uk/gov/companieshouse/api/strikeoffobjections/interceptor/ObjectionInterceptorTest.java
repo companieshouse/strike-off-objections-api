@@ -1,7 +1,16 @@
 package uk.gov.companieshouse.api.strikeoffobjections.interceptor;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.util.HashMap;
+import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,17 +26,6 @@ import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Objection;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.ObjectionStatus;
 import uk.gov.companieshouse.api.strikeoffobjections.service.IObjectionService;
 
-
-import java.util.HashMap;
-import java.util.Map;
-
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 @Unit
 @ExtendWith(MockitoExtension.class)
 class ObjectionInterceptorTest {
@@ -35,20 +33,15 @@ class ObjectionInterceptorTest {
     private static final String OBJECTION_ID = "OBJECTION";
     private static Map<String, String> PATH_VARIABLES;
 
-    @Mock
-    private HttpServletRequest request;
+    @Mock private HttpServletRequest request;
 
-    @Mock
-    private HttpServletResponse response;
+    @Mock private HttpServletResponse response;
 
-    @Mock
-    private ApiLogger apiLogger;
+    @Mock private ApiLogger apiLogger;
 
-    @Mock
-    private IObjectionService objectionService;
+    @Mock private IObjectionService objectionService;
 
-    @InjectMocks
-    private ObjectionInterceptor objectionInterceptor;
+    @InjectMocks private ObjectionInterceptor objectionInterceptor;
 
     @BeforeEach
     void init() {
@@ -57,11 +50,12 @@ class ObjectionInterceptorTest {
     }
 
     @Test
-    void testObjectionInterceptor() throws Exception{
+    void testObjectionInterceptor() throws Exception {
         Objection objection = new Objection();
         objection.setStatus(ObjectionStatus.OPEN);
 
-        when(request.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE)).thenReturn(PATH_VARIABLES);
+        when(request.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE))
+                .thenReturn(PATH_VARIABLES);
         when(objectionService.getObjection(any(), any())).thenReturn(objection);
 
         boolean result = objectionInterceptor.preHandle(request, response, null);
@@ -70,9 +64,11 @@ class ObjectionInterceptorTest {
     }
 
     @Test
-    void testObjectionInterceptorObjectionNotFound() throws Exception{
-        when(request.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE)).thenReturn(PATH_VARIABLES);
-        when(objectionService.getObjection(any(), any())).thenThrow(new ObjectionNotFoundException("Not found"));
+    void testObjectionInterceptorObjectionNotFound() throws Exception {
+        when(request.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE))
+                .thenReturn(PATH_VARIABLES);
+        when(objectionService.getObjection(any(), any()))
+                .thenThrow(new ObjectionNotFoundException("Not found"));
 
         boolean result = objectionInterceptor.preHandle(request, response, null);
         assertFalse(result);

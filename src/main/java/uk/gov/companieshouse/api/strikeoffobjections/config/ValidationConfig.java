@@ -1,5 +1,8 @@
 package uk.gov.companieshouse.api.strikeoffobjections.config;
 
+import java.util.Arrays;
+import java.util.List;
+import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -9,10 +12,6 @@ import uk.gov.companieshouse.api.strikeoffobjections.model.eligibility.Eligibili
 import uk.gov.companieshouse.api.strikeoffobjections.validation.AllowedValuesValidationRule;
 import uk.gov.companieshouse.api.strikeoffobjections.validation.DisallowedValuesValidationRule;
 import uk.gov.companieshouse.api.strikeoffobjections.validation.ValidationRule;
-
-import javax.annotation.PostConstruct;
-import java.util.Arrays;
-import java.util.List;
 
 @Configuration
 public class ValidationConfig {
@@ -25,8 +24,7 @@ public class ValidationConfig {
     @Value("#{'${ACTION_CODES_STRIKE_OFF_NOTICE}'.split(',')}")
     private List<Long> strikeOffNoticeActionCodes;
 
-    @Autowired
-    private ApiLogger apiLogger;
+    @Autowired private ApiLogger apiLogger;
 
     @Bean
     public List<ValidationRule<Long>> getActionCodeValidationRules() {
@@ -38,15 +36,18 @@ public class ValidationConfig {
                 new AllowedValuesValidationRule<>(
                         strikeOffNoticeActionCodes,
                         EligibilityStatus.INELIGIBLE_NO_DISSOLUTION_ACTION,
-                        apiLogger)
-        );
+                        apiLogger));
     }
 
     @PostConstruct
     private void logActionCodeValidatorConfigValues() {
         apiLogger.info(
-                String.format("%s ACTION_CODES_COMPANY_STRUCK_OFF = %s", CONFIG_MESSAGE_PREFIX, companyStruckOffActionCodes));
+                String.format(
+                        "%s ACTION_CODES_COMPANY_STRUCK_OFF = %s",
+                        CONFIG_MESSAGE_PREFIX, companyStruckOffActionCodes));
         apiLogger.info(
-                String.format("%s ACTION_CODES_STRIKE_OFF_NOTICE = %s", CONFIG_MESSAGE_PREFIX, strikeOffNoticeActionCodes));
+                String.format(
+                        "%s ACTION_CODES_STRIKE_OFF_NOTICE = %s",
+                        CONFIG_MESSAGE_PREFIX, strikeOffNoticeActionCodes));
     }
 }

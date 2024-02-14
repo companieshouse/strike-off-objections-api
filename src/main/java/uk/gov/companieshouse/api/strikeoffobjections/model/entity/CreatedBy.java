@@ -19,14 +19,15 @@ public class CreatedBy {
     @Field("share_identity")
     private boolean shareIdentity;
 
-    public CreatedBy(String id, String email, String objector, String fullName, boolean shareIdentity) {
+    public CreatedBy(
+            String id, String email, String objector, String fullName, boolean shareIdentity) {
         this.id = id;
         this.email = email;
         this.objector = objector;
         this.fullName = fullName;
         this.shareIdentity = shareIdentity;
     }
-    
+
     public String getId() {
         return id;
     }

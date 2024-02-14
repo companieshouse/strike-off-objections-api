@@ -1,5 +1,9 @@
 package uk.gov.companieshouse.api.strikeoffobjections.client;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.*;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,10 +19,6 @@ import uk.gov.companieshouse.api.strikeoffobjections.common.ApiLogger;
 import uk.gov.companieshouse.api.strikeoffobjections.exception.UnsafeUrlException;
 import uk.gov.companieshouse.api.strikeoffobjections.groups.Unit;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.*;
-
 @Unit
 @ExtendWith(MockitoExtension.class)
 class OracleQueryClientTest {
@@ -29,17 +29,13 @@ class OracleQueryClientTest {
     private static final String GAZ2_TRANSACTION = "GAZ2";
     private static final String REQUEST_ID = "1234";
 
-    @Mock
-    private RestTemplate restTemplate;
+    @Mock private RestTemplate restTemplate;
 
-    @Mock
-    private ApiLogger apiLogger;
+    @Mock private ApiLogger apiLogger;
 
-    @InjectMocks
-    private OracleQueryClient oracleQueryClient;
+    @InjectMocks private OracleQueryClient oracleQueryClient;
 
-    @Spy
-    private OracleQueryClient corruptibleClient;
+    @Spy private OracleQueryClient corruptibleClient;
 
     @BeforeEach
     public void setup() {
@@ -48,22 +44,28 @@ class OracleQueryClientTest {
 
     @Test
     void testUrlCorrectlyConstructedAndActionCodeReturned() {
-        when(restTemplate.getForEntity(DUMMY_URL + "/company/" + COMPANY_NUMBER + "/action-code", Long.class))
+        when(restTemplate.getForEntity(
+                        DUMMY_URL + "/company/" + COMPANY_NUMBER + "/action-code", Long.class))
                 .thenReturn(new ResponseEntity<>(ACTION_CODE, HttpStatus.OK));
 
         Long actionCode = oracleQueryClient.getCompanyActionCode(COMPANY_NUMBER, REQUEST_ID);
-        verify(apiLogger).infoContext(REQUEST_ID, "Calling Oracle Query APi at: http://test/company/12345678/action-code");
+        verify(apiLogger)
+                .infoContext(
+                        REQUEST_ID, "Calling Oracle Query APi at: http://test/company/12345678/action-code");
 
         assertEquals(ACTION_CODE, actionCode);
     }
 
     @Test
     void testUrlCorrectlyConstructedAndGaz2Returned() {
-        when(restTemplate.getForEntity(DUMMY_URL + "/company/" + COMPANY_NUMBER + "/gaz2-requested", String.class))
+        when(restTemplate.getForEntity(
+                        DUMMY_URL + "/company/" + COMPANY_NUMBER + "/gaz2-requested", String.class))
                 .thenReturn(new ResponseEntity<>(GAZ2_TRANSACTION, HttpStatus.OK));
 
         String gaz2Transaction = oracleQueryClient.getRequestedGaz2(COMPANY_NUMBER, REQUEST_ID);
-        verify(apiLogger).infoContext(REQUEST_ID, "Calling Oracle Query APi at: http://test/company/12345678/gaz2-requested");
+        verify(apiLogger)
+                .infoContext(
+                        REQUEST_ID, "Calling Oracle Query APi at: http://test/company/12345678/gaz2-requested");
 
         assertEquals(GAZ2_TRANSACTION, gaz2Transaction);
     }
@@ -77,9 +79,11 @@ class OracleQueryClientTest {
                 .when(corruptibleClient)
                 .formatUrl(COMPANY_NUMBER, "action-code");
 
-        assertThrows(UnsafeUrlException.class,
+        assertThrows(
+                UnsafeUrlException.class,
                 () -> corruptibleClient.getCompanyActionCode(COMPANY_NUMBER, REQUEST_ID));
-        verify(apiLogger).infoContext(REQUEST_ID, "Calling Oracle Query APi at: url-is-corrupted-by-company-number");
+        verify(apiLogger)
+                .infoContext(REQUEST_ID, "Calling Oracle Query APi at: url-is-corrupted-by-company-number");
     }
 
     @Test
@@ -91,8 +95,10 @@ class OracleQueryClientTest {
                 .when(corruptibleClient)
                 .formatUrl(COMPANY_NUMBER, "gaz2-requested");
 
-        assertThrows(UnsafeUrlException.class,
+        assertThrows(
+                UnsafeUrlException.class,
                 () -> corruptibleClient.getRequestedGaz2(COMPANY_NUMBER, REQUEST_ID));
-        verify(apiLogger).infoContext(REQUEST_ID, "Calling Oracle Query APi at: url-is-corrupted-by-company-number");
+        verify(apiLogger)
+                .infoContext(REQUEST_ID, "Calling Oracle Query APi at: url-is-corrupted-by-company-number");
     }
 }

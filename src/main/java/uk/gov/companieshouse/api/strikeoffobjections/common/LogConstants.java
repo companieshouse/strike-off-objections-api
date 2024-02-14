@@ -1,7 +1,6 @@
 package uk.gov.companieshouse.api.strikeoffobjections.common;
 
 public enum LogConstants {
-
     ACTION_CODE("action_code"),
     ATTACHMENT_ID("attachment_id"),
     COMPANY_NUMBER("company_number"),

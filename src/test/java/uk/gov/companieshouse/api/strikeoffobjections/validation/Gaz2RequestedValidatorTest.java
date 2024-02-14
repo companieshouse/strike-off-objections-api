@@ -1,5 +1,11 @@
 package uk.gov.companieshouse.api.strikeoffobjections.validation;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -12,12 +18,6 @@ import uk.gov.companieshouse.api.strikeoffobjections.common.ApiLogger;
 import uk.gov.companieshouse.api.strikeoffobjections.groups.Unit;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.ObjectionStatus;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 @Unit
 @ExtendWith(MockitoExtension.class)
 class Gaz2RequestedValidatorTest {
@@ -27,14 +27,11 @@ class Gaz2RequestedValidatorTest {
     private static final long NON_GAZ1_ACTION_CODE = 1000L;
     private static final String REQUEST_ID = "87654321";
 
-    @Mock
-    private OracleQueryClient oracleQueryClient;
+    @Mock private OracleQueryClient oracleQueryClient;
 
-    @Mock
-    private ApiLogger apiLogger;
+    @Mock private ApiLogger apiLogger;
 
-    @InjectMocks
-    private Gaz2RequestedValidator gaz2RequestedValidator;
+    @InjectMocks private Gaz2RequestedValidator gaz2RequestedValidator;
 
     @BeforeEach
     void init() {
@@ -61,8 +58,10 @@ class Gaz2RequestedValidatorTest {
     void validateFailsValidationGaz2RequestedTest() {
         when(oracleQueryClient.getRequestedGaz2(COMPANY_NUMBER, REQUEST_ID)).thenReturn("Some value");
 
-        ValidationException ve = assertThrows(ValidationException.class,
-                () -> gaz2RequestedValidator.validate(COMPANY_NUMBER, GAZ1_ACTION_CODE, REQUEST_ID));
+        ValidationException ve =
+                assertThrows(
+                        ValidationException.class,
+                        () -> gaz2RequestedValidator.validate(COMPANY_NUMBER, GAZ1_ACTION_CODE, REQUEST_ID));
 
         verify(oracleQueryClient, times(1)).getRequestedGaz2(COMPANY_NUMBER, REQUEST_ID);
         assertEquals(ObjectionStatus.INELIGIBLE_GAZ2_REQUESTED, ve.getObjectionStatus());

@@ -1,12 +1,11 @@
 package uk.gov.companieshouse.api.strikeoffobjections.common;
 
+import java.util.HashMap;
+import java.util.Map;
 import org.springframework.stereotype.Component;
 import uk.gov.companieshouse.api.strikeoffobjections.Application;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.logging.LoggerFactory;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Acts as a wrapper for the structured logger to help with unit testing and also ensures that the
@@ -46,16 +45,17 @@ public class ApiLogger {
         LOGGER.errorContext(context, message, e, null);
     }
 
-    public void errorContext(String context, String message, Exception e, Map<String, Object> dataMap) {
+    public void errorContext(
+            String context, String message, Exception e, Map<String, Object> dataMap) {
         LOGGER.errorContext(context, message, e, cloneMapData(dataMap));
     }
 
     /**
-     * The Companies House logging implementation modifies the data map content which means that
-     * if the same data map is used for subsequent calls any new message that might be passed in
-     * is not displayed in certain log format outputs. Creating a clone of the data map gets around
-     * this issue.
-     *  
+     * The Companies House logging implementation modifies the data map content which means that if
+     * the same data map is used for subsequent calls any new message that might be passed in is not
+     * displayed in certain log format outputs. Creating a clone of the data map gets around this
+     * issue.
+     *
      * @param dataMap The map data to log
      * @return A cloned copy of the map data
      */

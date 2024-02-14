@@ -8,14 +8,12 @@ import static org.mockito.Mockito.verify;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
 import org.springframework.test.util.ReflectionTestUtils;
 import uk.gov.companieshouse.api.strikeoffobjections.chips.ChipsRestClient;
 import uk.gov.companieshouse.api.strikeoffobjections.groups.Unit;
@@ -38,30 +36,37 @@ class ChipsServiceTest {
     private static final String EMAIL = "demo@ch.gov.uk";
     private static final String USER_ID = "32324";
     private static final String REASON = "THIS IS A REASON";
-    private static final String DOWNLOAD_URL_PREFIX = "http://chs-test-web:4000/strike-off-objections/download";
+    private static final String DOWNLOAD_URL_PREFIX =
+            "http://chs-test-web:4000/strike-off-objections/download";
     private static final String OBJECTOR = "client";
 
-    @Mock
-    private ChipsRestClient chipsRestClient;
+    @Mock private ChipsRestClient chipsRestClient;
 
-    @InjectMocks
-    private ChipsService chipsService;
+    @InjectMocks private ChipsService chipsService;
 
     @Test
     void testSendingToChipsCreatesCorrectRequest() throws ServiceException {
         ReflectionTestUtils.setField(chipsService, "attachmentDownloadUrlPrefix", DOWNLOAD_URL_PREFIX);
 
-        Objection objection = Utils.getTestObjection(
-                OBJECTION_ID, REASON, COMPANY_NUMBER, USER_ID, EMAIL, LOCAL_DATE_TIME,
-                Utils.buildTestObjectionCreate(OBJECTOR, FULL_NAME, SHARE_IDENTITY));
+        Objection objection =
+                Utils.getTestObjection(
+                        OBJECTION_ID,
+                        REASON,
+                        COMPANY_NUMBER,
+                        USER_ID,
+                        EMAIL,
+                        LOCAL_DATE_TIME,
+                        Utils.buildTestObjectionCreate(OBJECTOR, FULL_NAME, SHARE_IDENTITY));
         List<Attachment> attachments = new ArrayList<>();
         Utils.setTestAttachmentsWithLinks(attachments);
         objection.setAttachments(attachments);
 
         chipsService.sendObjection(REQUEST_ID, objection);
-        ArgumentCaptor<ChipsRequest> chipsRequestArgumentCaptor = ArgumentCaptor.forClass(ChipsRequest.class);
+        ArgumentCaptor<ChipsRequest> chipsRequestArgumentCaptor =
+                ArgumentCaptor.forClass(ChipsRequest.class);
 
-        verify(chipsRestClient, times(1)).sendToChips(eq(REQUEST_ID), chipsRequestArgumentCaptor.capture());
+        verify(chipsRestClient, times(1))
+                .sendToChips(eq(REQUEST_ID), chipsRequestArgumentCaptor.capture());
 
         ChipsRequest chipsRequest = chipsRequestArgumentCaptor.getValue();
 
@@ -73,9 +78,11 @@ class ChipsServiceTest {
         assertEquals(EMAIL, chipsRequest.getCustomerEmail());
         assertEquals(REASON, chipsRequest.getReason());
 
-        assertEquals(String.format("%s/url1/download", DOWNLOAD_URL_PREFIX),
+        assertEquals(
+                String.format("%s/url1/download", DOWNLOAD_URL_PREFIX),
                 chipsRequest.getAttachments().get("TestAttachment1"));
-        assertEquals(String.format("%s/url2/download", DOWNLOAD_URL_PREFIX),
+        assertEquals(
+                String.format("%s/url2/download", DOWNLOAD_URL_PREFIX),
                 chipsRequest.getAttachments().get("TestAttachment2"));
     }
 }

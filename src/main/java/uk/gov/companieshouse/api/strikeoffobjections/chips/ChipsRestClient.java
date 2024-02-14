@@ -1,5 +1,7 @@
 package uk.gov.companieshouse.api.strikeoffobjections.chips;
 
+import java.util.HashMap;
+import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
@@ -7,9 +9,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import uk.gov.companieshouse.api.strikeoffobjections.common.ApiLogger;
 import uk.gov.companieshouse.api.strikeoffobjections.model.chips.ChipsRequest;
-
-import java.util.HashMap;
-import java.util.Map;
 
 @Component
 public class ChipsRestClient implements ChipsSender {
@@ -27,21 +26,19 @@ public class ChipsRestClient implements ChipsSender {
     }
 
     @Override
-    public void sendToChips(String requestId, ChipsRequest chipsRequest){
+    public void sendToChips(String requestId, ChipsRequest chipsRequest) {
         Map<String, Object> logMap = new HashMap<>();
         logMap.put("chipsRestUrl", chipsRestUrl);
 
         apiLogger.infoContext(
-                requestId,
-                String.format("Posting %s to CHIPS rest interfaces", chipsRequest),
-                logMap
-        );
+                requestId, String.format("Posting %s to CHIPS rest interfaces", chipsRequest), logMap);
 
-        ResponseEntity<String> chipsRestResponse = restTemplate.postForEntity(chipsRestUrl, chipsRequest, String.class);
+        ResponseEntity<String> chipsRestResponse =
+                restTemplate.postForEntity(chipsRestUrl, chipsRequest, String.class);
 
         apiLogger.infoContext(
                 requestId,
-                String.format("Sent data to CHIPS, received status code: %s", chipsRestResponse.getStatusCode())
-        );
+                String.format(
+                        "Sent data to CHIPS, received status code: %s", chipsRestResponse.getStatusCode()));
     }
 }

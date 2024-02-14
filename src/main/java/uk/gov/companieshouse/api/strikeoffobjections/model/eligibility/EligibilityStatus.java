@@ -3,7 +3,6 @@ package uk.gov.companieshouse.api.strikeoffobjections.model.eligibility;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.ObjectionStatus;
 
 public enum EligibilityStatus {
-
     ELIGIBLE(ObjectionStatus.OPEN),
     INELIGIBLE_COMPANY_STRUCK_OFF(ObjectionStatus.INELIGIBLE_COMPANY_STRUCK_OFF),
     INELIGIBLE_NO_DISSOLUTION_ACTION(ObjectionStatus.INELIGIBLE_NO_DISSOLUTION_ACTION),

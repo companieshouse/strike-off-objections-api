@@ -1,5 +1,10 @@
 package uk.gov.companieshouse.api.strikeoffobjections.config;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.spy;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InOrder;
@@ -17,26 +22,17 @@ import uk.gov.companieshouse.api.strikeoffobjections.interceptor.authorization.U
 import uk.gov.companieshouse.api.strikeoffobjections.service.IObjectionService;
 import uk.gov.companieshouse.api.strikeoffobjections.service.impl.ERICHeaderParser;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.inOrder;
-import static org.mockito.Mockito.spy;
-
 @Unit
 @ExtendWith(MockitoExtension.class)
 class InterceptorConfigTest {
 
-    @Mock
-    private ApiLogger apiLogger;
+    @Mock private ApiLogger apiLogger;
 
-    @Mock
-    private IObjectionService objectionService;
+    @Mock private IObjectionService objectionService;
 
-    @Mock
-    private ERICHeaderParser ericHeaderParser;
+    @Mock private ERICHeaderParser ericHeaderParser;
 
-    @InjectMocks
-    private InterceptorConfig interceptorConfig;
+    @InjectMocks private InterceptorConfig interceptorConfig;
 
     @Test
     void testAttachmentDownloadAuthInterceptorCreation() {
@@ -56,8 +52,7 @@ class InterceptorConfigTest {
 
     @Test
     void testCompanyNumberInterceptorCreation() {
-        CompanyNumberInterceptor interceptor =
-                interceptorConfig.companyNumberInterceptor(apiLogger);
+        CompanyNumberInterceptor interceptor = interceptorConfig.companyNumberInterceptor(apiLogger);
 
         assertNotNull(interceptor);
     }
@@ -85,8 +80,10 @@ class InterceptorConfigTest {
 
         interceptorConfig.addInterceptors(spyRegistry);
 
-        InOrder interceptorOrder  = inOrder(spyRegistry);
-        interceptorOrder.verify(spyRegistry).addInterceptor(any(AttachmentDownloadAuthorizationInterceptor.class));
+        InOrder interceptorOrder = inOrder(spyRegistry);
+        interceptorOrder
+                .verify(spyRegistry)
+                .addInterceptor(any(AttachmentDownloadAuthorizationInterceptor.class));
         interceptorOrder.verify(spyRegistry).addInterceptor(any(ObjectionInterceptor.class));
         interceptorOrder.verify(spyRegistry).addInterceptor(any(ObjectionStatusInterceptor.class));
         interceptorOrder.verify(spyRegistry).addInterceptor(any(CompanyNumberInterceptor.class));

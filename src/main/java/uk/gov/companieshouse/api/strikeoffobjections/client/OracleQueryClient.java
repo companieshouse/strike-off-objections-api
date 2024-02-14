@@ -1,5 +1,7 @@
 package uk.gov.companieshouse.api.strikeoffobjections.client;
 
+import static uk.gov.companieshouse.api.strikeoffobjections.exception.UnsafeUrlException.ExceptionType.UNSAFE_URL;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
@@ -8,16 +10,12 @@ import org.springframework.web.client.RestTemplate;
 import uk.gov.companieshouse.api.strikeoffobjections.common.ApiLogger;
 import uk.gov.companieshouse.api.strikeoffobjections.exception.UnsafeUrlException;
 
-import static uk.gov.companieshouse.api.strikeoffobjections.exception.UnsafeUrlException.ExceptionType.UNSAFE_URL;
-
 @Component
 public class OracleQueryClient {
 
-    @Autowired
-    private RestTemplate restTemplate;
+    @Autowired private RestTemplate restTemplate;
 
-    @Autowired
-    private ApiLogger apiLogger;
+    @Autowired private ApiLogger apiLogger;
 
     @Value("${ORACLE_QUERY_API_URL}")
     private String oracleQueryApiUrl;

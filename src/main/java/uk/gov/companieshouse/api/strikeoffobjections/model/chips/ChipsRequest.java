@@ -2,15 +2,14 @@ package uk.gov.companieshouse.api.strikeoffobjections.model.chips;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.apache.commons.lang.StringUtils;
-import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Attachment;
-import uk.gov.companieshouse.api.strikeoffobjections.model.entity.ObjectionLinkKeys;
-import uk.gov.companieshouse.service.links.Links;
-
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.lang.StringUtils;
+import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Attachment;
+import uk.gov.companieshouse.api.strikeoffobjections.model.entity.ObjectionLinkKeys;
+import uk.gov.companieshouse.service.links.Links;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ChipsRequest {
@@ -77,16 +76,32 @@ public class ChipsRequest {
 
     @Override
     public String toString() {
-        return "ChipsRequest{" +
-            "objectionId='" + objectionId + '\'' +
-            ",companyNumber='" + companyNumber + '\'' +
-            ",attachments='" + getAttachmentsAsString() + '\'' +
-            ",referenceNumber='" + referenceNumber + '\'' +
-            ",fullName='" + fullName + '\'' +
-            ",shareIdentity='" + shareIdentity + '\'' +
-            ",customerEmail='" + customerEmail + '\'' +
-            ",reason='" + reason + '\'' +
-            "}";
+        return "ChipsRequest{"
+                + "objectionId='"
+                + objectionId
+                + '\''
+                + ",companyNumber='"
+                + companyNumber
+                + '\''
+                + ",attachments='"
+                + getAttachmentsAsString()
+                + '\''
+                + ",referenceNumber='"
+                + referenceNumber
+                + '\''
+                + ",fullName='"
+                + fullName
+                + '\''
+                + ",shareIdentity='"
+                + shareIdentity
+                + '\''
+                + ",customerEmail='"
+                + customerEmail
+                + '\''
+                + ",reason='"
+                + reason
+                + '\''
+                + "}";
     }
 
     private String getAttachmentsAsString() {
@@ -127,7 +142,7 @@ public class ChipsRequest {
             return this;
         }
 
-        public Builder attachments (String downloadPrefixm, List<Attachment> attachments) {
+        public Builder attachments(String downloadPrefixm, List<Attachment> attachments) {
             this.downloadPrefix = downloadPrefixm;
             this.attachments = attachments;
             return this;
@@ -142,6 +157,7 @@ public class ChipsRequest {
             this.fullName = fullName;
             return this;
         }
+
         public Builder shareIdentity(Boolean shareIdentity) {
             this.shareIdentity = shareIdentity;
             return this;
@@ -151,13 +167,14 @@ public class ChipsRequest {
             this.customerEmail = customerEmail;
             return this;
         }
+
         public Builder reason(String reason) {
             this.reason = reason;
             return this;
         }
 
-        private Map<String, String> buildAttachmentsMap(String downloadPrefix,
-                                                        List<Attachment> attachments) {
+        private Map<String, String> buildAttachmentsMap(
+                String downloadPrefix, List<Attachment> attachments) {
             if (attachments == null) {
                 return null;
             }
@@ -167,8 +184,8 @@ public class ChipsRequest {
                 String name = attachment.getName();
                 Links links = attachment.getLinks();
                 if (links != null) {
-                    String downloadLink = String.format("%s%s", downloadPrefix,
-                            links.getLink(ObjectionLinkKeys.DOWNLOAD));
+                    String downloadLink =
+                            String.format("%s%s", downloadPrefix, links.getLink(ObjectionLinkKeys.DOWNLOAD));
                     attachmentsMap.put(name, downloadLink);
                 }
             }

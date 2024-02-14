@@ -1,5 +1,10 @@
 package uk.gov.companieshouse.api.strikeoffobjections.interceptor;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,52 +27,37 @@ import uk.gov.companieshouse.api.strikeoffobjections.service.impl.ERICHeaderPars
 import uk.gov.companieshouse.api.strikeoffobjections.service.impl.ObjectionService;
 import uk.gov.companieshouse.service.rest.response.PluggableResponseEntityFactory;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-
 @Integration
 @ExtendWith(SpringExtension.class)
-@WebMvcTest(value = { ObjectionController.class })
+@WebMvcTest(value = {ObjectionController.class})
 class EligibilityIntegrationTest {
 
-    @Autowired
-    private MockMvc mockMvc;
+    @Autowired private MockMvc mockMvc;
 
-    @MockBean
-    private ObjectionService objectionService;
+    @MockBean private ObjectionService objectionService;
 
-    @MockBean
-    private ERICHeaderParser headerParser;
+    @MockBean private ERICHeaderParser headerParser;
 
-    @MockBean
-    private ObjectionMapper objectionMapper;
+    @MockBean private ObjectionMapper objectionMapper;
 
-    @MockBean
-    private AttachmentMapper attachmentMapper;
+    @MockBean private AttachmentMapper attachmentMapper;
 
-    @MockBean
-    private ApiLogger logger;
+    @MockBean private ApiLogger logger;
 
-    @MockBean
-    private PluggableResponseEntityFactory responseEntityFactory;
+    @MockBean private PluggableResponseEntityFactory responseEntityFactory;
 
-    @MockBean
-    private ObjectionInterceptor objectionInterceptor;
+    @MockBean private ObjectionInterceptor objectionInterceptor;
 
-    @MockBean
-    private CompanyNumberInterceptor companyNumberInterceptor;
+    @MockBean private CompanyNumberInterceptor companyNumberInterceptor;
 
-    @MockBean
-    private UserAuthorizationInterceptor userAuthorizationInterceptor;
+    @MockBean private UserAuthorizationInterceptor userAuthorizationInterceptor;
 
     @Test
     void interceptorsNotCalledForEligibilityEndpoint() throws Exception {
-        RequestBuilder requestBuilder = MockMvcRequestBuilders
-                .get("/company/00006400/strike-off-objections/eligibility")
-                .accept(MediaType.APPLICATION_JSON)
-                .header("X-Request-Id", "444");
+        RequestBuilder requestBuilder =
+                MockMvcRequestBuilders.get("/company/00006400/strike-off-objections/eligibility")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .header("X-Request-Id", "444");
 
         MvcResult result = mockMvc.perform(requestBuilder).andReturn();
         verify(objectionInterceptor, times(0)).preHandle(any(), any(), any());

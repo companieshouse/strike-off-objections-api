@@ -1,5 +1,12 @@
 package uk.gov.companieshouse.api.strikeoffobjections.validation;
 
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+
+import java.util.Arrays;
+import java.util.List;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -11,31 +18,19 @@ import uk.gov.companieshouse.api.strikeoffobjections.common.ApiLogger;
 import uk.gov.companieshouse.api.strikeoffobjections.groups.Unit;
 import uk.gov.companieshouse.api.strikeoffobjections.model.eligibility.EligibilityStatus;
 
-import java.util.Arrays;
-import java.util.List;
-
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.inOrder;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-
 @Unit
 @ExtendWith(MockitoExtension.class)
 class ActionCodeValidatorTest {
 
     private static final String LOG_CONTEXT = "abc";
 
-    @Mock
-    private ApiLogger apiLogger;
+    @Mock private ApiLogger apiLogger;
 
-    @Mock
-    private DisallowedValuesValidationRule<Long> ruleA;
+    @Mock private DisallowedValuesValidationRule<Long> ruleA;
 
-    @Mock
-    private AllowedValuesValidationRule<Long> ruleB;
+    @Mock private AllowedValuesValidationRule<Long> ruleB;
 
-    @Mock
-    private DisallowedValuesValidationRule<Long> ruleC;
+    @Mock private DisallowedValuesValidationRule<Long> ruleC;
 
     private ActionCodeValidator actionCodeValidator;
 
@@ -60,12 +55,12 @@ class ActionCodeValidatorTest {
     @Test
     void validateThrowsExceptionTest() throws ValidationException {
         Long actionCode = 123L;
-        ValidationException ve = new ValidationException(EligibilityStatus.INELIGIBLE_COMPANY_STRUCK_OFF);
+        ValidationException ve =
+                new ValidationException(EligibilityStatus.INELIGIBLE_COMPANY_STRUCK_OFF);
         doThrow(ve).when(ruleB).validate(actionCode, LOG_CONTEXT);
 
         Assertions.assertThrows(
-                ValidationException.class,
-                () -> actionCodeValidator.validate(actionCode, LOG_CONTEXT));
+                ValidationException.class, () -> actionCodeValidator.validate(actionCode, LOG_CONTEXT));
 
         verify(ruleC, never()).validate(actionCode, LOG_CONTEXT);
     }

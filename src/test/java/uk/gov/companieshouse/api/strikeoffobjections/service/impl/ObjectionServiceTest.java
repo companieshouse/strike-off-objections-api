@@ -1,6 +1,30 @@
 package uk.gov.companieshouse.api.strikeoffobjections.service.impl;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.only;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
+import static uk.gov.companieshouse.api.strikeoffobjections.model.entity.ObjectionStatus.INELIGIBLE_COMPANY_STRUCK_OFF;
+import static uk.gov.companieshouse.api.strikeoffobjections.model.entity.ObjectionStatus.OPEN;
+
 import jakarta.servlet.http.HttpServletResponse;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.function.Supplier;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -13,7 +37,6 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.multipart.MultipartFile;
-
 import uk.gov.companieshouse.api.strikeoffobjections.client.OracleQueryClient;
 import uk.gov.companieshouse.api.strikeoffobjections.common.ApiLogger;
 import uk.gov.companieshouse.api.strikeoffobjections.exception.AttachmentNotFoundException;
@@ -29,8 +52,8 @@ import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Attachment;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.CreatedBy;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Objection;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.ObjectionStatus;
-import uk.gov.companieshouse.api.strikeoffobjections.model.patcher.ObjectionPatcher;
 import uk.gov.companieshouse.api.strikeoffobjections.model.patch.ObjectionPatch;
+import uk.gov.companieshouse.api.strikeoffobjections.model.patcher.ObjectionPatcher;
 import uk.gov.companieshouse.api.strikeoffobjections.processor.ObjectionProcessor;
 import uk.gov.companieshouse.api.strikeoffobjections.repository.ObjectionRepository;
 import uk.gov.companieshouse.api.strikeoffobjections.service.IReferenceNumberGeneratorService;
@@ -40,31 +63,6 @@ import uk.gov.companieshouse.api.strikeoffobjections.validation.Gaz2RequestedVal
 import uk.gov.companieshouse.api.strikeoffobjections.validation.ValidationException;
 import uk.gov.companieshouse.service.ServiceException;
 import uk.gov.companieshouse.service.ServiceResult;
-
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.function.Supplier;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.only;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.when;
-import static org.mockito.ArgumentMatchers.any;
-import static uk.gov.companieshouse.api.strikeoffobjections.model.entity.ObjectionStatus.INELIGIBLE_COMPANY_STRUCK_OFF;
-import static uk.gov.companieshouse.api.strikeoffobjections.model.entity.ObjectionStatus.OPEN;
 
 @Unit
 @ExtendWith(MockitoExtension.class)
@@ -81,66 +79,57 @@ class ObjectionServiceTest {
     private static final String ACCESS_URL = "/dummyUrl";
     private static final Long ACTION_CODE_OK = 3000L;
     private static final Long ACTION_CODE_INELIGIBLE = 200L;
-    private static final LocalDateTime MOCKED_TIME_STAMP = LocalDateTime.of(2020, 2,2, 0, 0);
+    private static final LocalDateTime MOCKED_TIME_STAMP = LocalDateTime.of(2020, 2, 2, 0, 0);
     private static final String FULL_NAME = "Joe Bloggs";
     private static final String OBJECTOR = "client";
 
-    @Mock
-    private ApiLogger apiLogger;
+    @Mock private ApiLogger apiLogger;
 
-    @Mock
-    private ObjectionRepository objectionRepository;
+    @Mock private ObjectionRepository objectionRepository;
 
-    @Mock
-    private Supplier<LocalDateTime> localDateTimeSupplier;
+    @Mock private Supplier<LocalDateTime> localDateTimeSupplier;
 
-    @Mock
-    private ObjectionPatcher objectionPatcher;
+    @Mock private ObjectionPatcher objectionPatcher;
 
-    @Mock
-    private FileTransferApiClient fileTransferApiClient;
+    @Mock private FileTransferApiClient fileTransferApiClient;
 
-    @Mock
-    private ERICHeaderParser ericHeaderParser;
+    @Mock private ERICHeaderParser ericHeaderParser;
 
-    @Mock
-    private ObjectionProcessor objectionProcessor;
+    @Mock private ObjectionProcessor objectionProcessor;
 
-    @Mock
-    private OracleQueryClient oracleQueryClient;
+    @Mock private OracleQueryClient oracleQueryClient;
 
-    @Mock
-    private ActionCodeValidator actionCodeValidator;
+    @Mock private ActionCodeValidator actionCodeValidator;
 
-    @Mock
-    private IReferenceNumberGeneratorService referenceNumberGeneratorService;
+    @Mock private IReferenceNumberGeneratorService referenceNumberGeneratorService;
 
-    @Mock
-    private Gaz2RequestedValidator gaz2RequestedValidator;
+    @Mock private Gaz2RequestedValidator gaz2RequestedValidator;
 
-    @InjectMocks
-    private ObjectionService objectionService;
+    @InjectMocks private ObjectionService objectionService;
 
     @Test
     void createObjectionTest() throws ValidationException, ServiceException {
-        Objection returnedEntity = new Objection.Builder()
-                .withCompanyNumber(COMPANY_NUMBER)
-                .build();
+        Objection returnedEntity = new Objection.Builder().withCompanyNumber(COMPANY_NUMBER).build();
         returnedEntity.setId(OBJECTION_ID);
         returnedEntity.setCreatedOn(MOCKED_TIME_STAMP);
         returnedEntity.setStatus(OPEN);
 
-        CreatedBy createdBy = new CreatedBy(AUTH_ID, E_MAIL, OBJECTOR, FULL_NAME,false);
+        CreatedBy createdBy = new CreatedBy(AUTH_ID, E_MAIL, OBJECTOR, FULL_NAME, false);
         returnedEntity.setCreatedBy(createdBy);
 
         when(objectionRepository.insert(any(Objection.class))).thenReturn(returnedEntity);
         when(localDateTimeSupplier.get()).thenReturn(MOCKED_TIME_STAMP);
         when(ericHeaderParser.getEmailAddress(AUTH_USER)).thenReturn(E_MAIL);
-        when(oracleQueryClient.getCompanyActionCode(COMPANY_NUMBER, REQUEST_ID)).thenReturn(ACTION_CODE_OK);
+        when(oracleQueryClient.getCompanyActionCode(COMPANY_NUMBER, REQUEST_ID))
+                .thenReturn(ACTION_CODE_OK);
         when(referenceNumberGeneratorService.generateReferenceNumber()).thenReturn(OBJECTION_ID);
 
         Objection objectionResponse =
-                objectionService.createObjection(REQUEST_ID, COMPANY_NUMBER, AUTH_ID, AUTH_USER,
+                objectionService.createObjection(
+                        REQUEST_ID,
+                        COMPANY_NUMBER,
+                        AUTH_ID,
+                        AUTH_USER,
                         Utils.buildTestObjectionCreate(OBJECTOR, FULL_NAME, false));
 
         verify(objectionRepository).insert(any(Objection.class));
@@ -159,7 +148,9 @@ class ObjectionServiceTest {
         assertEquals(REQUEST_ID, savedObjection.getHttpRequestId());
         assertEquals(ACTION_CODE_OK, savedObjection.getActionCode());
         assertEquals(OPEN, savedObjection.getStatus());
-        assertEquals("/company/" + COMPANY_NUMBER + "/strike-off-objections/" + OBJECTION_ID, savedObjection.getLinks().getLink(ObjectionsLinkKeys.SELF));
+        assertEquals(
+                "/company/" + COMPANY_NUMBER + "/strike-off-objections/" + OBJECTION_ID,
+                savedObjection.getLinks().getLink(ObjectionsLinkKeys.SELF));
 
         assertEquals(OBJECTION_ID, objectionResponse.getId());
         assertEquals(MOCKED_TIME_STAMP, objectionResponse.getCreatedOn());
@@ -173,12 +164,18 @@ class ObjectionServiceTest {
     void createObjectionIneligibleStatusTest() throws ValidationException, ServiceException {
         when(localDateTimeSupplier.get()).thenReturn(MOCKED_TIME_STAMP);
         when(ericHeaderParser.getEmailAddress(AUTH_USER)).thenReturn(E_MAIL);
-        when(oracleQueryClient.getCompanyActionCode(COMPANY_NUMBER, REQUEST_ID)).thenReturn(ACTION_CODE_INELIGIBLE);
+        when(oracleQueryClient.getCompanyActionCode(COMPANY_NUMBER, REQUEST_ID))
+                .thenReturn(ACTION_CODE_INELIGIBLE);
 
-        ValidationException ve = new ValidationException(EligibilityStatus.INELIGIBLE_COMPANY_STRUCK_OFF);
+        ValidationException ve =
+                new ValidationException(EligibilityStatus.INELIGIBLE_COMPANY_STRUCK_OFF);
         doThrow(ve).when(actionCodeValidator).validate(ACTION_CODE_INELIGIBLE, REQUEST_ID);
 
-        objectionService.createObjection(REQUEST_ID, COMPANY_NUMBER, AUTH_ID, AUTH_USER,
+        objectionService.createObjection(
+                REQUEST_ID,
+                COMPANY_NUMBER,
+                AUTH_ID,
+                AUTH_USER,
                 Utils.buildTestObjectionCreate(OBJECTOR, FULL_NAME, false));
 
         ArgumentCaptor<Objection> saveObjectionCaptor = ArgumentCaptor.forClass(Objection.class);
@@ -198,12 +195,18 @@ class ObjectionServiceTest {
     void createObjectionActionCodeOkGaz2Requested() throws ValidationException, ServiceException {
         when(localDateTimeSupplier.get()).thenReturn(MOCKED_TIME_STAMP);
         when(ericHeaderParser.getEmailAddress(AUTH_USER)).thenReturn(E_MAIL);
-        when(oracleQueryClient.getCompanyActionCode(COMPANY_NUMBER, REQUEST_ID)).thenReturn(ACTION_CODE_OK);
+        when(oracleQueryClient.getCompanyActionCode(COMPANY_NUMBER, REQUEST_ID))
+                .thenReturn(ACTION_CODE_OK);
 
-        ValidationException ve = new ValidationException(EligibilityStatus.INELIGIBLE_COMPANY_STRUCK_OFF);
+        ValidationException ve =
+                new ValidationException(EligibilityStatus.INELIGIBLE_COMPANY_STRUCK_OFF);
         doThrow(ve).when(gaz2RequestedValidator).validate(COMPANY_NUMBER, ACTION_CODE_OK, REQUEST_ID);
 
-        objectionService.createObjection(REQUEST_ID, COMPANY_NUMBER, AUTH_ID, AUTH_USER,
+        objectionService.createObjection(
+                REQUEST_ID,
+                COMPANY_NUMBER,
+                AUTH_ID,
+                AUTH_USER,
                 Utils.buildTestObjectionCreate(OBJECTOR, FULL_NAME, false));
 
         ArgumentCaptor<Objection> saveObjectionCaptor = ArgumentCaptor.forClass(Objection.class);
@@ -221,11 +224,19 @@ class ObjectionServiceTest {
     }
 
     @Test
-    void createObjectionThrowServiceExceptionIfIdExists () {
-        when(objectionRepository.insert(any(Objection.class))).thenThrow(new DuplicateKeyException("Duplicate"));
+    void createObjectionThrowServiceExceptionIfIdExists() {
+        when(objectionRepository.insert(any(Objection.class)))
+                .thenThrow(new DuplicateKeyException("Duplicate"));
 
-        assertThrows(ServiceException.class, () -> objectionService.createObjection(REQUEST_ID, COMPANY_NUMBER, AUTH_ID, AUTH_USER,
-                Utils.buildTestObjectionCreate(OBJECTOR, FULL_NAME, true)));
+        assertThrows(
+                ServiceException.class,
+                () ->
+                        objectionService.createObjection(
+                                REQUEST_ID,
+                                COMPANY_NUMBER,
+                                AUTH_ID,
+                                AUTH_USER,
+                                Utils.buildTestObjectionCreate(OBJECTOR, FULL_NAME, true)));
     }
 
     @Test
@@ -254,8 +265,11 @@ class ObjectionServiceTest {
         objectionPatch.setStatus(OPEN);
         when(objectionRepository.findById(any())).thenReturn(Optional.empty());
 
-        assertThrows(ObjectionNotFoundException.class,
-                () -> objectionService.patchObjection( OBJECTION_ID, objectionPatch, REQUEST_ID, COMPANY_NUMBER));
+        assertThrows(
+                ObjectionNotFoundException.class,
+                () ->
+                        objectionService.patchObjection(
+                                OBJECTION_ID, objectionPatch, REQUEST_ID, COMPANY_NUMBER));
 
         verify(objectionRepository, times(0)).save(any());
     }
@@ -278,7 +292,7 @@ class ObjectionServiceTest {
         when(objectionRepository.findById(any())).thenReturn(Optional.of(existingObjection));
         when(objectionPatcher.patchObjection(any(), any(), any())).thenReturn(objection);
 
-        objectionService.patchObjection( OBJECTION_ID, objectionPatch, REQUEST_ID, COMPANY_NUMBER);
+        objectionService.patchObjection(OBJECTION_ID, objectionPatch, REQUEST_ID, COMPANY_NUMBER);
 
         verify(objectionRepository, times(1)).save(objection);
         verify(objectionProcessor, only()).process(objection, REQUEST_ID);
@@ -301,10 +315,15 @@ class ObjectionServiceTest {
 
         when(objectionRepository.findById(any())).thenReturn(Optional.of(existingObjection));
         when(objectionPatcher.patchObjection(any(), any(), any())).thenReturn(objection);
-        doThrow(new InvalidObjectionStatusException("Invalid")).when(objectionProcessor).process(any(), any());
+        doThrow(new InvalidObjectionStatusException("Invalid"))
+                .when(objectionProcessor)
+                .process(any(), any());
 
-        assertThrows(InvalidObjectionStatusException.class,
-                () -> objectionService.patchObjection( OBJECTION_ID, objectionPatch, REQUEST_ID, COMPANY_NUMBER));
+        assertThrows(
+                InvalidObjectionStatusException.class,
+                () ->
+                        objectionService.patchObjection(
+                                OBJECTION_ID, objectionPatch, REQUEST_ID, COMPANY_NUMBER));
 
         verify(objectionRepository, times(1)).save(objection);
         verify(objectionProcessor, only()).process(objection, REQUEST_ID);
@@ -324,7 +343,7 @@ class ObjectionServiceTest {
         when(objectionRepository.findById(any())).thenReturn(Optional.of(existingObjection));
         when(objectionPatcher.patchObjection(any(), any(), any())).thenReturn(objection);
 
-        objectionService.patchObjection( OBJECTION_ID, objectionPatch, REQUEST_ID, COMPANY_NUMBER);
+        objectionService.patchObjection(OBJECTION_ID, objectionPatch, REQUEST_ID, COMPANY_NUMBER);
 
         verify(objectionRepository, times(1)).save(objection);
         verifyNoInteractions(objectionProcessor);
@@ -345,8 +364,11 @@ class ObjectionServiceTest {
 
         when(objectionRepository.findById(any())).thenReturn(Optional.of(existingObjection));
 
-        assertThrows(InvalidObjectionStatusException.class,
-                () -> objectionService.patchObjection( OBJECTION_ID, objectionPatch, REQUEST_ID, COMPANY_NUMBER));
+        assertThrows(
+                InvalidObjectionStatusException.class,
+                () ->
+                        objectionService.patchObjection(
+                                OBJECTION_ID, objectionPatch, REQUEST_ID, COMPANY_NUMBER));
 
         verify(objectionRepository, never()).save(objection);
         verifyNoInteractions(objectionPatcher);
@@ -371,7 +393,8 @@ class ObjectionServiceTest {
         objection.setId(OBJECTION_ID);
         when(objectionRepository.findById(any())).thenReturn(Optional.empty());
 
-        assertThrows(ObjectionNotFoundException.class,
+        assertThrows(
+                ObjectionNotFoundException.class,
                 () -> objectionService.getObjection(REQUEST_ID, OBJECTION_ID));
 
         verify(objectionRepository, times(1)).findById(OBJECTION_ID);
@@ -385,12 +408,10 @@ class ObjectionServiceTest {
                 .thenReturn(Utils.getSuccessfulUploadResponse());
         when(objectionRepository.findById(any())).thenReturn(Optional.of(existingObjection));
         ServiceResult<String> attachmentIdResult =
-                objectionService.addAttachment(REQUEST_ID, OBJECTION_ID, Utils.mockMultipartFile(), ACCESS_URL);
+                objectionService.addAttachment(
+                        REQUEST_ID, OBJECTION_ID, Utils.mockMultipartFile(), ACCESS_URL);
         assertEquals(Utils.UPLOAD_ID, attachmentIdResult.getData());
-        Optional<Attachment> entityAttachment = existingObjection
-                .getAttachments()
-                .stream()
-                .findAny();
+        Optional<Attachment> entityAttachment = existingObjection.getAttachments().stream().findAny();
 
         assertTrue(entityAttachment.isPresent());
         String linkUrl = entityAttachment.get().getLinks().getLink(ObjectionsLinkKeys.SELF);
@@ -424,8 +445,7 @@ class ObjectionServiceTest {
 
         when(objectionRepository.findById(any())).thenReturn(Optional.of(existingObjection));
 
-        objectionService.addAttachment(
-                 REQUEST_ID, OBJECTION_ID, Utils.mockMultipartFile(), ACCESS_URL);
+        objectionService.addAttachment(REQUEST_ID, OBJECTION_ID, Utils.mockMultipartFile(), ACCESS_URL);
 
         List<Attachment> objectionAttachments = existingObjection.getAttachments();
 
@@ -442,7 +462,8 @@ class ObjectionServiceTest {
         existingObjection.addAttachment(attachment);
         when(objectionRepository.findById(any())).thenReturn(Optional.of(existingObjection));
 
-        List<Attachment> attachments = objectionService.getAttachments(REQUEST_ID, COMPANY_NUMBER, OBJECTION_ID);
+        List<Attachment> attachments =
+                objectionService.getAttachments(REQUEST_ID, COMPANY_NUMBER, OBJECTION_ID);
 
         assertEquals(1, attachments.size());
         assertEquals(attachment, attachments.getFirst());
@@ -452,7 +473,8 @@ class ObjectionServiceTest {
     void getAttachmentsWhenObjectionDoesNotExistTest() {
         when(objectionRepository.findById(any())).thenReturn(Optional.empty());
 
-        assertThrows(ObjectionNotFoundException.class,
+        assertThrows(
+                ObjectionNotFoundException.class,
                 () -> objectionService.getAttachments(REQUEST_ID, COMPANY_NUMBER, OBJECTION_ID));
 
         verify(objectionRepository, times(0)).save(any());
@@ -463,9 +485,10 @@ class ObjectionServiceTest {
         when(fileTransferApiClient.upload(anyString(), any(MultipartFile.class)))
                 .thenReturn(Utils.getUnsuccessfulFileTransferApiResponse());
         try {
-            objectionService.addAttachment(REQUEST_ID, OBJECTION_ID, Utils.mockMultipartFile(), ACCESS_URL);
+            objectionService.addAttachment(
+                    REQUEST_ID, OBJECTION_ID, Utils.mockMultipartFile(), ACCESS_URL);
             fail();
-        } catch(ServiceException e) {
+        } catch (ServiceException e) {
             assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.toString(), e.getMessage());
         }
     }
@@ -479,7 +502,7 @@ class ObjectionServiceTest {
         try {
             objectionService.addAttachment(REQUEST_ID, OBJECTION_ID, mockFile, ACCESS_URL);
             fail();
-        } catch(HttpServerErrorException e) {
+        } catch (HttpServerErrorException e) {
             assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.toString(), e.getMessage());
         }
     }
@@ -493,7 +516,7 @@ class ObjectionServiceTest {
         try {
             objectionService.addAttachment(REQUEST_ID, OBJECTION_ID, mockFile, ACCESS_URL);
             fail();
-        } catch(HttpClientErrorException e) {
+        } catch (HttpClientErrorException e) {
             assertEquals(HttpStatus.BAD_REQUEST.toString(), e.getMessage());
         }
     }
@@ -502,12 +525,13 @@ class ObjectionServiceTest {
     void willThrowServiceExceptions() {
         FileTransferApiClientResponse response = new FileTransferApiClientResponse();
         response.setFileId("");
-                when(fileTransferApiClient.upload(anyString(), any(MultipartFile.class)))
-                .thenReturn(response);
+        when(fileTransferApiClient.upload(anyString(), any(MultipartFile.class))).thenReturn(response);
 
-        assertThrows(ServiceException.class, () ->
-                objectionService.addAttachment(REQUEST_ID, OBJECTION_ID, Utils.mockMultipartFile(), ACCESS_URL));
-
+        assertThrows(
+                ServiceException.class,
+                () ->
+                        objectionService.addAttachment(
+                                REQUEST_ID, OBJECTION_ID, Utils.mockMultipartFile(), ACCESS_URL));
     }
 
     @Test
@@ -519,12 +543,8 @@ class ObjectionServiceTest {
         existingObjection.addAttachment(attachment);
         when(objectionRepository.findById(any())).thenReturn(Optional.of(existingObjection));
 
-        Attachment returnedAttachment = objectionService.getAttachment(
-                REQUEST_ID,
-                COMPANY_NUMBER,
-                OBJECTION_ID,
-                ATTACHMENT_ID
-        );
+        Attachment returnedAttachment =
+                objectionService.getAttachment(REQUEST_ID, COMPANY_NUMBER, OBJECTION_ID, ATTACHMENT_ID);
 
         assertEquals(attachment, returnedAttachment);
     }
@@ -534,13 +554,11 @@ class ObjectionServiceTest {
 
         when(objectionRepository.findById(any())).thenReturn(Optional.empty());
 
-        assertThrows(ObjectionNotFoundException.class, () -> objectionService.getAttachment(
-                REQUEST_ID,
-                COMPANY_NUMBER,
-                OBJECTION_ID,
-                ATTACHMENT_ID
-                )
-        );
+        assertThrows(
+                ObjectionNotFoundException.class,
+                () ->
+                        objectionService.getAttachment(
+                                REQUEST_ID, COMPANY_NUMBER, OBJECTION_ID, ATTACHMENT_ID));
     }
 
     @Test
@@ -549,29 +567,25 @@ class ObjectionServiceTest {
         Objection objection = new Objection();
         when(objectionRepository.findById(any())).thenReturn(Optional.of(objection));
 
-        assertThrows(AttachmentNotFoundException.class, () -> objectionService.getAttachment(
-                REQUEST_ID,
-                COMPANY_NUMBER,
-                OBJECTION_ID,
-                ATTACHMENT_ID
-                )
-        );
+        assertThrows(
+                AttachmentNotFoundException.class,
+                () ->
+                        objectionService.getAttachment(
+                                REQUEST_ID, COMPANY_NUMBER, OBJECTION_ID, ATTACHMENT_ID));
     }
 
     @Test
-    void deleteAttachmentTest() throws ObjectionNotFoundException, AttachmentNotFoundException, ServiceException {
+    void deleteAttachmentTest()
+            throws ObjectionNotFoundException, AttachmentNotFoundException, ServiceException {
         Objection existingObjection = new Objection();
         existingObjection.setId(OBJECTION_ID);
         Attachment attachment = new Attachment();
         attachment.setId(ATTACHMENT_ID);
         existingObjection.addAttachment(attachment);
         when(objectionRepository.findById(any())).thenReturn(Optional.of(existingObjection));
-        when(fileTransferApiClient.delete(REQUEST_ID, ATTACHMENT_ID)).thenReturn(Utils.getSuccessfulDeleteResponse());
-        objectionService.deleteAttachment(
-                REQUEST_ID,
-                OBJECTION_ID,
-                ATTACHMENT_ID
-        );
+        when(fileTransferApiClient.delete(REQUEST_ID, ATTACHMENT_ID))
+                .thenReturn(Utils.getSuccessfulDeleteResponse());
+        objectionService.deleteAttachment(REQUEST_ID, OBJECTION_ID, ATTACHMENT_ID);
 
         verify(objectionRepository, times(1)).save(existingObjection);
         verify(fileTransferApiClient, times(1)).delete(REQUEST_ID, ATTACHMENT_ID);
@@ -582,22 +596,18 @@ class ObjectionServiceTest {
     void deleteAttachmentTestWhenObjectionDoesNotExist() {
 
         when(objectionRepository.findById(any())).thenReturn(Optional.empty());
-        assertThrows(ObjectionNotFoundException.class, () -> objectionService.deleteAttachment(
-                REQUEST_ID,
-                OBJECTION_ID,
-                ATTACHMENT_ID)
-        );
+        assertThrows(
+                ObjectionNotFoundException.class,
+                () -> objectionService.deleteAttachment(REQUEST_ID, OBJECTION_ID, ATTACHMENT_ID));
     }
 
     @Test
     void deleteAttachmentTestAttachmentDoesNotExist() {
         Objection objection = new Objection();
         when(objectionRepository.findById(any())).thenReturn(Optional.of(objection));
-        assertThrows(AttachmentNotFoundException.class, () -> objectionService.deleteAttachment(
-                REQUEST_ID,
-                OBJECTION_ID,
-                ATTACHMENT_ID)
-        );
+        assertThrows(
+                AttachmentNotFoundException.class,
+                () -> objectionService.deleteAttachment(REQUEST_ID, OBJECTION_ID, ATTACHMENT_ID));
     }
 
     @Test
@@ -606,23 +616,22 @@ class ObjectionServiceTest {
         Utils.getTestAttachmentsContainingKey(ATTACHMENT_ID).forEach(objection::addAttachment);
         HttpServerErrorException clientException = new HttpServerErrorException(HttpStatus.BAD_REQUEST);
         when(fileTransferApiClient.delete(REQUEST_ID, ATTACHMENT_ID)).thenThrow(clientException);
-        when(objectionRepository.findById(objection.getId()))
-                .thenReturn(Optional.of(objection));
+        when(objectionRepository.findById(objection.getId())).thenReturn(Optional.of(objection));
 
-        assertThrows(ServiceException.class, () -> objectionService.deleteAttachment(
-                REQUEST_ID,
-                OBJECTION_ID,
-                ATTACHMENT_ID
-            )
-        );
+        assertThrows(
+                ServiceException.class,
+                () -> objectionService.deleteAttachment(REQUEST_ID, OBJECTION_ID, ATTACHMENT_ID));
 
         verify(objectionRepository, never()).save(objection);
         verify(fileTransferApiClient, times(1)).delete(REQUEST_ID, ATTACHMENT_ID);
-        verify(apiLogger).errorContext(
-                eq(REQUEST_ID),
-                eq(String.format("Unable to delete attachment %s, status code 400 BAD_REQUEST", ATTACHMENT_ID)),
-                eq(clientException),
-                any());
+        verify(apiLogger)
+                .errorContext(
+                        eq(REQUEST_ID),
+                        eq(
+                                String.format(
+                                        "Unable to delete attachment %s, status code 400 BAD_REQUEST", ATTACHMENT_ID)),
+                        eq(clientException),
+                        any());
     }
 
     @Test
@@ -630,24 +639,25 @@ class ObjectionServiceTest {
         Objection objection = Utils.getSimpleTestObjection(OBJECTION_ID);
         Utils.getTestAttachmentsContainingKey(ATTACHMENT_ID).forEach(objection::addAttachment);
 
-        HttpServerErrorException serviceException = new HttpServerErrorException(HttpStatus.GATEWAY_TIMEOUT);
+        HttpServerErrorException serviceException =
+                new HttpServerErrorException(HttpStatus.GATEWAY_TIMEOUT);
         when(fileTransferApiClient.delete(REQUEST_ID, ATTACHMENT_ID)).thenThrow(serviceException);
-        when(objectionRepository.findById(objection.getId()))
-                .thenReturn(Optional.of(objection));
+        when(objectionRepository.findById(objection.getId())).thenReturn(Optional.of(objection));
 
-        assertThrows(ServiceException.class, () -> objectionService.deleteAttachment(
-                REQUEST_ID,
-                OBJECTION_ID,
-                ATTACHMENT_ID
-            )
-        );
+        assertThrows(
+                ServiceException.class,
+                () -> objectionService.deleteAttachment(REQUEST_ID, OBJECTION_ID, ATTACHMENT_ID));
         verify(objectionRepository, never()).save(objection);
         verify(fileTransferApiClient, times(1)).delete(REQUEST_ID, ATTACHMENT_ID);
-        verify(apiLogger).errorContext(
-                eq(REQUEST_ID),
-                eq(String.format("Unable to delete attachment %s, status code 504 GATEWAY_TIMEOUT", ATTACHMENT_ID)),
-                eq(serviceException),
-                any());
+        verify(apiLogger)
+                .errorContext(
+                        eq(REQUEST_ID),
+                        eq(
+                                String.format(
+                                        "Unable to delete attachment %s, status code 504 GATEWAY_TIMEOUT",
+                                        ATTACHMENT_ID)),
+                        eq(serviceException),
+                        any());
     }
 
     @Test
@@ -658,25 +668,22 @@ class ObjectionServiceTest {
         when(fileTransferApiClient.delete(REQUEST_ID, ATTACHMENT_ID))
                 .thenReturn(Utils.getUnsuccessfulFileTransferApiResponse());
 
+        when(objectionRepository.findById(objection.getId())).thenReturn(Optional.of(objection));
 
-
-
-        when(objectionRepository.findById(objection.getId()))
-                .thenReturn(Optional.of(objection));
-
-        assertThrows(ServiceException.class, () -> objectionService.deleteAttachment(
-                REQUEST_ID,
-                OBJECTION_ID,
-                ATTACHMENT_ID
-            )
-        );
+        assertThrows(
+                ServiceException.class,
+                () -> objectionService.deleteAttachment(REQUEST_ID, OBJECTION_ID, ATTACHMENT_ID));
 
         verify(objectionRepository, never()).save(objection);
         verify(fileTransferApiClient, times(1)).delete(REQUEST_ID, ATTACHMENT_ID);
-        verify(apiLogger).infoContext(
-                eq(REQUEST_ID),
-                eq(String.format("Unable to delete attachment %s, status code 500 INTERNAL_SERVER_ERROR", ATTACHMENT_ID)),
-                any());
+        verify(apiLogger)
+                .infoContext(
+                        eq(REQUEST_ID),
+                        eq(
+                                String.format(
+                                        "Unable to delete attachment %s, status code 500 INTERNAL_SERVER_ERROR",
+                                        ATTACHMENT_ID)),
+                        any());
     }
 
     @Test
@@ -685,22 +692,19 @@ class ObjectionServiceTest {
         Utils.getTestAttachmentsContainingKey(ATTACHMENT_ID).forEach(objection::addAttachment);
         when(fileTransferApiClient.delete(REQUEST_ID, ATTACHMENT_ID)).thenReturn(null);
 
-        when(objectionRepository.findById(objection.getId()))
-                .thenReturn(Optional.of(objection));
+        when(objectionRepository.findById(objection.getId())).thenReturn(Optional.of(objection));
 
-        assertThrows(ServiceException.class, () -> objectionService.deleteAttachment(
-                REQUEST_ID,
-                OBJECTION_ID,
-                ATTACHMENT_ID
-            )
-        );
+        assertThrows(
+                ServiceException.class,
+                () -> objectionService.deleteAttachment(REQUEST_ID, OBJECTION_ID, ATTACHMENT_ID));
 
         verify(objectionRepository, never()).save(objection);
         verify(fileTransferApiClient, times(1)).delete(REQUEST_ID, ATTACHMENT_ID);
-        verify(apiLogger).infoContext(
-                eq(REQUEST_ID),
-                eq(String.format("Unable to delete attachment %s", ATTACHMENT_ID)),
-                any());
+        verify(apiLogger)
+                .infoContext(
+                        eq(REQUEST_ID),
+                        eq(String.format("Unable to delete attachment %s", ATTACHMENT_ID)),
+                        any());
     }
 
     @Test
@@ -711,22 +715,19 @@ class ObjectionServiceTest {
         response.setHttpStatus(null);
         when(fileTransferApiClient.delete(REQUEST_ID, ATTACHMENT_ID)).thenReturn(response);
 
-        when(objectionRepository.findById(objection.getId()))
-                .thenReturn(Optional.of(objection));
+        when(objectionRepository.findById(objection.getId())).thenReturn(Optional.of(objection));
 
-        assertThrows(ServiceException.class, () -> objectionService.deleteAttachment(
-                REQUEST_ID,
-                OBJECTION_ID,
-                ATTACHMENT_ID
-            )
-        );
+        assertThrows(
+                ServiceException.class,
+                () -> objectionService.deleteAttachment(REQUEST_ID, OBJECTION_ID, ATTACHMENT_ID));
 
         verify(objectionRepository, never()).save(objection);
         verify(fileTransferApiClient, times(1)).delete(REQUEST_ID, ATTACHMENT_ID);
-        verify(apiLogger).infoContext(
-                eq(REQUEST_ID),
-                eq(String.format("Unable to delete attachment %s", ATTACHMENT_ID)),
-                any());
+        verify(apiLogger)
+                .infoContext(
+                        eq(REQUEST_ID),
+                        eq(String.format("Unable to delete attachment %s", ATTACHMENT_ID)),
+                        any());
     }
 
     @Test
@@ -734,13 +735,16 @@ class ObjectionServiceTest {
         HttpServletResponse httpServletResponse = new MockHttpServletResponse();
         FileTransferApiClientResponse dummyDownloadResponse = Utils.dummyDownloadResponse();
 
-        when(fileTransferApiClient.download(REQUEST_ID, ATTACHMENT_ID, httpServletResponse)).thenReturn(dummyDownloadResponse);
+        when(fileTransferApiClient.download(REQUEST_ID, ATTACHMENT_ID, httpServletResponse))
+                .thenReturn(dummyDownloadResponse);
 
-        FileTransferApiClientResponse downloadServiceResult = objectionService.downloadAttachment(
-                REQUEST_ID, OBJECTION_ID, ATTACHMENT_ID, httpServletResponse);
+        FileTransferApiClientResponse downloadServiceResult =
+                objectionService.downloadAttachment(
+                        REQUEST_ID, OBJECTION_ID, ATTACHMENT_ID, httpServletResponse);
 
         verify(fileTransferApiClient, only()).download(REQUEST_ID, ATTACHMENT_ID, httpServletResponse);
-        verify(fileTransferApiClient, times(1)).download(REQUEST_ID, ATTACHMENT_ID, httpServletResponse);
+        verify(fileTransferApiClient, times(1))
+                .download(REQUEST_ID, ATTACHMENT_ID, httpServletResponse);
 
         assertNotNull(downloadServiceResult);
         assertEquals(HttpStatus.OK, downloadServiceResult.getHttpStatus());
@@ -749,7 +753,8 @@ class ObjectionServiceTest {
     @Test
     void willReturnTrueEligibilityResponseWhenActionCodeOk() throws ValidationException {
 
-        when(oracleQueryClient.getCompanyActionCode(COMPANY_NUMBER, REQUEST_ID)).thenReturn(ACTION_CODE_OK);
+        when(oracleQueryClient.getCompanyActionCode(COMPANY_NUMBER, REQUEST_ID))
+                .thenReturn(ACTION_CODE_OK);
         ObjectionEligibility response = objectionService.isCompanyEligible(COMPANY_NUMBER, REQUEST_ID);
 
         verify(oracleQueryClient).getCompanyActionCode(COMPANY_NUMBER, REQUEST_ID);
@@ -763,13 +768,17 @@ class ObjectionServiceTest {
     @Test
     void willReturnFalseEligibilityResponseWhenActionCodeIneligible() throws ValidationException {
 
-        when(oracleQueryClient.getCompanyActionCode(COMPANY_NUMBER, REQUEST_ID)).thenReturn(ACTION_CODE_INELIGIBLE);
-        doThrow(new ValidationException(EligibilityStatus.INELIGIBLE_COMPANY_STRUCK_OFF)).when(actionCodeValidator).validate(ACTION_CODE_INELIGIBLE, REQUEST_ID);
+        when(oracleQueryClient.getCompanyActionCode(COMPANY_NUMBER, REQUEST_ID))
+                .thenReturn(ACTION_CODE_INELIGIBLE);
+        doThrow(new ValidationException(EligibilityStatus.INELIGIBLE_COMPANY_STRUCK_OFF))
+                .when(actionCodeValidator)
+                .validate(ACTION_CODE_INELIGIBLE, REQUEST_ID);
         ObjectionEligibility response = objectionService.isCompanyEligible(COMPANY_NUMBER, REQUEST_ID);
 
         verify(oracleQueryClient).getCompanyActionCode(COMPANY_NUMBER, REQUEST_ID);
         verify(actionCodeValidator).validate(ACTION_CODE_INELIGIBLE, REQUEST_ID);
-        verify(gaz2RequestedValidator, times(0)).validate(COMPANY_NUMBER, ACTION_CODE_INELIGIBLE, REQUEST_ID);
+        verify(gaz2RequestedValidator, times(0))
+                .validate(COMPANY_NUMBER, ACTION_CODE_INELIGIBLE, REQUEST_ID);
 
         assertFalse(response.isEligible());
         assertEquals(EligibilityStatus.INELIGIBLE_COMPANY_STRUCK_OFF, response.getEligibilityStatus());
@@ -778,8 +787,10 @@ class ObjectionServiceTest {
     @Test
     void willReturnCorrectEligibilityStatusWhenGaz2Requested() throws ValidationException {
 
-        when(oracleQueryClient.getCompanyActionCode(COMPANY_NUMBER, REQUEST_ID)).thenReturn(ACTION_CODE_OK);
-        doThrow(new ValidationException(EligibilityStatus.INELIGIBLE_GAZ2_REQUESTED)).when(gaz2RequestedValidator)
+        when(oracleQueryClient.getCompanyActionCode(COMPANY_NUMBER, REQUEST_ID))
+                .thenReturn(ACTION_CODE_OK);
+        doThrow(new ValidationException(EligibilityStatus.INELIGIBLE_GAZ2_REQUESTED))
+                .when(gaz2RequestedValidator)
                 .validate(COMPANY_NUMBER, ACTION_CODE_OK, REQUEST_ID);
         ObjectionEligibility response = objectionService.isCompanyEligible(COMPANY_NUMBER, REQUEST_ID);
 

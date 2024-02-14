@@ -3,6 +3,15 @@ package uk.gov.companieshouse.api.strikeoffobjections.chips;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.function.Supplier;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,24 +25,12 @@ import uk.gov.companieshouse.kafka.message.Message;
 import uk.gov.companieshouse.kafka.producer.CHKafkaProducer;
 import uk.gov.companieshouse.service.ServiceException;
 
-import java.io.IOException;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-import java.util.function.Supplier;
-
 @Component
 public class ChipsKafkaClient implements ChipsSender {
 
-    @Autowired
-    private CHKafkaProducer producer;
+    @Autowired private CHKafkaProducer producer;
 
-    @Autowired
-    private AvroSerializer avroSerializer;
+    @Autowired private AvroSerializer avroSerializer;
 
     @Value("${CHIPS_REST_INTERFACES_SEND_TOPIC}")
     private String chipsRestInterfacesSendTopic;
@@ -41,17 +38,16 @@ public class ChipsKafkaClient implements ChipsSender {
     @Value("${OBJECT_TO_STRIKE_OFF_CHIPS_REST_INTERFACES_ENDPOINT}")
     private String chipsRestInterfacesEndpoint;
 
-    @Autowired
-    private ApiLogger logger;
+    @Autowired private ApiLogger logger;
 
-    @Autowired
-    private Supplier<LocalDateTime> dateTimeSupplier;
+    @Autowired private Supplier<LocalDateTime> dateTimeSupplier;
 
     @Override
     public void sendToChips(String requestId, ChipsRequest chipsRequest) throws ServiceException {
         try {
             Long timestamp = dateTimeSupplier.get().atZone(ZoneId.systemDefault()).toEpochSecond();
-            ChipsRestInterfacesSend chipsRestInterfacesSend = getChipsRestInterfacesSend(chipsRequest, timestamp);
+            ChipsRestInterfacesSend chipsRestInterfacesSend =
+                    getChipsRestInterfacesSend(chipsRequest, timestamp);
 
             Map<String, Object> dataForInfoLogMessage = new HashMap<>();
             dataForInfoLogMessage.put("topic", chipsRestInterfacesSendTopic);
@@ -78,7 +74,8 @@ public class ChipsKafkaClient implements ChipsSender {
             dataForInfoLogMessage.put("Offset", offset);
             dataForInfoLogMessage.put("Partition", partition);
 
-            logger.infoContext(requestId,
+            logger.infoContext(
+                    requestId,
                     "Finished sending kafka message to Chips Rest Interfaces Consumer",
                     dataForInfoLogMessage);
         } catch (IOException | ExecutionException e) {
@@ -87,11 +84,13 @@ public class ChipsKafkaClient implements ChipsSender {
         } catch (InterruptedException ie) {
             Thread.currentThread().interrupt();
             logger.errorContext(requestId, ie);
-            throw new ServiceException("Thread Interrupted when ChipsRestInterfacesConsumer future was sent and returned", ie);
+            throw new ServiceException(
+                    "Thread Interrupted when ChipsRestInterfacesConsumer future was sent and returned", ie);
         }
     }
 
-    private ChipsRestInterfacesSend getChipsRestInterfacesSend(ChipsRequest chipsRequest, Long timestamp) throws JsonProcessingException {
+    private ChipsRestInterfacesSend getChipsRestInterfacesSend(
+            ChipsRequest chipsRequest, Long timestamp) throws JsonProcessingException {
         return new ChipsRestInterfacesSendBuilder()
                 .withSourceAppId(Application.APP_NAMESPACE)
                 .withMessageId(UUID.randomUUID().toString())

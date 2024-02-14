@@ -11,7 +11,8 @@ import uk.gov.companieshouse.api.strikeoffobjections.service.impl.ERICHeaderFiel
 
 public class ObjectionStatusInterceptor implements HandlerInterceptor {
 
-    private static final String OBJECTION_STATUS_INVALID = "Objection is not in a valid state for this operation. Expected a status of OPEN but was %s";
+    private static final String OBJECTION_STATUS_INVALID =
+            "Objection is not in a valid state for this operation. Expected a status of OPEN but was %s";
 
     private final ApiLogger apiLogger;
 
@@ -20,18 +21,18 @@ public class ObjectionStatusInterceptor implements HandlerInterceptor {
     }
 
     @Override
-    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
+    public boolean preHandle(
+            HttpServletRequest request, HttpServletResponse response, Object handler) {
         final String requestId = request.getHeader(ERICHeaderFields.ERIC_REQUEST_ID);
         apiLogger.debugContext(requestId, "Checking objection status is OPEN");
-        final Objection objection = (Objection) request.getAttribute(InterceptorConstants.OBJECTION_ATTRIBUTE);
+        final Objection objection =
+                (Objection) request.getAttribute(InterceptorConstants.OBJECTION_ATTRIBUTE);
 
         // Operations on objections via the API REST interface are only allowed whilst the objection is
         // still 'open', i.e. has not yet been submitted (to CHIPS) for processing
         if (ObjectionStatus.OPEN != objection.getStatus()) {
             apiLogger.infoContext(
-                    requestId,
-                    String.format(OBJECTION_STATUS_INVALID, objection.getStatus())
-            );
+                    requestId, String.format(OBJECTION_STATUS_INVALID, objection.getStatus()));
 
             response.setStatus(HttpStatus.FORBIDDEN.value());
             return false;

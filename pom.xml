@@ -335,10 +335,11 @@
                         </java>
                         <executions>
                             <execution>
-                                <goals>
-                                    <goal>apply</goal>
-                                </goals>
-                                <phase>compile</phase>
+                            <id>default-compile</id>
+                            <goals>
+                                <goal>check</goal>
+                            </goals>
+                            <phase>compile</phase>
                             </execution>
                         </executions>
                     </configuration>

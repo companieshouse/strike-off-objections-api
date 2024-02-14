@@ -1,5 +1,9 @@
 package uk.gov.companieshouse.api.strikeoffobjections.interceptor;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,42 +30,30 @@ import uk.gov.companieshouse.api.strikeoffobjections.service.impl.ERICHeaderPars
 import uk.gov.companieshouse.api.strikeoffobjections.service.impl.ObjectionService;
 import uk.gov.companieshouse.service.rest.response.PluggableResponseEntityFactory;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
-
 @Integration
 @ExtendWith(SpringExtension.class)
-@WebMvcTest(value = { ObjectionController.class })
+@WebMvcTest(value = {ObjectionController.class})
 class CompanyNumberInterceptorIntegrationTest {
-    @Autowired
-    private MockMvc mockMvc;
+    @Autowired private MockMvc mockMvc;
 
-    @MockBean
-    private ObjectionService objectionService;
+    @MockBean private ObjectionService objectionService;
 
-    @MockBean
-    private ERICHeaderParser headerParser;
+    @MockBean private ERICHeaderParser headerParser;
 
-    @MockBean
-    private ObjectionMapper objectionMapper;
+    @MockBean private ObjectionMapper objectionMapper;
 
-    @MockBean
-    private AttachmentMapper attachmentMapper;
+    @MockBean private AttachmentMapper attachmentMapper;
 
-    @MockBean
-    private ApiLogger logger;
+    @MockBean private ApiLogger logger;
 
-    @MockBean
-    private PluggableResponseEntityFactory responseEntityFactory;
+    @MockBean private PluggableResponseEntityFactory responseEntityFactory;
 
     @BeforeEach
     public void setup() throws ObjectionNotFoundException {
         Objection objection = new Objection();
         objection.setStatus(ObjectionStatus.OPEN);
         objection.setCompanyNumber("00006400");
-        CreatedBy createdBy = new CreatedBy("some id", "demo@ch.gov.uk",
-                "client", "Joe Bloggs", false);
+        CreatedBy createdBy = new CreatedBy("some id", "demo@ch.gov.uk", "client", "Joe Bloggs", false);
         objection.setCreatedBy(createdBy);
         when(objectionService.getObjection(any(), any())).thenReturn(objection);
         when(headerParser.getEmailAddress(any())).thenReturn("demo@ch.gov.uk");
@@ -69,10 +61,11 @@ class CompanyNumberInterceptorIntegrationTest {
 
     @Test
     void willAllowRequestWithMatchingCompanyNumbersToExecute() throws Exception {
-        RequestBuilder requestBuilder = MockMvcRequestBuilders
-                .get("/company/00006400/strike-off-objections/5f05c3f24be29647ef076f21")
-                .accept(MediaType.APPLICATION_JSON)
-                .header("X-Request-Id", "444");
+        RequestBuilder requestBuilder =
+                MockMvcRequestBuilders.get(
+                                "/company/00006400/strike-off-objections/5f05c3f24be29647ef076f21")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .header("X-Request-Id", "444");
 
         MvcResult result = mockMvc.perform(requestBuilder).andReturn();
         assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
@@ -80,10 +73,11 @@ class CompanyNumberInterceptorIntegrationTest {
 
     @Test
     void willBlockRequestWithoutMatchingCompanyNumbers() throws Exception {
-        RequestBuilder requestBuilder = MockMvcRequestBuilders
-                .get("/company/00000099/strike-off-objections/5f05c3f24be29647ef076f21")
-                .accept(MediaType.APPLICATION_JSON)
-                .header("X-Request-Id", "444");
+        RequestBuilder requestBuilder =
+                MockMvcRequestBuilders.get(
+                                "/company/00000099/strike-off-objections/5f05c3f24be29647ef076f21")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .header("X-Request-Id", "444");
 
         MvcResult result = mockMvc.perform(requestBuilder).andReturn();
         assertEquals(HttpStatus.BAD_REQUEST.value(), result.getResponse().getStatus());

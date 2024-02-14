@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.HashMap;
 import java.util.Map;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -20,10 +19,9 @@ class ApiLoggerTest {
     private static final String TEST_MESSAGE = "TEST";
     private static final String LOG_MAP_KEY = "COMPANY_NUMBER";
     private static final String LOG_MAP_VALUE = "00006400";
-    
-    @InjectMocks
-    private static ApiLogger apiLogger;
-    
+
+    @InjectMocks private static ApiLogger apiLogger;
+
     private Map<String, Object> logMap;
 
     @BeforeEach
@@ -43,7 +41,7 @@ class ApiLoggerTest {
     @Test
     void testInfoContextLoggingDoesNotModifyLogMap() {
         apiLogger.infoContext(CONTEXT, TEST_MESSAGE, logMap);
-        
+
         assertEquals(1, logMap.size());
         assertEquals(LOG_MAP_VALUE, logMap.get(LOG_MAP_KEY));
     }

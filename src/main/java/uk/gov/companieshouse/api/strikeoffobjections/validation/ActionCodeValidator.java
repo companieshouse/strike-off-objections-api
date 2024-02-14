@@ -1,10 +1,9 @@
 package uk.gov.companieshouse.api.strikeoffobjections.validation;
 
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import uk.gov.companieshouse.api.strikeoffobjections.common.ApiLogger;
-
-import java.util.List;
 
 @Component
 public class ActionCodeValidator {
@@ -12,8 +11,8 @@ public class ActionCodeValidator {
     private ApiLogger apiLogger;
 
     @Autowired
-    public ActionCodeValidator(List<ValidationRule<Long>> actionCodeValidationRules,
-                               ApiLogger apiLogger) {
+    public ActionCodeValidator(
+            List<ValidationRule<Long>> actionCodeValidationRules, ApiLogger apiLogger) {
         this.actionCodeValidationRules = actionCodeValidationRules;
         this.apiLogger = apiLogger;
     }
@@ -22,7 +21,7 @@ public class ActionCodeValidator {
         apiLogger.debugContext(
                 logContext,
                 String.format("Running action code validation rules for action code %s", actionCode));
-        for (ValidationRule<Long> rule: actionCodeValidationRules) {
+        for (ValidationRule<Long> rule : actionCodeValidationRules) {
             rule.validate(actionCode, logContext);
         }
     }

@@ -26,7 +26,8 @@ public class ChipsRestInterfacesSendBuilder {
         return this;
     }
 
-    ChipsRestInterfacesSendBuilder withCreatedAtTimestampInSeconds(String createdAtTimestampInSeconds) {
+    ChipsRestInterfacesSendBuilder withCreatedAtTimestampInSeconds(
+            String createdAtTimestampInSeconds) {
         this.createdAtTimestampInSeconds = createdAtTimestampInSeconds;
         return this;
     }

@@ -4,7 +4,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-
 import uk.gov.companieshouse.api.strikeoffobjections.chips.ChipsSender;
 import uk.gov.companieshouse.api.strikeoffobjections.model.chips.ChipsRequest;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Objection;
@@ -26,18 +25,17 @@ public class ChipsService implements IChipsService {
 
     @Override
     public void sendObjection(String requestId, Objection objection) throws ServiceException {
-        final ChipsRequest chipsRequest = new ChipsRequest
-                .Builder()
-                .objectionId(objection.getId())
-                .companyNumber(objection.getCompanyNumber())
-                .attachments(attachmentDownloadUrlPrefix, objection.getAttachments())
-                .referenceNumber(objection.getId())
-                .fullName(objection.getCreatedBy().getFullName())
-                .shareIdentity(
-                        objection.getCreatedBy().isShareIdentity())
-                .customerEmail(objection.getCreatedBy().getEmail())
-                .reason(objection.getReason())
-                .build();
+        final ChipsRequest chipsRequest =
+                new ChipsRequest.Builder()
+                        .objectionId(objection.getId())
+                        .companyNumber(objection.getCompanyNumber())
+                        .attachments(attachmentDownloadUrlPrefix, objection.getAttachments())
+                        .referenceNumber(objection.getId())
+                        .fullName(objection.getCreatedBy().getFullName())
+                        .shareIdentity(objection.getCreatedBy().isShareIdentity())
+                        .customerEmail(objection.getCreatedBy().getEmail())
+                        .reason(objection.getReason())
+                        .build();
 
         this.chipsClient.sendToChips(requestId, chipsRequest);
     }

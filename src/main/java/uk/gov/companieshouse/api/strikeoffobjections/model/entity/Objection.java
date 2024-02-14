@@ -1,19 +1,17 @@
 package uk.gov.companieshouse.api.strikeoffobjections.model.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.util.ObjectUtils;
 import uk.gov.companieshouse.service.links.Links;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-
 @Document(collection = "strike_off_objections")
 public class Objection {
-
 
     public static class Builder {
         private LocalDateTime createdOn;
@@ -93,27 +91,36 @@ public class Objection {
         }
     }
 
-    @Id
-    private String id;
+    @Id private String id;
+
     @Field("created_on")
     private LocalDateTime createdOn;
+
     @Field("created_by")
     private CreatedBy createdBy;
+
     @Field("company_number")
     private String companyNumber;
+
     @Field("reason")
     private String reason;
+
     @Field("attachments")
     private List<Attachment> attachments = new ArrayList<>();
+
     @Field("status")
     private ObjectionStatus status;
+
     @Field("action_code")
     private Long actionCode;
+
     @Field("http_request_id")
     @JsonIgnore
     private String httpRequestId;
+
     @Field("status_changed_on")
     private LocalDateTime statusChangedOn;
+
     @Field("links")
     private Links links;
 
@@ -168,7 +175,7 @@ public class Objection {
     }
 
     public void setAttachments(List<Attachment> attachments) {
-        this. attachments = attachments;
+        this.attachments = attachments;
     }
 
     public ObjectionStatus getStatus() {
@@ -204,8 +211,7 @@ public class Objection {
     }
 
     public boolean isDataEnteredByUserIncomplete() {
-        return ObjectUtils.isEmpty(createdBy.getFullName())
-                || attachments.isEmpty();
+        return ObjectUtils.isEmpty(createdBy.getFullName()) || attachments.isEmpty();
     }
 
     public Links getLinks() {

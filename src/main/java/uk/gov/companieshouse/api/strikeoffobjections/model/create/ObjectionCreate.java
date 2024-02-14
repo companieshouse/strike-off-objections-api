@@ -1,12 +1,15 @@
 package uk.gov.companieshouse.api.strikeoffobjections.model.create;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class ObjectionCreate {
 
     @JsonProperty("objector")
     private String objector;
+
     @JsonProperty("full_name")
     private String fullName;
+
     @JsonProperty("share_identity")
     private boolean shareIdentity;
 

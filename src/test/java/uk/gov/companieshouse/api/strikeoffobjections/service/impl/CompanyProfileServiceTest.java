@@ -1,5 +1,10 @@
 package uk.gov.companieshouse.api.strikeoffobjections.service.impl;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.when;
+
+import java.io.IOException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,12 +23,6 @@ import uk.gov.companieshouse.api.strikeoffobjections.groups.Unit;
 import uk.gov.companieshouse.api.strikeoffobjections.utils.Utils;
 import uk.gov.companieshouse.service.ServiceException;
 
-import java.io.IOException;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.when;
-
 @Unit
 @ExtendWith(MockitoExtension.class)
 class CompanyProfileServiceTest {
@@ -31,25 +30,18 @@ class CompanyProfileServiceTest {
     private static final String COMPANY_NUMBER = "12345678";
     private static final String REQUEST_ID = "87654321";
 
-    @Mock
-    private ApiLogger apiLogger;
-    @Mock
-    private ApiSdkClient apiSdkClient;
+    @Mock private ApiLogger apiLogger;
+    @Mock private ApiSdkClient apiSdkClient;
 
-    @Mock
-    private ApiClient apiClient;
+    @Mock private ApiClient apiClient;
 
-    @Mock
-    private CompanyResourceHandler companyResourceHandler;
+    @Mock private CompanyResourceHandler companyResourceHandler;
 
-    @Mock
-    private CompanyGet companyGet;
+    @Mock private CompanyGet companyGet;
 
-    @Mock
-    private ApiResponse<CompanyProfileApi> apiResponse;
+    @Mock private ApiResponse<CompanyProfileApi> apiResponse;
 
-    @InjectMocks
-    private CompanyProfileService companyProfileService;
+    @InjectMocks private CompanyProfileService companyProfileService;
 
     private CompanyProfileApi dummyCompanyProfile;
 
@@ -59,14 +51,16 @@ class CompanyProfileServiceTest {
     }
 
     @Test
-    void testGetCompanyProfile() throws ApiErrorResponseException, URIValidationException, ServiceException {
+    void testGetCompanyProfile()
+            throws ApiErrorResponseException, URIValidationException, ServiceException {
         when(apiSdkClient.getApiClient()).thenReturn(apiClient);
         when(apiClient.company()).thenReturn(companyResourceHandler);
         when(companyResourceHandler.get("/company/" + COMPANY_NUMBER)).thenReturn(companyGet);
         when(companyGet.execute()).thenReturn(apiResponse);
         when(apiResponse.getData()).thenReturn(dummyCompanyProfile);
 
-        CompanyProfileApi returnedCompanyProfile = companyProfileService.getCompanyProfile(COMPANY_NUMBER, REQUEST_ID);
+        CompanyProfileApi returnedCompanyProfile =
+                companyProfileService.getCompanyProfile(COMPANY_NUMBER, REQUEST_ID);
 
         assertEquals(dummyCompanyProfile, returnedCompanyProfile);
     }
@@ -77,11 +71,11 @@ class CompanyProfileServiceTest {
         when(apiSdkClient.getApiClient()).thenReturn(apiClient);
         when(apiClient.company()).thenReturn(companyResourceHandler);
         when(companyResourceHandler.get("/company/" + COMPANY_NUMBER)).thenReturn(companyGet);
-        when(companyGet.execute()).thenThrow(ApiErrorResponseException.fromIOException(new IOException("Error")));
+        when(companyGet.execute())
+                .thenThrow(ApiErrorResponseException.fromIOException(new IOException("Error")));
 
         assertThrows(
                 ServiceException.class,
-                () -> companyProfileService.getCompanyProfile(COMPANY_NUMBER, REQUEST_ID)
-        );
+                () -> companyProfileService.getCompanyProfile(COMPANY_NUMBER, REQUEST_ID));
     }
 }

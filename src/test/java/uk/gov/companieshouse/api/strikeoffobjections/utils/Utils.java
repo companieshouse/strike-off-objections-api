@@ -1,5 +1,16 @@
 package uk.gov.companieshouse.api.strikeoffobjections.utils;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.nio.file.Files;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import org.apache.avro.Schema;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
@@ -12,24 +23,12 @@ import org.springframework.web.multipart.MultipartFile;
 import uk.gov.companieshouse.api.model.company.CompanyProfileApi;
 import uk.gov.companieshouse.api.strikeoffobjections.file.FileTransferApiClientResponse;
 import uk.gov.companieshouse.api.strikeoffobjections.model.create.ObjectionCreate;
+import uk.gov.companieshouse.api.strikeoffobjections.model.email.EmailContent;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Attachment;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.CreatedBy;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Objection;
-import uk.gov.companieshouse.api.strikeoffobjections.model.email.EmailContent;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.ObjectionLinkKeys;
 import uk.gov.companieshouse.service.links.Links;
-
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
-import java.nio.file.Files;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 
 public class Utils {
 
@@ -40,26 +39,32 @@ public class Utils {
     public static final String TEST_ATTACHMENT_1_URL = "/url1/download";
     public static final String TEST_ATTACHMENT_2_URL = "/url2/download";
 
-    public static Objection getSimpleTestObjection(String objectionId){
+    public static Objection getSimpleTestObjection(String objectionId) {
         Objection objection = new Objection();
         objection.setId(objectionId);
         return objection;
     }
 
-    public static Objection getTestObjection(String objectionId,
-                                             String reason,
-                                             String companyNumber,
-                                             String userId,
-                                             String email,
-                                             LocalDateTime localDatetime,
-                                             ObjectionCreate objectionCreate) {
+    public static Objection getTestObjection(
+            String objectionId,
+            String reason,
+            String companyNumber,
+            String userId,
+            String email,
+            LocalDateTime localDatetime,
+            ObjectionCreate objectionCreate) {
 
         Objection objection = new Objection();
         objection.setReason(reason);
         objection.setId(objectionId);
         objection.setCompanyNumber(companyNumber);
-        CreatedBy createdBy = new CreatedBy(userId, email, objectionCreate.getObjector(),
-                objectionCreate.getFullName(), objectionCreate.canShareIdentity());
+        CreatedBy createdBy =
+                new CreatedBy(
+                        userId,
+                        email,
+                        objectionCreate.getObjector(),
+                        objectionCreate.getFullName(),
+                        objectionCreate.canShareIdentity());
         objection.setCreatedBy(createdBy);
         objection.setCreatedOn(localDatetime);
         objection.getAttachments().addAll(getTestAttachments());
@@ -67,8 +72,8 @@ public class Utils {
         return objection;
     }
 
-    public static ObjectionCreate buildTestObjectionCreate(String objector, String fullName,
-                                                           boolean shareIdentity) {
+    public static ObjectionCreate buildTestObjectionCreate(
+            String objector, String fullName, boolean shareIdentity) {
         ObjectionCreate objectionCreate = new ObjectionCreate();
         objectionCreate.setObjector(objector);
         objectionCreate.setFullName(fullName);
@@ -76,16 +81,13 @@ public class Utils {
         return objectionCreate;
     }
 
-
     public static List<Attachment> getTestAttachments() {
         Attachment attachment1 = new Attachment();
         Attachment attachment2 = new Attachment();
         attachment1.setName("Name 1");
         attachment2.setName("Name 2");
 
-        return Arrays.asList(
-                attachment1, attachment2
-        );
+        return Arrays.asList(attachment1, attachment2);
     }
 
     public static List<Attachment> getTestAttachmentsContainingKey(String keyContained) {
@@ -119,40 +121,46 @@ public class Utils {
     public static MultipartFile mockMultipartFile() throws IOException {
         String fileName = "testMultipart.txt";
         Resource rsc = new ClassPathResource("input/testMultipart.txt");
-        return new MockMultipartFile(fileName,
-                ORIGINAL_FILE_NAME, "text/plain", Files.readAllBytes(rsc.getFile().toPath()));
+        return new MockMultipartFile(
+                fileName, ORIGINAL_FILE_NAME, "text/plain", Files.readAllBytes(rsc.getFile().toPath()));
     }
 
     public static FileTransferApiClientResponse getSuccessfulUploadResponse() {
-        FileTransferApiClientResponse fileTransferApiClientResponse = new FileTransferApiClientResponse();
+        FileTransferApiClientResponse fileTransferApiClientResponse =
+                new FileTransferApiClientResponse();
         fileTransferApiClientResponse.setFileId(UPLOAD_ID);
         return fileTransferApiClientResponse;
     }
 
     public static FileTransferApiClientResponse getSuccessfulDeleteResponse() {
-        FileTransferApiClientResponse fileTransferApiClientResponse = new FileTransferApiClientResponse();
+        FileTransferApiClientResponse fileTransferApiClientResponse =
+                new FileTransferApiClientResponse();
         fileTransferApiClientResponse.setHttpStatus(HttpStatus.NO_CONTENT);
         return fileTransferApiClientResponse;
     }
 
     public static FileTransferApiClientResponse getUnsuccessfulFileTransferApiResponse() {
-        FileTransferApiClientResponse fileTransferApiClientResponse = new FileTransferApiClientResponse();
+        FileTransferApiClientResponse fileTransferApiClientResponse =
+                new FileTransferApiClientResponse();
         fileTransferApiClientResponse.setHttpStatus(HttpStatus.INTERNAL_SERVER_ERROR);
         return fileTransferApiClientResponse;
     }
 
-
-    public static EmailContent buildEmailContent(String appId, String messageId, String messageType,
-                                                 Map<String, Object> data, String recipient,
-                                                 LocalDateTime createdAt) {
+    public static EmailContent buildEmailContent(
+            String appId,
+            String messageId,
+            String messageType,
+            Map<String, Object> data,
+            String recipient,
+            LocalDateTime createdAt) {
         return new EmailContent.Builder()
-            .withOriginatingAppId(appId)
-            .withMessageId(messageId)
-            .withMessageType(messageType)
-            .withData(data)
-            .withEmailAddress(recipient)
-            .withCreatedAt(createdAt)
-            .build();
+                .withOriginatingAppId(appId)
+                .withMessageId(messageId)
+                .withMessageType(messageType)
+                .withData(data)
+                .withEmailAddress(recipient)
+                .withCreatedAt(createdAt)
+                .build();
     }
 
     public static Map<String, Object> getDummyEmailData() {
@@ -173,7 +181,8 @@ public class Utils {
         return parser.parse(new File(avroSchemaPath));
     }
 
-    public static CompanyProfileApi getDummyCompanyProfile(String companyNumber, String jurisdiction) {
+    public static CompanyProfileApi getDummyCompanyProfile(
+            String companyNumber, String jurisdiction) {
         CompanyProfileApi companyProfileApi = new CompanyProfileApi();
         companyProfileApi.setCompanyNumber(companyNumber);
         companyProfileApi.setCompanyName("Company: " + companyNumber);
@@ -187,10 +196,9 @@ public class Utils {
         return dummyDownloadResponse;
     }
 
-    public static HttpHeaders getDummyHttpHeaders(ContentDisposition contentDisposition,
-                                                  int contentLength,
-                                                  MediaType contentType) {
-        //create dummy headers that would be returned from calling the file-transfer-api
+    public static HttpHeaders getDummyHttpHeaders(
+            ContentDisposition contentDisposition, int contentLength, MediaType contentType) {
+        // create dummy headers that would be returned from calling the file-transfer-api
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentLength(contentLength);
         httpHeaders.setContentDisposition(contentDisposition);

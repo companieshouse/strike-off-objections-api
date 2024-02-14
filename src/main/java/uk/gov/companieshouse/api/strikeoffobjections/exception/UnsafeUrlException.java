@@ -6,7 +6,6 @@ public class UnsafeUrlException extends RuntimeException {
     }
 
     public enum ExceptionType {
-
         UNSAFE_URL("Url [%s] is corrupted");
 
         private final String message;

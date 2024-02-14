@@ -3,10 +3,8 @@ package uk.gov.companieshouse.api.strikeoffobjections.processor;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
 import uk.gov.companieshouse.api.model.company.CompanyProfileApi;
 import uk.gov.companieshouse.api.strikeoffobjections.common.ApiLogger;
 import uk.gov.companieshouse.api.strikeoffobjections.common.LogConstants;
@@ -21,9 +19,8 @@ import uk.gov.companieshouse.service.ServiceException;
 
 /**
  * Processes an Objection
- * <p>
- * Will only process Objection if status = SUBMITTED
- * Calls Chips to place stop against company
+ *
+ * <p>Will only process Objection if status = SUBMITTED Calls Chips to place stop against company
  * Sends email
  */
 @Component
@@ -54,12 +51,12 @@ public class ObjectionProcessor {
     }
 
     /**
-     * Process the specified Objection
-     * Only processes if status is SUBMITTED
+     * Process the specified Objection Only processes if status is SUBMITTED
      *
-     * @param objection     the objection to process
+     * @param objection the objection to process
      * @param httpRequestId http request id used for logging
-     * @throws InvalidObjectionStatusException if the Objection is not currently in status SUBMITTED when this is called
+     * @throws InvalidObjectionStatusException if the Objection is not currently in status SUBMITTED
+     *     when this is called
      */
     public void process(Objection objection, String httpRequestId)
             throws InvalidObjectionStatusException, ServiceException {
@@ -78,10 +75,11 @@ public class ObjectionProcessor {
         apiLogger.debugContext(httpRequestId, "Starting objection processing", logMap);
 
         validateObjectionStatus(objection, httpRequestId);
-        
+
         validateObjectionData(objection, httpRequestId);
 
-        CompanyProfileApi companyProfile = this.companyProfileService.getCompanyProfile(objection.getCompanyNumber(), httpRequestId);
+        CompanyProfileApi companyProfile =
+                this.companyProfileService.getCompanyProfile(objection.getCompanyNumber(), httpRequestId);
 
         sendObjectionToChips(objection, httpRequestId);
 
@@ -97,8 +95,9 @@ public class ObjectionProcessor {
 
         // if status not SUBMITTED, throw exception
         if (objection != null && ObjectionStatus.SUBMITTED != objection.getStatus()) {
-            InvalidObjectionStatusException statusException = new InvalidObjectionStatusException(
-                    String.format(INVALID_START_STATUS_MSG, objection.getId(), objection.getStatus()));
+            InvalidObjectionStatusException statusException =
+                    new InvalidObjectionStatusException(
+                            String.format(INVALID_START_STATUS_MSG, objection.getId(), objection.getStatus()));
 
             Map<String, Object> logMap = new HashMap<>();
             logMap.put(LOG_OBJECTION_ID_KEY, objection.getId());
@@ -108,19 +107,23 @@ public class ObjectionProcessor {
         }
     }
 
-    private void validateObjectionData(Objection objection, String httpRequestId) throws ServiceException {
+    private void validateObjectionData(Objection objection, String httpRequestId)
+            throws ServiceException {
         if (objection.isDataEnteredByUserIncomplete()) {
-            ServiceException serviceException = new ServiceException("Objection data entered by user is not complete");
+            ServiceException serviceException =
+                    new ServiceException("Objection data entered by user is not complete");
             Map<String, Object> logMap = new HashMap<>();
             logMap.put(LOG_OBJECTION_ID_KEY, objection.getId());
-            apiLogger.errorContext(httpRequestId, serviceException.getMessage(), serviceException, logMap);
+            apiLogger.errorContext(
+                    httpRequestId, serviceException.getMessage(), serviceException, logMap);
 
             updateObjectionStatus(objection, httpRequestId, ObjectionStatus.ERROR_DATA_INCOMPLETE);
             throw serviceException;
         }
     }
-    
-    private void sendObjectionToChips(Objection objection, String httpRequestId) throws ServiceException {
+
+    private void sendObjectionToChips(Objection objection, String httpRequestId)
+            throws ServiceException {
         try {
             chipsService.sendObjection(httpRequestId, objection);
         } catch (Exception e) {
@@ -133,25 +136,31 @@ public class ObjectionProcessor {
         }
     }
 
-    private void sendInternalEmail(Objection objection, CompanyProfileApi companyProfile,
-                                   String httpRequestId) throws ServiceException {
+    private void sendInternalEmail(
+            Objection objection, CompanyProfileApi companyProfile, String httpRequestId)
+            throws ServiceException {
         try {
-            emailService.sendObjectionSubmittedDissolutionTeamEmail(companyProfile.getCompanyName(), companyProfile.getJurisdiction(), objection, httpRequestId);
+            emailService.sendObjectionSubmittedDissolutionTeamEmail(
+                    companyProfile.getCompanyName(),
+                    companyProfile.getJurisdiction(),
+                    objection,
+                    httpRequestId);
         } catch (Exception e) {
             Map<String, Object> logMap = new HashMap<>();
             logMap.put(LOG_OBJECTION_ID_KEY, objection.getId());
-            apiLogger.errorContext(httpRequestId, "Error sending dissolution team email", e,
-                    logMap);
+            apiLogger.errorContext(httpRequestId, "Error sending dissolution team email", e, logMap);
 
             updateObjectionStatus(objection, httpRequestId, ObjectionStatus.ERROR_INTERNAL_EMAIL);
             throw e;
         }
     }
 
-    private void sendExternalEmail(Objection objection, CompanyProfileApi companyProfile,
-                                   String httpRequestId) throws ServiceException {
+    private void sendExternalEmail(
+            Objection objection, CompanyProfileApi companyProfile, String httpRequestId)
+            throws ServiceException {
         try {
-            emailService.sendObjectionSubmittedCustomerEmail(objection, companyProfile.getCompanyName(), httpRequestId);
+            emailService.sendObjectionSubmittedCustomerEmail(
+                    objection, companyProfile.getCompanyName(), httpRequestId);
         } catch (Exception e) {
             Map<String, Object> logMap = new HashMap<>();
             logMap.put(LOG_OBJECTION_ID_KEY, objection.getId());
@@ -162,7 +171,8 @@ public class ObjectionProcessor {
         }
     }
 
-    private void updateObjectionStatus(Objection objection, String requestId, ObjectionStatus newStatus) {
+    private void updateObjectionStatus(
+            Objection objection, String requestId, ObjectionStatus newStatus) {
         objection.setStatus(newStatus);
         objection.setHttpRequestId(requestId);
         objection.setStatusChangedOn(LocalDateTime.now());

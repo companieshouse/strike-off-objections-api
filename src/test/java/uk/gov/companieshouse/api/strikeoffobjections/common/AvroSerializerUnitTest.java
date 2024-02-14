@@ -1,5 +1,9 @@
 package uk.gov.companieshouse.api.strikeoffobjections.common;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.io.IOException;
+import java.time.LocalDateTime;
 import org.apache.avro.Schema;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -9,12 +13,6 @@ import uk.gov.companieshouse.api.strikeoffobjections.groups.Unit;
 import uk.gov.companieshouse.api.strikeoffobjections.model.email.EmailContent;
 import uk.gov.companieshouse.api.strikeoffobjections.utils.Utils;
 import uk.gov.companieshouse.chips.ChipsRestInterfacesSend;
-
-import java.io.IOException;
-import java.time.LocalDateTime;
-
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 
 @Unit
 @ExtendWith(MockitoExtension.class)
@@ -30,22 +28,20 @@ class AvroSerializerUnitTest {
     private static final String CHIPS_REST_ENDPOINT = "/rest/chipRest/etc";
     private static final String DUMMY_DATA = "{dummy:data,more:data}";
 
-
-    @InjectMocks
-    private AvroSerializer avroSerializer;
+    @InjectMocks private AvroSerializer avroSerializer;
 
     @Test
-    void testAvroSerializerForEmailContent()
-            throws IOException {
-        Schema schema = Utils.getDummySchema(this.getClass().getClassLoader().getResource(
-                "email/email-send.avsc"));
-        EmailContent emailContent = Utils.buildEmailContent(
-                APP_ID,
-                MESSAGE_ID,
-                EMAIL_TEMPLATE_MESSAGE_TYPE,
-                Utils.getDummyEmailData(),
-                RECIPIENT,
-                CREATED_AT);
+    void testAvroSerializerForEmailContent() throws IOException {
+        Schema schema =
+                Utils.getDummySchema(this.getClass().getClassLoader().getResource("email/email-send.avsc"));
+        EmailContent emailContent =
+                Utils.buildEmailContent(
+                        APP_ID,
+                        MESSAGE_ID,
+                        EMAIL_TEMPLATE_MESSAGE_TYPE,
+                        Utils.getDummyEmailData(),
+                        RECIPIENT,
+                        CREATED_AT);
 
         byte[] byteArray = avroSerializer.serialize(emailContent, schema);
         String result = new String(byteArray);
@@ -62,8 +58,7 @@ class AvroSerializerUnitTest {
     }
 
     @Test
-    void testAvroSerializerForSpecificContent()
-            throws IOException {
+    void testAvroSerializerForSpecificContent() throws IOException {
         String createdAt = CREATED_AT.toString();
 
         ChipsRestInterfacesSend chipsMessage = new ChipsRestInterfacesSend();

@@ -5,5 +5,4 @@ import org.springframework.stereotype.Repository;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Objection;
 
 @Repository
-public interface ObjectionRepository extends MongoRepository<Objection, String> {
-}
+public interface ObjectionRepository extends MongoRepository<Objection, String> {}

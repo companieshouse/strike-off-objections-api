@@ -7,7 +7,5 @@ public class ERICHeaderFields {
     public static final String ERIC_AUTHORISED_USER = "ERIC-Authorised-User";
     public static final String ERIC_AUTHORISED_ROLES = "ERIC-Authorised-Roles";
 
-
-    private ERICHeaderFields() {
-    }
+    private ERICHeaderFields() {}
 }

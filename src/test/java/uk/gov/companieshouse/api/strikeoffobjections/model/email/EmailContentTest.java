@@ -1,12 +1,11 @@
 package uk.gov.companieshouse.api.strikeoffobjections.model.email;
 
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.time.LocalDateTime;
+import org.junit.jupiter.api.Test;
 import uk.gov.companieshouse.api.strikeoffobjections.groups.Unit;
 import uk.gov.companieshouse.api.strikeoffobjections.utils.Utils;
-import java.time.LocalDateTime;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @Unit
 class EmailContentTest {
@@ -15,18 +14,19 @@ class EmailContentTest {
     private static final String MESSAGE_ID = "MESSAGE_ID";
     private static final String MESSAGE_TYPE = "MESSAGE_TYPE";
     private static final String EMAIL_ADDRESS = "test@test.com";
-    private static final LocalDateTime CREATED_AT =
-            LocalDateTime.of(2020, 1, 1, 0, 0);
-   @Test
+    private static final LocalDateTime CREATED_AT = LocalDateTime.of(2020, 1, 1, 0, 0);
+
+    @Test
     void emailBuilderTest() {
-        EmailContent emailContent = new EmailContent.Builder()
-                .withOriginatingAppId(ORIGINATING_APP_ID)
-                .withEmailAddress(EMAIL_ADDRESS)
-                .withCreatedAt(CREATED_AT)
-                .withData(Utils.getDummyEmailData())
-                .withMessageId(MESSAGE_ID)
-                .withMessageType(MESSAGE_TYPE)
-                .build();
+        EmailContent emailContent =
+                new EmailContent.Builder()
+                        .withOriginatingAppId(ORIGINATING_APP_ID)
+                        .withEmailAddress(EMAIL_ADDRESS)
+                        .withCreatedAt(CREATED_AT)
+                        .withData(Utils.getDummyEmailData())
+                        .withMessageId(MESSAGE_ID)
+                        .withMessageType(MESSAGE_TYPE)
+                        .build();
 
         assertEquals(ORIGINATING_APP_ID, emailContent.getOriginatingAppId());
         assertEquals(MESSAGE_ID, emailContent.getMessageId());

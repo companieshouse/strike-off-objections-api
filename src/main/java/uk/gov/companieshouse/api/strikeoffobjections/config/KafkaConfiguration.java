@@ -26,7 +26,7 @@ public class KafkaConfiguration {
 
     @Bean
     public Schema fetchSchema(KafkaRestClient restClient) throws JSONException {
-       return getSchema(restClient, emailSchemaUri);
+        return getSchema(restClient, emailSchemaUri);
     }
 
     private Schema getSchema(KafkaRestClient restClient, String schemaUri) throws JSONException {

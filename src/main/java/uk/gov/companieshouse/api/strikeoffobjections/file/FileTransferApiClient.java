@@ -1,6 +1,12 @@
 package uk.gov.companieshouse.api.strikeoffobjections.file;
 
 import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import javax.annotation.PostConstruct;
 import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,13 +24,6 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 import uk.gov.companieshouse.api.strikeoffobjections.common.ApiLogger;
 
-import javax.annotation.PostConstruct;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-
 @Component
 public class FileTransferApiClient {
 
@@ -38,11 +37,9 @@ public class FileTransferApiClient {
     private static final String CONTENT_LENGTH = "Content-Length";
     private static final String CONTENT_DISPOSITION = "Content-Disposition";
 
-    @Autowired
-    private ApiLogger logger;
+    @Autowired private ApiLogger logger;
 
-    @Autowired
-    private RestTemplate restTemplate;
+    @Autowired private RestTemplate restTemplate;
 
     @Value("${FILE_TRANSFER_API_URL}")
     private String fileTransferApiURL;
@@ -59,9 +56,10 @@ public class FileTransferApiClient {
         fileTransferUriTemplate = String.format(FILE_TRANSFER_URI_TEMPLATE, fileTransferApiURL);
     }
 
-    private <T> FileTransferApiClientResponse makeApiCall(String requestId,
-                                                          FileTransferOperation <T> operation,
-                                                          FileTransferResponseBuilder <T> responseBuilder) {
+    private <T> FileTransferApiClientResponse makeApiCall(
+            String requestId,
+            FileTransferOperation<T> operation,
+            FileTransferResponseBuilder<T> responseBuilder) {
         FileTransferApiClientResponse response = new FileTransferApiClientResponse();
 
         try {
@@ -75,47 +73,52 @@ public class FileTransferApiClient {
     }
 
     /**
-     * Uploads a file to the file-transfer-api
-     * Creates a multipart form request containing the file and sends to
-     * the file-transfer-api. The response from the file-transfer-api contains
-     * the new unique id for the file. This is captured and returned in the FileTransferApiClientResponse.
+     * Uploads a file to the file-transfer-api Creates a multipart form request containing the file
+     * and sends to the file-transfer-api. The response from the file-transfer-api contains the new
+     * unique id for the file. This is captured and returned in the FileTransferApiClientResponse.
+     *
      * @param fileToUpload The file to upload
-     * @return FileTransferApiClientResponse containing the file id if successful, the http header and http status
+     * @return FileTransferApiClientResponse containing the file id if successful, the http header and
+     *     http status
      */
     public FileTransferApiClientResponse upload(String requestId, MultipartFile fileToUpload) {
 
         return makeApiCall(
-             requestId,
-             () -> getFileTransferOperation(fileToUpload),
-             responseEntity ->  getFileTransferApiClientResponse(requestId, responseEntity)
-        );
+                requestId,
+                () -> getFileTransferOperation(fileToUpload),
+                responseEntity -> getFileTransferApiClientResponse(requestId, responseEntity));
     }
 
     /**
-     * Calls the file transfer api and returns the result of the
-     * call ready to pass to the response builder
+     * Calls the file transfer api and returns the result of the call ready to pass to the response
+     * builder
+     *
      * @param fileToUpload multipart file to be uploaded
      * @return ResponseEntity containing the raw data from which the response object is built
      * @throws IOException when multipart file bytes have access errors
      */
-    private ResponseEntity<FileTransferApiResponse> getFileTransferOperation(MultipartFile fileToUpload) throws IOException {
+    private ResponseEntity<FileTransferApiResponse> getFileTransferOperation(
+            MultipartFile fileToUpload) throws IOException {
         HttpHeaders headers = createFileTransferApiHttpHeaders();
         LinkedMultiValueMap<String, String> fileHeaderMap = createUploadFileHeader(fileToUpload);
         HttpEntity<byte[]> fileHttpEntity = new HttpEntity<>(fileToUpload.getBytes(), fileHeaderMap);
         LinkedMultiValueMap<String, Object> body = createUploadBody(fileHttpEntity);
         HttpEntity<LinkedMultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
-        return restTemplate.postForEntity(fileTransferApiURL, requestEntity, FileTransferApiResponse.class);
+        return restTemplate.postForEntity(
+                fileTransferApiURL, requestEntity, FileTransferApiResponse.class);
     }
 
     /**
-     * FileTransferResponseBuilder - the output from FileTransferOperation is the input into
-     * this FileTransferResponseBuilder
+     * FileTransferResponseBuilder - the output from FileTransferOperation is the input into this
+     * FileTransferResponseBuilder
+     *
      * @param responseEntity raw data returned from file transfer api upload call
      * @return FileTransferApiClientResponse contains data ready to add to mongo
      */
     private FileTransferApiClientResponse getFileTransferApiClientResponse(
             String requestId, ResponseEntity<FileTransferApiResponse> responseEntity) {
-        FileTransferApiClientResponse fileTransferApiClientResponse = new FileTransferApiClientResponse();
+        FileTransferApiClientResponse fileTransferApiClientResponse =
+                new FileTransferApiClientResponse();
         if (responseEntity != null) {
             fileTransferApiClientResponse.setHttpHeaders(responseEntity.getHeaders());
             fileTransferApiClientResponse.setHttpStatus(responseEntity.getStatusCode());
@@ -124,7 +127,8 @@ public class FileTransferApiClient {
                 fileTransferApiClientResponse.setFileId(apiResponse.getId());
             }
         } else {
-            logger.infoContext(requestId, String.format("%s %s", NULL_RESPONSE_MESSAGE,fileTransferApiURL));
+            logger.infoContext(
+                    requestId, String.format("%s %s", NULL_RESPONSE_MESSAGE, fileTransferApiURL));
             fileTransferApiClientResponse.setHttpStatus(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return fileTransferApiClientResponse;
@@ -144,7 +148,9 @@ public class FileTransferApiClient {
 
     private LinkedMultiValueMap<String, String> createUploadFileHeader(MultipartFile fileToUpload) {
         LinkedMultiValueMap<String, String> fileHeaderMap = new LinkedMultiValueMap<>();
-        fileHeaderMap.add(HttpHeaders.CONTENT_DISPOSITION, String.format(CONTENT_DISPOSITION_VALUE, UPLOAD, fileToUpload.getOriginalFilename()));
+        fileHeaderMap.add(
+                HttpHeaders.CONTENT_DISPOSITION,
+                String.format(CONTENT_DISPOSITION_VALUE, UPLOAD, fileToUpload.getOriginalFilename()));
         return fileHeaderMap;
     }
 
@@ -156,6 +162,7 @@ public class FileTransferApiClient {
 
     /**
      * Delete a file from S3 via the file-transfer-api
+     *
      * @param fileId of document to be deleted
      * @return FileTransferApiClientResponse containing the http status
      */
@@ -164,53 +171,58 @@ public class FileTransferApiClient {
         uriVariables.put("fileId", fileId);
 
         return makeApiCall(
-            requestId,
-            () -> {
-                HttpEntity<Void> request = new HttpEntity<>(createApiKeyHeader());
-                return restTemplate.exchange(fileTransferUriTemplate, HttpMethod.DELETE, request, String.class, uriVariables);
-            },
-            responseEntity -> {
-                FileTransferApiClientResponse response = new FileTransferApiClientResponse();
-                response.setHttpStatus(responseEntity.getStatusCode());
-                return response;
-            }
-        );
+                requestId,
+                () -> {
+                    HttpEntity<Void> request = new HttpEntity<>(createApiKeyHeader());
+                    return restTemplate.exchange(
+                            fileTransferUriTemplate, HttpMethod.DELETE, request, String.class, uriVariables);
+                },
+                responseEntity -> {
+                    FileTransferApiClientResponse response = new FileTransferApiClientResponse();
+                    response.setHttpStatus(responseEntity.getStatusCode());
+                    return response;
+                });
     }
 
     /**
-     * Downloads a file from the file-transfer-api
-     * The RestTemplate execute method takes a callback function to handle the response
-     * from the file-transfer-api. it's in here that we copy the data coming in from
-     * the file-transfer-api into the provided outputStream.
+     * Downloads a file from the file-transfer-api The RestTemplate execute method takes a callback
+     * function to handle the response from the file-transfer-api. it's in here that we copy the data
+     * coming in from the file-transfer-api into the provided outputStream.
+     *
      * @param fileId The id used by the file-transfer-api to identify the file
      * @param httpServletResponse The HttpServletResponse to stream the file to
      * @return FileTransferApiClientResponse containing the http status
      */
-    public FileTransferApiClientResponse download(String requestId, String fileId, HttpServletResponse httpServletResponse) {
+    public FileTransferApiClientResponse download(
+            String requestId, String fileId, HttpServletResponse httpServletResponse) {
 
         Map<String, String> uriVariables = new HashMap<>();
         uriVariables.put("fileId", fileId);
         return makeApiCall(
                 requestId,
-                //FileTransferOperation
-                () -> restTemplate.execute(
-                        downloadUriTemplate,
-                        HttpMethod.GET,
-                        this::handleRequestCallback,
-                        clientHttpResponse -> copyClientHttpDataToServletResponse(httpServletResponse, clientHttpResponse),
-                        uriVariables
-                        ),
-                clientHttpResponse -> getFileTransferApiClientResponse(requestId, clientHttpResponse)
-        );
+                // FileTransferOperation
+                () ->
+                        restTemplate.execute(
+                                downloadUriTemplate,
+                                HttpMethod.GET,
+                                this::handleRequestCallback,
+                                clientHttpResponse ->
+                                        copyClientHttpDataToServletResponse(httpServletResponse, clientHttpResponse),
+                                uriVariables),
+                clientHttpResponse -> getFileTransferApiClientResponse(requestId, clientHttpResponse));
     }
 
     private void handleRequestCallback(ClientHttpRequest requestCallback) {
-        requestCallback.getHeaders().setAccept(Collections.singletonList(MediaType.APPLICATION_OCTET_STREAM));
+        requestCallback
+                .getHeaders()
+                .setAccept(Collections.singletonList(MediaType.APPLICATION_OCTET_STREAM));
         requestCallback.getHeaders().add(HEADER_API_KEY, fileTransferApiKey);
     }
 
-    private ClientHttpResponse copyClientHttpDataToServletResponse(HttpServletResponse httpServletResponse, ClientHttpResponse clientHttpResponse) throws IOException {
-        if(clientHttpResponse != null) {
+    private ClientHttpResponse copyClientHttpDataToServletResponse(
+            HttpServletResponse httpServletResponse, ClientHttpResponse clientHttpResponse)
+            throws IOException {
+        if (clientHttpResponse != null) {
             setResponseHeaders(httpServletResponse, clientHttpResponse);
 
             InputStream inputStream = clientHttpResponse.getBody();
@@ -220,9 +232,10 @@ public class FileTransferApiClient {
         return clientHttpResponse;
     }
 
-    private FileTransferApiClientResponse getFileTransferApiClientResponse(String requestId,
-                                                                           ClientHttpResponse clientHttpResponse) throws IOException {
-        FileTransferApiClientResponse fileTransferApiClientResponse = new FileTransferApiClientResponse();
+    private FileTransferApiClientResponse getFileTransferApiClientResponse(
+            String requestId, ClientHttpResponse clientHttpResponse) throws IOException {
+        FileTransferApiClientResponse fileTransferApiClientResponse =
+                new FileTransferApiClientResponse();
         if (clientHttpResponse != null) {
             fileTransferApiClientResponse.setHttpStatus(clientHttpResponse.getStatusCode());
         } else {
@@ -233,20 +246,24 @@ public class FileTransferApiClient {
     }
 
     /**
-     * Copies file detail headers returned from the file-transfer-api call into the httpServletResponse
+     * Copies file detail headers returned from the file-transfer-api call into the
+     * httpServletResponse
+     *
      * @param httpServletResponse response to stream file to
      * @param clientHttpResponse the response back from the api we are calling - the file-transfer-api
      */
-    private void setResponseHeaders(HttpServletResponse httpServletResponse, ClientHttpResponse clientHttpResponse) {
-        if(clientHttpResponse != null) {
+    private void setResponseHeaders(
+            HttpServletResponse httpServletResponse, ClientHttpResponse clientHttpResponse) {
+        if (clientHttpResponse != null) {
             HttpHeaders incomingHeaders = clientHttpResponse.getHeaders();
             MediaType contentType = incomingHeaders.getContentType();
             if (contentType != null) {
                 httpServletResponse.setHeader(CONTENT_TYPE, contentType.toString());
             }
-            httpServletResponse.setHeader(CONTENT_LENGTH, String.valueOf(incomingHeaders.getContentLength()));
-            httpServletResponse.setHeader(CONTENT_DISPOSITION, incomingHeaders.getContentDisposition().toString());
+            httpServletResponse.setHeader(
+                    CONTENT_LENGTH, String.valueOf(incomingHeaders.getContentLength()));
+            httpServletResponse.setHeader(
+                    CONTENT_DISPOSITION, incomingHeaders.getContentDisposition().toString());
         }
     }
-
 }

@@ -4,7 +4,6 @@ import uk.gov.companieshouse.service.links.CoreLinkKeys;
 import uk.gov.companieshouse.service.links.LinkKey;
 
 public enum ObjectionLinkKeys implements LinkKey {
-
     DOWNLOAD("download"),
     SELF(CoreLinkKeys.SELF.key());
 

@@ -1,6 +1,5 @@
 package uk.gov.companieshouse.api.strikeoffobjections.interceptor.authorization;
 
-
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.times;
@@ -14,7 +13,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
 import uk.gov.companieshouse.api.strikeoffobjections.common.ApiLogger;
 import uk.gov.companieshouse.api.strikeoffobjections.groups.Unit;
 import uk.gov.companieshouse.api.strikeoffobjections.service.impl.ERICHeaderParser;
@@ -22,28 +20,22 @@ import uk.gov.companieshouse.api.strikeoffobjections.service.impl.ERICHeaderPars
 @Unit
 @ExtendWith(MockitoExtension.class)
 class AttachmentDownloadAuthorizationInterceptorTest {
-    
-    @InjectMocks
-    private AttachmentDownloadAuthorizationInterceptor interceptor;
 
-    @Mock
-    private HttpServletRequest request;
+    @InjectMocks private AttachmentDownloadAuthorizationInterceptor interceptor;
 
-    @Mock
-    private HttpServletResponse response;
+    @Mock private HttpServletRequest request;
 
-    @Mock
-    private ApiLogger logger;
+    @Mock private HttpServletResponse response;
 
-    @Mock
-    private ERICHeaderParser ericHeaderParser;
+    @Mock private ApiLogger logger;
+
+    @Mock private ERICHeaderParser ericHeaderParser;
 
     Object object = new Object();
 
     @Test
     void willAuthoriseUserToDownloadAttachmentWhenOnlyDownloadRolePresent() {
-        when(request.getHeader("X-Request-Id"))
-                .thenReturn("123");
+        when(request.getHeader("X-Request-Id")).thenReturn("123");
         when(request.getHeader("ERIC-Authorised-Roles"))
                 .thenReturn("permission /admin/strike-off-objections-download");
 
@@ -55,10 +47,11 @@ class AttachmentDownloadAuthorizationInterceptorTest {
 
     @Test
     void willAuthoriseUserToDownloadAttachmentWhenDownloadRoleAndOthersArePresent() {
-        when(request.getHeader("X-Request-Id"))
-                .thenReturn("123");
+        when(request.getHeader("X-Request-Id")).thenReturn("123");
         when(request.getHeader("ERIC-Authorised-Roles"))
-                .thenReturn("permission /admin/another-role-not-for-download /admin/strike-off-objections-download /admin/yet-another-role-not-for-download");
+                .thenReturn(
+                        "permission /admin/another-role-not-for-download /admin/strike-off-objections-download"
+                                + " /admin/yet-another-role-not-for-download");
 
         boolean result = interceptor.preHandle(request, response, object);
 
@@ -68,8 +61,7 @@ class AttachmentDownloadAuthorizationInterceptorTest {
 
     @Test
     void willNotAuthoriseUserToDownloadAttachmentWhenRoleMissing() {
-        when(request.getHeader("X-Request-Id"))
-                .thenReturn("123");
+        when(request.getHeader("X-Request-Id")).thenReturn("123");
         when(request.getHeader("ERIC-Authorised-Roles"))
                 .thenReturn("permission /admin/another-role-not-for-download");
 

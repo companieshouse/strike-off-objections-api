@@ -3,10 +3,9 @@ package uk.gov.companieshouse.api.strikeoffobjections.model.response;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
+import java.util.List;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.ObjectionStatus;
 import uk.gov.companieshouse.service.links.Links;
-
-import java.util.List;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ObjectionResponseDTO {
@@ -40,8 +39,7 @@ public class ObjectionResponseDTO {
         this.id = id;
     }
 
-    public ObjectionResponseDTO() {
-    }
+    public ObjectionResponseDTO() {}
 
     public String getId() {
         return id;

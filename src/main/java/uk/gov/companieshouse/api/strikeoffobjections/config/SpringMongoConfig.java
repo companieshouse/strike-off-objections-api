@@ -13,12 +13,11 @@ import org.springframework.data.mongodb.core.mapping.MongoMappingContext;
 @Configuration
 public class SpringMongoConfig {
 
-    /**
-     * This removes the _class field on entities saved to mongodb
-     */
+    /** This removes the _class field on entities saved to mongodb */
     @Bean
-    public MappingMongoConverter mappingMongoConverter(@Autowired MongoMappingContext mongoMappingContext,
-                                                       @Autowired MongoDatabaseFactory mongoDbFactory) {
+    public MappingMongoConverter mappingMongoConverter(
+            @Autowired MongoMappingContext mongoMappingContext,
+            @Autowired MongoDatabaseFactory mongoDbFactory) {
 
         DbRefResolver dbRefResolver = new DefaultDbRefResolver(mongoDbFactory);
         MappingMongoConverter converter = new MappingMongoConverter(dbRefResolver, mongoMappingContext);

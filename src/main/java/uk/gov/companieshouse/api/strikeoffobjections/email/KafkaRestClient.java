@@ -18,7 +18,8 @@ public class KafkaRestClient {
         String schemaUrl = String.format("%s%s", schemaRegistryUrl, emailSchemaUri);
         HttpHeaders headers = new HttpHeaders();
         HttpEntity<String> entity = new HttpEntity<>(headers);
-        ResponseEntity<byte[]> response = restTemplate.exchange(schemaUrl, HttpMethod.GET, entity, byte[].class);
+        ResponseEntity<byte[]> response =
+                restTemplate.exchange(schemaUrl, HttpMethod.GET, entity, byte[].class);
         return response.getBody();
     }
 }

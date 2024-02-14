@@ -1,5 +1,13 @@
 package uk.gov.companieshouse.api.strikeoffobjections.chips;
 
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -15,15 +23,6 @@ import uk.gov.companieshouse.api.strikeoffobjections.model.chips.ChipsRequest;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Attachment;
 import uk.gov.companieshouse.api.strikeoffobjections.utils.Utils;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 @Unit
 @ExtendWith(MockitoExtension.class)
 class ChipsRestClientTest {
@@ -36,42 +35,41 @@ class ChipsRestClientTest {
     private static final String CUSTOMER_EMAIL = "test123@ch.gov.uk";
     private static final String REASON = "This is a test";
     private static final String CHIPS_REST_URL = "test.url";
-    private static final String DOWNLOAD_URL_PREFIX = "http://chs-test-web:4000/strike-off-objections/download";
+    private static final String DOWNLOAD_URL_PREFIX =
+            "http://chs-test-web:4000/strike-off-objections/download";
 
-    @InjectMocks
-    private ChipsRestClient chipsRestClient;
+    @InjectMocks private ChipsRestClient chipsRestClient;
 
-    @Mock
-    private ApiLogger apiLogger;
+    @Mock private ApiLogger apiLogger;
 
-    @Mock
-    private RestTemplate restTemplate;
+    @Mock private RestTemplate restTemplate;
 
     @Test
     void testSendMessageToChips() {
         Utils.setTestAttachmentsWithLinks(ATTACHMENTS);
         ReflectionTestUtils.setField(chipsRestClient, "chipsRestUrl", CHIPS_REST_URL);
-        ChipsRequest chipsRequest = new ChipsRequest
-                .Builder()
-                .objectionId(OBJECTION_ID)
-                .companyNumber(COMPANY_NUMBER)
-                .attachments(DOWNLOAD_URL_PREFIX, ATTACHMENTS)
-                .referenceNumber(OBJECTION_ID)
-                .fullName(FULL_NAME)
-                .shareIdentity(SHARE_IDENTITY)
-                .customerEmail(CUSTOMER_EMAIL)
-                .reason(REASON)
-                .build();
+        ChipsRequest chipsRequest =
+                new ChipsRequest.Builder()
+                        .objectionId(OBJECTION_ID)
+                        .companyNumber(COMPANY_NUMBER)
+                        .attachments(DOWNLOAD_URL_PREFIX, ATTACHMENTS)
+                        .referenceNumber(OBJECTION_ID)
+                        .fullName(FULL_NAME)
+                        .shareIdentity(SHARE_IDENTITY)
+                        .customerEmail(CUSTOMER_EMAIL)
+                        .reason(REASON)
+                        .build();
 
-        when(restTemplate.postForEntity(CHIPS_REST_URL, chipsRequest, String.class)).thenReturn(new ResponseEntity<>(HttpStatus.OK));
+        when(restTemplate.postForEntity(CHIPS_REST_URL, chipsRequest, String.class))
+                .thenReturn(new ResponseEntity<>(HttpStatus.OK));
         chipsRestClient.sendToChips(REQUEST_ID, chipsRequest);
         verify(restTemplate, times(1)).postForEntity(CHIPS_REST_URL, chipsRequest, String.class);
 
         Map<String, Object> logMap = new HashMap<>();
         logMap.put("chipsRestUrl", "test.url");
-        verify(apiLogger).infoContext(REQUEST_ID,String.format("Posting %s to CHIPS rest interfaces", chipsRequest), logMap);
-        verify(apiLogger).infoContext(REQUEST_ID,"Sent data to CHIPS, received status code: 200 OK");
-
+        verify(apiLogger)
+                .infoContext(
+                        REQUEST_ID, String.format("Posting %s to CHIPS rest interfaces", chipsRequest), logMap);
+        verify(apiLogger).infoContext(REQUEST_ID, "Sent data to CHIPS, received status code: 200 OK");
     }
-
 }

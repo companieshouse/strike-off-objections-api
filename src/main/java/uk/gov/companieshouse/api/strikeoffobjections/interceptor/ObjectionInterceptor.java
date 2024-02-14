@@ -2,6 +2,7 @@ package uk.gov.companieshouse.api.strikeoffobjections.interceptor;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.util.Map;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.HandlerMapping;
@@ -10,8 +11,6 @@ import uk.gov.companieshouse.api.strikeoffobjections.exception.ObjectionNotFound
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Objection;
 import uk.gov.companieshouse.api.strikeoffobjections.service.IObjectionService;
 import uk.gov.companieshouse.api.strikeoffobjections.service.impl.ERICHeaderFields;
-
-import java.util.Map;
 
 public class ObjectionInterceptor implements HandlerInterceptor {
 
@@ -26,7 +25,8 @@ public class ObjectionInterceptor implements HandlerInterceptor {
     }
 
     @Override
-    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
+    public boolean preHandle(
+            HttpServletRequest request, HttpServletResponse response, Object handler) {
         final String requestId = request.getHeader(ERICHeaderFields.ERIC_REQUEST_ID);
         Map<String, String> pathVariables =
                 (Map<String, String>) request.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE);
@@ -37,11 +37,7 @@ public class ObjectionInterceptor implements HandlerInterceptor {
             Objection objection = objectionService.getObjection(requestId, objectionId);
             request.setAttribute(InterceptorConstants.OBJECTION_ATTRIBUTE, objection);
         } catch (ObjectionNotFoundException e) {
-            apiLogger.errorContext(
-                    requestId,
-                    OBJECTION_NOT_FOUND,
-                    e
-            );
+            apiLogger.errorContext(requestId, OBJECTION_NOT_FOUND, e);
 
             response.setStatus(HttpStatus.NOT_FOUND.value());
             return false;

@@ -87,5 +87,4 @@ public class EmailContent {
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
-
 }

@@ -1,18 +1,18 @@
 package uk.gov.companieshouse.api.strikeoffobjections.service.impl;
 
-import org.junit.jupiter.api.Test;
-
-import uk.gov.companieshouse.api.strikeoffobjections.groups.Unit;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+
+import org.junit.jupiter.api.Test;
+import uk.gov.companieshouse.api.strikeoffobjections.groups.Unit;
 
 @Unit
 class ERICHeaderParserTest {
 
     private static final String EMAIL = "demo@ch.gov.uk";
     private static final String AUTH_USER = EMAIL + "; forename=demoForename; surname=demoSurname";
-    private static final String UTF8_AUTH_USER = EMAIL + "; forename*=UTF-8''demo%20%3BForename; surname*=UTF-8''demo%3BSurname";
+    private static final String UTF8_AUTH_USER =
+            EMAIL + "; forename*=UTF-8''demo%20%3BForename; surname*=UTF-8''demo%3BSurname";
 
     private final ERICHeaderParser ericHeaderParser = new ERICHeaderParser();
 
