@@ -44,7 +44,7 @@ class AvroSerializerUnitTest {
                 CREATED_AT);
 
         byte[] byteArray = avroSerializer.serialize(emailContent, schema);
-        String result = new String(byteArray);
+        var result = new String(byteArray);
 
         assertTrue(result.contains(APP_ID));
         assertTrue(result.contains(MESSAGE_ID));
@@ -59,7 +59,7 @@ class AvroSerializerUnitTest {
 
     @Test
     void testAvroSerializerForSpecificContent() throws IOException {
-        String createdAt = CREATED_AT.toString();
+        var createdAt = CREATED_AT.toString();
 
         ChipsRestInterfacesSend chipsMessage = new ChipsRestInterfacesSend();
         chipsMessage.setAttempt(ATTEMPT);
@@ -70,7 +70,7 @@ class AvroSerializerUnitTest {
         chipsMessage.setData(DUMMY_DATA);
 
         byte[] byteArray = avroSerializer.serialize(chipsMessage);
-        String result = new String(byteArray);
+        var result = new String(byteArray);
 
         assertTrue(result.contains(String.valueOf(ATTEMPT)));
         assertTrue(result.contains(CHIPS_REST_ENDPOINT));

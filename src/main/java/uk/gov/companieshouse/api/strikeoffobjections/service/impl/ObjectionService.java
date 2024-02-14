@@ -101,7 +101,7 @@ public class ObjectionService implements IObjectionService {
         Map<String, Object> logMap = buildLogMap(companyNumber, null, null);
         logger.infoContext(requestId, "Creating objection", logMap);
 
-        final Long actionCode = getActionCode(companyNumber, requestId);
+        final var actionCode = getActionCode(companyNumber, requestId);
         final ObjectionStatus objectionStatus =
                 getObjectionStatusForCreate(actionCode, companyNumber, requestId);
         final String refNumber = referenceNumberGeneratorService.generateReferenceNumber();
@@ -158,9 +158,9 @@ public class ObjectionService implements IObjectionService {
     }
 
     public ObjectionEligibility isCompanyEligible(String companyNumber, String requestId) {
-        Long actionCode = getActionCode(companyNumber, requestId);
+        var actionCode = getActionCode(companyNumber, requestId);
 
-        boolean isCompanyEligible = true;
+        var isCompanyEligible = true;
         EligibilityStatus eligibilityStatus = EligibilityStatus.ELIGIBLE;
 
         try {

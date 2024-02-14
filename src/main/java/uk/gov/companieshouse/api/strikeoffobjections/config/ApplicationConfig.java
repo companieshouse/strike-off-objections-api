@@ -40,6 +40,10 @@ public class ApplicationConfig {
         logger.info("CHS ENV CONFIG - FEATURE_FLAG_USE_KAFKA_FOR_CHIPS_CALL_170121 = "
                 + isChipsKafkaFeatureFlagOn);
 
-        return (isChipsKafkaFeatureFlagOn) ? chipsKafkaClient : chipsRestClient;
+        if (isChipsKafkaFeatureFlagOn) {
+            return chipsKafkaClient;
+        } else {
+            return chipsRestClient;
+        }
     }
 }

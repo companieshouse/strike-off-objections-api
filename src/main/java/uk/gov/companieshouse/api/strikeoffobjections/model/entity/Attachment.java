@@ -65,7 +65,7 @@ public class Attachment {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Attachment that = (Attachment) o;
+        var that = (Attachment) o;
         return getSize() == that.getSize()
                 && Objects.equals(getId(), that.getId())
                 && Objects.equals(getLinks(), that.getLinks())

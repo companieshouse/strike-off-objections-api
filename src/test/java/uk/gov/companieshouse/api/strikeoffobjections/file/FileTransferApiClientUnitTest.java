@@ -161,11 +161,11 @@ class FileTransferApiClientUnitTest {
 
     @Test
     void testSuccessfulDownload() throws IOException {
-        final String contentDispositionType = "attachment";
-        final int contentLength = 55123;
+        final var contentDispositionType = "attachment";
+        final var contentLength = 55_123;
         final MediaType contentType = MediaType.APPLICATION_OCTET_STREAM;
-        final String fileName = "file.txt";
-        final File file = new File("./src/test/resources/input/test.txt");
+        final var fileName = "file.txt";
+        final var file = new File("./src/test/resources/input/test.txt");
         final InputStream fileInputStream = new FileInputStream(file);
 
         MockHttpServletResponse servletResponse = new MockHttpServletResponse();

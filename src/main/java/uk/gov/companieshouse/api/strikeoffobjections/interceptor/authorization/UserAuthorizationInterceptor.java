@@ -23,7 +23,7 @@ public class UserAuthorizationInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(
             HttpServletRequest request, HttpServletResponse response, Object handler) {
-        boolean userIsAuthorised = false;
+        var userIsAuthorised = false;
 
         final String requestId = request.getHeader(ERICHeaderFields.ERIC_REQUEST_ID);
         apiLogger.debugContext(requestId, "Checking current user is authorised to access objection");

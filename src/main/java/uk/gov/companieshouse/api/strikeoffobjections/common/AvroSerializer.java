@@ -23,7 +23,7 @@ public class AvroSerializer {
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     public byte[] serialize(EmailContent emailContent, Schema schema) throws IOException {
-        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        var stream = new ByteArrayOutputStream();
         BinaryEncoder encoder = EncoderFactory.get().binaryEncoder(stream, null);
         GenericDatumWriter<GenericRecord> datumWriter = new GenericDatumWriter<>(schema);
         datumWriter.write(buildAvroGenericRecord(emailContent, schema), encoder);
@@ -34,13 +34,13 @@ public class AvroSerializer {
     public byte[] serialize(SpecificRecord data) throws IOException {
         DatumWriter<SpecificRecord> datumWriter = new SpecificDatumWriter<>();
 
-        try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+        try (var out = new ByteArrayOutputStream()) {
             Encoder encoder = EncoderFactory.get().binaryEncoder(out, null);
             datumWriter.setSchema(data.getSchema());
             datumWriter.write(data, encoder);
             encoder.flush();
 
-            byte[] serializedData = out.toByteArray();
+            var serializedData = out.toByteArray();
             encoder.flush();
 
             return serializedData;

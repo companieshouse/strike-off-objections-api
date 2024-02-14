@@ -120,7 +120,7 @@ public class ChipsRequest {
         private String downloadPrefix;
 
         public ChipsRequest build() {
-            ChipsRequest chipsRequest = new ChipsRequest();
+            var chipsRequest = new ChipsRequest();
             chipsRequest.objectionId = this.objectionId;
             chipsRequest.companyNumber = this.companyNumber;
             chipsRequest.attachments = buildAttachmentsMap(downloadPrefix, attachments);

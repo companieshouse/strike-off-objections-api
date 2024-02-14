@@ -76,7 +76,7 @@ public class Objection {
         }
 
         public Objection build() {
-            Objection objection = new Objection();
+            var objection = new Objection();
             objection.setCreatedOn(this.createdOn);
             objection.setCreatedBy(this.createdBy);
             objection.setCompanyNumber(this.companyNumber);

@@ -11,7 +11,7 @@ class ChipsRestInterfacesSendBuilderTest {
 
     @Test
     void testWithSourceAppId() {
-        String appId = "app";
+        var appId = "app";
 
         ChipsRestInterfacesSend message =
                 new ChipsRestInterfacesSendBuilder().withSourceAppId(appId).build();
@@ -21,7 +21,7 @@ class ChipsRestInterfacesSendBuilderTest {
 
     @Test
     void testWithMessageId() {
-        String messageId = "12345";
+        var messageId = "12345";
 
         ChipsRestInterfacesSend message =
                 new ChipsRestInterfacesSendBuilder().withMessageId(messageId).build();
@@ -31,7 +31,7 @@ class ChipsRestInterfacesSendBuilderTest {
 
     @Test
     void testWithData() {
-        String data = "{some:data,and:more}";
+        var data = "{some:data,and:more}";
 
         ChipsRestInterfacesSend message =
                 new ChipsRestInterfacesSendBuilder().withData(data).build();
@@ -41,7 +41,7 @@ class ChipsRestInterfacesSendBuilderTest {
 
     @Test
     void testWithCreatedAtTimestampInSeconds() {
-        String timestamp = "123456789";
+        var timestamp = "123456789";
 
         ChipsRestInterfacesSend message = new ChipsRestInterfacesSendBuilder()
                 .withCreatedAtTimestampInSeconds(timestamp)
@@ -52,7 +52,7 @@ class ChipsRestInterfacesSendBuilderTest {
 
     @Test
     void testWithChipsRestEndpoint() {
-        String endpoint = "/rest-interfaces/generic/objections";
+        var endpoint = "/rest-interfaces/generic/objections";
 
         ChipsRestInterfacesSend message =
                 new ChipsRestInterfacesSendBuilder().withChipsRestEndpoint(endpoint).build();
@@ -62,7 +62,7 @@ class ChipsRestInterfacesSendBuilderTest {
 
     @Test
     void testWithAttemptNumber() {
-        int attempt = 1;
+        var attempt = 1;
 
         ChipsRestInterfacesSend message =
                 new ChipsRestInterfacesSendBuilder().withAttemptNumber(attempt).build();

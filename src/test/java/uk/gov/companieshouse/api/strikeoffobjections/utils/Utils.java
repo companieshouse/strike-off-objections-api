@@ -118,7 +118,7 @@ public class Utils {
     }
 
     public static MultipartFile mockMultipartFile() throws IOException {
-        String fileName = "testMultipart.txt";
+        var fileName = "testMultipart.txt";
         Resource rsc = new ClassPathResource("input/testMultipart.txt");
         return new MockMultipartFile(
                 fileName,
@@ -178,7 +178,7 @@ public class Utils {
     }
 
     public static Schema getDummySchema(URL url) throws IOException {
-        String avroSchemaPath = Objects.requireNonNull(url).getFile();
+        var avroSchemaPath = Objects.requireNonNull(url).getFile();
         Schema.Parser parser = new Schema.Parser();
         return parser.parse(new File(avroSchemaPath));
     }

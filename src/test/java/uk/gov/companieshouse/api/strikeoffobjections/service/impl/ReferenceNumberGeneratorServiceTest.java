@@ -33,9 +33,9 @@ class ReferenceNumberGeneratorServiceTest {
     @Test
     void generateIdTestOnlyAllowedCharsPresent() {
         String referenceNumber = referenceNumberGeneratorService.generateReferenceNumber();
-        String referenceNumberNoPrefix = referenceNumber.substring(4);
+        var referenceNumberNoPrefix = referenceNumber.substring(4);
 
-        for (int i = 0; i < referenceNumberNoPrefix.length(); i++) {
+        for (var i = 0; i < referenceNumberNoPrefix.length(); i++) {
             assertTrue(ALLOWED_CHARS.contains(referenceNumberNoPrefix.charAt(i)));
         }
     }
@@ -43,9 +43,9 @@ class ReferenceNumberGeneratorServiceTest {
     @Test
     void generateIdTestHyphensInCorrectPlace() {
         String referenceNumber = referenceNumberGeneratorService.generateReferenceNumber();
-        String referenceNumberNoPrefix = referenceNumber.substring(4);
+        var referenceNumberNoPrefix = referenceNumber.substring(4);
 
-        for (int i = 4; i < referenceNumberNoPrefix.length(); i += 5) {
+        for (var i = 4; i < referenceNumberNoPrefix.length(); i += 5) {
             assertEquals('-', referenceNumberNoPrefix.charAt(i));
         }
     }

@@ -445,7 +445,7 @@ class ObjectionServiceTest {
         attachment.setSize(1L);
         attachment.setContentType("text/plain");
         attachment.setName("testFile");
-        String newId = "12345a";
+        var newId = "12345a";
         attachment.setId(newId);
         List<Attachment> attachmentsList = new ArrayList<>();
         attachmentsList.add(attachment);

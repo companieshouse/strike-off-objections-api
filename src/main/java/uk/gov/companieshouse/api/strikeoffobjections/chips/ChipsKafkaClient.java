@@ -57,7 +57,7 @@ public class ChipsKafkaClient implements ChipsSender {
             dataForInfoLogMessage.put("topic", chipsRestInterfacesSendTopic);
             dataForInfoLogMessage.put("message_id", chipsRestInterfacesSend.getMessageId());
 
-            String logMessageSendText = "About to send kafka message to Chips Rest Interfaces Consumer";
+            var logMessageSendText = "About to send kafka message to Chips Rest Interfaces Consumer";
             logger.infoContext(requestId, logMessageSendText, dataForInfoLogMessage);
 
             Map<String, Object> dataForDebugLogMessage = new HashMap<>(dataForInfoLogMessage);

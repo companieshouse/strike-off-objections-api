@@ -23,7 +23,7 @@ public class OracleQueryClient {
     private String oracleQueryApiUrl;
 
     public Long getCompanyActionCode(String companyNumber, String requestId) {
-        String getCompanyActionCodeUrl = formatUrl(companyNumber, "action-code");
+        var getCompanyActionCodeUrl = formatUrl(companyNumber, "action-code");
         apiLogger.infoContext(requestId, "Calling Oracle Query APi at: " + getCompanyActionCodeUrl);
 
         // Need this check for cwe, owasp-a5, sans-top25-risky
@@ -37,7 +37,7 @@ public class OracleQueryClient {
     }
 
     public String getRequestedGaz2(String companyNumber, String requestId) {
-        String getRequestedGaz2Url = formatUrl(companyNumber, "gaz2-requested");
+        var getRequestedGaz2Url = formatUrl(companyNumber, "gaz2-requested");
         apiLogger.infoContext(requestId, "Calling Oracle Query APi at: " + getRequestedGaz2Url);
 
         // Need this check for cwe, owasp-a5, sans-top25-risky

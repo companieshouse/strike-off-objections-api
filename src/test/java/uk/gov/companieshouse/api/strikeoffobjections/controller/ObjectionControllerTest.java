@@ -146,7 +146,6 @@ class ObjectionControllerTest {
         logOrder
                 .verify(apiLogger)
                 .infoContext(eq(REQUEST_ID), contains("Successfully processed POST / request"), eq(logMap));
-        ;
     }
 
     @Test
@@ -1192,7 +1191,7 @@ class ObjectionControllerTest {
         Map<String, Object> logMap = new HashMap<>();
         logMap.put(LogConstants.COMPANY_NUMBER.getValue(), COMPANY_NUMBER);
 
-        RuntimeException runtimeException = new RuntimeException();
+        var runtimeException = new RuntimeException();
         when(objectionService.isCompanyEligible(COMPANY_NUMBER, REQUEST_ID))
                 .thenThrow(runtimeException);
 

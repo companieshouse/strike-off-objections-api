@@ -18,8 +18,8 @@ public class ReferenceNumberGeneratorService implements IReferenceNumberGenerato
      */
     @Override
     public String generateReferenceNumber() {
-        String unformattedReference = UUID.randomUUID().toString();
-        String formattedReference = formatReference(unformattedReference);
+        var unformattedReference = UUID.randomUUID().toString();
+        var formattedReference = formatReference(unformattedReference);
         return REFERENCE_NUMBER_PREFIX + formattedReference;
     }
 
@@ -28,12 +28,12 @@ public class ReferenceNumberGeneratorService implements IReferenceNumberGenerato
         unformattedReference = unformattedReference.substring(0, 12);
         unformattedReference = unformattedReference.toUpperCase();
 
-        char separator = '-';
+        var separator = '-';
 
-        StringBuilder sb = new StringBuilder(unformattedReference);
+        var sb = new StringBuilder(unformattedReference);
 
-        int loopLength = (unformattedReference.length() / 4) - 1;
-        for (int i = 0; i < loopLength; i++) {
+        var loopLength = (unformattedReference.length() / 4) - 1;
+        for (var i = 0; i < loopLength; i++) {
             sb.insert(((i + 1) * 4) + i, separator);
         }
 

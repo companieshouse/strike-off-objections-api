@@ -72,7 +72,7 @@ class ChipsRequestTest {
 
     @Test
     void testToString() {
-        String expectedOutput =
+        var expectedOutput =
                 "ChipsRequest{objectionId='test123',companyNumber='12345678',attachments='{TestAttachment2=http://chs-test-web:4000/strike-off-objections/download/url2/download,"
                         + " TestAttachment1=http://chs-test-web:4000/strike-off-objections/download/url1/download}',referenceNumber='test123',fullName='Joe"
                         + " Bloggs',shareIdentity='true',customerEmail='test123@ch.gov.uk',reason='This is a"
@@ -97,7 +97,7 @@ class ChipsRequestTest {
 
     @Test
     void testToStringNullAttachments() {
-        String expectedOutput =
+        var expectedOutput =
                 "ChipsRequest{objectionId='test123',companyNumber='12345678',attachments='',"
                         + "referenceNumber='test123',fullName='Joe Bloggs',shareIdentity='true',"
                         + "customerEmail='test123@ch.gov.uk',reason='This is a test'}";

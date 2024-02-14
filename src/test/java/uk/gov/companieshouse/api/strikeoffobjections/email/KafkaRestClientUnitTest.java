@@ -32,7 +32,7 @@ class KafkaRestClientUnitTest {
         restTemplate = Mockito.mock(RestTemplate.class);
         restClient = new KafkaRestClient(restTemplate);
         schemaUrl = String.format("%s%s", schemaRegistryUrl, emailSchemaUri);
-        String body = "abc";
+        var body = "abc";
         response = new ResponseEntity<>(body.getBytes(), HttpStatus.OK);
         when(restTemplate.exchange(eq(schemaUrl), eq(HttpMethod.GET), any(), eq(byte[].class)))
                 .thenReturn(response);

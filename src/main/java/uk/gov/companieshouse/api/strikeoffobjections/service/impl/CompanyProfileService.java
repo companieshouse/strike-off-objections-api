@@ -35,7 +35,7 @@ public class CompanyProfileService implements ICompanyProfileService {
 
             ApiClient apiClient = apiSdkClient.getApiClient();
 
-            String companyProfileUrl = String.format("/company/%s", companyNumber);
+            var companyProfileUrl = String.format("/company/%s", companyNumber);
 
             apiLogger.infoContext(requestId, "Retrieving company details from the SDK", logMap);
 

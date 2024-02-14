@@ -108,7 +108,7 @@ class ChipsKafkaClientTest {
     @Test
     void testSendToChips()
             throws ServiceException, IOException, ExecutionException, InterruptedException {
-        final byte[] serializedData = new byte[1];
+        final var serializedData = new byte[1];
         final ChipsRequest chipsRequest = getChipsRequest();
 
         when(avroSerializer.serialize(any(ChipsRestInterfacesSend.class))).thenReturn(serializedData);
@@ -155,13 +155,12 @@ class ChipsKafkaClientTest {
     void testSendToChipsLogging()
             throws ServiceException, IOException, InterruptedException, ExecutionException {
         final ChipsRequest chipsRequest = getChipsRequest();
-        final String sendingLogMessage =
-                "About to send kafka message to Chips Rest Interfaces Consumer";
-        final String finishedSendingLogMessage =
+        final var sendingLogMessage = "About to send kafka message to Chips Rest Interfaces Consumer";
+        final var finishedSendingLogMessage =
                 "Finished sending kafka message to Chips Rest Interfaces Consumer";
-        final String topicKey = "topic";
-        final String messageIdKey = "message_id";
-        final String messageContentsKey = "message_contents";
+        final var topicKey = "topic";
+        final var messageIdKey = "message_id";
+        final var messageContentsKey = "message_contents";
 
         when(producer.sendAndReturnFuture(any(Message.class))).thenReturn(future);
         when(future.get()).thenReturn(recordMetadata);
@@ -199,7 +198,7 @@ class ChipsKafkaClientTest {
     @Test
     void testSendToChipsIOExceptionHandling() throws IOException {
         final ChipsRequest chipsRequest = getChipsRequest();
-        final IOException ioException = new IOException("error");
+        final var ioException = new IOException("error");
 
         doThrow(ioException).when(avroSerializer).serialize(any(ChipsRestInterfacesSend.class));
 
@@ -214,7 +213,7 @@ class ChipsKafkaClientTest {
     @Test
     void testSendToChipsExecutionExceptionHandling() throws ExecutionException, InterruptedException {
         final ChipsRequest chipsRequest = getChipsRequest();
-        final ExecutionException executionException = new ExecutionException("error", new Exception());
+        final var executionException = new ExecutionException("error", new Exception());
 
         when(producer.sendAndReturnFuture(any(Message.class))).thenReturn(future);
         doThrow(executionException).when(future).get();
@@ -231,7 +230,7 @@ class ChipsKafkaClientTest {
     void testSendToChipsInterruptedExceptionHandling()
             throws ExecutionException, InterruptedException {
         final ChipsRequest chipsRequest = getChipsRequest();
-        final InterruptedException interruptedException = new InterruptedException();
+        final var interruptedException = new InterruptedException();
 
         when(producer.sendAndReturnFuture(any(Message.class))).thenReturn(future);
         doThrow(interruptedException).when(future).get();

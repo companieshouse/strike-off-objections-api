@@ -45,7 +45,7 @@ public class CompanyNumberInterceptor implements HandlerInterceptor {
     }
 
     private boolean doCompanyNumbersMatch(String requestCompanyNumber, Objection objection) {
-        boolean companyNumberMatches = false;
+        var companyNumberMatches = false;
         if (requestCompanyNumber != null) {
             companyNumberMatches = requestCompanyNumber.equals(objection.getCompanyNumber());
         }
