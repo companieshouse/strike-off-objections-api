@@ -1,6 +1,7 @@
 # strike-off-objections-api
 
 ### Overview
+
 API for handling objections to a company being struck off the register
 
 ### Requirements
@@ -24,7 +25,6 @@ To checkout and build the service:
 
 These instructions are for a local docker environment.
 
-
 ### Endpoints
 
 The full path for each endpoint begins with the app url:
@@ -47,7 +47,7 @@ This is common to all the endpoints.
 
 ### Config variables
 
-| Key                                              | Example Value                                         | Description                                                                               |
+|                       Key                        |                     Example Value                     |                                        Description                                        |
 |--------------------------------------------------|-------------------------------------------------------|-------------------------------------------------------------------------------------------|
 | `ACTION_CODES_COMPANY_STRUCK_OFF`                | 90,9000,9100                                          | Company already struck off. Objections cannot be raised.                                  |
 | `ACTION_CODES_STRIKE_OFF_NOTICE`                 | 4100,4300,4400,5000                                   | Notice given, but not struck off. Objections allowed.                                     |
@@ -75,3 +75,4 @@ This is common to all the endpoints.
 | `SCHEMA_REGISTRY_URL`                            | `http://chs-kafka-schemas`                            | Where email schema is stored.                                                             |
 | `UPLOAD_MAX_FILE_SIZE`                           | 6MB                                                   |                                                                                           |
 | `UPLOAD_MAX_REQUEST_SIZE`                        | 6MB                                                   |                                                                                           |
+
