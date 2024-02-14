@@ -20,7 +20,8 @@ class ApiLoggerTest {
     private static final String LOG_MAP_KEY = "COMPANY_NUMBER";
     private static final String LOG_MAP_VALUE = "00006400";
 
-    @InjectMocks private static ApiLogger apiLogger;
+    @InjectMocks
+    private static ApiLogger apiLogger;
 
     private Map<String, Object> logMap;
 

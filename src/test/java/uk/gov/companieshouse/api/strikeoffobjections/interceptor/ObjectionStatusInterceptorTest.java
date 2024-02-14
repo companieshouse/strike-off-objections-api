@@ -26,13 +26,17 @@ class ObjectionStatusInterceptorTest {
 
     private static final String OBJECTION_ATTRIBUTE = "objection";
 
-    @Mock private HttpServletRequest request;
+    @Mock
+    private HttpServletRequest request;
 
-    @Mock private HttpServletResponse response;
+    @Mock
+    private HttpServletResponse response;
 
-    @Mock private ApiLogger apiLogger;
+    @Mock
+    private ApiLogger apiLogger;
 
-    @InjectMocks private ObjectionStatusInterceptor objectionStatusInterceptor;
+    @InjectMocks
+    private ObjectionStatusInterceptor objectionStatusInterceptor;
 
     @Test
     void testObjectionInterceptorObjectionNoLongerOpen() {

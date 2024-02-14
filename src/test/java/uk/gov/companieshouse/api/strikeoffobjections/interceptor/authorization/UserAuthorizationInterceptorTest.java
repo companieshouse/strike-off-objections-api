@@ -30,15 +30,20 @@ class UserAuthorizationInterceptorTest {
     private static final String USER_EMAIL = "demo@ch.gov.uk";
     private static final String DIFFERENT_USER_EMAIL = "different@ch.gov.uk";
 
-    @Mock private ApiLogger apiLogger;
+    @Mock
+    private ApiLogger apiLogger;
 
-    @Mock private ERICHeaderParser ericHeaderParser;
+    @Mock
+    private ERICHeaderParser ericHeaderParser;
 
-    @Mock private HttpServletRequest request;
+    @Mock
+    private HttpServletRequest request;
 
-    @Mock private HttpServletResponse response;
+    @Mock
+    private HttpServletResponse response;
 
-    @InjectMocks private UserAuthorizationInterceptor userAuthorizationInterceptor;
+    @InjectMocks
+    private UserAuthorizationInterceptor userAuthorizationInterceptor;
 
     @Test
     void testUserAuthorised() {

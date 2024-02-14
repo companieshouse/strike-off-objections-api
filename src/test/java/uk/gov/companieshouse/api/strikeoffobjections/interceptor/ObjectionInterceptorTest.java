@@ -33,15 +33,20 @@ class ObjectionInterceptorTest {
     private static final String OBJECTION_ID = "OBJECTION";
     private static Map<String, String> PATH_VARIABLES;
 
-    @Mock private HttpServletRequest request;
+    @Mock
+    private HttpServletRequest request;
 
-    @Mock private HttpServletResponse response;
+    @Mock
+    private HttpServletResponse response;
 
-    @Mock private ApiLogger apiLogger;
+    @Mock
+    private ApiLogger apiLogger;
 
-    @Mock private IObjectionService objectionService;
+    @Mock
+    private IObjectionService objectionService;
 
-    @InjectMocks private ObjectionInterceptor objectionInterceptor;
+    @InjectMocks
+    private ObjectionInterceptor objectionInterceptor;
 
     @BeforeEach
     void init() {

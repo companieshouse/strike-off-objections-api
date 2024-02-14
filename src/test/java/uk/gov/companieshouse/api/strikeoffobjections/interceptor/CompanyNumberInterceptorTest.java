@@ -30,13 +30,17 @@ class CompanyNumberInterceptorTest {
     private static final String WRONG_COMPANY_NUMBER = "87654321";
     private static Map<String, String> PATH_VARIABLES;
 
-    @Mock private ApiLogger apiLogger;
+    @Mock
+    private ApiLogger apiLogger;
 
-    @Mock private HttpServletRequest request;
+    @Mock
+    private HttpServletRequest request;
 
-    @Mock private HttpServletResponse response;
+    @Mock
+    private HttpServletResponse response;
 
-    @InjectMocks private CompanyNumberInterceptor companyNumberInterceptor;
+    @InjectMocks
+    private CompanyNumberInterceptor companyNumberInterceptor;
 
     @BeforeEach
     void init() {

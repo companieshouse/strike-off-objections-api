@@ -62,25 +62,34 @@ class ChipsKafkaClientTest {
     private static final LocalDateTime DATE_TIME = LocalDateTime.of(2020, 11, 24, 15, 34);
     private static final Long TIMESTAMP = DATE_TIME.atZone(ZoneId.systemDefault()).toEpochSecond();
 
-    @Mock private CHKafkaProducer producer;
+    @Mock
+    private CHKafkaProducer producer;
 
-    @Mock private AvroSerializer avroSerializer;
+    @Mock
+    private AvroSerializer avroSerializer;
 
-    @Mock private ApiLogger logger;
+    @Mock
+    private ApiLogger logger;
 
-    @Mock private Supplier<LocalDateTime> dateTimeSupplier;
+    @Mock
+    private Supplier<LocalDateTime> dateTimeSupplier;
 
-    @Mock private Future<RecordMetadata> future;
+    @Mock
+    private Future<RecordMetadata> future;
 
     private RecordMetadata recordMetadata;
 
-    @Captor private ArgumentCaptor<ChipsRestInterfacesSend> chipsRestInterfacesSendArgumentCaptor;
+    @Captor
+    private ArgumentCaptor<ChipsRestInterfacesSend> chipsRestInterfacesSendArgumentCaptor;
 
-    @Captor private ArgumentCaptor<Message> messageArgumentCaptor;
+    @Captor
+    private ArgumentCaptor<Message> messageArgumentCaptor;
 
-    @Captor private ArgumentCaptor<Map<String, Object>> logMapArgumentCaptor;
+    @Captor
+    private ArgumentCaptor<Map<String, Object>> logMapArgumentCaptor;
 
-    @InjectMocks private ChipsKafkaClient chipsKafkaClient;
+    @InjectMocks
+    private ChipsKafkaClient chipsKafkaClient;
 
     @BeforeEach
     void setup() {
@@ -194,9 +203,8 @@ class ChipsKafkaClientTest {
 
         doThrow(ioException).when(avroSerializer).serialize(any(ChipsRestInterfacesSend.class));
 
-        ServiceException serviceException =
-                assertThrows(
-                        ServiceException.class, () -> chipsKafkaClient.sendToChips(REQUEST_ID, chipsRequest));
+        ServiceException serviceException = assertThrows(
+                ServiceException.class, () -> chipsKafkaClient.sendToChips(REQUEST_ID, chipsRequest));
 
         verify(logger, times(1)).errorContext(REQUEST_ID, ioException);
         assertEquals(ioException.getMessage(), serviceException.getMessage());
@@ -211,9 +219,8 @@ class ChipsKafkaClientTest {
         when(producer.sendAndReturnFuture(any(Message.class))).thenReturn(future);
         doThrow(executionException).when(future).get();
 
-        ServiceException serviceException =
-                assertThrows(
-                        ServiceException.class, () -> chipsKafkaClient.sendToChips(REQUEST_ID, chipsRequest));
+        ServiceException serviceException = assertThrows(
+                ServiceException.class, () -> chipsKafkaClient.sendToChips(REQUEST_ID, chipsRequest));
 
         verify(logger, times(1)).errorContext(REQUEST_ID, executionException);
         assertEquals(executionException.getMessage(), serviceException.getMessage());
@@ -229,9 +236,8 @@ class ChipsKafkaClientTest {
         when(producer.sendAndReturnFuture(any(Message.class))).thenReturn(future);
         doThrow(interruptedException).when(future).get();
 
-        ServiceException serviceException =
-                assertThrows(
-                        ServiceException.class, () -> chipsKafkaClient.sendToChips(REQUEST_ID, chipsRequest));
+        ServiceException serviceException = assertThrows(
+                ServiceException.class, () -> chipsKafkaClient.sendToChips(REQUEST_ID, chipsRequest));
 
         assertTrue(Thread.currentThread().isInterrupted());
         verify(logger, times(1)).errorContext(REQUEST_ID, interruptedException);

@@ -33,15 +33,14 @@ class ObjectionTest {
         attachment.setContentType("image/jpeg");
         attachment.setSize(5000L);
 
-        Objection objection =
-                new Objection.Builder()
-                        .withCreatedOn(MOCK_PRESENT)
-                        .withCreatedBy(createdBy)
-                        .withCompanyNumber("00006400")
-                        .withReason("This is a test")
-                        .withStatus(ObjectionStatus.OPEN)
-                        .withActionCode(4400L)
-                        .build();
+        Objection objection = new Objection.Builder()
+                .withCreatedOn(MOCK_PRESENT)
+                .withCreatedBy(createdBy)
+                .withCompanyNumber("00006400")
+                .withReason("This is a test")
+                .withStatus(ObjectionStatus.OPEN)
+                .withActionCode(4400L)
+                .build();
 
         objection.addAttachment(attachment);
 

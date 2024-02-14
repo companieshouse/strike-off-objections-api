@@ -24,7 +24,8 @@ public class ValidationConfig {
     @Value("#{'${ACTION_CODES_STRIKE_OFF_NOTICE}'.split(',')}")
     private List<Long> strikeOffNoticeActionCodes;
 
-    @Autowired private ApiLogger apiLogger;
+    @Autowired
+    private ApiLogger apiLogger;
 
     @Bean
     public List<ValidationRule<Long>> getActionCodeValidationRules() {
@@ -41,13 +42,11 @@ public class ValidationConfig {
 
     @PostConstruct
     private void logActionCodeValidatorConfigValues() {
-        apiLogger.info(
-                String.format(
-                        "%s ACTION_CODES_COMPANY_STRUCK_OFF = %s",
-                        CONFIG_MESSAGE_PREFIX, companyStruckOffActionCodes));
-        apiLogger.info(
-                String.format(
-                        "%s ACTION_CODES_STRIKE_OFF_NOTICE = %s",
-                        CONFIG_MESSAGE_PREFIX, strikeOffNoticeActionCodes));
+        apiLogger.info(String.format(
+                "%s ACTION_CODES_COMPANY_STRUCK_OFF = %s",
+                CONFIG_MESSAGE_PREFIX, companyStruckOffActionCodes));
+        apiLogger.info(String.format(
+                "%s ACTION_CODES_STRIKE_OFF_NOTICE = %s",
+                CONFIG_MESSAGE_PREFIX, strikeOffNoticeActionCodes));
     }
 }

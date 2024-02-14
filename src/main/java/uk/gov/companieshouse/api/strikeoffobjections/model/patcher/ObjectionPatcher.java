@@ -10,7 +10,8 @@ import uk.gov.companieshouse.api.strikeoffobjections.model.patch.ObjectionPatch;
 @Component
 public class ObjectionPatcher {
 
-    @Autowired private Supplier<LocalDateTime> dateTimeSupplier;
+    @Autowired
+    private Supplier<LocalDateTime> dateTimeSupplier;
 
     public ObjectionPatcher(Supplier<LocalDateTime> dateTimeSupplier) {
         this.dateTimeSupplier = dateTimeSupplier;

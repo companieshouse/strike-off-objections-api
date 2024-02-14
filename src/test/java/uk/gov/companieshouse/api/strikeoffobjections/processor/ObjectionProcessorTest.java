@@ -47,31 +47,36 @@ class ObjectionProcessorTest {
     private static final String OBJECTOR = "client";
     private static final LocalDateTime LOCAL_DATE_TIME = LocalDateTime.of(2020, 12, 10, 8, 0);
 
-    @Mock private ApiLogger apiLogger;
+    @Mock
+    private ApiLogger apiLogger;
 
-    @Mock private IEmailService emailService;
+    @Mock
+    private IEmailService emailService;
 
-    @Mock private ICompanyProfileService companyProfileService;
+    @Mock
+    private ICompanyProfileService companyProfileService;
 
-    @Mock private IChipsService chipsService;
+    @Mock
+    private IChipsService chipsService;
 
-    @Mock private ObjectionRepository objectionRepository;
+    @Mock
+    private ObjectionRepository objectionRepository;
 
-    @InjectMocks private ObjectionProcessor objectionProcessor;
+    @InjectMocks
+    private ObjectionProcessor objectionProcessor;
 
     @Test
     void processTest() throws Exception {
         when(companyProfileService.getCompanyProfile(COMPANY_NUMBER, HTTP_REQUEST_ID))
                 .thenReturn(Utils.getDummyCompanyProfile(COMPANY_NUMBER, JURISDICTION));
-        Objection dummyObjection =
-                Utils.getTestObjection(
-                        OBJECTION_ID,
-                        REASON,
-                        COMPANY_NUMBER,
-                        USER_ID,
-                        EMAIL,
-                        LOCAL_DATE_TIME,
-                        Utils.buildTestObjectionCreate(OBJECTOR, FULL_NAME, false));
+        Objection dummyObjection = Utils.getTestObjection(
+                OBJECTION_ID,
+                REASON,
+                COMPANY_NUMBER,
+                USER_ID,
+                EMAIL,
+                LOCAL_DATE_TIME,
+                Utils.buildTestObjectionCreate(OBJECTOR, FULL_NAME, false));
         dummyObjection.setStatus(ObjectionStatus.SUBMITTED);
 
         ArgumentCaptor<Objection> objectionArgumentCaptor = ArgumentCaptor.forClass(Objection.class);
@@ -86,15 +91,14 @@ class ObjectionProcessorTest {
     void processOrderTest() throws Exception {
         when(companyProfileService.getCompanyProfile(COMPANY_NUMBER, HTTP_REQUEST_ID))
                 .thenReturn(Utils.getDummyCompanyProfile(COMPANY_NUMBER, JURISDICTION));
-        Objection dummyObjection =
-                Utils.getTestObjection(
-                        OBJECTION_ID,
-                        REASON,
-                        COMPANY_NUMBER,
-                        USER_ID,
-                        EMAIL,
-                        LOCAL_DATE_TIME,
-                        Utils.buildTestObjectionCreate(OBJECTOR, FULL_NAME, false));
+        Objection dummyObjection = Utils.getTestObjection(
+                OBJECTION_ID,
+                REASON,
+                COMPANY_NUMBER,
+                USER_ID,
+                EMAIL,
+                LOCAL_DATE_TIME,
+                Utils.buildTestObjectionCreate(OBJECTOR, FULL_NAME, false));
         dummyObjection.setStatus(ObjectionStatus.SUBMITTED);
 
         assertDoesNotThrow(() -> objectionProcessor.process(dummyObjection, HTTP_REQUEST_ID));
@@ -117,15 +121,14 @@ class ObjectionProcessorTest {
 
     @Test
     void processThrowsInvalidObjectionStatusTest() {
-        Objection dummyObjection =
-                Utils.getTestObjection(
-                        OBJECTION_ID,
-                        REASON,
-                        COMPANY_NUMBER,
-                        USER_ID,
-                        EMAIL,
-                        LOCAL_DATE_TIME,
-                        Utils.buildTestObjectionCreate(OBJECTOR, FULL_NAME, false));
+        Objection dummyObjection = Utils.getTestObjection(
+                OBJECTION_ID,
+                REASON,
+                COMPANY_NUMBER,
+                USER_ID,
+                EMAIL,
+                LOCAL_DATE_TIME,
+                Utils.buildTestObjectionCreate(OBJECTOR, FULL_NAME, false));
         dummyObjection.setStatus(ObjectionStatus.OPEN);
 
         assertThrows(
@@ -147,15 +150,14 @@ class ObjectionProcessorTest {
     void processShouldNotThrowServiceExceptionIfUserDataIsMissingReason() throws Exception {
         when(companyProfileService.getCompanyProfile(COMPANY_NUMBER, HTTP_REQUEST_ID))
                 .thenReturn(Utils.getDummyCompanyProfile(COMPANY_NUMBER, JURISDICTION));
-        Objection dummyObjection =
-                Utils.getTestObjection(
-                        OBJECTION_ID,
-                        "",
-                        COMPANY_NUMBER,
-                        USER_ID,
-                        EMAIL,
-                        LOCAL_DATE_TIME,
-                        Utils.buildTestObjectionCreate(OBJECTOR, FULL_NAME, false));
+        Objection dummyObjection = Utils.getTestObjection(
+                OBJECTION_ID,
+                "",
+                COMPANY_NUMBER,
+                USER_ID,
+                EMAIL,
+                LOCAL_DATE_TIME,
+                Utils.buildTestObjectionCreate(OBJECTOR, FULL_NAME, false));
         dummyObjection.setStatus(ObjectionStatus.SUBMITTED);
 
         ArgumentCaptor<Objection> objectionArgumentCaptor = ArgumentCaptor.forClass(Objection.class);
@@ -168,15 +170,14 @@ class ObjectionProcessorTest {
 
     @Test
     void processThrowsServiceExceptionIfUserDataIsMissingFullName() {
-        Objection dummyObjection =
-                Utils.getTestObjection(
-                        OBJECTION_ID,
-                        REASON,
-                        COMPANY_NUMBER,
-                        USER_ID,
-                        EMAIL,
-                        LOCAL_DATE_TIME,
-                        Utils.buildTestObjectionCreate(OBJECTOR, "", false));
+        Objection dummyObjection = Utils.getTestObjection(
+                OBJECTION_ID,
+                REASON,
+                COMPANY_NUMBER,
+                USER_ID,
+                EMAIL,
+                LOCAL_DATE_TIME,
+                Utils.buildTestObjectionCreate(OBJECTOR, "", false));
         dummyObjection.setStatus(ObjectionStatus.SUBMITTED);
 
         processObjectionAndCheckForError(dummyObjection);
@@ -184,15 +185,14 @@ class ObjectionProcessorTest {
 
     @Test
     void processThrowsServiceExceptionIfUserDataIsMissingAttachments() {
-        Objection dummyObjection =
-                Utils.getTestObjection(
-                        OBJECTION_ID,
-                        REASON,
-                        COMPANY_NUMBER,
-                        USER_ID,
-                        EMAIL,
-                        LOCAL_DATE_TIME,
-                        Utils.buildTestObjectionCreate(OBJECTOR, FULL_NAME, false));
+        Objection dummyObjection = Utils.getTestObjection(
+                OBJECTION_ID,
+                REASON,
+                COMPANY_NUMBER,
+                USER_ID,
+                EMAIL,
+                LOCAL_DATE_TIME,
+                Utils.buildTestObjectionCreate(OBJECTOR, FULL_NAME, false));
         dummyObjection.getAttachments().clear();
         dummyObjection.setStatus(ObjectionStatus.SUBMITTED);
 
@@ -201,15 +201,14 @@ class ObjectionProcessorTest {
 
     @Test
     void processSendsDissolutionTeamEmail() throws Exception {
-        Objection dummyObjection =
-                Utils.getTestObjection(
-                        OBJECTION_ID,
-                        REASON,
-                        COMPANY_NUMBER,
-                        USER_ID,
-                        EMAIL,
-                        LOCAL_DATE_TIME,
-                        Utils.buildTestObjectionCreate(OBJECTOR, FULL_NAME, false));
+        Objection dummyObjection = Utils.getTestObjection(
+                OBJECTION_ID,
+                REASON,
+                COMPANY_NUMBER,
+                USER_ID,
+                EMAIL,
+                LOCAL_DATE_TIME,
+                Utils.buildTestObjectionCreate(OBJECTOR, FULL_NAME, false));
         dummyObjection.setStatus(ObjectionStatus.SUBMITTED);
 
         when(companyProfileService.getCompanyProfile(COMPANY_NUMBER, HTTP_REQUEST_ID))
@@ -234,15 +233,14 @@ class ObjectionProcessorTest {
         when(companyProfileService.getCompanyProfile(COMPANY_NUMBER, HTTP_REQUEST_ID))
                 .thenReturn(Utils.getDummyCompanyProfile(COMPANY_NUMBER, JURISDICTION));
 
-        Objection dummyObjection =
-                Utils.getTestObjection(
-                        OBJECTION_ID,
-                        REASON,
-                        COMPANY_NUMBER,
-                        USER_ID,
-                        EMAIL,
-                        LOCAL_DATE_TIME,
-                        Utils.buildTestObjectionCreate(OBJECTOR, FULL_NAME, false));
+        Objection dummyObjection = Utils.getTestObjection(
+                OBJECTION_ID,
+                REASON,
+                COMPANY_NUMBER,
+                USER_ID,
+                EMAIL,
+                LOCAL_DATE_TIME,
+                Utils.buildTestObjectionCreate(OBJECTOR, FULL_NAME, false));
         dummyObjection.setStatus(ObjectionStatus.SUBMITTED);
 
         doThrow(new ServiceException("blah"))
@@ -266,15 +264,14 @@ class ObjectionProcessorTest {
         when(companyProfileService.getCompanyProfile(COMPANY_NUMBER, HTTP_REQUEST_ID))
                 .thenReturn(Utils.getDummyCompanyProfile(COMPANY_NUMBER, JURISDICTION));
 
-        Objection dummyObjection =
-                Utils.getTestObjection(
-                        OBJECTION_ID,
-                        REASON,
-                        COMPANY_NUMBER,
-                        USER_ID,
-                        EMAIL,
-                        LOCAL_DATE_TIME,
-                        Utils.buildTestObjectionCreate(OBJECTOR, FULL_NAME, false));
+        Objection dummyObjection = Utils.getTestObjection(
+                OBJECTION_ID,
+                REASON,
+                COMPANY_NUMBER,
+                USER_ID,
+                EMAIL,
+                LOCAL_DATE_TIME,
+                Utils.buildTestObjectionCreate(OBJECTOR, FULL_NAME, false));
         dummyObjection.setStatus(ObjectionStatus.SUBMITTED);
 
         doThrow(new RuntimeException("blah"))
@@ -295,15 +292,14 @@ class ObjectionProcessorTest {
 
     @Test
     void processCallsChipsAndSendsCustomerEmail() throws Exception {
-        Objection dummyObjection =
-                Utils.getTestObjection(
-                        OBJECTION_ID,
-                        REASON,
-                        COMPANY_NUMBER,
-                        USER_ID,
-                        EMAIL,
-                        LOCAL_DATE_TIME,
-                        Utils.buildTestObjectionCreate(OBJECTOR, FULL_NAME, false));
+        Objection dummyObjection = Utils.getTestObjection(
+                OBJECTION_ID,
+                REASON,
+                COMPANY_NUMBER,
+                USER_ID,
+                EMAIL,
+                LOCAL_DATE_TIME,
+                Utils.buildTestObjectionCreate(OBJECTOR, FULL_NAME, false));
         dummyObjection.setStatus(ObjectionStatus.SUBMITTED);
 
         when(companyProfileService.getCompanyProfile(COMPANY_NUMBER, HTTP_REQUEST_ID))
@@ -327,15 +323,14 @@ class ObjectionProcessorTest {
         when(companyProfileService.getCompanyProfile(COMPANY_NUMBER, HTTP_REQUEST_ID))
                 .thenReturn(Utils.getDummyCompanyProfile(COMPANY_NUMBER, JURISDICTION));
 
-        Objection dummyObjection =
-                Utils.getTestObjection(
-                        OBJECTION_ID,
-                        REASON,
-                        COMPANY_NUMBER,
-                        USER_ID,
-                        EMAIL,
-                        LOCAL_DATE_TIME,
-                        Utils.buildTestObjectionCreate(OBJECTOR, FULL_NAME, false));
+        Objection dummyObjection = Utils.getTestObjection(
+                OBJECTION_ID,
+                REASON,
+                COMPANY_NUMBER,
+                USER_ID,
+                EMAIL,
+                LOCAL_DATE_TIME,
+                Utils.buildTestObjectionCreate(OBJECTOR, FULL_NAME, false));
         dummyObjection.setStatus(ObjectionStatus.SUBMITTED);
 
         doThrow(new ServiceException("blah"))
@@ -359,15 +354,14 @@ class ObjectionProcessorTest {
         when(companyProfileService.getCompanyProfile(COMPANY_NUMBER, HTTP_REQUEST_ID))
                 .thenReturn(Utils.getDummyCompanyProfile(COMPANY_NUMBER, JURISDICTION));
 
-        Objection dummyObjection =
-                Utils.getTestObjection(
-                        OBJECTION_ID,
-                        REASON,
-                        COMPANY_NUMBER,
-                        USER_ID,
-                        EMAIL,
-                        LOCAL_DATE_TIME,
-                        Utils.buildTestObjectionCreate(OBJECTOR, FULL_NAME, false));
+        Objection dummyObjection = Utils.getTestObjection(
+                OBJECTION_ID,
+                REASON,
+                COMPANY_NUMBER,
+                USER_ID,
+                EMAIL,
+                LOCAL_DATE_TIME,
+                Utils.buildTestObjectionCreate(OBJECTOR, FULL_NAME, false));
         dummyObjection.setStatus(ObjectionStatus.SUBMITTED);
 
         ArgumentCaptor<Objection> objectionArgumentCaptor = ArgumentCaptor.forClass(Objection.class);
@@ -388,15 +382,14 @@ class ObjectionProcessorTest {
 
     @Test
     void processHandlesChipsUncheckedException() throws ServiceException {
-        Objection dummyObjection =
-                Utils.getTestObjection(
-                        OBJECTION_ID,
-                        REASON,
-                        COMPANY_NUMBER,
-                        USER_ID,
-                        EMAIL,
-                        LOCAL_DATE_TIME,
-                        Utils.buildTestObjectionCreate(OBJECTOR, FULL_NAME, false));
+        Objection dummyObjection = Utils.getTestObjection(
+                OBJECTION_ID,
+                REASON,
+                COMPANY_NUMBER,
+                USER_ID,
+                EMAIL,
+                LOCAL_DATE_TIME,
+                Utils.buildTestObjectionCreate(OBJECTOR, FULL_NAME, false));
         dummyObjection.setStatus(ObjectionStatus.SUBMITTED);
 
         doThrow(new RuntimeException("blah")).when(chipsService).sendObjection(any(), any());

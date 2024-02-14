@@ -16,12 +16,11 @@ import uk.gov.companieshouse.api.strikeoffobjections.groups.Unit;
 @ExtendWith(MockitoExtension.class)
 class ReferenceNumberGeneratorServiceTest {
 
-    private static final Set<Character> ALLOWED_CHARS =
-            new HashSet<>(
-                    Arrays.asList(
-                            'A', 'B', 'C', 'D', 'E', 'F', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-'));
+    private static final Set<Character> ALLOWED_CHARS = new HashSet<>(Arrays.asList(
+            'A', 'B', 'C', 'D', 'E', 'F', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-'));
 
-    @InjectMocks private ReferenceNumberGeneratorService referenceNumberGeneratorService;
+    @InjectMocks
+    private ReferenceNumberGeneratorService referenceNumberGeneratorService;
 
     @Test
     void generateIdTestLengthAndPrefix() {

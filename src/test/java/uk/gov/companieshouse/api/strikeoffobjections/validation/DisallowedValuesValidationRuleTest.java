@@ -23,7 +23,8 @@ class DisallowedValuesValidationRuleTest {
     private static final EligibilityStatus FAILURE_STATUS =
             EligibilityStatus.INELIGIBLE_COMPANY_STRUCK_OFF;
 
-    @Mock private ApiLogger apiLogger;
+    @Mock
+    private ApiLogger apiLogger;
 
     private DisallowedValuesValidationRule<Long> disallowedValuesValidationRule;
 
@@ -45,10 +46,9 @@ class DisallowedValuesValidationRuleTest {
 
     @Test
     void validateThrowsExceptionTest() {
-        ValidationException ve =
-                assertThrows(
-                        ValidationException.class,
-                        () -> disallowedValuesValidationRule.validate(5000L, LOG_CONTEXT));
+        ValidationException ve = assertThrows(
+                ValidationException.class,
+                () -> disallowedValuesValidationRule.validate(5000L, LOG_CONTEXT));
 
         assertEquals(FAILURE_STATUS.getObjectionStatus(), ve.getObjectionStatus());
     }

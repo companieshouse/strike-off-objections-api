@@ -83,33 +83,46 @@ class ObjectionServiceTest {
     private static final String FULL_NAME = "Joe Bloggs";
     private static final String OBJECTOR = "client";
 
-    @Mock private ApiLogger apiLogger;
+    @Mock
+    private ApiLogger apiLogger;
 
-    @Mock private ObjectionRepository objectionRepository;
+    @Mock
+    private ObjectionRepository objectionRepository;
 
-    @Mock private Supplier<LocalDateTime> localDateTimeSupplier;
+    @Mock
+    private Supplier<LocalDateTime> localDateTimeSupplier;
 
-    @Mock private ObjectionPatcher objectionPatcher;
+    @Mock
+    private ObjectionPatcher objectionPatcher;
 
-    @Mock private FileTransferApiClient fileTransferApiClient;
+    @Mock
+    private FileTransferApiClient fileTransferApiClient;
 
-    @Mock private ERICHeaderParser ericHeaderParser;
+    @Mock
+    private ERICHeaderParser ericHeaderParser;
 
-    @Mock private ObjectionProcessor objectionProcessor;
+    @Mock
+    private ObjectionProcessor objectionProcessor;
 
-    @Mock private OracleQueryClient oracleQueryClient;
+    @Mock
+    private OracleQueryClient oracleQueryClient;
 
-    @Mock private ActionCodeValidator actionCodeValidator;
+    @Mock
+    private ActionCodeValidator actionCodeValidator;
 
-    @Mock private IReferenceNumberGeneratorService referenceNumberGeneratorService;
+    @Mock
+    private IReferenceNumberGeneratorService referenceNumberGeneratorService;
 
-    @Mock private Gaz2RequestedValidator gaz2RequestedValidator;
+    @Mock
+    private Gaz2RequestedValidator gaz2RequestedValidator;
 
-    @InjectMocks private ObjectionService objectionService;
+    @InjectMocks
+    private ObjectionService objectionService;
 
     @Test
     void createObjectionTest() throws ValidationException, ServiceException {
-        Objection returnedEntity = new Objection.Builder().withCompanyNumber(COMPANY_NUMBER).build();
+        Objection returnedEntity =
+                new Objection.Builder().withCompanyNumber(COMPANY_NUMBER).build();
         returnedEntity.setId(OBJECTION_ID);
         returnedEntity.setCreatedOn(MOCKED_TIME_STAMP);
         returnedEntity.setStatus(OPEN);
@@ -124,13 +137,12 @@ class ObjectionServiceTest {
                 .thenReturn(ACTION_CODE_OK);
         when(referenceNumberGeneratorService.generateReferenceNumber()).thenReturn(OBJECTION_ID);
 
-        Objection objectionResponse =
-                objectionService.createObjection(
-                        REQUEST_ID,
-                        COMPANY_NUMBER,
-                        AUTH_ID,
-                        AUTH_USER,
-                        Utils.buildTestObjectionCreate(OBJECTOR, FULL_NAME, false));
+        Objection objectionResponse = objectionService.createObjection(
+                REQUEST_ID,
+                COMPANY_NUMBER,
+                AUTH_ID,
+                AUTH_USER,
+                Utils.buildTestObjectionCreate(OBJECTOR, FULL_NAME, false));
 
         verify(objectionRepository).insert(any(Objection.class));
         verify(oracleQueryClient).getCompanyActionCode(COMPANY_NUMBER, REQUEST_ID);
@@ -230,13 +242,12 @@ class ObjectionServiceTest {
 
         assertThrows(
                 ServiceException.class,
-                () ->
-                        objectionService.createObjection(
-                                REQUEST_ID,
-                                COMPANY_NUMBER,
-                                AUTH_ID,
-                                AUTH_USER,
-                                Utils.buildTestObjectionCreate(OBJECTOR, FULL_NAME, true)));
+                () -> objectionService.createObjection(
+                        REQUEST_ID,
+                        COMPANY_NUMBER,
+                        AUTH_ID,
+                        AUTH_USER,
+                        Utils.buildTestObjectionCreate(OBJECTOR, FULL_NAME, true)));
     }
 
     @Test
@@ -267,9 +278,8 @@ class ObjectionServiceTest {
 
         assertThrows(
                 ObjectionNotFoundException.class,
-                () ->
-                        objectionService.patchObjection(
-                                OBJECTION_ID, objectionPatch, REQUEST_ID, COMPANY_NUMBER));
+                () -> objectionService.patchObjection(
+                        OBJECTION_ID, objectionPatch, REQUEST_ID, COMPANY_NUMBER));
 
         verify(objectionRepository, times(0)).save(any());
     }
@@ -321,9 +331,8 @@ class ObjectionServiceTest {
 
         assertThrows(
                 InvalidObjectionStatusException.class,
-                () ->
-                        objectionService.patchObjection(
-                                OBJECTION_ID, objectionPatch, REQUEST_ID, COMPANY_NUMBER));
+                () -> objectionService.patchObjection(
+                        OBJECTION_ID, objectionPatch, REQUEST_ID, COMPANY_NUMBER));
 
         verify(objectionRepository, times(1)).save(objection);
         verify(objectionProcessor, only()).process(objection, REQUEST_ID);
@@ -366,9 +375,8 @@ class ObjectionServiceTest {
 
         assertThrows(
                 InvalidObjectionStatusException.class,
-                () ->
-                        objectionService.patchObjection(
-                                OBJECTION_ID, objectionPatch, REQUEST_ID, COMPANY_NUMBER));
+                () -> objectionService.patchObjection(
+                        OBJECTION_ID, objectionPatch, REQUEST_ID, COMPANY_NUMBER));
 
         verify(objectionRepository, never()).save(objection);
         verifyNoInteractions(objectionPatcher);
@@ -407,11 +415,11 @@ class ObjectionServiceTest {
         when(fileTransferApiClient.upload(anyString(), any(MultipartFile.class)))
                 .thenReturn(Utils.getSuccessfulUploadResponse());
         when(objectionRepository.findById(any())).thenReturn(Optional.of(existingObjection));
-        ServiceResult<String> attachmentIdResult =
-                objectionService.addAttachment(
-                        REQUEST_ID, OBJECTION_ID, Utils.mockMultipartFile(), ACCESS_URL);
+        ServiceResult<String> attachmentIdResult = objectionService.addAttachment(
+                REQUEST_ID, OBJECTION_ID, Utils.mockMultipartFile(), ACCESS_URL);
         assertEquals(Utils.UPLOAD_ID, attachmentIdResult.getData());
-        Optional<Attachment> entityAttachment = existingObjection.getAttachments().stream().findAny();
+        Optional<Attachment> entityAttachment =
+                existingObjection.getAttachments().stream().findAny();
 
         assertTrue(entityAttachment.isPresent());
         String linkUrl = entityAttachment.get().getLinks().getLink(ObjectionsLinkKeys.SELF);
@@ -529,9 +537,8 @@ class ObjectionServiceTest {
 
         assertThrows(
                 ServiceException.class,
-                () ->
-                        objectionService.addAttachment(
-                                REQUEST_ID, OBJECTION_ID, Utils.mockMultipartFile(), ACCESS_URL));
+                () -> objectionService.addAttachment(
+                        REQUEST_ID, OBJECTION_ID, Utils.mockMultipartFile(), ACCESS_URL));
     }
 
     @Test
@@ -556,9 +563,8 @@ class ObjectionServiceTest {
 
         assertThrows(
                 ObjectionNotFoundException.class,
-                () ->
-                        objectionService.getAttachment(
-                                REQUEST_ID, COMPANY_NUMBER, OBJECTION_ID, ATTACHMENT_ID));
+                () -> objectionService.getAttachment(
+                        REQUEST_ID, COMPANY_NUMBER, OBJECTION_ID, ATTACHMENT_ID));
     }
 
     @Test
@@ -569,9 +575,8 @@ class ObjectionServiceTest {
 
         assertThrows(
                 AttachmentNotFoundException.class,
-                () ->
-                        objectionService.getAttachment(
-                                REQUEST_ID, COMPANY_NUMBER, OBJECTION_ID, ATTACHMENT_ID));
+                () -> objectionService.getAttachment(
+                        REQUEST_ID, COMPANY_NUMBER, OBJECTION_ID, ATTACHMENT_ID));
     }
 
     @Test
@@ -627,9 +632,8 @@ class ObjectionServiceTest {
         verify(apiLogger)
                 .errorContext(
                         eq(REQUEST_ID),
-                        eq(
-                                String.format(
-                                        "Unable to delete attachment %s, status code 400 BAD_REQUEST", ATTACHMENT_ID)),
+                        eq(String.format(
+                                "Unable to delete attachment %s, status code 400 BAD_REQUEST", ATTACHMENT_ID)),
                         eq(clientException),
                         any());
     }
@@ -652,10 +656,8 @@ class ObjectionServiceTest {
         verify(apiLogger)
                 .errorContext(
                         eq(REQUEST_ID),
-                        eq(
-                                String.format(
-                                        "Unable to delete attachment %s, status code 504 GATEWAY_TIMEOUT",
-                                        ATTACHMENT_ID)),
+                        eq(String.format(
+                                "Unable to delete attachment %s, status code 504 GATEWAY_TIMEOUT", ATTACHMENT_ID)),
                         eq(serviceException),
                         any());
     }
@@ -679,10 +681,9 @@ class ObjectionServiceTest {
         verify(apiLogger)
                 .infoContext(
                         eq(REQUEST_ID),
-                        eq(
-                                String.format(
-                                        "Unable to delete attachment %s, status code 500 INTERNAL_SERVER_ERROR",
-                                        ATTACHMENT_ID)),
+                        eq(String.format(
+                                "Unable to delete attachment %s, status code 500 INTERNAL_SERVER_ERROR",
+                                ATTACHMENT_ID)),
                         any());
     }
 
@@ -738,9 +739,8 @@ class ObjectionServiceTest {
         when(fileTransferApiClient.download(REQUEST_ID, ATTACHMENT_ID, httpServletResponse))
                 .thenReturn(dummyDownloadResponse);
 
-        FileTransferApiClientResponse downloadServiceResult =
-                objectionService.downloadAttachment(
-                        REQUEST_ID, OBJECTION_ID, ATTACHMENT_ID, httpServletResponse);
+        FileTransferApiClientResponse downloadServiceResult = objectionService.downloadAttachment(
+                REQUEST_ID, OBJECTION_ID, ATTACHMENT_ID, httpServletResponse);
 
         verify(fileTransferApiClient, only()).download(REQUEST_ID, ATTACHMENT_ID, httpServletResponse);
         verify(fileTransferApiClient, times(1))

@@ -33,7 +33,8 @@ class ChipsRestInterfacesSendBuilderTest {
     void testWithData() {
         String data = "{some:data,and:more}";
 
-        ChipsRestInterfacesSend message = new ChipsRestInterfacesSendBuilder().withData(data).build();
+        ChipsRestInterfacesSend message =
+                new ChipsRestInterfacesSendBuilder().withData(data).build();
 
         assertEquals(data, message.getData());
     }
@@ -42,8 +43,9 @@ class ChipsRestInterfacesSendBuilderTest {
     void testWithCreatedAtTimestampInSeconds() {
         String timestamp = "123456789";
 
-        ChipsRestInterfacesSend message =
-                new ChipsRestInterfacesSendBuilder().withCreatedAtTimestampInSeconds(timestamp).build();
+        ChipsRestInterfacesSend message = new ChipsRestInterfacesSendBuilder()
+                .withCreatedAtTimestampInSeconds(timestamp)
+                .build();
 
         assertEquals(timestamp, message.getCreatedAt());
     }

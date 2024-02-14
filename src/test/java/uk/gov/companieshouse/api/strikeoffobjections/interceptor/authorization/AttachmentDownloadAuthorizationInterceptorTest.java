@@ -21,15 +21,20 @@ import uk.gov.companieshouse.api.strikeoffobjections.service.impl.ERICHeaderPars
 @ExtendWith(MockitoExtension.class)
 class AttachmentDownloadAuthorizationInterceptorTest {
 
-    @InjectMocks private AttachmentDownloadAuthorizationInterceptor interceptor;
+    @InjectMocks
+    private AttachmentDownloadAuthorizationInterceptor interceptor;
 
-    @Mock private HttpServletRequest request;
+    @Mock
+    private HttpServletRequest request;
 
-    @Mock private HttpServletResponse response;
+    @Mock
+    private HttpServletResponse response;
 
-    @Mock private ApiLogger logger;
+    @Mock
+    private ApiLogger logger;
 
-    @Mock private ERICHeaderParser ericHeaderParser;
+    @Mock
+    private ERICHeaderParser ericHeaderParser;
 
     Object object = new Object();
 

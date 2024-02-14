@@ -29,9 +29,11 @@ class ObjectionPatcherTest {
     private static final LocalDateTime CREATED_ON = LocalDateTime.of(2020, 1, 1, 1, 1);
     private static final LocalDateTime STATUS_CHANGED_ON = LocalDateTime.of(2021, 1, 1, 1, 1);
 
-    @Mock Supplier<LocalDateTime> dateTimeSupplier;
+    @Mock
+    Supplier<LocalDateTime> dateTimeSupplier;
 
-    @InjectMocks private ObjectionPatcher objectionPatcher;
+    @InjectMocks
+    private ObjectionPatcher objectionPatcher;
 
     @Test
     void requestToObjectionCreationTest() {

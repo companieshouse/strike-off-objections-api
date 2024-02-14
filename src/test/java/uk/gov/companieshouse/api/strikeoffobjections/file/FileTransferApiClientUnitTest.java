@@ -57,13 +57,17 @@ class FileTransferApiClientUnitTest {
     private static final String DELETE_URL_TEMPLATE = DUMMY_URL + "/{fileId}";
     private static final String DOWNLOAD_URI_TEMPLATE = DUMMY_URL + "/{fileId}/download";
 
-    @Captor private ArgumentCaptor<ResponseExtractor<ClientHttpResponse>> responseExtractorArgCaptor;
+    @Captor
+    private ArgumentCaptor<ResponseExtractor<ClientHttpResponse>> responseExtractorArgCaptor;
 
-    @Mock private RestTemplate restTemplate;
+    @Mock
+    private RestTemplate restTemplate;
 
-    @Mock private ApiLogger apiLogger;
+    @Mock
+    private ApiLogger apiLogger;
 
-    @InjectMocks private FileTransferApiClient fileTransferApiClient;
+    @InjectMocks
+    private FileTransferApiClient fileTransferApiClient;
 
     private MultipartFile file;
 
@@ -110,9 +114,8 @@ class FileTransferApiClientUnitTest {
         when(restTemplate.postForEntity(eq(DUMMY_URL), any(), eq(FileTransferApiResponse.class)))
                 .thenThrow(exception);
 
-        RestClientException thrown =
-                assertThrows(
-                        RestClientException.class, () -> fileTransferApiClient.upload(REQUEST_ID, file));
+        RestClientException thrown = assertThrows(
+                RestClientException.class, () -> fileTransferApiClient.upload(REQUEST_ID, file));
         assertEquals(exception.getMessage(), thrown.getMessage());
     }
 
@@ -151,9 +154,8 @@ class FileTransferApiClientUnitTest {
                         eq(DELETE_URL_TEMPLATE), eq(HttpMethod.DELETE), any(), eq(String.class), anyMap()))
                 .thenThrow(exception);
 
-        RestClientException thrown =
-                assertThrows(
-                        RestClientException.class, () -> fileTransferApiClient.delete(REQUEST_ID, FILE_ID));
+        RestClientException thrown = assertThrows(
+                RestClientException.class, () -> fileTransferApiClient.delete(REQUEST_ID, FILE_ID));
         assertEquals(exception.getMessage(), thrown.getMessage());
     }
 
@@ -208,9 +210,8 @@ class FileTransferApiClientUnitTest {
 
         // check status is ok
         assertEquals(HttpStatus.OK, downloadResponse.getHttpStatus());
-        assertTrue(
-                ArrayUtils.isEquals(
-                        Files.readAllBytes(file.toPath()), servletResponse.getContentAsByteArray()));
+        assertTrue(ArrayUtils.isEquals(
+                Files.readAllBytes(file.toPath()), servletResponse.getContentAsByteArray()));
 
         assertEquals(contentType.toString(), servletResponse.getHeader("Content-Type"));
         assertEquals(String.valueOf(contentLength), servletResponse.getHeader("Content-Length"));
@@ -260,10 +261,9 @@ class FileTransferApiClientUnitTest {
                         anyMap()))
                 .thenThrow(exception);
 
-        RestClientException thrown =
-                assertThrows(
-                        RestClientException.class,
-                        () -> fileTransferApiClient.download(REQUEST_ID, FILE_ID, servletResponse));
+        RestClientException thrown = assertThrows(
+                RestClientException.class,
+                () -> fileTransferApiClient.download(REQUEST_ID, FILE_ID, servletResponse));
         assertEquals(exception.getMessage(), thrown.getMessage());
     }
 

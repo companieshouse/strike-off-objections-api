@@ -40,23 +40,24 @@ class ChipsServiceTest {
             "http://chs-test-web:4000/strike-off-objections/download";
     private static final String OBJECTOR = "client";
 
-    @Mock private ChipsRestClient chipsRestClient;
+    @Mock
+    private ChipsRestClient chipsRestClient;
 
-    @InjectMocks private ChipsService chipsService;
+    @InjectMocks
+    private ChipsService chipsService;
 
     @Test
     void testSendingToChipsCreatesCorrectRequest() throws ServiceException {
         ReflectionTestUtils.setField(chipsService, "attachmentDownloadUrlPrefix", DOWNLOAD_URL_PREFIX);
 
-        Objection objection =
-                Utils.getTestObjection(
-                        OBJECTION_ID,
-                        REASON,
-                        COMPANY_NUMBER,
-                        USER_ID,
-                        EMAIL,
-                        LOCAL_DATE_TIME,
-                        Utils.buildTestObjectionCreate(OBJECTOR, FULL_NAME, SHARE_IDENTITY));
+        Objection objection = Utils.getTestObjection(
+                OBJECTION_ID,
+                REASON,
+                COMPANY_NUMBER,
+                USER_ID,
+                EMAIL,
+                LOCAL_DATE_TIME,
+                Utils.buildTestObjectionCreate(OBJECTOR, FULL_NAME, SHARE_IDENTITY));
         List<Attachment> attachments = new ArrayList<>();
         Utils.setTestAttachmentsWithLinks(attachments);
         objection.setAttachments(attachments);

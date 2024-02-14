@@ -38,27 +38,29 @@ class ChipsRestClientTest {
     private static final String DOWNLOAD_URL_PREFIX =
             "http://chs-test-web:4000/strike-off-objections/download";
 
-    @InjectMocks private ChipsRestClient chipsRestClient;
+    @InjectMocks
+    private ChipsRestClient chipsRestClient;
 
-    @Mock private ApiLogger apiLogger;
+    @Mock
+    private ApiLogger apiLogger;
 
-    @Mock private RestTemplate restTemplate;
+    @Mock
+    private RestTemplate restTemplate;
 
     @Test
     void testSendMessageToChips() {
         Utils.setTestAttachmentsWithLinks(ATTACHMENTS);
         ReflectionTestUtils.setField(chipsRestClient, "chipsRestUrl", CHIPS_REST_URL);
-        ChipsRequest chipsRequest =
-                new ChipsRequest.Builder()
-                        .objectionId(OBJECTION_ID)
-                        .companyNumber(COMPANY_NUMBER)
-                        .attachments(DOWNLOAD_URL_PREFIX, ATTACHMENTS)
-                        .referenceNumber(OBJECTION_ID)
-                        .fullName(FULL_NAME)
-                        .shareIdentity(SHARE_IDENTITY)
-                        .customerEmail(CUSTOMER_EMAIL)
-                        .reason(REASON)
-                        .build();
+        ChipsRequest chipsRequest = new ChipsRequest.Builder()
+                .objectionId(OBJECTION_ID)
+                .companyNumber(COMPANY_NUMBER)
+                .attachments(DOWNLOAD_URL_PREFIX, ATTACHMENTS)
+                .referenceNumber(OBJECTION_ID)
+                .fullName(FULL_NAME)
+                .shareIdentity(SHARE_IDENTITY)
+                .customerEmail(CUSTOMER_EMAIL)
+                .reason(REASON)
+                .build();
 
         when(restTemplate.postForEntity(CHIPS_REST_URL, chipsRequest, String.class))
                 .thenReturn(new ResponseEntity<>(HttpStatus.OK));

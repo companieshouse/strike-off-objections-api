@@ -35,19 +35,26 @@ import uk.gov.companieshouse.service.rest.response.PluggableResponseEntityFactor
 @WebMvcTest(value = {ObjectionController.class})
 class UserAuthorizationInterceptorIntegrationTest {
 
-    @Autowired private MockMvc mockMvc;
+    @Autowired
+    private MockMvc mockMvc;
 
-    @MockBean private ObjectionService objectionService;
+    @MockBean
+    private ObjectionService objectionService;
 
-    @MockBean private ERICHeaderParser headerParser;
+    @MockBean
+    private ERICHeaderParser headerParser;
 
-    @MockBean private ObjectionMapper objectionMapper;
+    @MockBean
+    private ObjectionMapper objectionMapper;
 
-    @MockBean private AttachmentMapper attachmentMapper;
+    @MockBean
+    private AttachmentMapper attachmentMapper;
 
-    @MockBean private ApiLogger logger;
+    @MockBean
+    private ApiLogger logger;
 
-    @MockBean private PluggableResponseEntityFactory responseEntityFactory;
+    @MockBean
+    private PluggableResponseEntityFactory responseEntityFactory;
 
     @BeforeEach
     public void setup() throws ObjectionNotFoundException {
@@ -63,11 +70,10 @@ class UserAuthorizationInterceptorIntegrationTest {
     void willAllowRequestWhenUserMatches() throws Exception {
         when(headerParser.getEmailAddress(any())).thenReturn("demo@ch.gov.uk");
 
-        RequestBuilder requestBuilder =
-                MockMvcRequestBuilders.get(
-                                "/company/00006400/strike-off-objections/5f05c3f24be29647ef076f21")
-                        .accept(MediaType.APPLICATION_JSON)
-                        .header("X-Request-Id", "444");
+        RequestBuilder requestBuilder = MockMvcRequestBuilders.get(
+                        "/company/00006400/strike-off-objections/5f05c3f24be29647ef076f21")
+                .accept(MediaType.APPLICATION_JSON)
+                .header("X-Request-Id", "444");
 
         MvcResult result = mockMvc.perform(requestBuilder).andReturn();
         assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
@@ -77,11 +83,10 @@ class UserAuthorizationInterceptorIntegrationTest {
     void willBlockRequestWhenUserDifferent() throws Exception {
         when(headerParser.getEmailAddress(any())).thenReturn("different@ch.gov.uk");
 
-        RequestBuilder requestBuilder =
-                MockMvcRequestBuilders.get(
-                                "/company/00006400/strike-off-objections/5f05c3f24be29647ef076f21")
-                        .accept(MediaType.APPLICATION_JSON)
-                        .header("X-Request-Id", "444");
+        RequestBuilder requestBuilder = MockMvcRequestBuilders.get(
+                        "/company/00006400/strike-off-objections/5f05c3f24be29647ef076f21")
+                .accept(MediaType.APPLICATION_JSON)
+                .header("X-Request-Id", "444");
 
         MvcResult result = mockMvc.perform(requestBuilder).andReturn();
         assertEquals(HttpStatus.UNAUTHORIZED.value(), result.getResponse().getStatus());

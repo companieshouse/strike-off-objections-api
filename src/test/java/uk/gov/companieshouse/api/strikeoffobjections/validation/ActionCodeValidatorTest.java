@@ -24,13 +24,17 @@ class ActionCodeValidatorTest {
 
     private static final String LOG_CONTEXT = "abc";
 
-    @Mock private ApiLogger apiLogger;
+    @Mock
+    private ApiLogger apiLogger;
 
-    @Mock private DisallowedValuesValidationRule<Long> ruleA;
+    @Mock
+    private DisallowedValuesValidationRule<Long> ruleA;
 
-    @Mock private AllowedValuesValidationRule<Long> ruleB;
+    @Mock
+    private AllowedValuesValidationRule<Long> ruleB;
 
-    @Mock private DisallowedValuesValidationRule<Long> ruleC;
+    @Mock
+    private DisallowedValuesValidationRule<Long> ruleC;
 
     private ActionCodeValidator actionCodeValidator;
 

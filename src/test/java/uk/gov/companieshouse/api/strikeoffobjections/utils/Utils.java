@@ -58,13 +58,12 @@ public class Utils {
         objection.setReason(reason);
         objection.setId(objectionId);
         objection.setCompanyNumber(companyNumber);
-        CreatedBy createdBy =
-                new CreatedBy(
-                        userId,
-                        email,
-                        objectionCreate.getObjector(),
-                        objectionCreate.getFullName(),
-                        objectionCreate.canShareIdentity());
+        CreatedBy createdBy = new CreatedBy(
+                userId,
+                email,
+                objectionCreate.getObjector(),
+                objectionCreate.getFullName(),
+                objectionCreate.canShareIdentity());
         objection.setCreatedBy(createdBy);
         objection.setCreatedOn(localDatetime);
         objection.getAttachments().addAll(getTestAttachments());
@@ -122,7 +121,10 @@ public class Utils {
         String fileName = "testMultipart.txt";
         Resource rsc = new ClassPathResource("input/testMultipart.txt");
         return new MockMultipartFile(
-                fileName, ORIGINAL_FILE_NAME, "text/plain", Files.readAllBytes(rsc.getFile().toPath()));
+                fileName,
+                ORIGINAL_FILE_NAME,
+                "text/plain",
+                Files.readAllBytes(rsc.getFile().toPath()));
     }
 
     public static FileTransferApiClientResponse getSuccessfulUploadResponse() {

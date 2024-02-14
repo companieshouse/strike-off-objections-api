@@ -70,10 +70,8 @@ public class AttachmentDownloadAuthorizationInterceptor implements HandlerInterc
 
         return Arrays.asList(
                         Optional.ofNullable(request.getHeader(ERICHeaderFields.ERIC_AUTHORISED_ROLES))
-                                .orElseThrow(
-                                        () ->
-                                                new ServiceException(
-                                                        "Header missing: " + ERICHeaderFields.ERIC_AUTHORISED_ROLES))
+                                .orElseThrow(() -> new ServiceException(
+                                        "Header missing: " + ERICHeaderFields.ERIC_AUTHORISED_ROLES))
                                 .split(" "))
                 .contains(privilege);
     }

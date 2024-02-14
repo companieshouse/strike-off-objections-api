@@ -130,9 +130,8 @@ public class ObjectionController {
         apiLogger.infoContext(requestId, "Processing POST / request", logMap);
 
         try {
-            Objection objection =
-                    objectionService.createObjection(
-                            requestId, companyNumber, ericUserId, ericUserDetails, objectionCreate);
+            Objection objection = objectionService.createObjection(
+                    requestId, companyNumber, ericUserId, ericUserDetails, objectionCreate);
 
             ObjectionStatus objectionStatus = objection.getStatus();
             ObjectionResponseDTO responseDTO = new ObjectionResponseDTO(objection.getId());
@@ -235,10 +234,9 @@ public class ObjectionController {
             List<Attachment> attachments =
                     objectionService.getAttachments(requestId, companyNumber, objectionId);
 
-            List<AttachmentResponseDTO> attachmentResponseDTOs =
-                    attachments.stream()
-                            .map(attachmentMapper::attachmentEntityToAttachmentResponseDTO)
-                            .collect(Collectors.toList());
+            List<AttachmentResponseDTO> attachmentResponseDTOs = attachments.stream()
+                    .map(attachmentMapper::attachmentEntityToAttachmentResponseDTO)
+                    .collect(Collectors.toList());
 
             apiLogger.infoContext(
                     requestId, "Successfully processed GET /{objectionId}/attachments request", logMap);
@@ -265,9 +263,8 @@ public class ObjectionController {
         apiLogger.infoContext(requestId, "Processing POST /{objectionId}/attachments request", logMap);
 
         try {
-            ServiceResult<String> result =
-                    objectionService.addAttachment(
-                            requestId, objectionId, file, servletRequest.getRequestURI());
+            ServiceResult<String> result = objectionService.addAttachment(
+                    requestId, objectionId, file, servletRequest.getRequestURI());
             ObjectionResponseDTO objectionResponseDTO = new ObjectionResponseDTO(result.getData());
 
             apiLogger.infoContext(

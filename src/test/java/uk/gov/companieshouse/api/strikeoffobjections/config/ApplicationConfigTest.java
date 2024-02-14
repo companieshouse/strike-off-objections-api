@@ -22,11 +22,14 @@ class ApplicationConfigTest {
     private static final String CHIPS_KAFKA_CONFIG_MESSAGE =
             "CHS ENV CONFIG - FEATURE_FLAG_USE_KAFKA_FOR_CHIPS_CALL_170121 = %s";
 
-    @Mock private ChipsRestClient chipsRestClient;
+    @Mock
+    private ChipsRestClient chipsRestClient;
 
-    @Mock private ChipsKafkaClient chipsKafkaClient;
+    @Mock
+    private ChipsKafkaClient chipsKafkaClient;
 
-    @Mock private ApiLogger apiLogger;
+    @Mock
+    private ApiLogger apiLogger;
 
     private ApplicationConfig applicationConfig;
 

@@ -44,22 +44,24 @@ class KafkaEmailClientUnitTest {
     private Schema testSchema;
     private EmailContent emailContent;
 
-    @Mock private CHKafkaProducer producer;
+    @Mock
+    private CHKafkaProducer producer;
 
-    @Mock private AvroSerializer avroSerializer;
+    @Mock
+    private AvroSerializer avroSerializer;
 
-    @Mock private AvroSerializer faultyAvroSerializer;
+    @Mock
+    private AvroSerializer faultyAvroSerializer;
 
     @BeforeEach
     void setup() throws IOException {
-        emailContent =
-                Utils.buildEmailContent(
-                        EMAIL_NO_LONGER_REQUIRED_TEMPLATE_APP_ID,
-                        MESSAGE_ID,
-                        NO_LONGER_REQUIRED_TEMPLATE_MESSAGE_TYPE,
-                        Utils.getDummyEmailData(),
-                        CUSTOMER_EMAIL,
-                        CREATED_AT);
+        emailContent = Utils.buildEmailContent(
+                EMAIL_NO_LONGER_REQUIRED_TEMPLATE_APP_ID,
+                MESSAGE_ID,
+                NO_LONGER_REQUIRED_TEMPLATE_MESSAGE_TYPE,
+                Utils.getDummyEmailData(),
+                CUSTOMER_EMAIL,
+                CREATED_AT);
 
         testSchema =
                 Utils.getDummySchema(this.getClass().getClassLoader().getResource("email/email-send.avsc"));

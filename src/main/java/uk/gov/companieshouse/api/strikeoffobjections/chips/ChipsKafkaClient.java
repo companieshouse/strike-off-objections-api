@@ -28,9 +28,11 @@ import uk.gov.companieshouse.service.ServiceException;
 @Component
 public class ChipsKafkaClient implements ChipsSender {
 
-    @Autowired private CHKafkaProducer producer;
+    @Autowired
+    private CHKafkaProducer producer;
 
-    @Autowired private AvroSerializer avroSerializer;
+    @Autowired
+    private AvroSerializer avroSerializer;
 
     @Value("${CHIPS_REST_INTERFACES_SEND_TOPIC}")
     private String chipsRestInterfacesSendTopic;
@@ -38,9 +40,11 @@ public class ChipsKafkaClient implements ChipsSender {
     @Value("${OBJECT_TO_STRIKE_OFF_CHIPS_REST_INTERFACES_ENDPOINT}")
     private String chipsRestInterfacesEndpoint;
 
-    @Autowired private ApiLogger logger;
+    @Autowired
+    private ApiLogger logger;
 
-    @Autowired private Supplier<LocalDateTime> dateTimeSupplier;
+    @Autowired
+    private Supplier<LocalDateTime> dateTimeSupplier;
 
     @Override
     public void sendToChips(String requestId, ChipsRequest chipsRequest) throws ServiceException {

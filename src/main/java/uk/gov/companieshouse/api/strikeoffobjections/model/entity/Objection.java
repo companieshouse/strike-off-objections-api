@@ -91,7 +91,8 @@ public class Objection {
         }
     }
 
-    @Id private String id;
+    @Id
+    private String id;
 
     @Field("created_on")
     private LocalDateTime createdOn;

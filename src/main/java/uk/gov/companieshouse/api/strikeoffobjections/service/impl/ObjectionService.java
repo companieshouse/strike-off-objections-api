@@ -56,27 +56,38 @@ public class ObjectionService implements IObjectionService {
     private static final String INVALID_PATCH_STATUS =
             "Unable to patch status to %s for Objection id: %s";
 
-    @Autowired private ObjectionRepository objectionRepository;
+    @Autowired
+    private ObjectionRepository objectionRepository;
 
-    @Autowired private ApiLogger logger;
+    @Autowired
+    private ApiLogger logger;
 
-    @Autowired private Supplier<LocalDateTime> dateTimeSupplier;
+    @Autowired
+    private Supplier<LocalDateTime> dateTimeSupplier;
 
-    @Autowired private ObjectionPatcher objectionPatcher;
+    @Autowired
+    private ObjectionPatcher objectionPatcher;
 
-    @Autowired private FileTransferApiClient fileTransferApiClient;
+    @Autowired
+    private FileTransferApiClient fileTransferApiClient;
 
-    @Autowired private ERICHeaderParser ericHeaderParser;
+    @Autowired
+    private ERICHeaderParser ericHeaderParser;
 
-    @Autowired private ObjectionProcessor objectionProcessor;
+    @Autowired
+    private ObjectionProcessor objectionProcessor;
 
-    @Autowired private OracleQueryClient oracleQueryClient;
+    @Autowired
+    private OracleQueryClient oracleQueryClient;
 
-    @Autowired private ActionCodeValidator actionCodeValidator;
+    @Autowired
+    private ActionCodeValidator actionCodeValidator;
 
-    @Autowired private IReferenceNumberGeneratorService referenceNumberGeneratorService;
+    @Autowired
+    private IReferenceNumberGeneratorService referenceNumberGeneratorService;
 
-    @Autowired private Gaz2RequestedValidator gaz2RequestedValidator;
+    @Autowired
+    private Gaz2RequestedValidator gaz2RequestedValidator;
 
     @Override
     public Objection createObjection(
@@ -95,20 +106,18 @@ public class ObjectionService implements IObjectionService {
                 getObjectionStatusForCreate(actionCode, companyNumber, requestId);
         final String refNumber = referenceNumberGeneratorService.generateReferenceNumber();
 
-        Objection entity =
-                new Objection.Builder()
-                        .withCompanyNumber(companyNumber)
-                        .withCreatedOn(dateTimeSupplier.get())
-                        .withCreatedBy(buildCreatedBy(ericUserId, ericUserDetails, objectionCreate))
-                        .withHttpRequestId(requestId)
-                        .withActionCode(actionCode)
-                        .withStatus(objectionStatus)
-                        .withStatusChangedOn(dateTimeSupplier.get())
-                        .withId(refNumber)
-                        .withLinks(
-                                createLinks(
-                                        "/company/" + companyNumber + "/strike-off-objections/" + refNumber, false))
-                        .build();
+        Objection entity = new Objection.Builder()
+                .withCompanyNumber(companyNumber)
+                .withCreatedOn(dateTimeSupplier.get())
+                .withCreatedBy(buildCreatedBy(ericUserId, ericUserDetails, objectionCreate))
+                .withHttpRequestId(requestId)
+                .withActionCode(actionCode)
+                .withStatus(objectionStatus)
+                .withStatusChangedOn(dateTimeSupplier.get())
+                .withId(refNumber)
+                .withLinks(
+                        createLinks("/company/" + companyNumber + "/strike-off-objections/" + refNumber, false))
+                .build();
 
         try {
             return objectionRepository.insert(entity);
@@ -230,9 +239,8 @@ public class ObjectionService implements IObjectionService {
                 && ObjectionStatus.OPEN != existingObjection.getStatus()) {
             String objectionId = existingObjection.getId();
 
-            InvalidObjectionStatusException statusException =
-                    new InvalidObjectionStatusException(
-                            String.format(INVALID_PATCH_STATUS, objectionPatch.getStatus(), objectionId));
+            InvalidObjectionStatusException statusException = new InvalidObjectionStatusException(
+                    String.format(INVALID_PATCH_STATUS, objectionPatch.getStatus(), objectionId));
 
             Map<String, Object> logMap = buildLogMap(companyNumber, objectionId, null);
             logger.errorContext(requestId, statusException.getMessage(), statusException, logMap);
@@ -246,10 +254,8 @@ public class ObjectionService implements IObjectionService {
             throws ObjectionNotFoundException {
         return objectionRepository
                 .findById(objectionId)
-                .orElseThrow(
-                        () ->
-                                new ObjectionNotFoundException(
-                                        String.format(OBJECTION_NOT_FOUND_MESSAGE, objectionId)));
+                .orElseThrow(() -> new ObjectionNotFoundException(
+                        String.format(OBJECTION_NOT_FOUND_MESSAGE, objectionId)));
     }
 
     @Override
@@ -271,13 +277,10 @@ public class ObjectionService implements IObjectionService {
         }
 
         Attachment attachment = createAttachment(file, attachmentId);
-        Objection objection =
-                objectionRepository
-                        .findById(objectionId)
-                        .orElseThrow(
-                                () ->
-                                        new ObjectionNotFoundException(
-                                                String.format(OBJECTION_NOT_FOUND_MESSAGE, objectionId)));
+        Objection objection = objectionRepository
+                .findById(objectionId)
+                .orElseThrow(() -> new ObjectionNotFoundException(
+                        String.format(OBJECTION_NOT_FOUND_MESSAGE, objectionId)));
         objection.addAttachment(attachment);
 
         Links links = createLinks(attachmentsUri + "/" + attachmentId, true);
@@ -292,22 +295,17 @@ public class ObjectionService implements IObjectionService {
     public Attachment getAttachment(
             String requestId, String companyNumber, String objectionId, String attachmentId)
             throws ObjectionNotFoundException, AttachmentNotFoundException {
-        Objection objection =
-                objectionRepository
-                        .findById(objectionId)
-                        .orElseThrow(
-                                () ->
-                                        new ObjectionNotFoundException(
-                                                String.format(OBJECTION_NOT_FOUND_MESSAGE, objectionId)));
+        Objection objection = objectionRepository
+                .findById(objectionId)
+                .orElseThrow(() -> new ObjectionNotFoundException(
+                        String.format(OBJECTION_NOT_FOUND_MESSAGE, objectionId)));
 
         List<Attachment> attachments = objection.getAttachments();
         return attachments.parallelStream()
                 .filter(o -> attachmentId.equals(o.getId()))
                 .findFirst()
-                .orElseThrow(
-                        () ->
-                                new AttachmentNotFoundException(
-                                        String.format(ATTACHMENT_NOT_FOUND_MESSAGE, attachmentId)));
+                .orElseThrow(() -> new AttachmentNotFoundException(
+                        String.format(ATTACHMENT_NOT_FOUND_MESSAGE, attachmentId)));
     }
 
     private Links createLinks(String selfLink, boolean createDownloadLink) {
@@ -349,23 +347,17 @@ public class ObjectionService implements IObjectionService {
     public void deleteAttachment(String requestId, String objectionId, String attachmentId)
             throws ObjectionNotFoundException, AttachmentNotFoundException, ServiceException {
 
-        Objection objection =
-                objectionRepository
-                        .findById(objectionId)
-                        .orElseThrow(
-                                () ->
-                                        new ObjectionNotFoundException(
-                                                String.format(OBJECTION_NOT_FOUND_MESSAGE, objectionId)));
+        Objection objection = objectionRepository
+                .findById(objectionId)
+                .orElseThrow(() -> new ObjectionNotFoundException(
+                        String.format(OBJECTION_NOT_FOUND_MESSAGE, objectionId)));
 
         List<Attachment> attachments = objection.getAttachments();
-        Attachment attachment =
-                attachments.parallelStream()
-                        .filter(o -> attachmentId.equals(o.getId()))
-                        .findFirst()
-                        .orElseThrow(
-                                () ->
-                                        new AttachmentNotFoundException(
-                                                String.format(ATTACHMENT_NOT_FOUND_MESSAGE, attachmentId)));
+        Attachment attachment = attachments.parallelStream()
+                .filter(o -> attachmentId.equals(o.getId()))
+                .findFirst()
+                .orElseThrow(() -> new AttachmentNotFoundException(
+                        String.format(ATTACHMENT_NOT_FOUND_MESSAGE, attachmentId)));
 
         Map<String, Object> logMap = buildLogMap(null, objectionId, attachmentId);
         deleteFromS3(requestId, attachmentId, logMap);

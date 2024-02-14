@@ -32,32 +32,42 @@ import uk.gov.companieshouse.service.rest.response.PluggableResponseEntityFactor
 @WebMvcTest(value = {ObjectionController.class})
 class EligibilityIntegrationTest {
 
-    @Autowired private MockMvc mockMvc;
+    @Autowired
+    private MockMvc mockMvc;
 
-    @MockBean private ObjectionService objectionService;
+    @MockBean
+    private ObjectionService objectionService;
 
-    @MockBean private ERICHeaderParser headerParser;
+    @MockBean
+    private ERICHeaderParser headerParser;
 
-    @MockBean private ObjectionMapper objectionMapper;
+    @MockBean
+    private ObjectionMapper objectionMapper;
 
-    @MockBean private AttachmentMapper attachmentMapper;
+    @MockBean
+    private AttachmentMapper attachmentMapper;
 
-    @MockBean private ApiLogger logger;
+    @MockBean
+    private ApiLogger logger;
 
-    @MockBean private PluggableResponseEntityFactory responseEntityFactory;
+    @MockBean
+    private PluggableResponseEntityFactory responseEntityFactory;
 
-    @MockBean private ObjectionInterceptor objectionInterceptor;
+    @MockBean
+    private ObjectionInterceptor objectionInterceptor;
 
-    @MockBean private CompanyNumberInterceptor companyNumberInterceptor;
+    @MockBean
+    private CompanyNumberInterceptor companyNumberInterceptor;
 
-    @MockBean private UserAuthorizationInterceptor userAuthorizationInterceptor;
+    @MockBean
+    private UserAuthorizationInterceptor userAuthorizationInterceptor;
 
     @Test
     void interceptorsNotCalledForEligibilityEndpoint() throws Exception {
-        RequestBuilder requestBuilder =
-                MockMvcRequestBuilders.get("/company/00006400/strike-off-objections/eligibility")
-                        .accept(MediaType.APPLICATION_JSON)
-                        .header("X-Request-Id", "444");
+        RequestBuilder requestBuilder = MockMvcRequestBuilders.get(
+                        "/company/00006400/strike-off-objections/eligibility")
+                .accept(MediaType.APPLICATION_JSON)
+                .header("X-Request-Id", "444");
 
         MvcResult result = mockMvc.perform(requestBuilder).andReturn();
         verify(objectionInterceptor, times(0)).preHandle(any(), any(), any());

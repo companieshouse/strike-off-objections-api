@@ -33,19 +33,26 @@ import uk.gov.companieshouse.service.rest.response.PluggableResponseEntityFactor
 @ExtendWith(SpringExtension.class)
 @WebMvcTest(value = {ObjectionController.class})
 class ObjectionStatusInterceptorIntegrationTest {
-    @Autowired private MockMvc mockMvc;
+    @Autowired
+    private MockMvc mockMvc;
 
-    @MockBean private ObjectionService objectionService;
+    @MockBean
+    private ObjectionService objectionService;
 
-    @MockBean private ERICHeaderParser headerParser;
+    @MockBean
+    private ERICHeaderParser headerParser;
 
-    @MockBean private ObjectionMapper objectionMapper;
+    @MockBean
+    private ObjectionMapper objectionMapper;
 
-    @MockBean private AttachmentMapper attachmentMapper;
+    @MockBean
+    private AttachmentMapper attachmentMapper;
 
-    @MockBean private ApiLogger logger;
+    @MockBean
+    private ApiLogger logger;
 
-    @MockBean private PluggableResponseEntityFactory responseEntityFactory;
+    @MockBean
+    private PluggableResponseEntityFactory responseEntityFactory;
 
     @BeforeEach
     void setup() {
@@ -57,11 +64,10 @@ class ObjectionStatusInterceptorIntegrationTest {
         when(objectionService.getObjection(any(), any()))
                 .thenReturn(getObjection(ObjectionStatus.OPEN));
 
-        RequestBuilder requestBuilder =
-                MockMvcRequestBuilders.get(
-                                "/company/00006400/strike-off-objections/5f05c3f24be29647ef076f21")
-                        .accept(MediaType.APPLICATION_JSON)
-                        .header("X-Request-Id", "444");
+        RequestBuilder requestBuilder = MockMvcRequestBuilders.get(
+                        "/company/00006400/strike-off-objections/5f05c3f24be29647ef076f21")
+                .accept(MediaType.APPLICATION_JSON)
+                .header("X-Request-Id", "444");
 
         MvcResult result = mockMvc.perform(requestBuilder).andReturn();
         assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
@@ -72,11 +78,10 @@ class ObjectionStatusInterceptorIntegrationTest {
         when(objectionService.getObjection(any(), any()))
                 .thenReturn(getObjection(ObjectionStatus.SUBMITTED));
 
-        RequestBuilder requestBuilder =
-                MockMvcRequestBuilders.get(
-                                "/company/00000099/strike-off-objections/5f05c3f24be29647ef076f21")
-                        .accept(MediaType.APPLICATION_JSON)
-                        .header("X-Request-Id", "444");
+        RequestBuilder requestBuilder = MockMvcRequestBuilders.get(
+                        "/company/00000099/strike-off-objections/5f05c3f24be29647ef076f21")
+                .accept(MediaType.APPLICATION_JSON)
+                .header("X-Request-Id", "444");
 
         MvcResult result = mockMvc.perform(requestBuilder).andReturn();
         assertEquals(HttpStatus.FORBIDDEN.value(), result.getResponse().getStatus());

@@ -30,18 +30,26 @@ class CompanyProfileServiceTest {
     private static final String COMPANY_NUMBER = "12345678";
     private static final String REQUEST_ID = "87654321";
 
-    @Mock private ApiLogger apiLogger;
-    @Mock private ApiSdkClient apiSdkClient;
+    @Mock
+    private ApiLogger apiLogger;
 
-    @Mock private ApiClient apiClient;
+    @Mock
+    private ApiSdkClient apiSdkClient;
 
-    @Mock private CompanyResourceHandler companyResourceHandler;
+    @Mock
+    private ApiClient apiClient;
 
-    @Mock private CompanyGet companyGet;
+    @Mock
+    private CompanyResourceHandler companyResourceHandler;
 
-    @Mock private ApiResponse<CompanyProfileApi> apiResponse;
+    @Mock
+    private CompanyGet companyGet;
 
-    @InjectMocks private CompanyProfileService companyProfileService;
+    @Mock
+    private ApiResponse<CompanyProfileApi> apiResponse;
+
+    @InjectMocks
+    private CompanyProfileService companyProfileService;
 
     private CompanyProfileApi dummyCompanyProfile;
 

@@ -28,20 +28,20 @@ class AvroSerializerUnitTest {
     private static final String CHIPS_REST_ENDPOINT = "/rest/chipRest/etc";
     private static final String DUMMY_DATA = "{dummy:data,more:data}";
 
-    @InjectMocks private AvroSerializer avroSerializer;
+    @InjectMocks
+    private AvroSerializer avroSerializer;
 
     @Test
     void testAvroSerializerForEmailContent() throws IOException {
         Schema schema =
                 Utils.getDummySchema(this.getClass().getClassLoader().getResource("email/email-send.avsc"));
-        EmailContent emailContent =
-                Utils.buildEmailContent(
-                        APP_ID,
-                        MESSAGE_ID,
-                        EMAIL_TEMPLATE_MESSAGE_TYPE,
-                        Utils.getDummyEmailData(),
-                        RECIPIENT,
-                        CREATED_AT);
+        EmailContent emailContent = Utils.buildEmailContent(
+                APP_ID,
+                MESSAGE_ID,
+                EMAIL_TEMPLATE_MESSAGE_TYPE,
+                Utils.getDummyEmailData(),
+                RECIPIENT,
+                CREATED_AT);
 
         byte[] byteArray = avroSerializer.serialize(emailContent, schema);
         String result = new String(byteArray);

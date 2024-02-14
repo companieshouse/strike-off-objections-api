@@ -37,9 +37,11 @@ public class FileTransferApiClient {
     private static final String CONTENT_LENGTH = "Content-Length";
     private static final String CONTENT_DISPOSITION = "Content-Disposition";
 
-    @Autowired private ApiLogger logger;
+    @Autowired
+    private ApiLogger logger;
 
-    @Autowired private RestTemplate restTemplate;
+    @Autowired
+    private RestTemplate restTemplate;
 
     @Value("${FILE_TRANSFER_API_URL}")
     private String fileTransferApiURL;
@@ -201,14 +203,13 @@ public class FileTransferApiClient {
         return makeApiCall(
                 requestId,
                 // FileTransferOperation
-                () ->
-                        restTemplate.execute(
-                                downloadUriTemplate,
-                                HttpMethod.GET,
-                                this::handleRequestCallback,
-                                clientHttpResponse ->
-                                        copyClientHttpDataToServletResponse(httpServletResponse, clientHttpResponse),
-                                uriVariables),
+                () -> restTemplate.execute(
+                        downloadUriTemplate,
+                        HttpMethod.GET,
+                        this::handleRequestCallback,
+                        clientHttpResponse ->
+                                copyClientHttpDataToServletResponse(httpServletResponse, clientHttpResponse),
+                        uriVariables),
                 clientHttpResponse -> getFileTransferApiClientResponse(requestId, clientHttpResponse));
     }
 

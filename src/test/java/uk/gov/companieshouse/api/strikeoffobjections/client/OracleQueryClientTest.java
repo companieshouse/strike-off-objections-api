@@ -29,13 +29,17 @@ class OracleQueryClientTest {
     private static final String GAZ2_TRANSACTION = "GAZ2";
     private static final String REQUEST_ID = "1234";
 
-    @Mock private RestTemplate restTemplate;
+    @Mock
+    private RestTemplate restTemplate;
 
-    @Mock private ApiLogger apiLogger;
+    @Mock
+    private ApiLogger apiLogger;
 
-    @InjectMocks private OracleQueryClient oracleQueryClient;
+    @InjectMocks
+    private OracleQueryClient oracleQueryClient;
 
-    @Spy private OracleQueryClient corruptibleClient;
+    @Spy
+    private OracleQueryClient corruptibleClient;
 
     @BeforeEach
     public void setup() {

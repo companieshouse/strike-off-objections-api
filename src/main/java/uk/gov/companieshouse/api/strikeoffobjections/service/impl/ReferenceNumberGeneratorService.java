@@ -13,8 +13,8 @@ public class ReferenceNumberGeneratorService implements IReferenceNumberGenerato
      * Generates a 12 digit reference number based on a random uuid, and inserts a hyphen every 4
      * characters e.g. OBJ-1F3C-A2E4-5D6B
      *
-     * @return a 12 digit reference with hyphens every 4 digits, prefixed with {@value
-     *     #REFERENCE_NUMBER_PREFIX}
+     * @return a 12 digit reference with hyphens every 4 digits, prefixed with
+     *     {@value #REFERENCE_NUMBER_PREFIX}
      */
     @Override
     public String generateReferenceNumber() {

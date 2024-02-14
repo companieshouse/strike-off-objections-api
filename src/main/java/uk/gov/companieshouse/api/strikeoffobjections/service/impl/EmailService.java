@@ -94,10 +94,9 @@ public class EmailService implements IEmailService {
     private EmailContent constructEmailContent(
             EmailType emailType, String emailAddress, Map<String, Object> data) {
 
-        String typeOfEmail =
-                (emailType == EmailType.CUSTOMER)
-                        ? submittedCustomerEmailType
-                        : submittedDissolutionTeamEmailType;
+        String typeOfEmail = (emailType == EmailType.CUSTOMER)
+                ? submittedCustomerEmailType
+                : submittedDissolutionTeamEmailType;
 
         return new EmailContent.Builder()
                 .withOriginatingAppId(originatingAppId)

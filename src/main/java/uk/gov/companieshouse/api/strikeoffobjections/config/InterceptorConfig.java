@@ -22,11 +22,14 @@ public class InterceptorConfig implements WebMvcConfigurer {
             "/**/strike-off-objections/?**/**";
     private static final String ELIGIBILITY_CHECK_PATH = "/**/strike-off-objections/eligibility";
 
-    @Autowired private ApiLogger logger;
+    @Autowired
+    private ApiLogger logger;
 
-    @Autowired private IObjectionService objectionService;
+    @Autowired
+    private IObjectionService objectionService;
 
-    @Autowired private ERICHeaderParser ericHeaderParser;
+    @Autowired
+    private ERICHeaderParser ericHeaderParser;
 
     @Bean
     public AttachmentDownloadAuthorizationInterceptor attachmentDownloadAuthorizationInterceptor(

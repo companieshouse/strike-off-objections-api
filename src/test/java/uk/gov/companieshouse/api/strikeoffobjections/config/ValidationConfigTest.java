@@ -31,9 +31,11 @@ import uk.gov.companieshouse.api.strikeoffobjections.validation.ValidationRule;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class ValidationConfigTest {
 
-    @MockBean private ApiLogger apiLogger;
+    @MockBean
+    private ApiLogger apiLogger;
 
-    @Autowired private ValidationConfig validationConfig;
+    @Autowired
+    private ValidationConfig validationConfig;
 
     @Test
     @Order(1)

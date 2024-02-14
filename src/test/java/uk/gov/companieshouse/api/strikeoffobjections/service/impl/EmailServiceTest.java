@@ -58,13 +58,17 @@ class EmailServiceTest {
     private static final String JURISDICTION_SCOTLAND = "scotland";
     private static final String JURISDICTION_NORTHERN_IRELAND = "northern-ireland";
 
-    @Mock private ApiLogger apiLogger;
+    @Mock
+    private ApiLogger apiLogger;
 
-    @Mock private KafkaEmailClient kafkaEmailClient;
+    @Mock
+    private KafkaEmailClient kafkaEmailClient;
 
-    @Mock private Supplier<LocalDateTime> dateTimeSupplier;
+    @Mock
+    private Supplier<LocalDateTime> dateTimeSupplier;
 
-    @InjectMocks private EmailService emailService;
+    @InjectMocks
+    private EmailService emailService;
 
     private List<Attachment> attachments;
 
@@ -87,15 +91,14 @@ class EmailServiceTest {
     void sendObjectionSubmittedCustomerEmail() throws ServiceException {
         when(dateTimeSupplier.get()).thenReturn(LOCAL_DATE_TIME);
 
-        Objection objection =
-                Utils.getTestObjection(
-                        OBJECTION_ID,
-                        REASON,
-                        COMPANY_NUMBER,
-                        USER_ID,
-                        EMAIL,
-                        LOCAL_DATE_TIME,
-                        Utils.buildTestObjectionCreate(OBJECTOR, FULL_NAME, false));
+        Objection objection = Utils.getTestObjection(
+                OBJECTION_ID,
+                REASON,
+                COMPANY_NUMBER,
+                USER_ID,
+                EMAIL,
+                LOCAL_DATE_TIME,
+                Utils.buildTestObjectionCreate(OBJECTOR, FULL_NAME, false));
 
         emailService.sendObjectionSubmittedCustomerEmail(objection, COMPANY_NAME, REQUEST_ID);
 
@@ -115,15 +118,14 @@ class EmailServiceTest {
     @Test
     void sendObjectionSubmittedDissolutionEmailsWalesJurisdiction() throws ServiceException {
         when(dateTimeSupplier.get()).thenReturn(LOCAL_DATE_TIME);
-        Objection objection =
-                Utils.getTestObjection(
-                        OBJECTION_ID,
-                        REASON,
-                        COMPANY_NUMBER,
-                        USER_ID,
-                        EMAIL,
-                        LOCAL_DATE_TIME,
-                        Utils.buildTestObjectionCreate(OBJECTOR, FULL_NAME, false));
+        Objection objection = Utils.getTestObjection(
+                OBJECTION_ID,
+                REASON,
+                COMPANY_NUMBER,
+                USER_ID,
+                EMAIL,
+                LOCAL_DATE_TIME,
+                Utils.buildTestObjectionCreate(OBJECTOR, FULL_NAME, false));
 
         emailService.sendObjectionSubmittedDissolutionTeamEmail(
                 COMPANY_NAME, JURISDICTION_WALES, objection, REQUEST_ID);
@@ -146,15 +148,14 @@ class EmailServiceTest {
         when(dateTimeSupplier.get()).thenReturn(LOCAL_DATE_TIME);
         ReflectionTestUtils.setField(
                 emailService, "emailRecipientsCardiff", EMAIL_RECIPIENTS_CARDIFF_TEST_SPACE);
-        Objection objection =
-                Utils.getTestObjection(
-                        OBJECTION_ID,
-                        REASON,
-                        COMPANY_NUMBER,
-                        USER_ID,
-                        EMAIL,
-                        LOCAL_DATE_TIME,
-                        Utils.buildTestObjectionCreate(OBJECTOR, FULL_NAME, false));
+        Objection objection = Utils.getTestObjection(
+                OBJECTION_ID,
+                REASON,
+                COMPANY_NUMBER,
+                USER_ID,
+                EMAIL,
+                LOCAL_DATE_TIME,
+                Utils.buildTestObjectionCreate(OBJECTOR, FULL_NAME, false));
 
         emailService.sendObjectionSubmittedDissolutionTeamEmail(
                 COMPANY_NAME, JURISDICTION_WALES, objection, REQUEST_ID);
@@ -175,15 +176,14 @@ class EmailServiceTest {
     @Test
     void sendObjectionSubmittedDissolutionEmailsScotlandJurisdiction() throws ServiceException {
         when(dateTimeSupplier.get()).thenReturn(LOCAL_DATE_TIME);
-        Objection objection =
-                Utils.getTestObjection(
-                        OBJECTION_ID,
-                        REASON,
-                        COMPANY_NUMBER,
-                        USER_ID,
-                        EMAIL,
-                        LOCAL_DATE_TIME,
-                        Utils.buildTestObjectionCreate(OBJECTOR, FULL_NAME, false));
+        Objection objection = Utils.getTestObjection(
+                OBJECTION_ID,
+                REASON,
+                COMPANY_NUMBER,
+                USER_ID,
+                EMAIL,
+                LOCAL_DATE_TIME,
+                Utils.buildTestObjectionCreate(OBJECTOR, FULL_NAME, false));
 
         emailService.sendObjectionSubmittedDissolutionTeamEmail(
                 COMPANY_NAME, JURISDICTION_SCOTLAND, objection, REQUEST_ID);
@@ -203,15 +203,14 @@ class EmailServiceTest {
     @Test
     void sendObjectionSubmittedDissolutionEmailsNIJurisdiction() throws ServiceException {
         when(dateTimeSupplier.get()).thenReturn(LOCAL_DATE_TIME);
-        Objection objection =
-                Utils.getTestObjection(
-                        OBJECTION_ID,
-                        REASON,
-                        COMPANY_NUMBER,
-                        USER_ID,
-                        EMAIL,
-                        LOCAL_DATE_TIME,
-                        Utils.buildTestObjectionCreate(OBJECTOR, FULL_NAME, false));
+        Objection objection = Utils.getTestObjection(
+                OBJECTION_ID,
+                REASON,
+                COMPANY_NUMBER,
+                USER_ID,
+                EMAIL,
+                LOCAL_DATE_TIME,
+                Utils.buildTestObjectionCreate(OBJECTOR, FULL_NAME, false));
 
         emailService.sendObjectionSubmittedDissolutionTeamEmail(
                 COMPANY_NAME, JURISDICTION_NORTHERN_IRELAND, objection, REQUEST_ID);

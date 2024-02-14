@@ -26,13 +26,17 @@ import uk.gov.companieshouse.api.strikeoffobjections.service.impl.ERICHeaderPars
 @ExtendWith(MockitoExtension.class)
 class InterceptorConfigTest {
 
-    @Mock private ApiLogger apiLogger;
+    @Mock
+    private ApiLogger apiLogger;
 
-    @Mock private IObjectionService objectionService;
+    @Mock
+    private IObjectionService objectionService;
 
-    @Mock private ERICHeaderParser ericHeaderParser;
+    @Mock
+    private ERICHeaderParser ericHeaderParser;
 
-    @InjectMocks private InterceptorConfig interceptorConfig;
+    @InjectMocks
+    private InterceptorConfig interceptorConfig;
 
     @Test
     void testAttachmentDownloadAuthInterceptorCreation() {

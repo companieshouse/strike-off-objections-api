@@ -13,9 +13,11 @@ import uk.gov.companieshouse.api.strikeoffobjections.exception.UnsafeUrlExceptio
 @Component
 public class OracleQueryClient {
 
-    @Autowired private RestTemplate restTemplate;
+    @Autowired
+    private RestTemplate restTemplate;
 
-    @Autowired private ApiLogger apiLogger;
+    @Autowired
+    private ApiLogger apiLogger;
 
     @Value("${ORACLE_QUERY_API_URL}")
     private String oracleQueryApiUrl;

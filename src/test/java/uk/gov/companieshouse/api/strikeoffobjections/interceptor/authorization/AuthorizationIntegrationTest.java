@@ -37,19 +37,26 @@ import uk.gov.companieshouse.service.rest.response.PluggableResponseEntityFactor
 @WebMvcTest(value = {ObjectionController.class})
 class AuthorizationIntegrationTest {
 
-    @Autowired private MockMvc mockMvc;
+    @Autowired
+    private MockMvc mockMvc;
 
-    @MockBean private ObjectionService objectionService;
+    @MockBean
+    private ObjectionService objectionService;
 
-    @MockBean private ERICHeaderParser headerParser;
+    @MockBean
+    private ERICHeaderParser headerParser;
 
-    @MockBean private ObjectionMapper objectionMapper;
+    @MockBean
+    private ObjectionMapper objectionMapper;
 
-    @MockBean private AttachmentMapper attachmentMapper;
+    @MockBean
+    private AttachmentMapper attachmentMapper;
 
-    @MockBean private ApiLogger logger;
+    @MockBean
+    private ApiLogger logger;
 
-    @MockBean private PluggableResponseEntityFactory responseEntityFactory;
+    @MockBean
+    private PluggableResponseEntityFactory responseEntityFactory;
 
     @BeforeEach
     public void setup() throws ObjectionNotFoundException {
@@ -67,11 +74,10 @@ class AuthorizationIntegrationTest {
 
     @Test
     void willNotAllowUserWithoutPermissionsToDownloadAttachment() throws Exception {
-        RequestBuilder requestBuilder =
-                MockMvcRequestBuilders.get(
-                                "/company/00006400/strike-off-objections/5f05c3f24be29647ef076f21/attachments/123/download")
-                        .accept(MediaType.APPLICATION_JSON)
-                        .header("X-Request-Id", "444");
+        RequestBuilder requestBuilder = MockMvcRequestBuilders.get(
+                        "/company/00006400/strike-off-objections/5f05c3f24be29647ef076f21/attachments/123/download")
+                .accept(MediaType.APPLICATION_JSON)
+                .header("X-Request-Id", "444");
 
         MvcResult result = mockMvc.perform(requestBuilder).andReturn();
         assertEquals(HttpStatus.UNAUTHORIZED.value(), result.getResponse().getStatus());
@@ -79,13 +85,12 @@ class AuthorizationIntegrationTest {
 
     @Test
     void willAllowUserWithDownloadRoleToDownloadAttachment() throws Exception {
-        RequestBuilder requestBuilder =
-                MockMvcRequestBuilders.get(
-                                "/company/00006400/strike-off-objections/5f05c3f24be29647ef076f21/attachments/123/download")
-                        .accept(MediaType.APPLICATION_JSON)
-                        .header("X-Request-Id", "444")
-                        .header("ERIC-Authorised-Scope", "")
-                        .header("ERIC-Authorised-Roles", "/admin/strike-off-objections-download");
+        RequestBuilder requestBuilder = MockMvcRequestBuilders.get(
+                        "/company/00006400/strike-off-objections/5f05c3f24be29647ef076f21/attachments/123/download")
+                .accept(MediaType.APPLICATION_JSON)
+                .header("X-Request-Id", "444")
+                .header("ERIC-Authorised-Scope", "")
+                .header("ERIC-Authorised-Roles", "/admin/strike-off-objections-download");
 
         MvcResult result = mockMvc.perform(requestBuilder).andReturn();
         assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
@@ -93,12 +98,11 @@ class AuthorizationIntegrationTest {
 
     @Test
     void willNotAllowUserWithoutDownloadRoleToDownloadAttachment() throws Exception {
-        RequestBuilder requestBuilder =
-                MockMvcRequestBuilders.get(
-                                "/company/00006400/strike-off-objections/5f05c3f24be29647ef076f21/attachments/123/download")
-                        .accept(MediaType.APPLICATION_JSON)
-                        .header("ERIC-Authorised-Scope", "")
-                        .header("ERIC-Authorised-Roles", "/admin/some-other-role");
+        RequestBuilder requestBuilder = MockMvcRequestBuilders.get(
+                        "/company/00006400/strike-off-objections/5f05c3f24be29647ef076f21/attachments/123/download")
+                .accept(MediaType.APPLICATION_JSON)
+                .header("ERIC-Authorised-Scope", "")
+                .header("ERIC-Authorised-Roles", "/admin/some-other-role");
 
         MvcResult result = mockMvc.perform(requestBuilder).andReturn();
         assertEquals(HttpStatus.UNAUTHORIZED.value(), result.getResponse().getStatus());

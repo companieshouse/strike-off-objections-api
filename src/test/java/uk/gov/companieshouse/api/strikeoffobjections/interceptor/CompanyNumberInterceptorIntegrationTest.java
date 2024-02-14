@@ -34,19 +34,26 @@ import uk.gov.companieshouse.service.rest.response.PluggableResponseEntityFactor
 @ExtendWith(SpringExtension.class)
 @WebMvcTest(value = {ObjectionController.class})
 class CompanyNumberInterceptorIntegrationTest {
-    @Autowired private MockMvc mockMvc;
+    @Autowired
+    private MockMvc mockMvc;
 
-    @MockBean private ObjectionService objectionService;
+    @MockBean
+    private ObjectionService objectionService;
 
-    @MockBean private ERICHeaderParser headerParser;
+    @MockBean
+    private ERICHeaderParser headerParser;
 
-    @MockBean private ObjectionMapper objectionMapper;
+    @MockBean
+    private ObjectionMapper objectionMapper;
 
-    @MockBean private AttachmentMapper attachmentMapper;
+    @MockBean
+    private AttachmentMapper attachmentMapper;
 
-    @MockBean private ApiLogger logger;
+    @MockBean
+    private ApiLogger logger;
 
-    @MockBean private PluggableResponseEntityFactory responseEntityFactory;
+    @MockBean
+    private PluggableResponseEntityFactory responseEntityFactory;
 
     @BeforeEach
     public void setup() throws ObjectionNotFoundException {
@@ -61,11 +68,10 @@ class CompanyNumberInterceptorIntegrationTest {
 
     @Test
     void willAllowRequestWithMatchingCompanyNumbersToExecute() throws Exception {
-        RequestBuilder requestBuilder =
-                MockMvcRequestBuilders.get(
-                                "/company/00006400/strike-off-objections/5f05c3f24be29647ef076f21")
-                        .accept(MediaType.APPLICATION_JSON)
-                        .header("X-Request-Id", "444");
+        RequestBuilder requestBuilder = MockMvcRequestBuilders.get(
+                        "/company/00006400/strike-off-objections/5f05c3f24be29647ef076f21")
+                .accept(MediaType.APPLICATION_JSON)
+                .header("X-Request-Id", "444");
 
         MvcResult result = mockMvc.perform(requestBuilder).andReturn();
         assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
@@ -73,11 +79,10 @@ class CompanyNumberInterceptorIntegrationTest {
 
     @Test
     void willBlockRequestWithoutMatchingCompanyNumbers() throws Exception {
-        RequestBuilder requestBuilder =
-                MockMvcRequestBuilders.get(
-                                "/company/00000099/strike-off-objections/5f05c3f24be29647ef076f21")
-                        .accept(MediaType.APPLICATION_JSON)
-                        .header("X-Request-Id", "444");
+        RequestBuilder requestBuilder = MockMvcRequestBuilders.get(
+                        "/company/00000099/strike-off-objections/5f05c3f24be29647ef076f21")
+                .accept(MediaType.APPLICATION_JSON)
+                .header("X-Request-Id", "444");
 
         MvcResult result = mockMvc.perform(requestBuilder).andReturn();
         assertEquals(HttpStatus.BAD_REQUEST.value(), result.getResponse().getStatus());

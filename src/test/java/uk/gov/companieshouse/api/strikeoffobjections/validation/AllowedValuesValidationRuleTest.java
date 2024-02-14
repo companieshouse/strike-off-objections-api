@@ -23,7 +23,8 @@ class AllowedValuesValidationRuleTest {
     private static final EligibilityStatus FAILURE_STATUS =
             EligibilityStatus.INELIGIBLE_NO_DISSOLUTION_ACTION;
 
-    @Mock private ApiLogger apiLogger;
+    @Mock
+    private ApiLogger apiLogger;
 
     private AllowedValuesValidationRule<Long> allowedValuesValidationRule;
 
@@ -40,20 +41,16 @@ class AllowedValuesValidationRuleTest {
 
     @Test
     void validateThrowsExceptionTest() {
-        ValidationException ve =
-                assertThrows(
-                        ValidationException.class,
-                        () -> allowedValuesValidationRule.validate(20L, LOG_CONTEXT));
+        ValidationException ve = assertThrows(
+                ValidationException.class, () -> allowedValuesValidationRule.validate(20L, LOG_CONTEXT));
 
         assertEquals(FAILURE_STATUS.getObjectionStatus(), ve.getObjectionStatus());
     }
 
     @Test
     void validateThrowsExceptionWhenNullIsInputTest() {
-        ValidationException ve =
-                assertThrows(
-                        ValidationException.class,
-                        () -> allowedValuesValidationRule.validate(null, LOG_CONTEXT));
+        ValidationException ve = assertThrows(
+                ValidationException.class, () -> allowedValuesValidationRule.validate(null, LOG_CONTEXT));
 
         assertEquals(FAILURE_STATUS.getObjectionStatus(), ve.getObjectionStatus());
     }

@@ -95,9 +95,8 @@ public class ObjectionProcessor {
 
         // if status not SUBMITTED, throw exception
         if (objection != null && ObjectionStatus.SUBMITTED != objection.getStatus()) {
-            InvalidObjectionStatusException statusException =
-                    new InvalidObjectionStatusException(
-                            String.format(INVALID_START_STATUS_MSG, objection.getId(), objection.getStatus()));
+            InvalidObjectionStatusException statusException = new InvalidObjectionStatusException(
+                    String.format(INVALID_START_STATUS_MSG, objection.getId(), objection.getStatus()));
 
             Map<String, Object> logMap = new HashMap<>();
             logMap.put(LOG_OBJECTION_ID_KEY, objection.getId());
