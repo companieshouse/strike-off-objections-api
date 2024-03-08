@@ -41,7 +41,7 @@
         <pitest-junit5-plugin.version>1.2.1</pitest-junit5-plugin.version>
 
         <junit-jupiter.version>5.10.0</junit-jupiter.version>
-        <pitest.version>1.15.8</pitest.version>
+        <pitest.version>1.15.3</pitest.version>
         <mockito.version>5.4.0</mockito.version>
     </properties>
 
