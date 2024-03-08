@@ -3,8 +3,18 @@
 ### Overview
 API for handling objections to a company being struck off the register
 
-### Requirements
+| :exclamation:  To ensure communication to the Kafka Broker isn't broken The Kafka-clients dependency is included |
+|------------------------------------------------------------------------------------------------------------------|
 
+``` xml
+    <dependency>
+        <groupId>org.apache.kafka</groupId>
+        <artifactId>kafka-clients</artifactId>
+        <version>2.3.1</version>
+    </dependency> 
+```
+### Requirements
+ 
 In order to run the service locally you will need the following:
 
 - [OpenJDK 21](https://jdk.java.net/21/)
@@ -70,8 +80,11 @@ This is common to all the endpoints.
 | `GAZ_1_ACTION_CODE`                              | 5000                                                  | As above notice given, but not struck off objections allowed.                             |
 | `HUMAN_LOG`                                      | 1                                                     |                                                                                           |
 | `KAFKA_BROKER_ADDR`                              | `kafka:9092`                                          |                                                                                           |
-| `MONGODB_URL`                                    | `mongodb://mongo`                                     |                                                                                           |
+| `MONGODB_URL`                                    | `mongodb://mongo/strike_off_objections`               |                                                                                           |
 | `ORACLE_QUERY_API_URL`                           | `http://oracle-query-api:8080`                        | Company lookup.                                                                           |
 | `SCHEMA_REGISTRY_URL`                            | `http://chs-kafka-schemas`                            | Where email schema is stored.                                                             |
 | `UPLOAD_MAX_FILE_SIZE`                           | 6MB                                                   |                                                                                           |
 | `UPLOAD_MAX_REQUEST_SIZE`                        | 6MB                                                   |                                                                                           |
+| `FEATURE_FLAG_USE_KAFKA_FOR_CHIPS_CALL_170121`   | false                                                 |                                                                                           |
+| `PAYMENTS_API_URL`                               | http://api.chs.local:4001                             |                                                                                           |
+| `DOCUMENT_API_LOCAL_URL`                         | 'NOT-USEDNOT-USED'                                    |                                                                                           |
