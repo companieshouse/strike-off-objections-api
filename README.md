@@ -86,5 +86,5 @@ This is common to all the endpoints.
 | `UPLOAD_MAX_FILE_SIZE`                           | 6MB                                                   |                                                                                           |
 | `UPLOAD_MAX_REQUEST_SIZE`                        | 6MB                                                   |                                                                                           |
 | `FEATURE_FLAG_USE_KAFKA_FOR_CHIPS_CALL_170121`   | false                                                 |                                                                                           |
-| `PAYMENTS_API_URL`                               | http://api.chs.local:4001                             |                                                                                           |
-| `DOCUMENT_API_LOCAL_URL`                         | 'NOT-USEDNOT-USED'                                    |                                                                                           |
+| `PAYMENTS_API_URL`                               | 'NOT_USED'                                            |                                                                                           |
+| `DOCUMENT_API_LOCAL_URL`                         | 'NOT-USED'                                            |                                                                                           |
