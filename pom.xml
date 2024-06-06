@@ -29,7 +29,7 @@
         <structured-logging.version>3.0.3</structured-logging.version>
         <api-sdk-manager-java-library.version>3.0.5</api-sdk-manager-java-library.version>
         <kafka-models.version>3.0.6</kafka-models.version>
-        <kafka-clients.version>2.3.1</kafka-clients.version>
+        <kafka-clients.version>2.6.3</kafka-clients.version>
         <rest-service-common-library.version>2.0.2</rest-service-common-library.version>
         <ch-kafka.version>3.0.1</ch-kafka.version>
         <api-sdk-java.version>6.0.14</api-sdk-java.version>
