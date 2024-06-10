@@ -18,8 +18,8 @@
 
     <properties>
         <java.version>21</java.version>
-        <spring-boot-version>3.2.3</spring-boot-version>
-        <spring-boot-maven-plugin.version>3.2.3</spring-boot-maven-plugin.version>
+        <spring-boot-version>3.2.5</spring-boot-version>
+        <spring-boot-maven-plugin.version>3.2.5</spring-boot-maven-plugin.version>
         <avro.version>1.11.3</avro.version>
         <org.mapstruct.version>1.5.5.Final</org.mapstruct.version>
         <jakarta.annotation-api.version>2.1.1</jakarta.annotation-api.version>
@@ -31,7 +31,7 @@
         <kafka-models.version>3.0.6</kafka-models.version>
         <kafka-clients.version>2.6.3</kafka-clients.version>
         <rest-service-common-library.version>2.0.2</rest-service-common-library.version>
-        <ch-kafka.version>3.0.1</ch-kafka.version>
+        <ch-kafka.version>3.0.2</ch-kafka.version>
         <api-sdk-java.version>6.0.14</api-sdk-java.version>
         <sonar-maven-plugin.version>3.10.0.2594</sonar-maven-plugin.version>
         <jib-maven-plugin.version>3.4.1</jib-maven-plugin.version>
@@ -110,6 +110,7 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <version>${spring-boot-version}</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
