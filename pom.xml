@@ -20,7 +20,7 @@
         <java.version>21</java.version>
         <spring-boot-version>3.2.5</spring-boot-version>
         <spring-boot-maven-plugin.version>3.2.5</spring-boot-maven-plugin.version>
-        <avro.version>1.11.3</avro.version>
+        <avro.version>1.11.4</avro.version>
         <org.mapstruct.version>1.5.5.Final</org.mapstruct.version>
         <jakarta.annotation-api.version>2.1.1</jakarta.annotation-api.version>
         <log4j.version>2.21.1</log4j.version>
