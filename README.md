@@ -14,8 +14,8 @@ API for handling objections to a company being struck off the register
     </dependency> 
 ```
 ### Requirements
- 
-In order to run the service locally you will need the following:
+
+To run the service locally you will need the following:
 
 - [OpenJDK 21](https://jdk.java.net/21/)
 - [Maven](https://maven.apache.org/download.cgi)
