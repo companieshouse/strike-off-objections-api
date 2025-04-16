@@ -2,6 +2,7 @@ package uk.gov.companieshouse.api.strikeoffobjections.service.impl;
 
 import org.springframework.stereotype.Component;
 import uk.gov.companieshouse.api.ApiClient;
+import uk.gov.companieshouse.api.InternalApiClient;
 import uk.gov.companieshouse.sdk.manager.ApiSdkManager;
 
 /**
@@ -14,5 +15,9 @@ public class ApiSdkClient {
 
     public ApiClient getApiClient() {
         return ApiSdkManager.getSDK();
+    }
+
+    public InternalApiClient getInternalApiClient() {
+        return ApiSdkManager.getPrivateSDK();
     }
 }
