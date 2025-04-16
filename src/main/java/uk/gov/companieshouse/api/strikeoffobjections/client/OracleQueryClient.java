@@ -3,7 +3,6 @@ package uk.gov.companieshouse.api.strikeoffobjections.client;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestTemplate;
 import uk.gov.companieshouse.api.error.ApiErrorResponseException;
 import uk.gov.companieshouse.api.handler.exception.URIValidationException;
 import uk.gov.companieshouse.api.model.company.ActionCodeJson;
@@ -15,9 +14,6 @@ import java.util.HashMap;
 
 @Component
 public class OracleQueryClient {
-
-    @Autowired
-    private RestTemplate restTemplate;
 
     @Autowired
     private ApiLogger apiLogger;
