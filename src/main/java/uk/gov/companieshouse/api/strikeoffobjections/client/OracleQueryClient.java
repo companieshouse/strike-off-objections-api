@@ -5,7 +5,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import uk.gov.companieshouse.api.error.ApiErrorResponseException;
 import uk.gov.companieshouse.api.handler.exception.URIValidationException;
-import uk.gov.companieshouse.api.model.company.ActionCodeJson;
 import uk.gov.companieshouse.api.model.company.Gaz2TransactionJson;
 import uk.gov.companieshouse.api.strikeoffobjections.common.ApiLogger;
 import uk.gov.companieshouse.api.strikeoffobjections.exception.OracleQueryClientException;
@@ -39,13 +38,12 @@ public class OracleQueryClient {
 
             var internalApiClient = apiSdkClient.getInternalApiClient();
             internalApiClient.setBasePath(oracleQueryApiUrl);
-            ActionCodeJson apiResponse = internalApiClient
+
+            return internalApiClient
                     .privateCompanyResourceHandler()
                     .getActionCode(String.format(ACTION_CODE_URI_SUFFIX, companyNumber))
                     .execute()
                     .getData();
-
-            return Long.parseLong(apiResponse.getActionCode());
 
         } catch (ApiErrorResponseException e) {
             apiLogger.errorContext(requestId, "Error Retrieving Registered Action Code for Company ", e, logMap);
