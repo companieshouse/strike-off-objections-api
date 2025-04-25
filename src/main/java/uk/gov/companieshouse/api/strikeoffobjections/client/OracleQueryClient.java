@@ -84,8 +84,4 @@ public class OracleQueryClient {
             throw new OracleQueryClientException("Company number invalid");
         }
     }
-
-    protected String formatUrl(String companyNumber, String action) {
-        return String.format("%s/company/%s/%s", oracleQueryApiUrl, companyNumber, action);
-    }
 }

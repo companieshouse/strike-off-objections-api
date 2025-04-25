@@ -1,5 +1,7 @@
 package uk.gov.companieshouse.api.strikeoffobjections.client;
 
+import com.google.api.client.http.HttpHeaders;
+import com.google.api.client.http.HttpResponseException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -8,15 +10,21 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.test.util.ReflectionTestUtils;
-import org.springframework.web.client.RestTemplate;
+import uk.gov.companieshouse.api.InternalApiClient;
+import uk.gov.companieshouse.api.error.ApiErrorResponseException;
+import uk.gov.companieshouse.api.handler.company.PrivateCompanyResourceHandler;
+import uk.gov.companieshouse.api.handler.company.request.PrivateCompanyActionCodeGet;
+import uk.gov.companieshouse.api.handler.company.request.PrivateCompanyGaz2RequestedGet;
+import uk.gov.companieshouse.api.handler.exception.URIValidationException;
+import uk.gov.companieshouse.api.model.ApiResponse;
+import uk.gov.companieshouse.api.model.company.Gaz2TransactionJson;
 import uk.gov.companieshouse.api.strikeoffobjections.common.ApiLogger;
-import uk.gov.companieshouse.api.strikeoffobjections.exception.UnsafeUrlException;
+import uk.gov.companieshouse.api.strikeoffobjections.exception.OracleQueryClientException;
 import uk.gov.companieshouse.api.strikeoffobjections.groups.Unit;
+import uk.gov.companieshouse.api.strikeoffobjections.service.impl.ApiSdkClient;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @Unit
@@ -30,7 +38,22 @@ class OracleQueryClientTest {
     private static final String REQUEST_ID = "1234";
 
     @Mock
-    private RestTemplate restTemplate;
+    private ApiSdkClient apiSdkClient;
+
+    @Mock
+    private PrivateCompanyResourceHandler privateCompanyResourceHandler;
+
+    @Mock
+    private PrivateCompanyActionCodeGet privateCompanyActionCodeGet;
+
+    @Mock
+    private PrivateCompanyGaz2RequestedGet privateCompanyGaz2RequestedGet;
+
+    @Mock
+    private ApiResponse<Long> actionCodeApiResponse;
+
+    @Mock
+    private ApiResponse<Gaz2TransactionJson> gaz2ApiResponse;
 
     @Mock
     private ApiLogger apiLogger;
@@ -44,55 +67,99 @@ class OracleQueryClientTest {
     @BeforeEach
     public void setup() {
         ReflectionTestUtils.setField(oracleQueryClient, "oracleQueryApiUrl", DUMMY_URL);
+        var internalApiClient = mock(InternalApiClient.class);
+        when(apiSdkClient.getInternalApiClient()).thenReturn(internalApiClient);
+        when(internalApiClient.privateCompanyResourceHandler()).thenReturn(privateCompanyResourceHandler);
     }
 
     @Test
-    void testUrlCorrectlyConstructedAndActionCodeReturned() {
-        when(restTemplate.getForEntity(DUMMY_URL + "/company/" + COMPANY_NUMBER + "/action-code", Long.class))
-                .thenReturn(new ResponseEntity<>(ACTION_CODE, HttpStatus.OK));
+    void testGetCompanyActionCodeSuccess() throws Exception {
+        when(privateCompanyResourceHandler.getActionCode(String.format("/company/%s/action-code", COMPANY_NUMBER)))
+                .thenReturn(privateCompanyActionCodeGet);
+        when(privateCompanyActionCodeGet.execute()).thenReturn(actionCodeApiResponse);
+        when(actionCodeApiResponse.getData()).thenReturn(ACTION_CODE);
 
         Long actionCode = oracleQueryClient.getCompanyActionCode(COMPANY_NUMBER, REQUEST_ID);
-        verify(apiLogger).infoContext(REQUEST_ID, "Calling Oracle Query APi at: http://test/company/12345678/action-code");
 
+        verify(apiLogger).infoContext(eq(REQUEST_ID), eq("Retrieving Action Code for Company Number "), anyMap());
+        verify(apiLogger).debugContext(eq(REQUEST_ID), eq("Oracle query API URL: " + DUMMY_URL));
         assertEquals(ACTION_CODE, actionCode);
     }
 
     @Test
-    void testUrlCorrectlyConstructedAndGaz2Returned() {
-        when(restTemplate.getForEntity(DUMMY_URL + "/company/" + COMPANY_NUMBER + "/gaz2-requested", String.class))
-                .thenReturn(new ResponseEntity<>(GAZ2_TRANSACTION, HttpStatus.OK));
+    void testGetCompanyActionCodeThrowsApiErrorResponseException() throws Exception {
+        when(privateCompanyResourceHandler.getActionCode(String.format("/company/%s/action-code", COMPANY_NUMBER)))
+                .thenReturn(privateCompanyActionCodeGet);
+        when(privateCompanyActionCodeGet.execute()).thenThrow(new ApiErrorResponseException(new HttpResponseException.Builder(
+                HttpStatus.INTERNAL_SERVER_ERROR.value(), "Internal Server Error", new HttpHeaders())));
 
-        String gaz2Transaction = oracleQueryClient.getRequestedGaz2(COMPANY_NUMBER, REQUEST_ID);
-        verify(apiLogger).infoContext(REQUEST_ID, "Calling Oracle Query APi at: http://test/company/12345678/gaz2-requested");
-
-        assertEquals(GAZ2_TRANSACTION, gaz2Transaction);
+        Exception exception = assertThrows(OracleQueryClientException.class, () -> oracleQueryClient.getCompanyActionCode(COMPANY_NUMBER, REQUEST_ID));
+        assertEquals("Error Retrieving Registered Action Code for Company", exception.getMessage());
+        verify(apiLogger).errorContext(eq(REQUEST_ID), eq("Error Retrieving Registered Action Code for Company "), any(), anyMap());
     }
 
     @Test
-    void testActionCodeWithUnaccountedCompanyNumber() {
-        ReflectionTestUtils.setField(corruptibleClient, "oracleQueryApiUrl", DUMMY_URL);
-        ReflectionTestUtils.setField(corruptibleClient, "apiLogger", apiLogger);
+    void testGetCompanyActionCodeThrowsURIValidationException() throws Exception {
+        when(privateCompanyResourceHandler.getActionCode(String.format("/company/%s/action-code", COMPANY_NUMBER)))
+                .thenReturn(privateCompanyActionCodeGet);
+        when(privateCompanyActionCodeGet.execute()).thenThrow(new URIValidationException("Invalid URI"));
 
-        doReturn("url-is-corrupted-by-company-number")
-                .when(corruptibleClient)
-                .formatUrl(COMPANY_NUMBER, "action-code");
-
-        assertThrows(UnsafeUrlException.class,
-                () -> corruptibleClient.getCompanyActionCode(COMPANY_NUMBER, REQUEST_ID));
-        verify(apiLogger).infoContext(REQUEST_ID, "Calling Oracle Query APi at: url-is-corrupted-by-company-number");
+        Exception exception = assertThrows(OracleQueryClientException.class, () -> oracleQueryClient.getCompanyActionCode(COMPANY_NUMBER, REQUEST_ID));
+        assertEquals("Company number invalid", exception.getMessage());
+        verify(apiLogger).errorContext(eq(REQUEST_ID), eq("Company number invalid"), any(), anyMap());
     }
 
     @Test
-    void testGaz2WithUnaccountedCompanyNumber() {
-        ReflectionTestUtils.setField(corruptibleClient, "oracleQueryApiUrl", DUMMY_URL);
-        ReflectionTestUtils.setField(corruptibleClient, "apiLogger", apiLogger);
+    void testCompanyGaz2RequestedSuccess() throws Exception {
+        when(privateCompanyResourceHandler.getGaz2Requested(String.format("/company/%s/gaz2-requested", COMPANY_NUMBER)))
+                .thenReturn(privateCompanyGaz2RequestedGet);
+        when(privateCompanyGaz2RequestedGet.execute()).thenReturn(gaz2ApiResponse);
+        Gaz2TransactionJson gaz2TransactionJson = new Gaz2TransactionJson();
+        gaz2TransactionJson.setId(GAZ2_TRANSACTION);
+        when(gaz2ApiResponse.getData()).thenReturn(gaz2TransactionJson);
 
-        doReturn("url-is-corrupted-by-company-number")
-                .when(corruptibleClient)
-                .formatUrl(COMPANY_NUMBER, "gaz2-requested");
+        String gaz2TransactionId = oracleQueryClient.getRequestedGaz2(COMPANY_NUMBER, REQUEST_ID);
 
-        assertThrows(UnsafeUrlException.class,
-                () -> corruptibleClient.getRequestedGaz2(COMPANY_NUMBER, REQUEST_ID));
-        verify(apiLogger).infoContext(REQUEST_ID, "Calling Oracle Query APi at: url-is-corrupted-by-company-number");
+        verify(apiLogger).infoContext(eq(REQUEST_ID), eq("Retrieving Gaz2 Data for Company Number "), anyMap());
+        verify(apiLogger).debugContext(eq(REQUEST_ID), eq("Oracle query API URL: " + DUMMY_URL));
+        assertEquals(GAZ2_TRANSACTION, gaz2TransactionId);
     }
+
+    @Test
+    void testCompanyGaz2RequestedSuccessWithNullResponse() throws Exception {
+        when(privateCompanyResourceHandler.getGaz2Requested(String.format("/company/%s/gaz2-requested", COMPANY_NUMBER)))
+                .thenReturn(privateCompanyGaz2RequestedGet);
+        when(privateCompanyGaz2RequestedGet.execute()).thenReturn(gaz2ApiResponse);
+        when(gaz2ApiResponse.getData()).thenReturn(null);
+
+        String gaz2TransactionId = oracleQueryClient.getRequestedGaz2(COMPANY_NUMBER, REQUEST_ID);
+
+        verify(apiLogger).infoContext(eq(REQUEST_ID), eq("Retrieving Gaz2 Data for Company Number "), anyMap());
+        verify(apiLogger).debugContext(eq(REQUEST_ID), eq("Oracle query API URL: " + DUMMY_URL));
+        assertNull(gaz2TransactionId);
+    }
+
+    @Test
+    void testCompanyGaz2RequestedThrowsApiErrorResponseException() throws Exception {
+        when(privateCompanyResourceHandler.getGaz2Requested(String.format("/company/%s/gaz2-requested", COMPANY_NUMBER)))
+                .thenReturn(privateCompanyGaz2RequestedGet);
+        when(privateCompanyGaz2RequestedGet.execute()).thenThrow(new ApiErrorResponseException(new HttpResponseException.Builder(
+                HttpStatus.INTERNAL_SERVER_ERROR.value(), "Internal Server Error", new HttpHeaders())));
+
+        Exception exception = assertThrows(OracleQueryClientException.class, () -> oracleQueryClient.getRequestedGaz2(COMPANY_NUMBER, REQUEST_ID));
+        assertEquals("Error Retrieving Gaz2 data for Company", exception.getMessage());
+        verify(apiLogger).errorContext(eq(REQUEST_ID), eq("Error Retrieving Gaz2 data for Company "), any(), anyMap());
+    }
+
+    @Test
+    void testCompanyGaz2RequestedThrowsURIValidationException() throws Exception {
+        when(privateCompanyResourceHandler.getGaz2Requested(String.format("/company/%s/gaz2-requested", COMPANY_NUMBER)))
+                .thenReturn(privateCompanyGaz2RequestedGet);
+        when(privateCompanyGaz2RequestedGet.execute()).thenThrow(new URIValidationException("Invalid URI"));
+
+        Exception exception = assertThrows(OracleQueryClientException.class, () -> oracleQueryClient.getRequestedGaz2(COMPANY_NUMBER, REQUEST_ID));
+        assertEquals("Company number invalid", exception.getMessage());
+        verify(apiLogger).errorContext(eq(REQUEST_ID), eq("Company number invalid"), any(), anyMap());
+    }
+
 }
