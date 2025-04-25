@@ -51,9 +51,6 @@ public class OracleQueryClient {
         } catch (URIValidationException e) {
             apiLogger.errorContext(requestId, "Company number invalid", e, logMap);
             throw new OracleQueryClientException("Company number invalid");
-        } catch (NumberFormatException e) {
-            apiLogger.errorContext(requestId, "Action Code could not be parsed from the response json", e, logMap);
-            throw new OracleQueryClientException("Action Code could not be parsed from the response json");
         }
     }
 
