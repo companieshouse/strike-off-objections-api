@@ -81,8 +81,8 @@ class OracleQueryClientTest {
 
         Long actionCode = oracleQueryClient.getCompanyActionCode(COMPANY_NUMBER, REQUEST_ID);
 
-        verify(apiLogger).infoContext(eq(REQUEST_ID), eq("Retrieving Action Code for Company Number "), anyMap());
-        verify(apiLogger).debugContext(eq(REQUEST_ID), eq("Oracle query API URL: " + DUMMY_URL));
+        verify(apiLogger).infoContext(eq(REQUEST_ID), eq("Retrieving Action Code for Company Number"), anyMap());
+        verify(apiLogger).debugContext(REQUEST_ID, "Oracle query API URL: " + DUMMY_URL);
         assertEquals(ACTION_CODE, actionCode);
     }
 
@@ -95,7 +95,7 @@ class OracleQueryClientTest {
 
         Exception exception = assertThrows(OracleQueryClientException.class, () -> oracleQueryClient.getCompanyActionCode(COMPANY_NUMBER, REQUEST_ID));
         assertEquals("Error Retrieving Registered Action Code for Company", exception.getMessage());
-        verify(apiLogger).errorContext(eq(REQUEST_ID), eq("Error Retrieving Registered Action Code for Company "), any(), anyMap());
+        verify(apiLogger).errorContext(eq(REQUEST_ID), eq("Error Retrieving Registered Action Code for Company"), any(), anyMap());
     }
 
     @Test
@@ -120,8 +120,8 @@ class OracleQueryClientTest {
 
         String gaz2TransactionId = oracleQueryClient.getRequestedGaz2(COMPANY_NUMBER, REQUEST_ID);
 
-        verify(apiLogger).infoContext(eq(REQUEST_ID), eq("Retrieving Gaz2 Data for Company Number "), anyMap());
-        verify(apiLogger).debugContext(eq(REQUEST_ID), eq("Oracle query API URL: " + DUMMY_URL));
+        verify(apiLogger).infoContext(eq(REQUEST_ID), eq("Retrieving Gaz2 Data for Company Number"), anyMap());
+        verify(apiLogger).debugContext(REQUEST_ID, "Oracle query API URL: " + DUMMY_URL);
         assertEquals(GAZ2_TRANSACTION, gaz2TransactionId);
     }
 
@@ -134,8 +134,8 @@ class OracleQueryClientTest {
 
         String gaz2TransactionId = oracleQueryClient.getRequestedGaz2(COMPANY_NUMBER, REQUEST_ID);
 
-        verify(apiLogger).infoContext(eq(REQUEST_ID), eq("Retrieving Gaz2 Data for Company Number "), anyMap());
-        verify(apiLogger).debugContext(eq(REQUEST_ID), eq("Oracle query API URL: " + DUMMY_URL));
+        verify(apiLogger).infoContext(eq(REQUEST_ID), eq("Retrieving Gaz2 Data for Company Number"), anyMap());
+        verify(apiLogger).debugContext(REQUEST_ID, "Oracle query API URL: " + DUMMY_URL);
         assertNull(gaz2TransactionId);
     }
 
@@ -148,7 +148,7 @@ class OracleQueryClientTest {
 
         Exception exception = assertThrows(OracleQueryClientException.class, () -> oracleQueryClient.getRequestedGaz2(COMPANY_NUMBER, REQUEST_ID));
         assertEquals("Error Retrieving Gaz2 data for Company", exception.getMessage());
-        verify(apiLogger).errorContext(eq(REQUEST_ID), eq("Error Retrieving Gaz2 data for Company "), any(), anyMap());
+        verify(apiLogger).errorContext(eq(REQUEST_ID), eq("Error Retrieving Gaz2 data for Company"), any(), anyMap());
     }
 
     @Test

@@ -26,6 +26,9 @@ public class OracleQueryClient {
     private static final String COMPANY_NUMBER = "company_number";
     private static final String ACTION_CODE_URI_SUFFIX = "/company/%s/action-code";
     private static final String GAZ2_REQUESTED_URI_SUFFIX = "/company/%s/gaz2-requested";
+    private static final String ERROR_COMPANY_NUMBER_INVALID = "Company number invalid";
+    private static final String ERROR_ACTION_CODE_RETRIEVAL = "Error Retrieving Registered Action Code for Company";
+    private static final String ERROR_GAZ2_RETRIEVAL = "Error Retrieving Gaz2 data for Company";
 
 
     public Long getCompanyActionCode(String companyNumber, String requestId) {
@@ -33,7 +36,7 @@ public class OracleQueryClient {
         var logMap = new HashMap<String, Object>();
         try {
             logMap.put(COMPANY_NUMBER, companyNumber);
-            apiLogger.infoContext(requestId, "Retrieving Action Code for Company Number ", logMap);
+            apiLogger.infoContext(requestId, "Retrieving Action Code for Company Number", logMap);
             apiLogger.debugContext(requestId, "Oracle query API URL: " +  oracleQueryApiUrl);
 
             var internalApiClient = apiSdkClient.getInternalApiClient();
@@ -46,11 +49,11 @@ public class OracleQueryClient {
                     .getData();
 
         } catch (ApiErrorResponseException e) {
-            apiLogger.errorContext(requestId, "Error Retrieving Registered Action Code for Company ", e, logMap);
-            throw new OracleQueryClientException("Error Retrieving Registered Action Code for Company");
+            apiLogger.errorContext(requestId, ERROR_ACTION_CODE_RETRIEVAL, e, logMap);
+            throw new OracleQueryClientException(ERROR_ACTION_CODE_RETRIEVAL);
         } catch (URIValidationException e) {
-            apiLogger.errorContext(requestId, "Company number invalid", e, logMap);
-            throw new OracleQueryClientException("Company number invalid");
+            apiLogger.errorContext(requestId, ERROR_COMPANY_NUMBER_INVALID, e, logMap);
+            throw new OracleQueryClientException(ERROR_COMPANY_NUMBER_INVALID);
         }
     }
 
@@ -59,7 +62,7 @@ public class OracleQueryClient {
         var logMap = new HashMap<String, Object>();
         try {
             logMap.put(COMPANY_NUMBER, companyNumber);
-            apiLogger.infoContext(requestId, "Retrieving Gaz2 Data for Company Number ", logMap);
+            apiLogger.infoContext(requestId, "Retrieving Gaz2 Data for Company Number", logMap);
             apiLogger.debugContext(requestId, "Oracle query API URL: " +  oracleQueryApiUrl);
 
             var internalApiClient = apiSdkClient.getInternalApiClient();
@@ -77,11 +80,11 @@ public class OracleQueryClient {
             return apiResponse.getId();
 
         } catch (ApiErrorResponseException e) {
-            apiLogger.errorContext(requestId, "Error Retrieving Gaz2 data for Company ", e, logMap);
-            throw new OracleQueryClientException("Error Retrieving Gaz2 data for Company");
+            apiLogger.errorContext(requestId, ERROR_GAZ2_RETRIEVAL, e, logMap);
+            throw new OracleQueryClientException(ERROR_GAZ2_RETRIEVAL);
         } catch (URIValidationException e) {
-            apiLogger.errorContext(requestId, "Company number invalid", e, logMap);
-            throw new OracleQueryClientException("Company number invalid");
+            apiLogger.errorContext(requestId, ERROR_COMPANY_NUMBER_INVALID, e, logMap);
+            throw new OracleQueryClientException(ERROR_COMPANY_NUMBER_INVALID);
         }
     }
 }
