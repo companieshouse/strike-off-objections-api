@@ -61,9 +61,6 @@ class OracleQueryClientTest {
     @InjectMocks
     private OracleQueryClient oracleQueryClient;
 
-    @Spy
-    private OracleQueryClient corruptibleClient;
-
     @BeforeEach
     public void setup() {
         ReflectionTestUtils.setField(oracleQueryClient, "oracleQueryApiUrl", DUMMY_URL);
