@@ -9,6 +9,8 @@ import uk.gov.companieshouse.api.model.company.Gaz2TransactionJson;
 import uk.gov.companieshouse.api.strikeoffobjections.common.ApiLogger;
 import uk.gov.companieshouse.api.strikeoffobjections.exception.OracleQueryClientException;
 import uk.gov.companieshouse.api.strikeoffobjections.service.impl.ApiSdkClient;
+
+import java.util.Arrays;
 import java.util.HashMap;
 
 @Component
@@ -37,6 +39,7 @@ public class OracleQueryClient {
         try {
             logMap.put(COMPANY_NUMBER, companyNumber);
             apiLogger.infoContext(requestId, "Retrieving Action Code for Company Number", logMap);
+            apiLogger.info("Oracle query API URL: " +  oracleQueryApiUrl);
             apiLogger.debugContext(requestId, "Oracle query API URL: " +  oracleQueryApiUrl);
 
             var internalApiClient = apiSdkClient.getInternalApiClient();
@@ -49,6 +52,8 @@ public class OracleQueryClient {
                     .getData();
 
         } catch (ApiErrorResponseException e) {
+            apiLogger.info(Arrays.toString(e.getStackTrace()));
+            apiLogger.info(e.toString());
             apiLogger.errorContext(requestId, ERROR_ACTION_CODE_RETRIEVAL, e, logMap);
             throw new OracleQueryClientException(ERROR_ACTION_CODE_RETRIEVAL);
         } catch (URIValidationException e) {
