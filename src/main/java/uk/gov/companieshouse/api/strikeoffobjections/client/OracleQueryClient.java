@@ -43,7 +43,6 @@ public class OracleQueryClient {
             apiLogger.debugContext(requestId, "Oracle query API URL: " +  oracleQueryApiUrl);
 
             var internalApiClient = apiSdkClient.getInternalApiClient();
-            internalApiClient.setBasePath(oracleQueryApiUrl);
 
             return internalApiClient
                     .privateCompanyResourceHandler()
@@ -71,7 +70,7 @@ public class OracleQueryClient {
             apiLogger.debugContext(requestId, "Oracle query API URL: " +  oracleQueryApiUrl);
 
             var internalApiClient = apiSdkClient.getInternalApiClient();
-            internalApiClient.setBasePath(oracleQueryApiUrl);
+
             Gaz2TransactionJson apiResponse = internalApiClient
                     .privateCompanyResourceHandler()
                     .getGaz2Requested(String.format(GAZ2_REQUESTED_URI_SUFFIX, companyNumber))
