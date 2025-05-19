@@ -39,7 +39,7 @@ public class OracleQueryClient {
         try {
             logMap.put(COMPANY_NUMBER, companyNumber);
             apiLogger.infoContext(requestId, "Retrieving Action Code for Company Number", logMap);
-            apiLogger.info("Oracle query API URL: " +  oracleQueryApiUrl);
+            apiLogger.info("Request id: " + requestId + ", Oracle URL " +  oracleQueryApiUrl);
             apiLogger.debugContext(requestId, "Oracle query API URL: " +  oracleQueryApiUrl);
 
             var internalApiClient = apiSdkClient.getInternalApiClient();
