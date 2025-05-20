@@ -84,6 +84,8 @@ public class OracleQueryClient {
             return apiResponse.getId();
 
         } catch (ApiErrorResponseException e) {
+            apiLogger.info(Arrays.toString(e.getStackTrace()));
+            apiLogger.info(e.toString());
             apiLogger.errorContext(requestId, ERROR_GAZ2_RETRIEVAL, e, logMap);
             throw new OracleQueryClientException(ERROR_GAZ2_RETRIEVAL);
         } catch (URIValidationException e) {
