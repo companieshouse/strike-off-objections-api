@@ -88,6 +88,8 @@ This is common to all the endpoints.
 | `FEATURE_FLAG_USE_KAFKA_FOR_CHIPS_CALL_170121`   | false                                                 |                                                                                           |
 | `PAYMENTS_API_URL`                               | 'NOT_USED'                                            |                                                                                           |
 | `DOCUMENT_API_LOCAL_URL`                         | 'NOT-USED'                                            |                                                                                           |
+
+
 ## Terraform ECS
 
 ### What does this code do?
