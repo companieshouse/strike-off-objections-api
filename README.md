@@ -102,7 +102,7 @@ Application specific attributes | Value                                | Descrip
 :---------|:-----------------------------------------------------------------------------|:-----------
 **ECS Cluster**        |company-requests                            | ECS cluster (stack) the service belongs to
 **Load balancer**      |{env}}-chs-internalapi                      | The load balancer that sits in front of the service
-**Concourse pipeline**     |[Pipeline link](https://ci-platform.companieshouse.gov.uk/teams/team-development/pipelines/strike-off-objections-api) <br> [Pipeline code](https://github.com/companieshouse/ci-pipelines/blob/151d746ea5afa32fce421b3ce5be50f27889eb56/pipelines/ssplatform/team-development/strike-off-objections-api)                                  | Concourse pipeline link in shared services
+**Concourse pipeline**     |[Pipeline link](https://ci-platform.companieshouse.gov.uk/teams/team-development/pipelines/strike-off-objections-api) <br> [Pipeline code](https://github.com/companieshouse/ci-pipelines/blob/master/pipelines/ssplatform/team-development/strike-off-objections-api)                         | Concourse pipeline link in shared services
 
 
 ### Contributing
