@@ -20,7 +20,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.function.Supplier;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.apache.kafka.common.TopicPartition;
 import org.junit.jupiter.api.BeforeEach;
@@ -101,7 +101,7 @@ class ChipsKafkaClientTest {
         when(dateTimeSupplier.get()).thenReturn(DATE_TIME);
 
         TopicPartition topicPartition = new TopicPartition("test",1);
-        recordMetadata = new RecordMetadata(topicPartition, 0, 0, 0, TIMESTAMP, 0, 0);
+        recordMetadata = new RecordMetadata(topicPartition, 0L, 0, 0L, 0, 0);
     }
 
     @Test

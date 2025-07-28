@@ -19,35 +19,49 @@
 
     <properties>
         <java.version>21</java.version>
-        <spring-boot-version>3.2.5</spring-boot-version>
-        <spring-boot-maven-plugin.version>3.2.5</spring-boot-maven-plugin.version>
-        <avro.version>1.11.4</avro.version>
-        <org.mapstruct.version>1.5.5.Final</org.mapstruct.version>
-        <jakarta.annotation-api.version>2.1.1</jakarta.annotation-api.version>
-        <log4j.version>2.21.1</log4j.version>
-        <jackson-databind.version>2.16.1</jackson-databind.version>
+        <spring-boot-version>3.5.3</spring-boot-version>
+        <spring-boot-maven-plugin.version>3.5.3</spring-boot-maven-plugin.version>
+        <avro.version>1.12.0</avro.version>
+        <org.mapstruct.version>1.6.3</org.mapstruct.version>
+        <jakarta.annotation-api.version>3.0.0</jakarta.annotation-api.version>
+        <log4j.version>2.25.1</log4j.version>
+        <jackson-databind.version>2.19.2</jackson-databind.version>
 
-        <structured-logging.version>3.0.3</structured-logging.version>
-        <api-sdk-manager-java-library.version>3.0.7</api-sdk-manager-java-library.version>
-        <kafka-models.version>3.0.6</kafka-models.version>
-        <kafka-clients.version>2.6.3</kafka-clients.version>
-        <rest-service-common-library.version>2.0.2</rest-service-common-library.version>
-        <ch-kafka.version>3.0.2</ch-kafka.version>
-        <private-api-sdk-java.version>4.0.292</private-api-sdk-java.version>
-        <sonar-maven-plugin.version>3.10.0.2594</sonar-maven-plugin.version>
-        <jib-maven-plugin.version>3.4.1</jib-maven-plugin.version>
-        <jacoco-maven-plugin.version>0.8.11</jacoco-maven-plugin.version>
-        <maven-compiler-plugin.version>3.12.1</maven-compiler-plugin.version>
-        <maven-surefire-plugin.version>3.2.5</maven-surefire-plugin.version>
-        <pitest-junit5-plugin.version>1.2.1</pitest-junit5-plugin.version>
+        <structured-logging.version>3.0.37</structured-logging.version>
+        <api-sdk-manager-java-library.version>3.0.9</api-sdk-manager-java-library.version>
+        <kafka-models.version>3.0.19</kafka-models.version>
+        <kafka-clients.version>8.0.0-ce</kafka-clients.version>
+        <rest-service-common-library.version>2.0.4</rest-service-common-library.version>
+        <ch-kafka.version>3.0.6</ch-kafka.version>
+        <private-api-sdk-java.version>4.0.329</private-api-sdk-java.version>
+        <sonar-maven-plugin.version>5.1.0.4751</sonar-maven-plugin.version>
+        <jib-maven-plugin.version>3.4.6</jib-maven-plugin.version>
+        <jacoco-maven-plugin.version>0.8.13</jacoco-maven-plugin.version>
+        <maven-compiler-plugin.version>3.14.0</maven-compiler-plugin.version>
+        <maven-surefire-plugin.version>3.5.3</maven-surefire-plugin.version>
+        <pitest-junit5-plugin.version>1.2.3</pitest-junit5-plugin.version>
+        <pitest.version>1.20.0</pitest.version>
+        <mockito.version>5.18.0</mockito.version>
 
-        <junit-jupiter.version>5.10.0</junit-jupiter.version>
-        <pitest.version>1.15.3</pitest.version>
-        <mockito.version>5.4.0</mockito.version>
+        <commons-lang3.version>3.18.0</commons-lang3.version>
+        <grpc-context.version>1.73.0</grpc-context.version>
+        <opentelemetry-version>2.14.0</opentelemetry-version>
     </properties>
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>io.opentelemetry.instrumentation</groupId>
+                <artifactId>opentelemetry-instrumentation-bom</artifactId>
+                <version>${opentelemetry-version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.junit</groupId>
+                <artifactId>junit-bom</artifactId>
+                <version>5.1.12</version>
+            </dependency>
             <dependency>
                 <groupId>jakarta.annotation</groupId>
                 <artifactId>jakarta.annotation-api</artifactId>
@@ -63,13 +77,11 @@
             <dependency>
                 <groupId>org.junit.jupiter</groupId>
                 <artifactId>junit-jupiter-api</artifactId>
-                <version>${junit-jupiter.version}</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.junit.jupiter</groupId>
                 <artifactId>junit-jupiter-engine</artifactId>
-                <version>${junit-jupiter.version}</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
@@ -175,7 +187,7 @@
                 <exclusion>
                     <groupId>org.apache.kafka</groupId>
                     <artifactId>kafka-clients</artifactId>
-                </exclusion>           
+                </exclusion>
             </exclusions>
         </dependency>
         <dependency>
@@ -230,10 +242,18 @@
             <version>${avro.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.pitest</groupId>
-            <artifactId>pitest-parent</artifactId>
-            <version>${pitest.version}</version>
-            <type>pom</type>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>${commons-lang3.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.grpc</groupId>
+            <artifactId>grpc-context</artifactId>
+            <version>${grpc-context.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.opentelemetry.instrumentation</groupId>
+            <artifactId>opentelemetry-spring-boot-starter</artifactId>
         </dependency>
     </dependencies>
 
@@ -344,7 +364,7 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin> 
+            </plugin>
         </plugins>
     </build>
 </project>
