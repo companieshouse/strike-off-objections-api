@@ -30,7 +30,7 @@
         <structured-logging.version>3.0.37</structured-logging.version>
         <api-sdk-manager-java-library.version>3.0.10</api-sdk-manager-java-library.version>
         <kafka-models.version>3.0.19</kafka-models.version>
-        <kafka-clients.version>8.0.0-ce</kafka-clients.version>
+        <kafka-clients.version>4.0.0</kafka-clients.version>
         <rest-service-common-library.version>2.0.4</rest-service-common-library.version>
         <ch-kafka.version>3.0.6</ch-kafka.version>
         <private-api-sdk-java.version>4.0.329</private-api-sdk-java.version>
@@ -44,7 +44,9 @@
 
         <commons-lang3.version>3.18.0</commons-lang3.version>
         <grpc-context.version>1.73.0</grpc-context.version>
-        <opentelemetry-version>2.17.0</opentelemetry-version>
+        <opentelemetry.version>2.17.0</opentelemetry.version>
+        <junit.version>5.1.12</junit.version>
+        <tomcat.version>10.1.43</tomcat.version>
     </properties>
 
     <dependencyManagement>
@@ -52,14 +54,14 @@
             <dependency>
                 <groupId>io.opentelemetry.instrumentation</groupId>
                 <artifactId>opentelemetry-instrumentation-bom</artifactId>
-                <version>${opentelemetry-version}</version>
+                <version>${opentelemetry.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
             <dependency>
                 <groupId>org.junit</groupId>
                 <artifactId>junit-bom</artifactId>
-                <version>5.1.12</version>
+                <version>${junit.version}</version>
             </dependency>
             <dependency>
                 <groupId>jakarta.annotation</groupId>
@@ -169,10 +171,6 @@
                     <groupId>com.fasterxml.jackson.core</groupId>
                     <artifactId>jackson-databind</artifactId>
                 </exclusion>
-                <exclusion>
-                    <groupId>org.apache.tomcat.embed</groupId>
-                    <artifactId>tomcat-embed-core</artifactId>
-                </exclusion>
             </exclusions>
         </dependency>
 
@@ -261,6 +259,11 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-logging</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.tomcat.embed</groupId>
+            <artifactId>tomcat-embed-core</artifactId>
+            <version>${tomcat.version}</version>
         </dependency>
     </dependencies>
 
