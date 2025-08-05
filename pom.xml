@@ -41,7 +41,7 @@
         <maven-surefire-plugin.version>3.5.3</maven-surefire-plugin.version>
         <pitest-junit5-plugin.version>1.2.3</pitest-junit5-plugin.version>
         <mockito.version>5.18.0</mockito.version>
-
+        <pitest.version>1.20.1</pitest.version>
         <commons-lang3.version>3.18.0</commons-lang3.version>
         <grpc-context.version>1.73.0</grpc-context.version>
         <opentelemetry.version>2.17.0</opentelemetry.version>
@@ -110,15 +110,6 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
-            <!-- Without this exclusion, SLF4J warns about multiple bindings at start-up, and we want
-                 to ensure that only the one directly embedded in the 'structured-logging' library is
-                 present and used -->
-            <exclusions>
-                <exclusion>
-                    <groupId>ch.qos.logback</groupId>
-                    <artifactId>logback-classic</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -156,8 +147,8 @@
                  present and used -->
             <exclusions>
                 <exclusion>
-                    <groupId>ch.qos.logback</groupId>
-                    <artifactId>logback-classic</artifactId>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>*</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -340,6 +331,40 @@
                         <expandClasspathDependencies>true</expandClasspathDependencies>
                     </container>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.pitest</groupId>
+                <artifactId>pitest-maven</artifactId>
+                <version>${pitest.version}</version>
+                <configuration>
+                    <testStrengthThreshold>80</testStrengthThreshold>
+                    <coverageThreshold>80</coverageThreshold>
+                    <withHistory>true</withHistory>
+                    <excludedClasses>
+                        <excludedClass>uk.gov.companieshouse.api.strikeoffobjections.exception*</excludedClass>
+                        <excludedClass>uk.gov.companieshouse.api.strikeoffobjections.Application</excludedClass>
+                        <excludedClass>uk.gov.companieshouse.api.strikeoffobjections.service.impl.ApiSdkClient</excludedClass>
+                        <excludedClass>uk.gov.companieshouse.api.strikeoffobjections.config.*</excludedClass>
+                        <excludedClass>uk.gov.companieshouse.api.strikeoffobjections.controller.ObjectionMapperImpl</excludedClass>
+                        <excludedClass>uk.gov.companieshouse.api.strikeoffobjections.model.create.ObjectionCreate</excludedClass>
+                        <excludedClass>uk.gov.companieshouse.api.strikeoffobjections.model.response.*</excludedClass>
+                    </excludedClasses>
+                </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.pitest</groupId>
+                        <artifactId>pitest-junit5-plugin</artifactId>
+                        <version>${pitest-junit5-plugin.version}</version>
+                    </dependency>
+                </dependencies>
+                <executions>
+                    <execution>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>mutationCoverage</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
