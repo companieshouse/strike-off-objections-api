@@ -5,11 +5,13 @@ variable "environment" {
   type        = string
   description = "The environment name, defined in envrionments vars."
 }
+
 variable "aws_region" {
   default     = "eu-west-2"
   type        = string
   description = "The AWS region for deployment."
 }
+
 variable "aws_profile" {
   default     = "development-eu-west-2"
   type        = string
@@ -32,11 +34,13 @@ variable "desired_task_count" {
   description = "The desired ECS task count for this service"
   default = 1 # defaulted low for dev environments, override for production
 }
+
 variable "required_cpus" {
   type = number
   description = "The required cpu resource for this service. 1024 here is 1 vCPU"
   default = 256 # defaulted low for dev environments, override for production
 }
+
 variable "required_memory" {
   type = number
   description = "The required memory for this service"
@@ -65,21 +69,25 @@ variable "use_fargate" {
   description = "If true, sets the required capabilities for all containers in the task definition to use FARGATE, false uses EC2"
   default     = true
 }
+
 variable "use_capacity_provider" {
   type        = bool
   description = "Whether to use a capacity provider instead of setting a launch type for the service"
   default     = true
 }
+
 variable "service_autoscale_enabled" {
   type        = bool
   description = "Whether to enable service autoscaling, including scheduled autoscaling"
   default     = true
 }
+
 variable "service_autoscale_target_value_cpu" {
   type        = number
   description = "Target CPU percentage for the ECS Service to autoscale on"
   default     = 50 # 100 disables autoscaling using CPU as a metric
 }
+
 variable "service_scaledown_schedule" {
   type        = string
   description = "The schedule to use when scaling down the number of tasks to zero."
@@ -88,6 +96,7 @@ variable "service_scaledown_schedule" {
 
   default     = ""
 }
+
 variable "service_scaleup_schedule" {
   type        = string
   description = "The schedule to use when scaling up the number of tasks to their normal desired level."
@@ -120,15 +129,18 @@ variable "use_set_environment_files" {
   default     = false
   description = "Toggle default global and shared  environment files"
 }
+
 variable "log_level" {
   default     = "info"
   type        = string
   description = "The log level for services to use: trace, debug, info or error"
 }
+
 variable "strike_off_objections_api_version" {
   type        = string
   description = "The version of the strike off objections api container to run."
 }
+
 variable "eric_version" {
   type        = string
   description = "The version of the eric container to run."
