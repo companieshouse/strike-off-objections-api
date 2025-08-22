@@ -1,0 +1,6 @@
+app_name: strike-off-objections-api
+group: internalapi
+
+weight: 900
+routes:
+  1: ^/company/(.*)/strike-off-objections/*
