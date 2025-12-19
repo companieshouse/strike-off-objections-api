@@ -7,7 +7,7 @@ import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -34,7 +34,7 @@ import static org.mockito.Mockito.verify;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class ValidationConfigTest {
 
-    @MockBean
+    @MockitoBean
     private ApiLogger apiLogger;
 
     @Autowired
@@ -43,7 +43,7 @@ class ValidationConfigTest {
     @Test
     @Order(1)
         // need this to run first as we want to capture the call to apiLogger in the postConstruct of ValidationConfig
-        // the mockBean apiLogger gets reset after each test so if we don't run this first, we'll lose the record of
+        // the MockitoBean apiLogger gets reset after each test so if we don't run this first, we'll lose the record of
         // it being called in the postConstruct of ValidationConfig (when it gets injected)
     void logActionCodeValidatorConfigValuesTest() {
 

@@ -1,18 +1,19 @@
 package uk.gov.companieshouse.api.strikeoffobjections.config;
 
+import java.time.LocalDateTime;
+import java.util.function.Supplier;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestTemplate;
+
 import uk.gov.companieshouse.api.strikeoffobjections.chips.ChipsKafkaClient;
 import uk.gov.companieshouse.api.strikeoffobjections.chips.ChipsRestClient;
 import uk.gov.companieshouse.api.strikeoffobjections.chips.ChipsSender;
 import uk.gov.companieshouse.api.strikeoffobjections.common.ApiLogger;
 import uk.gov.companieshouse.api.strikeoffobjections.email.KafkaRestClient;
-
-import java.time.LocalDateTime;
-import java.util.function.Supplier;
 
 @Configuration
 public class ApplicationConfig {

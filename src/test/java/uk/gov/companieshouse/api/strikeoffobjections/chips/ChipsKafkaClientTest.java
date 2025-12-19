@@ -20,7 +20,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.function.Supplier;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.apache.kafka.common.TopicPartition;
 import org.junit.jupiter.api.BeforeEach;
@@ -40,6 +39,7 @@ import uk.gov.companieshouse.api.strikeoffobjections.groups.Unit;
 import uk.gov.companieshouse.api.strikeoffobjections.model.chips.ChipsRequest;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Attachment;
 import uk.gov.companieshouse.api.strikeoffobjections.utils.Utils;
+import org.apache.commons.lang3.StringUtils;
 import uk.gov.companieshouse.chips.ChipsRestInterfacesSend;
 import uk.gov.companieshouse.kafka.message.Message;
 import uk.gov.companieshouse.kafka.producer.CHKafkaProducer;
@@ -101,7 +101,7 @@ class ChipsKafkaClientTest {
         when(dateTimeSupplier.get()).thenReturn(DATE_TIME);
 
         TopicPartition topicPartition = new TopicPartition("test",1);
-        recordMetadata = new RecordMetadata(topicPartition, 0, 0, 0, TIMESTAMP, 0, 0);
+        recordMetadata = new RecordMetadata(topicPartition, 0, 0, 0, 0, 0);
     }
 
     @Test

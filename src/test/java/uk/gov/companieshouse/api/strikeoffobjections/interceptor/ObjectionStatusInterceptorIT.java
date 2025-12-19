@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -32,26 +32,26 @@ import static org.mockito.Mockito.when;
 @Integration
 @ExtendWith(SpringExtension.class)
 @WebMvcTest(value = { ObjectionController.class })
-class ObjectionStatusInterceptorIntegrationTest {
+class ObjectionStatusInterceptorIT {
     @Autowired
     private MockMvc mockMvc;
 
-    @MockBean
+    @MockitoBean
     private ObjectionService objectionService;
 
-    @MockBean
+    @MockitoBean
     private ERICHeaderParser headerParser;
 
-    @MockBean
+    @MockitoBean
     private ObjectionMapper objectionMapper;
 
-    @MockBean
+    @MockitoBean
     private AttachmentMapper attachmentMapper;
 
-    @MockBean
+    @MockitoBean
     private ApiLogger logger;
 
-    @MockBean
+    @MockitoBean
     private PluggableResponseEntityFactory responseEntityFactory;
 
     @BeforeEach
@@ -84,7 +84,7 @@ class ObjectionStatusInterceptorIntegrationTest {
         MvcResult result = mockMvc.perform(requestBuilder).andReturn();
         assertEquals(HttpStatus.FORBIDDEN.value(), result.getResponse().getStatus());
     }
-    
+
     private Objection getObjection(ObjectionStatus status) {
         Objection objection = new Objection();
         objection.setStatus(status);
