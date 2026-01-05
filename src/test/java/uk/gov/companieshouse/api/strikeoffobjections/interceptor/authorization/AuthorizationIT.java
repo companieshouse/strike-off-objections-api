@@ -37,7 +37,7 @@ import uk.gov.companieshouse.service.rest.response.PluggableResponseEntityFactor
 @Integration
 @ExtendWith(SpringExtension.class)
 @WebMvcTest(value = { ObjectionController.class })
-class AuthorizationIntT {
+class AuthorizationIT {
 
     @Autowired
     private MockMvc mockMvc;

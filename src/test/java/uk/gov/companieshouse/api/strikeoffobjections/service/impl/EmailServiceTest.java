@@ -36,7 +36,6 @@ import uk.gov.companieshouse.api.strikeoffobjections.exception.EmailSendExceptio
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.CreatedBy;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Objection;
 import uk.gov.companieshouse.api.strikeoffobjections.utils.Utils;
-import uk.gov.companieshouse.service.ServiceException;
 
 class EmailServiceTest {
 
@@ -119,7 +118,7 @@ class EmailServiceTest {
     }
 
     @Test
-    void testSendObjectionSubmittedCustomerEmail_Failure() throws Exception {
+    void testSendObjectionSubmittedCustomerEmail_Failure() {
         Objection objection = createObjection();
         String companyName = "Test Company";
         String requestId = "req-2";

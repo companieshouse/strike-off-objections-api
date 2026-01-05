@@ -153,7 +153,7 @@ public class EmailService implements IEmailService {
         return commaSeparatedString.replace(" ", "").split(",");
     }
 
-    private void sendEmailMessageToChsKafkaApi(SendEmail sendEmail, String requestId) throws ServiceException {
+    private void sendEmailMessageToChsKafkaApi(SendEmail sendEmail, String requestId) {
         try {
             PrivateSendEmailHandler sendEmailHandler = internalApiClient.get().sendEmailHandler();
             sendEmailHandler.postSendEmail(SEND_EMAIL, sendEmail);
