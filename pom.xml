@@ -16,36 +16,43 @@
         <version>2.1.12</version>
         <relativePath/>
     </parent>
-
     <properties>
         <java.version>21</java.version>
-        <spring-boot-version>3.2.5</spring-boot-version>
-        <spring-boot-maven-plugin.version>3.2.5</spring-boot-maven-plugin.version>
-        <avro.version>1.11.4</avro.version>
+        <spring-boot-version>3.5.9</spring-boot-version>
+        <spring-boot-maven-plugin.version>3.5.9</spring-boot-maven-plugin.version>
+        <avro.version>1.11.5</avro.version>
         <org.mapstruct.version>1.5.5.Final</org.mapstruct.version>
         <jakarta.annotation-api.version>2.1.1</jakarta.annotation-api.version>
         <log4j.version>2.21.1</log4j.version>
-        <jackson-databind.version>2.16.1</jackson-databind.version>
+        <jackson-databind.version>2.16.2</jackson-databind.version>
+        <structured-logging.version>3.0.44</structured-logging.version>
+        <api-sdk-manager-java-library.version>3.0.14</api-sdk-manager-java-library.version>
+        <kafka-models.version>3.0.26</kafka-models.version>
+        <kafka-clients.version>4.1.1</kafka-clients.version>
+        <rest-service-common-library.version>2.0.9</rest-service-common-library.version>
+        <ch-kafka.version>3.0.6</ch-kafka.version>
+        <private-api-sdk-java.version>4.0.431</private-api-sdk-java.version>
+        <jib-maven-plugin.version>3.5.1</jib-maven-plugin.version>
+        <jacoco-maven-plugin.version>0.8.14</jacoco-maven-plugin.version>
+        <maven-compiler-plugin.version>3.14.1</maven-compiler-plugin.version>
+        <maven-surefire-plugin.version>3.5.4</maven-surefire-plugin.version>
+        <maven-failsafe-plugin.version>3.5.4</maven-failsafe-plugin.version>
+        <jackson-core-version>2.15.4</jackson-core-version>
+        <commons-lang3.version>3.20.0</commons-lang3.version>
+        <org-json.version>20230618</org-json.version>
 
-        <structured-logging.version>3.0.3</structured-logging.version>
-        <api-sdk-manager-java-library.version>3.0.7</api-sdk-manager-java-library.version>
-        <kafka-models.version>3.0.6</kafka-models.version>
-        <kafka-clients.version>2.6.3</kafka-clients.version>
-        <rest-service-common-library.version>2.0.2</rest-service-common-library.version>
-        <ch-kafka.version>3.0.2</ch-kafka.version>
-        <private-api-sdk-java.version>4.0.292</private-api-sdk-java.version>
-        <sonar-maven-plugin.version>3.10.0.2594</sonar-maven-plugin.version>
-        <jib-maven-plugin.version>3.4.1</jib-maven-plugin.version>
-        <jacoco-maven-plugin.version>0.8.11</jacoco-maven-plugin.version>
-        <maven-compiler-plugin.version>3.12.1</maven-compiler-plugin.version>
-        <maven-surefire-plugin.version>3.2.5</maven-surefire-plugin.version>
-        <pitest-junit5-plugin.version>1.2.1</pitest-junit5-plugin.version>
-
-        <junit-jupiter.version>5.10.0</junit-jupiter.version>
+        <pitest-junit5-plugin.version>1.2.3</pitest-junit5-plugin.version>
         <pitest.version>1.15.3</pitest.version>
-        <mockito.version>5.4.0</mockito.version>
-    </properties>
 
+        <sonar.token>${CODE_ANALYSIS_TOKEN}</sonar.token>
+        <sonar.login></sonar.login>
+        <sonar.password></sonar.password>
+        <sonar.projectName>strike-off-objections-api</sonar.projectName>
+        <sonar.projectKey>uk.gov.companieshouse:strike-off-objections-api</sonar.projectKey>
+        <sonar-maven-plugin.version>5.5.0.6356</sonar-maven-plugin.version>
+        <sonar.java.binaries>${project.basedir}/target,${project.basedir}/target/*</sonar.java.binaries>
+        <sonar.coverage.jacoco.xmlReportPaths>${project.basedir}/target/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
+    </properties>
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -59,30 +66,6 @@
                 <version>${log4j.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.junit.jupiter</groupId>
-                <artifactId>junit-jupiter-api</artifactId>
-                <version>${junit-jupiter.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.junit.jupiter</groupId>
-                <artifactId>junit-jupiter-engine</artifactId>
-                <version>${junit-jupiter.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.mockito</groupId>
-                <artifactId>mockito-core</artifactId>
-                <version>${mockito.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.mockito</groupId>
-                <artifactId>mockito-junit-jupiter</artifactId>
-                <scope>test</scope>
-                <version>${mockito.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.springframework.boot</groupId>
@@ -122,7 +105,7 @@
                     <groupId>com.fasterxml.jackson.core</groupId>
                     <artifactId>jackson-databind</artifactId>
                 </exclusion>
-            </exclusions>            
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -148,7 +131,11 @@
                 </exclusion>
             </exclusions>
         </dependency>
-
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>${commons-lang3.version}</version>
+        </dependency>
         <dependency>
             <groupId>uk.gov.companieshouse</groupId>
             <artifactId>rest-service-common-library</artifactId>
@@ -160,13 +147,11 @@
                 </exclusion>
             </exclusions>
         </dependency>
-
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
             <version>${jackson-databind.version}</version>
         </dependency>
-
         <dependency>
             <groupId>uk.gov.companieshouse</groupId>
             <artifactId>api-sdk-manager-java-library</artifactId>
@@ -175,8 +160,13 @@
                 <exclusion>
                     <groupId>org.apache.kafka</groupId>
                     <artifactId>kafka-clients</artifactId>
-                </exclusion>           
+                </exclusion>
             </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>${org-json.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.kafka</groupId>
@@ -197,27 +187,12 @@
                     <groupId>com.fasterxml.jackson.core</groupId>
                     <artifactId>jackson-databind</artifactId>
                 </exclusion>
-                <exclusion>
-                    <groupId>org.apache.kafka</groupId>
-                    <artifactId>kafka-clients</artifactId>
-                </exclusion>                
-            </exclusions>            
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>uk.gov.companieshouse</groupId>
             <artifactId>ch-kafka</artifactId>
             <version>${ch-kafka.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.apache.kafka</groupId>
-                    <artifactId>kafka-clients</artifactId>
-                </exclusion>
-            </exclusions>            
-        </dependency>        
-        <dependency>
-            <groupId>org.sonarsource.scanner.maven</groupId>
-            <artifactId>sonar-maven-plugin</artifactId>
-            <version>${sonar-maven-plugin.version}</version>
         </dependency>
         <dependency>
             <groupId>org.mapstruct</groupId>
@@ -230,13 +205,11 @@
             <version>${avro.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.pitest</groupId>
-            <artifactId>pitest-parent</artifactId>
-            <version>${pitest.version}</version>
-            <type>pom</type>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <version>${jackson-core-version}</version>
         </dependency>
     </dependencies>
-
     <build>
         <plugins>
             <plugin>
@@ -275,6 +248,10 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>${maven-surefire-plugin.version}</version>
+                <configuration>
+                    <argLine>${surefireArgLine} -Dfile.encoding=UTF-8</argLine>
+                    <skipTests>${skip.unit.tests}</skipTests>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.jacoco</groupId>
@@ -282,18 +259,58 @@
                 <version>${jacoco-maven-plugin.version}</version>
                 <executions>
                     <execution>
+                        <id>pre-unit-test</id>
                         <goals>
                             <goal>prepare-agent</goal>
                         </goals>
+                        <configuration>
+                            <propertyName>surefireArgLine</propertyName>
+                        </configuration>
                     </execution>
                     <execution>
-                        <id>report</id>
-                        <phase>test</phase>
+                        <id>post-unit-test</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>pre-integration-test</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                        <configuration>
+                            <propertyName>failsafeArgLine</propertyName>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>post-integration-test</id>
+                        <phase>verify</phase>
                         <goals>
                             <goal>report</goal>
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <version>${maven-failsafe-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <phase>integration-test</phase>
+                        <goals>
+                            <goal>integration-test</goal>
+                            <goal>verify</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <argLine>${failsafeArgLine} -Dfile.encoding=UTF-8</argLine>
+                    <classesDirectory>${project.build.outputDirectory}</classesDirectory>
+                    <skipITs>${skip.integration.tests}</skipITs>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>com.google.cloud.tools</groupId>
@@ -344,7 +361,7 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin> 
+            </plugin>
         </plugins>
     </build>
 </project>

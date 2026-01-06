@@ -4,9 +4,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -30,36 +30,36 @@ import static org.mockito.Mockito.verify;
 @Integration
 @ExtendWith(SpringExtension.class)
 @WebMvcTest(value = { ObjectionController.class })
-class EligibilityIntegrationTest {
+class EligibilityIT {
 
     @Autowired
     private MockMvc mockMvc;
 
-    @MockBean
+    @MockitoBean
     private ObjectionService objectionService;
 
-    @MockBean
+    @MockitoBean
     private ERICHeaderParser headerParser;
 
-    @MockBean
+    @MockitoBean
     private ObjectionMapper objectionMapper;
 
-    @MockBean
+    @MockitoBean
     private AttachmentMapper attachmentMapper;
 
-    @MockBean
+    @MockitoBean
     private ApiLogger logger;
 
-    @MockBean
+    @MockitoBean
     private PluggableResponseEntityFactory responseEntityFactory;
 
-    @MockBean
+    @MockitoBean
     private ObjectionInterceptor objectionInterceptor;
 
-    @MockBean
+    @MockitoBean
     private CompanyNumberInterceptor companyNumberInterceptor;
 
-    @MockBean
+    @MockitoBean
     private UserAuthorizationInterceptor userAuthorizationInterceptor;
 
     @Test

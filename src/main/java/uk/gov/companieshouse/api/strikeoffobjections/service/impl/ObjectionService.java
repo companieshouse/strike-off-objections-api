@@ -1,7 +1,7 @@
 package uk.gov.companieshouse.api.strikeoffobjections.service.impl;
 
 import jakarta.servlet.http.HttpServletResponse;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
@@ -102,7 +102,7 @@ public class ObjectionService implements IObjectionService {
         final Long actionCode = getActionCode(companyNumber, requestId);
         final ObjectionStatus objectionStatus = getObjectionStatusForCreate(actionCode, companyNumber, requestId);
         final String refNumber = referenceNumberGeneratorService.generateReferenceNumber();
-        
+
         Objection entity = new Objection.Builder()
                 .withCompanyNumber(companyNumber)
                 .withCreatedOn(dateTimeSupplier.get())

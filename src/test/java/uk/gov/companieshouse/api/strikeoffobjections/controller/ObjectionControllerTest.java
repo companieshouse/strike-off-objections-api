@@ -178,7 +178,7 @@ class ObjectionControllerTest {
         Map<String, Object> logMap = new HashMap<>();
         logMap.put(LogConstants.COMPANY_NUMBER.getValue(), COMPANY_NUMBER);
         logOrder.verify(apiLogger).infoContext(eq(REQUEST_ID), contains("Processing POST / request"),eq(logMap));
-        logOrder.verify(apiLogger).infoContext(eq(REQUEST_ID), contains("Successfully processed POST / request"), eq(logMap));        
+        logOrder.verify(apiLogger).infoContext(eq(REQUEST_ID), contains("Successfully processed POST / request"), eq(logMap));
 
     }
 
@@ -203,7 +203,7 @@ class ObjectionControllerTest {
         Map<String, Object> logMap = new HashMap<>();
         logMap.put(LogConstants.COMPANY_NUMBER.getValue(), COMPANY_NUMBER);
         logOrder.verify(apiLogger).infoContext(eq(REQUEST_ID), contains("Processing POST / request"),eq(logMap));
-        logOrder.verify(apiLogger).errorContext(eq(REQUEST_ID), contains("Error creating the Strike-Off Objection"),any(), eq(logMap));                
+        logOrder.verify(apiLogger).errorContext(eq(REQUEST_ID), contains("Error creating the Strike-Off Objection"),any(), eq(logMap));
     }
 
     @Test
@@ -214,13 +214,13 @@ class ObjectionControllerTest {
         ResponseEntity response = objectionController.patchObjection(COMPANY_NUMBER, OBJECTION_ID, objectionPatch, REQUEST_ID);
 
         assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
- 
+
         InOrder logOrder = inOrder(apiLogger);
         Map<String, Object> logMap = new HashMap<>();
         logMap.put(LogConstants.COMPANY_NUMBER.getValue(), COMPANY_NUMBER);
         logMap.put(LogConstants.OBJECTION_ID.getValue(), OBJECTION_ID);
         logOrder.verify(apiLogger).infoContext(eq(REQUEST_ID), contains("Processing PATCH /{objectionId} request"),eq(logMap));
-        logOrder.verify(apiLogger).infoContext(eq(REQUEST_ID), contains("Successfully processed PATCH /{objectionId} request"), eq(logMap));        
+        logOrder.verify(apiLogger).infoContext(eq(REQUEST_ID), contains("Successfully processed PATCH /{objectionId} request"), eq(logMap));
     }
 
     @Test
@@ -238,7 +238,7 @@ class ObjectionControllerTest {
         logMap.put(LogConstants.COMPANY_NUMBER.getValue(), COMPANY_NUMBER);
         logMap.put(LogConstants.OBJECTION_ID.getValue(), OBJECTION_ID);
         logOrder.verify(apiLogger).infoContext(eq(REQUEST_ID), contains("Processing PATCH /{objectionId} request"),eq(logMap));
-        logOrder.verify(apiLogger).errorContext(eq(REQUEST_ID), contains("Objection not found"),any(), eq(logMap));        
+        logOrder.verify(apiLogger).errorContext(eq(REQUEST_ID), contains("Objection not found"),any(), eq(logMap));
     }
 
     @Test
@@ -258,7 +258,7 @@ class ObjectionControllerTest {
         logMap.put(LogConstants.COMPANY_NUMBER.getValue(), COMPANY_NUMBER);
         logMap.put(LogConstants.OBJECTION_ID.getValue(), OBJECTION_ID);
         logOrder.verify(apiLogger).infoContext(eq(REQUEST_ID), contains("Processing PATCH /{objectionId} request"),eq(logMap));
-        logOrder.verify(apiLogger).errorContext(eq(REQUEST_ID), contains("Objection not processed"),any(), eq(logMap));       
+        logOrder.verify(apiLogger).errorContext(eq(REQUEST_ID), contains("Objection not processed"),any(), eq(logMap));
     }
 
     @Test
@@ -277,7 +277,7 @@ class ObjectionControllerTest {
         logMap.put(LogConstants.COMPANY_NUMBER.getValue(), COMPANY_NUMBER);
         logMap.put(LogConstants.OBJECTION_ID.getValue(), OBJECTION_ID);
         logOrder.verify(apiLogger).infoContext(eq(REQUEST_ID), contains("Processing PATCH /{objectionId} request"),eq(logMap));
-        logOrder.verify(apiLogger).errorContext(eq(REQUEST_ID), contains("Message"),any(), eq(logMap));               
+        logOrder.verify(apiLogger).errorContext(eq(REQUEST_ID), contains("Message"),any(), eq(logMap));
     }
 
     @Test
@@ -290,7 +290,7 @@ class ObjectionControllerTest {
         logMap.put(LogConstants.COMPANY_NUMBER.getValue(), COMPANY_NUMBER);
         logMap.put(LogConstants.OBJECTION_ID.getValue(), OBJECTION_ID);
         logOrder.verify(apiLogger).infoContext(eq(REQUEST_ID), contains("Processing PATCH /{objectionId} request"),eq(logMap));
-        logOrder.verify(apiLogger).infoContext(eq(REQUEST_ID), contains("Successfully processed PATCH /{objectionId} request"),eq(logMap));        
+        logOrder.verify(apiLogger).infoContext(eq(REQUEST_ID), contains("Successfully processed PATCH /{objectionId} request"),eq(logMap));
     }
 
     @Test
@@ -324,7 +324,7 @@ class ObjectionControllerTest {
         logMap.put(LogConstants.COMPANY_NUMBER.getValue(), COMPANY_NUMBER);
         logMap.put(LogConstants.OBJECTION_ID.getValue(), OBJECTION_ID);
         logOrder.verify(apiLogger).infoContext(eq(REQUEST_ID), contains("Processing GET /{objectionId} request"),eq(logMap));
-        logOrder.verify(apiLogger).infoContext(eq(REQUEST_ID), contains("Successfully processed GET /{objectionId} request"),eq(logMap));        
+        logOrder.verify(apiLogger).infoContext(eq(REQUEST_ID), contains("Successfully processed GET /{objectionId} request"),eq(logMap));
     }
 
     @Test
@@ -339,7 +339,7 @@ class ObjectionControllerTest {
         logMap.put(LogConstants.COMPANY_NUMBER.getValue(), COMPANY_NUMBER);
         logMap.put(LogConstants.OBJECTION_ID.getValue(), OBJECTION_ID);
         logOrder.verify(apiLogger).infoContext(eq(REQUEST_ID), contains("Processing GET /{objectionId} request"),eq(logMap));
-        logOrder.verify(apiLogger).errorContext(eq(REQUEST_ID), contains("Objection not found"),any(),eq(logMap));               
+        logOrder.verify(apiLogger).errorContext(eq(REQUEST_ID), contains("Objection not found"),any(),eq(logMap));
     }
 
     @Test
@@ -354,7 +354,7 @@ class ObjectionControllerTest {
         logMap.put(LogConstants.COMPANY_NUMBER.getValue(), COMPANY_NUMBER);
         logMap.put(LogConstants.OBJECTION_ID.getValue(), OBJECTION_ID);
         logOrder.verify(apiLogger).infoContext(eq(REQUEST_ID), contains("Processing GET /{objectionId} request"),eq(logMap));
-        logOrder.verify(apiLogger).errorContext(eq(REQUEST_ID), contains("Internal server error"),any(),eq(logMap));                   
+        logOrder.verify(apiLogger).errorContext(eq(REQUEST_ID), contains("Internal server error"),any(),eq(logMap));
     }
 
     @Test
@@ -387,7 +387,7 @@ class ObjectionControllerTest {
         ResponseEntity<ChResponseBody<List<AttachmentResponseDTO>>> response = objectionController.getAttachments(COMPANY_NUMBER, OBJECTION_ID, REQUEST_ID);
 
         verify(attachmentMapper, times(1)).attachmentEntityToAttachmentResponseDTO(attachment);
-        
+
         Map<String, Object> logMap = new HashMap<>();
         logMap.put(LogConstants.COMPANY_NUMBER.getValue(), COMPANY_NUMBER);
         logMap.put(LogConstants.OBJECTION_ID.getValue(), OBJECTION_ID);
@@ -480,7 +480,7 @@ class ObjectionControllerTest {
         logMap.put(LogConstants.COMPANY_NUMBER.getValue(), COMPANY_NUMBER);
         logMap.put(LogConstants.OBJECTION_ID.getValue(), OBJECTION_ID);
         logOrder.verify(apiLogger).infoContext(eq(REQUEST_ID), contains("Processing POST /{objectionId}/attachments request"),eq(logMap));
-        logOrder.verify(apiLogger).infoContext(eq(REQUEST_ID), contains("Successfully processed POST /{objectionId}/attachments request"),eq(logMap));        
+        logOrder.verify(apiLogger).infoContext(eq(REQUEST_ID), contains("Successfully processed POST /{objectionId}/attachments request"),eq(logMap));
     }
 
     @Test
@@ -500,7 +500,7 @@ class ObjectionControllerTest {
         logMap.put(LogConstants.COMPANY_NUMBER.getValue(), COMPANY_NUMBER);
         logMap.put(LogConstants.OBJECTION_ID.getValue(), OBJECTION_ID);
         logOrder.verify(apiLogger).infoContext(eq(REQUEST_ID), contains("Processing POST /{objectionId}/attachments request"),eq(logMap));
-        logOrder.verify(apiLogger).errorContext(eq(REQUEST_ID), contains("Objection not found"),any(),eq(logMap));        
+        logOrder.verify(apiLogger).errorContext(eq(REQUEST_ID), contains("Objection not found"),any(),eq(logMap));
     }
 
     @Test
@@ -544,7 +544,7 @@ class ObjectionControllerTest {
         logMap.put(LogConstants.OBJECTION_ID.getValue(), OBJECTION_ID);
         logOrder.verify(apiLogger).infoContext(eq(REQUEST_ID), contains("Processing POST /{objectionId}/attachments request"),eq(logMap));
         logOrder.verify(apiLogger).errorContext(eq(REQUEST_ID), contains(String.format("The file-transfer-api has returned an error for file: %s",
-        Utils.mockMultipartFile().getOriginalFilename())),any(),eq(logMap));        
+        Utils.mockMultipartFile().getOriginalFilename())),any(),eq(logMap));
     }
 
     @Test
@@ -566,7 +566,7 @@ class ObjectionControllerTest {
         logMap.put(LogConstants.OBJECTION_ID.getValue(), OBJECTION_ID);
         logOrder.verify(apiLogger).infoContext(eq(REQUEST_ID), contains("Processing POST /{objectionId}/attachments request"),eq(logMap));
         logOrder.verify(apiLogger).errorContext(eq(REQUEST_ID), contains(String.format("The file-transfer-api has returned an error for file: %s",
-        Utils.mockMultipartFile().getOriginalFilename())),any(),eq(logMap));        
+        Utils.mockMultipartFile().getOriginalFilename())),any(),eq(logMap));
     }
 
     @Test
@@ -585,7 +585,7 @@ class ObjectionControllerTest {
         logMap.put(LogConstants.COMPANY_NUMBER.getValue(), COMPANY_NUMBER);
         logMap.put(LogConstants.OBJECTION_ID.getValue(), OBJECTION_ID);
         logOrder.verify(apiLogger).infoContext(eq(REQUEST_ID), contains("Processing POST /{objectionId}/attachments request"),eq(logMap));
-        logOrder.verify(apiLogger).errorContext(eq(REQUEST_ID), contains("Objection not found"),any(),eq(logMap));        
+        logOrder.verify(apiLogger).errorContext(eq(REQUEST_ID), contains("Objection not found"),any(),eq(logMap));
     }
 
 
@@ -626,7 +626,7 @@ class ObjectionControllerTest {
         logMap.put(LogConstants.OBJECTION_ID.getValue(), OBJECTION_ID);
         logMap.put(LogConstants.ATTACHMENT_ID.getValue(), ATTACHMENT_ID);
         logOrder.verify(apiLogger).infoContext(eq(REQUEST_ID), contains("Processing GET /{objectionId}/attachments/{attachmentId} request"),eq(logMap));
-        logOrder.verify(apiLogger).infoContext(eq(REQUEST_ID), contains("Successfully processed GET /{objectionId}/attachments/{attachmentId} request"), eq(logMap));        
+        logOrder.verify(apiLogger).infoContext(eq(REQUEST_ID), contains("Successfully processed GET /{objectionId}/attachments/{attachmentId} request"), eq(logMap));
     }
 
     @Test
@@ -641,7 +641,7 @@ class ObjectionControllerTest {
         logMap.put(LogConstants.OBJECTION_ID.getValue(), OBJECTION_ID);
         logMap.put(LogConstants.ATTACHMENT_ID.getValue(), ATTACHMENT_ID);
         logOrder.verify(apiLogger).infoContext(eq(REQUEST_ID), contains("Processing GET /{objectionId}/attachments/{attachmentId} request"),eq(logMap));
-        logOrder.verify(apiLogger).errorContext(eq(REQUEST_ID), contains("Objection not found"), any(),eq(logMap));        
+        logOrder.verify(apiLogger).errorContext(eq(REQUEST_ID), contains("Objection not found"), any(),eq(logMap));
     }
 
     @Test
@@ -657,7 +657,7 @@ class ObjectionControllerTest {
         logMap.put(LogConstants.OBJECTION_ID.getValue(), OBJECTION_ID);
         logMap.put(LogConstants.ATTACHMENT_ID.getValue(), ATTACHMENT_ID);
         logOrder.verify(apiLogger).infoContext(eq(REQUEST_ID), contains("Processing GET /{objectionId}/attachments/{attachmentId} request"),eq(logMap));
-        logOrder.verify(apiLogger).errorContext(eq(REQUEST_ID), contains("Attachment not found"), any(),eq(logMap));         
+        logOrder.verify(apiLogger).errorContext(eq(REQUEST_ID), contains("Attachment not found"), any(),eq(logMap));
     }
 
     @Test
@@ -693,7 +693,7 @@ class ObjectionControllerTest {
         logMap.put(LogConstants.OBJECTION_ID.getValue(), OBJECTION_ID);
         logMap.put(LogConstants.ATTACHMENT_ID.getValue(), ATTACHMENT_ID);
         logOrder.verify(apiLogger).infoContext(eq(REQUEST_ID), contains("Processing DELETE /{objectionId}/attachments/{attachmentId} request"),eq(logMap));
-        logOrder.verify(apiLogger).errorContext(eq(REQUEST_ID), contains("Objection not found"), any(),eq(logMap));        
+        logOrder.verify(apiLogger).errorContext(eq(REQUEST_ID), contains("Objection not found"), any(),eq(logMap));
 
     }
 
@@ -711,7 +711,7 @@ class ObjectionControllerTest {
         logMap.put(LogConstants.OBJECTION_ID.getValue(), OBJECTION_ID);
         logMap.put(LogConstants.ATTACHMENT_ID.getValue(), ATTACHMENT_ID);
         logOrder.verify(apiLogger).infoContext(eq(REQUEST_ID), contains("Processing DELETE /{objectionId}/attachments/{attachmentId} request"),eq(logMap));
-        logOrder.verify(apiLogger).errorContext(eq(REQUEST_ID), contains("Attachment not found"), any(),eq(logMap));        
+        logOrder.verify(apiLogger).errorContext(eq(REQUEST_ID), contains("Attachment not found"), any(),eq(logMap));
     }
 
     @Test
@@ -770,7 +770,7 @@ class ObjectionControllerTest {
         assertEquals(HttpStatus.UNAUTHORIZED, responseEntity.getStatusCode());
         assertNull(responseEntity.getBody());
         assertTrue(responseEntity.getHeaders().isEmpty());
-        
+
         InOrder logOrder = inOrder(apiLogger);
         Map<String, Object> logMap = new HashMap<>();
         logMap.put(LogConstants.COMPANY_NUMBER.getValue(), COMPANY_NUMBER);
@@ -794,7 +794,7 @@ class ObjectionControllerTest {
         assertEquals(HttpStatus.FORBIDDEN, responseEntity.getStatusCode());
         assertNull(responseEntity.getBody());
         assertTrue(responseEntity.getHeaders().isEmpty());
-       
+
         InOrder logOrder = inOrder(apiLogger);
         Map<String, Object> logMap = new HashMap<>();
         logMap.put(LogConstants.COMPANY_NUMBER.getValue(), COMPANY_NUMBER);
@@ -869,7 +869,7 @@ class ObjectionControllerTest {
         assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
         assertNotNull(responseEntity.getBody());
         assertFalse(responseEntity.getBody().isEligible());
-     
+
         InOrder logOrder = inOrder(apiLogger);
         Map<String, Object> logMap = new HashMap<>();
         logMap.put(LogConstants.COMPANY_NUMBER.getValue(), COMPANY_NUMBER);

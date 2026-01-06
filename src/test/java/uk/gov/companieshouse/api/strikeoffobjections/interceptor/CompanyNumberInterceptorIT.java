@@ -1,18 +1,23 @@
 package uk.gov.companieshouse.api.strikeoffobjections.interceptor;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+
 import uk.gov.companieshouse.api.strikeoffobjections.common.ApiLogger;
 import uk.gov.companieshouse.api.strikeoffobjections.controller.AttachmentMapper;
 import uk.gov.companieshouse.api.strikeoffobjections.controller.ObjectionController;
@@ -26,33 +31,29 @@ import uk.gov.companieshouse.api.strikeoffobjections.service.impl.ERICHeaderPars
 import uk.gov.companieshouse.api.strikeoffobjections.service.impl.ObjectionService;
 import uk.gov.companieshouse.service.rest.response.PluggableResponseEntityFactory;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
-
 @Integration
 @ExtendWith(SpringExtension.class)
 @WebMvcTest(value = { ObjectionController.class })
-class CompanyNumberInterceptorIntegrationTest {
+class CompanyNumberInterceptorIT {
     @Autowired
     private MockMvc mockMvc;
 
-    @MockBean
+    @MockitoBean
     private ObjectionService objectionService;
 
-    @MockBean
+    @MockitoBean
     private ERICHeaderParser headerParser;
 
-    @MockBean
+    @MockitoBean
     private ObjectionMapper objectionMapper;
 
-    @MockBean
+    @MockitoBean
     private AttachmentMapper attachmentMapper;
 
-    @MockBean
+    @MockitoBean
     private ApiLogger logger;
 
-    @MockBean
+    @MockitoBean
     private PluggableResponseEntityFactory responseEntityFactory;
 
     @BeforeEach
