@@ -6,7 +6,8 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.function.Supplier;
 
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
+import uk.gov.companieshouse.api.strikeoffobjections.config.EmailProperties;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -29,29 +30,7 @@ public class EmailService implements IEmailService {
 
     private Supplier<InternalApiClient> internalApiClient;
 
-    @Value("${EMAIL_SUBJECT}")
-    private String emailSubject;
-
-    @Value("${EMAIL_SENDER_APP_ID}")
-    private String originatingAppId;
-
-    @Value("${EMAIL_ATTACHMENT_DOWNLOAD_URL_PREFIX}")
-    private String emailAttachmentDownloadUrlPrefix;
-
-    @Value("${EMAIL_SUBMITTED_EXTERNAL_TEMPLATE_MESSAGE_TYPE}")
-    private String submittedCustomerEmailType;
-
-    @Value("${EMAIL_SUBMITTED_INTERNAL_TEMPLATE_MESSAGE_TYPE}")
-    private String submittedDissolutionTeamEmailType;
-
-    @Value("${EMAIL_RECIPIENTS_CARDIFF}")
-    private String emailRecipientsCardiff;
-
-    @Value("${EMAIL_RECIPIENTS_EDINBURGH}")
-    private String emailRecipientsEdinburgh;
-
-    @Value("${EMAIL_RECIPIENTS_BELFAST}")
-    private String emailRecipientsBelfast;
+    private final EmailProperties emailProperties;
 
     private static final String SEND_EMAIL = "/send-email";
     private static final String SUBJECT = "subject";
@@ -76,9 +55,11 @@ public class EmailService implements IEmailService {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    public EmailService(ApiLogger logger, Supplier<InternalApiClient> internalApiClient) {
+    @Autowired
+    public EmailService(ApiLogger logger, Supplier<InternalApiClient> internalApiClient, EmailProperties emailProperties) {
         this.logger = logger;
         this.internalApiClient = internalApiClient;
+        this.emailProperties = emailProperties;
     }
 
     @Override
@@ -104,9 +85,9 @@ public class EmailService implements IEmailService {
 
     private SendEmail constructChsKafkaApiMessage(EmailType emailType, String emailAddress, Map<String, Object> data) {
 
-        String typeOfEmail = (emailType == EmailType.CUSTOMER)? submittedCustomerEmailType : submittedDissolutionTeamEmailType;
+        String typeOfEmail = (emailType == EmailType.CUSTOMER)? emailProperties.getSubmittedExternalTemplateMessageType() : emailProperties.getSubmittedInternalTemplateMessageType();
         SendEmail sendEmail = new SendEmail();
-        sendEmail.setAppId(originatingAppId);
+        sendEmail.setAppId(emailProperties.getSenderAppId());
         sendEmail.setMessageId(UUID.randomUUID().toString());
         sendEmail.setMessageType(typeOfEmail);
         sendEmail.setEmailAddress(emailAddress);
@@ -125,7 +106,7 @@ public class EmailService implements IEmailService {
 
         LocalDate submittedOn = objection.getCreatedOn().toLocalDate();
 
-        String subject = emailSubject.replace(CUSTOMER_NUMBER_SUBSTITUTION, objection.getCompanyNumber());
+        String subject = emailProperties.getSubject().replace(CUSTOMER_NUMBER_SUBSTITUTION, objection.getCompanyNumber());
         data.put(SUBJECT, subject);
         data.put(DATE, FormatUtils.formatDate(submittedOn));
         data.put(OBJECTION_ID, objection.getId());
@@ -136,16 +117,16 @@ public class EmailService implements IEmailService {
         data.put(COMPANY_NUMBER, objection.getCompanyNumber());
         data.put(REASON, objection.getReason());
         data.put(ATTACHMENTS, objection.getAttachments());
-        data.put(ATTACHMENTS_DOWNLOAD_URL_PREFIX, emailAttachmentDownloadUrlPrefix);
+        data.put(ATTACHMENTS_DOWNLOAD_URL_PREFIX, emailProperties.getAttachmentDownloadUrlPrefix());
 
         return data;
     }
 
     protected String[] getDissolutionTeamRecipients(String jurisdiction) {
         return switch (jurisdiction) {
-            case SCOTLAND -> splitAndStrip(emailRecipientsEdinburgh);
-            case NORTHERN_IRELAND -> splitAndStrip(emailRecipientsBelfast);
-            default -> splitAndStrip(emailRecipientsCardiff);
+            case SCOTLAND -> splitAndStrip(emailProperties.getRecipientsEdinburgh());
+            case NORTHERN_IRELAND -> splitAndStrip(emailProperties.getRecipientsBelfast());
+            default -> splitAndStrip(emailProperties.getRecipientsCardiff());
         };
     }
 
