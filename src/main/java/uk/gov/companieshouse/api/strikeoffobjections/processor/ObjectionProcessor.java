@@ -75,21 +75,29 @@ public class ObjectionProcessor {
 
         Map<String, Object> logMap = new HashMap<>();
         logMap.put(LOG_OBJECTION_ID_KEY, objection.getId());
-        apiLogger.debugContext(httpRequestId, "Starting objection processing", logMap);
-
+        logMap.put(LogConstants.COMPANY_NUMBER.getValue(), objection.getCompanyNumber());
+        logMap.put(LogConstants.OBJECTION_STATUS.getValue(), objection.getStatus() == null ? "null" : objection.getStatus().name());
+        apiLogger.infoContext(httpRequestId, "Starting objection processing", logMap);
         validateObjectionStatus(objection, httpRequestId);
-        
+        apiLogger.debugContext(httpRequestId, "validateObjectionStatus completed", Map.of(LOG_OBJECTION_ID_KEY, objection.getId()));
         validateObjectionData(objection, httpRequestId);
-
+        apiLogger.debugContext(httpRequestId, "validateObjectionData completed", Map.of(LOG_OBJECTION_ID_KEY, objection.getId()));
+        // Fetch company profile
         CompanyProfileApi companyProfile = this.companyProfileService.getCompanyProfile(objection.getCompanyNumber(), httpRequestId);
-
+        apiLogger.debugContext(httpRequestId, "fetched company profile", Map.of(
+            LOG_OBJECTION_ID_KEY, objection.getId(),
+            LogConstants.COMPANY_NUMBER.getValue(), objection.getCompanyNumber()));
         sendObjectionToChips(objection, httpRequestId);
-
+        apiLogger.debugContext(httpRequestId, "sendObjectionToChips completed", Map.of(LOG_OBJECTION_ID_KEY, objection.getId()));
         sendInternalEmail(objection, companyProfile, httpRequestId);
-
+        apiLogger.debugContext(httpRequestId, "sendInternalEmail completed", Map.of(LOG_OBJECTION_ID_KEY, objection.getId()));
         sendExternalEmail(objection, companyProfile, httpRequestId);
-
+        apiLogger.debugContext(httpRequestId, "sendExternalEmail completed", Map.of(LOG_OBJECTION_ID_KEY, objection.getId()));
+        // Update status to PROCESSED
         updateObjectionStatus(objection, httpRequestId, ObjectionStatus.PROCESSED);
+        apiLogger.infoContext(httpRequestId, "Objection processed successfully", Map.of(
+            LOG_OBJECTION_ID_KEY, objection.getId()));
+
     }
 
     private void validateObjectionStatus(Objection objection, String httpRequestId)
@@ -119,7 +127,7 @@ public class ObjectionProcessor {
             throw serviceException;
         }
     }
-    
+
     private void sendObjectionToChips(Objection objection, String httpRequestId) throws ServiceException {
         try {
             chipsService.sendObjection(httpRequestId, objection);

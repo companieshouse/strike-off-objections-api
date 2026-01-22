@@ -55,7 +55,7 @@ public class ApiLogger {
      * if the same data map is used for subsequent calls any new message that might be passed in
      * is not displayed in certain log format outputs. Creating a clone of the data map gets around
      * this issue.
-     *  
+     *
      * @param dataMap The map data to log
      * @return A cloned copy of the map data
      */

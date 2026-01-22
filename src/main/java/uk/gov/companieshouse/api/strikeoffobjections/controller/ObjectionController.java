@@ -1,7 +1,14 @@
 package uk.gov.companieshouse.api.strikeoffobjections.controller;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import static uk.gov.companieshouse.api.strikeoffobjections.service.impl.ERICHeaderFields.ERIC_AUTHORISED_USER;
+import static uk.gov.companieshouse.api.strikeoffobjections.service.impl.ERICHeaderFields.ERIC_IDENTITY;
+import static uk.gov.companieshouse.api.strikeoffobjections.service.impl.ERICHeaderFields.ERIC_REQUEST_ID;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,9 +25,13 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.multipart.MultipartFile;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import uk.gov.companieshouse.api.strikeoffobjections.common.ApiLogger;
 import uk.gov.companieshouse.api.strikeoffobjections.common.LogConstants;
 import uk.gov.companieshouse.api.strikeoffobjections.exception.AttachmentNotFoundException;
+import uk.gov.companieshouse.api.strikeoffobjections.exception.InvalidObjectionStatusException;
 import uk.gov.companieshouse.api.strikeoffobjections.exception.ObjectionNotFoundException;
 import uk.gov.companieshouse.api.strikeoffobjections.file.FileTransferApiClientResponse;
 import uk.gov.companieshouse.api.strikeoffobjections.model.create.ObjectionCreate;
@@ -31,20 +42,11 @@ import uk.gov.companieshouse.api.strikeoffobjections.model.entity.ObjectionStatu
 import uk.gov.companieshouse.api.strikeoffobjections.model.patch.ObjectionPatch;
 import uk.gov.companieshouse.api.strikeoffobjections.model.response.AttachmentResponseDTO;
 import uk.gov.companieshouse.api.strikeoffobjections.model.response.ObjectionResponseDTO;
-import uk.gov.companieshouse.api.strikeoffobjections.exception.InvalidObjectionStatusException;
 import uk.gov.companieshouse.api.strikeoffobjections.service.IObjectionService;
 import uk.gov.companieshouse.service.ServiceException;
 import uk.gov.companieshouse.service.ServiceResult;
 import uk.gov.companieshouse.service.rest.response.ChResponseBody;
 import uk.gov.companieshouse.service.rest.response.PluggableResponseEntityFactory;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
-import static uk.gov.companieshouse.api.strikeoffobjections.service.impl.ERICHeaderFields.ERIC_REQUEST_ID;
-import static uk.gov.companieshouse.api.strikeoffobjections.service.impl.ERICHeaderFields.ERIC_IDENTITY;
-import static uk.gov.companieshouse.api.strikeoffobjections.service.impl.ERICHeaderFields.ERIC_AUTHORISED_USER;
 
 @RestController
 @RequestMapping(value = "/company/{companyNumber}/strike-off-objections")
@@ -94,7 +96,7 @@ public class ObjectionController {
 
         apiLogger.infoContext(
                 requestId,
-                "Processing GET /{objectionId}/attachments/{attachmentId} request",
+                String.format("Processing GET /%s/attachments/%s request", objectionId, attachmentId),
                 logMap
         );
 
@@ -104,7 +106,7 @@ public class ObjectionController {
 
             apiLogger.infoContext(
                     requestId,
-                    "Successfully processed GET /{objectionId}/attachments/{attachmentId} request",
+                    String.format("Successfully processed GET /%s/attachments/%s request", objectionId, attachmentId),
                     logMap
             );
             return responseEntityFactory.createResponse(ServiceResult.found(responseDTO));
@@ -200,7 +202,7 @@ public class ObjectionController {
 
         apiLogger.infoContext(
                 requestId,
-                "Processing PATCH /{objectionId} request",
+                String.format("Processing PATCH /%s request", objectionId),
                 logMap
         );
 
@@ -208,7 +210,7 @@ public class ObjectionController {
             objectionService.patchObjection(objectionId, objectionPatch, requestId, companyNumber);
             apiLogger.infoContext(
                     requestId,
-                    "Successfully processed PATCH /{objectionId} request",
+                    String.format("Successfully processed PATCH /%s request", objectionId),
                     logMap
             );
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -256,7 +258,7 @@ public class ObjectionController {
 
         apiLogger.infoContext(
                 requestId,
-                "Processing GET /{objectionId} request",
+                String.format("Processing GET /%s request", objectionId),
                 logMap
         );
 
@@ -267,7 +269,7 @@ public class ObjectionController {
 
             apiLogger.infoContext(
                     requestId,
-                    "Successfully processed GET /{objectionId} request",
+                    String.format("Successfully processed GET /%s request", objectionId),
                     logMap
             );
             return responseEntityFactory.createResponse(ServiceResult.found(responseDTO));
@@ -304,7 +306,7 @@ public class ObjectionController {
 
         apiLogger.infoContext(
                 requestId,
-                "Processing GET /{objectionId}/attachments request",
+                String.format("Processing GET /%s/attachments request", objectionId),
                 logMap
         );
 
@@ -316,7 +318,7 @@ public class ObjectionController {
 
             apiLogger.infoContext(
                     requestId,
-                    "Successfully processed GET /{objectionId}/attachments request",
+                    String.format("Successfully processed GET /%s/attachments request", objectionId),
                     logMap
             );
             return responseEntityFactory.createResponse(ServiceResult.found(attachmentResponseDTOs));
@@ -346,17 +348,17 @@ public class ObjectionController {
 
         apiLogger.infoContext(
                 requestId,
-                "Processing POST /{objectionId}/attachments request",
+                String.format("Processing POST /%s/attachments request", objectionId),
                 logMap
         );
 
         try {
             ServiceResult<String> result = objectionService.addAttachment(requestId, objectionId, file, servletRequest.getRequestURI());
             ObjectionResponseDTO objectionResponseDTO = new ObjectionResponseDTO(result.getData());
-        
+
             apiLogger.infoContext(
                 requestId,
-                "Successfully processed POST /{objectionId}/attachments request",
+                String.format("Successfully processed POST /%s/attachments request", objectionId),
                 logMap
         );
 
@@ -386,7 +388,7 @@ public class ObjectionController {
                     OBJECTION_NOT_FOUND,
                     e,
                     logMap
-            );     
+            );
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
@@ -405,7 +407,7 @@ public class ObjectionController {
 
         apiLogger.infoContext(
                 requestId,
-                "Processing DELETE /{objectionId}/attachments/{attachmentId} request",
+                String.format("Processing DELETE /%s/attachments/%s request", objectionId, attachmentId),
                 logMap
         );
 
@@ -414,7 +416,7 @@ public class ObjectionController {
 
             apiLogger.infoContext(
                     requestId,
-                    "Successfully processed DELETE /{objectionId}/attachments/{attachmentId} request",
+                    String.format("Successfully processed DELETE /%s/attachments/%s request", objectionId, attachmentId),
                     logMap
             );
             return ResponseEntity.noContent().build();
@@ -454,7 +456,7 @@ public class ObjectionController {
 
         apiLogger.infoContext(
                 requestId,
-                "Processing GET /{objectionId}/attachments/{attachmentId}/download request",
+                String.format("Processing GET /%s/attachments/%s/download request", objectionId, attachmentId),
                 logMap);
 
         try {
@@ -463,7 +465,7 @@ public class ObjectionController {
 
             apiLogger.infoContext(
                     requestId,
-                    "Successfully processed GET /{objectionId}/attachments/{attachmentId}/download request",
+                    String.format("Successfully processed GET /%s/attachments/%s/download request", objectionId, attachmentId),
                     logMap);
 
             return ResponseEntity.status(downloadServiceResult.getHttpStatus()).build();
