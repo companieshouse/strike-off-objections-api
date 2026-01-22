@@ -197,7 +197,11 @@ public class ObjectionService implements IObjectionService {
                    InvalidObjectionStatusException,
                    ServiceException {
         Map<String, Object> logMap = buildLogMap(companyNumber, objectionId, null);
-        logger.debugContext(requestId, "Checking for existing objection", logMap);
+        logger.infoContext(requestId, "patchObjection called", Map.of(
+            LogConstants.OBJECTION_ID.getValue(), objectionId,
+            LogConstants.COMPANY_NUMBER.getValue(), companyNumber,
+            "requested_status", objectionPatch == null || objectionPatch.getStatus() == null ? "null" : objectionPatch.getStatus().name()
+        ));
 
         Optional<Objection> existingObjectionOptional = objectionRepository.findById(objectionId);
 
@@ -208,17 +212,59 @@ public class ObjectionService implements IObjectionService {
 
         Objection existingObjection = existingObjectionOptional.get();
 
+        logger.debugContext(requestId, "Existing objection snapshot", Map.of(
+            LogConstants.OBJECTION_ID.getValue(), existingObjection.getId(),
+            "previous_status", existingObjection.getStatus() == null ? "null" : existingObjection.getStatus().name(),
+            "attachments_count", existingObjection.getAttachments() == null ? 0 : existingObjection.getAttachments().size()
+        ));
+
+        logger.debugContext(requestId, "Validating patch status change", logMap);
         validatePatchStatusChange(objectionPatch, existingObjection, requestId, companyNumber);
 
-        logger.debugContext(requestId, "Objection exists, patching", logMap);
+        logger.infoContext(requestId, "Objection exists, patching", logMap);
         ObjectionStatus previousStatus = existingObjection.getStatus();
+        int prevAttachments = existingObjection.getAttachments() == null ? 0 : existingObjection.getAttachments().size();
+
         Objection objection = objectionPatcher.patchObjection(objectionPatch, requestId, existingObjection);
+
+        int newAttachments = objection.getAttachments() == null ? 0 : objection.getAttachments().size();
+        String prevStatusName = previousStatus == null ? "null" : previousStatus.name();
+        String newStatusName = objection.getStatus() == null ? "null" : objection.getStatus().name();
+
+        logger.debugContext(requestId, "Applied patch — summary", Map.of(
+            LogConstants.OBJECTION_ID.getValue(), objectionId,
+            "status_change", prevStatusName + "->" + newStatusName,
+            "attachments_count_change", prevAttachments + "->" + newAttachments
+        ));
+
         objectionRepository.save(objection);
+        logger.infoContext(requestId, "Objection saved", Map.of(
+            LogConstants.OBJECTION_ID.getValue(), objectionId,
+            "status_after_save", newStatusName
+        ));
 
         // if changing status to SUBMITTED from OPEN, process the objection
-        if (ObjectionStatus.SUBMITTED == objectionPatch.getStatus() && ObjectionStatus.OPEN == previousStatus) {
+        if (objectionPatch != null && objectionPatch.getStatus() != null
+                && ObjectionStatus.SUBMITTED == objectionPatch.getStatus()
+                && ObjectionStatus.OPEN == previousStatus) {
+            logger.infoContext(requestId, "Triggering ObjectionProcessor", Map.of(
+                LogConstants.OBJECTION_ID.getValue(), objectionId,
+                "previous_status", prevStatusName,
+                "new_status", newStatusName
+            ));
             objectionProcessor.process(objection, requestId);
+        } else {
+            logger.infoContext(requestId, "No processing required for objection", Map.of(
+                LogConstants.OBJECTION_ID.getValue(), objectionId,
+                "previous_status", prevStatusName,
+                "new_status", newStatusName
+            ));
         }
+
+        logger.infoContext(requestId, "patchObjection completed", Map.of(
+            LogConstants.OBJECTION_ID.getValue(), objectionId,
+            "final_status", newStatusName
+        ));
     }
 
     private void validatePatchStatusChange(ObjectionPatch objectionPatch,

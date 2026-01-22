@@ -35,7 +35,7 @@ locals {
     trimprefix(sec.name, "/${local.global_prefix}/") => sec.arn
   }
 
-  global_secret_list = flatten([for key, value in local.global_secrets_arn_map : 
+  global_secret_list = flatten([for key, value in local.global_secrets_arn_map :
     { "name" = upper(key), "valueFrom" = value }
   ])
 
@@ -57,7 +57,7 @@ locals {
       trimprefix(sec.name, "/${local.service_name}-${var.environment}/") => sec.arn
   }
 
-  service_secret_list = flatten([for key, value in local.service_secrets_arn_map : 
+  service_secret_list = flatten([for key, value in local.service_secrets_arn_map :
     { "name" = upper(key), "valueFrom" = value }
   ])
 
@@ -70,8 +70,5 @@ locals {
   # secrets to go in list
   task_secrets = concat(local.service_secret_list,local.global_secret_list,[])
 
-  task_environment = concat(local.ssm_global_version_map,local.ssm_service_version_map,[
-    { "name" : "PORT", "value" : local.container_port },
-    { "name" : "LOGLEVEL", "value" : var.log_level }
-  ])
+  task_environment = concat(local.ssm_global_version_map,local.ssm_service_version_map)
 }
