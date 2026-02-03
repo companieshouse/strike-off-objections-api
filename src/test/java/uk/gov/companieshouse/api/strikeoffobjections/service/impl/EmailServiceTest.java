@@ -6,33 +6,27 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.contains;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.atLeastOnce;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.LocalDateTime;
 import java.util.Map;
-import java.util.function.Supplier;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import uk.gov.companieshouse.api.InternalApiClient;
 import uk.gov.companieshouse.api.chskafka.SendEmail;
+import uk.gov.companieshouse.api.error.ApiErrorResponseException;
 import uk.gov.companieshouse.api.handler.chskafka.PrivateSendEmailHandler;
+import uk.gov.companieshouse.api.handler.chskafka.request.PrivateSendEmailPost;
 import uk.gov.companieshouse.api.strikeoffobjections.common.ApiLogger;
 import uk.gov.companieshouse.api.strikeoffobjections.config.EmailProperties;
 import uk.gov.companieshouse.api.strikeoffobjections.exception.EmailSendException;
@@ -45,26 +39,22 @@ import uk.gov.companieshouse.api.strikeoffobjections.utils.Utils;
 @ExtendWith(MockitoExtension.class)
 class EmailServiceTest {
 
+    private static final String COMPANY_NAME = "Test Company";
+
+    private EmailService emailService;
     @Mock
     private ApiLogger logger;
-
     @Mock
-    private PrivateSendEmailHandler sendEmailHandler;
-
-    @Captor
-    private ArgumentCaptor<SendEmail> sendEmailCaptor;
-
-    @InjectMocks
-    private EmailService emailService;
-
-    @Mock
-    private Supplier<InternalApiClient> internalApiClient;
-
+    private InternalApiClient internalApiClient;
     @Mock
     private EmailProperties emailProperties;
 
-    private static final String SUCCESSFULLY_SENT_EMAIL_LOG = "Email sent successfully via CHS-Kafka-API";
-    private static final String COMPANY_NAME = "Test Company";
+    @Mock
+    private PrivateSendEmailHandler privateSendEmailHandler;
+    @Mock
+    private PrivateSendEmailPost privateSendEmailPost;
+    @Captor
+    private ArgumentCaptor<SendEmail> sendEmailCaptor;
 
     @BeforeEach
     void setUp() {
@@ -77,131 +67,69 @@ class EmailServiceTest {
         lenient().when(emailProperties.getRecipientsEdinburgh()).thenReturn("edinburgh1@test.com,edinburgh2@test.com");
         lenient().when(emailProperties.getRecipientsBelfast()).thenReturn("belfast1@test.com,belfast2@test.com");
 
-        emailService = new EmailService(logger, internalApiClient, emailProperties);
-    }
-
-    private Objection createObjection() {
-        CreatedBy user = new CreatedBy("user123", "user@test.com", "objector", "Test User", true);
-        Objection objection = new Objection();
-        objection.setId("obj123");
-        objection.setCompanyNumber("12345678");
-        objection.setCreatedOn(LocalDateTime.of(2023, 5, 10, 12, 0));
-        objection.setCreatedBy(user);
-        objection.setReason("Test reason");
-        objection.setAttachments(Utils.getTestAttachments());
-        return objection;
+        emailService = new EmailService(logger, () -> internalApiClient, emailProperties);
     }
 
     @Test
-    void testSendObjectionSubmittedCustomerEmail_Success() throws Exception {
+    void testSendObjectionSubmittedCustomerEmailSuccess() throws Exception {
         Objection objection = createObjection();
         String requestId = "req-1";
 
-        InternalApiClient mockApiClient = org.mockito.Mockito.mock(InternalApiClient.class);
-        when(internalApiClient.get()).thenReturn(mockApiClient);
-        PrivateSendEmailHandler mockPrivateSendEmailHandler = org.mockito.Mockito.mock(PrivateSendEmailHandler.class);
-        when(mockApiClient.sendEmailHandler()).thenReturn(mockPrivateSendEmailHandler);
+        when(internalApiClient.sendEmailHandler()).thenReturn(privateSendEmailHandler);
+        when(privateSendEmailHandler.postSendEmail(anyString(), any())).thenReturn(privateSendEmailPost);
 
         emailService.sendObjectionSubmittedCustomerEmail(objection, COMPANY_NAME, requestId);
 
-        ArgumentCaptor<SendEmail> emailContentArgumentCaptor = ArgumentCaptor.forClass(SendEmail.class);
-        verify(mockPrivateSendEmailHandler, times(1)).postSendEmail(eq("/send-email"), emailContentArgumentCaptor.capture());
+        verify(internalApiClient).sendEmailHandler();
+        verify(privateSendEmailHandler).postSendEmail(eq("/send-email"), sendEmailCaptor.capture());
+        verify(privateSendEmailPost).execute();
 
-        SendEmail sendEmail = emailContentArgumentCaptor.getValue();
+        SendEmail sendEmail = sendEmailCaptor.getValue();
         assertEquals("testAppId", sendEmail.getAppId());
         assertEquals("customerType", sendEmail.getMessageType());
         assertEquals("user@test.com", sendEmail.getEmailAddress());
-        verify(logger, atLeastOnce()).debugContext(eq(requestId), contains(SUCCESSFULLY_SENT_EMAIL_LOG));
     }
 
     @Test
-    void testSendObjectionSubmittedCustomerEmail_Failure() {
+    void testSendObjectionSubmittedCustomerEmailFailure() throws ApiErrorResponseException {
         Objection objection = createObjection();
         String requestId = "req-2";
 
-        InternalApiClient mockApiClient = org.mockito.Mockito.mock(InternalApiClient.class);
-        when(internalApiClient.get()).thenReturn(mockApiClient);
-        PrivateSendEmailHandler mockPrivateSendEmailHandler = org.mockito.Mockito.mock(PrivateSendEmailHandler.class);
-        when(mockApiClient.sendEmailHandler()).thenReturn(mockPrivateSendEmailHandler);
-        doThrow(new RuntimeException("Kafka error")).when(mockPrivateSendEmailHandler).postSendEmail(anyString(), any(SendEmail.class));
+        when(internalApiClient.sendEmailHandler()).thenReturn(privateSendEmailHandler);
+        when(privateSendEmailHandler.postSendEmail(anyString(), any())).thenReturn(privateSendEmailPost);
+        when(privateSendEmailPost.execute()).thenThrow(new RuntimeException("Kafka error"));
 
-        assertThrows(EmailSendException.class, () ->
-                emailService.sendObjectionSubmittedCustomerEmail(objection, COMPANY_NAME, requestId)
-        );
-
-        verify(logger).errorContext(eq(requestId), contains("Failed to send email"), any(Exception.class));
+        assertThrows(EmailSendException.class,
+                () -> emailService.sendObjectionSubmittedCustomerEmail(objection, COMPANY_NAME, requestId));
+        verify(internalApiClient).sendEmailHandler();
+        verify(privateSendEmailHandler).postSendEmail(eq("/send-email"), any());
+        verify(privateSendEmailPost).execute();
     }
 
     @Test
-    void testSendObjectionSubmittedDissolutionTeamEmail_Cardiff() throws Exception {
+    void testSendObjectionSubmittedDissolutionTeamEmail() throws Exception {
         Objection objection = createObjection();
         String requestId = "req-3";
         String jurisdiction = "england-wales";
 
-        InternalApiClient mockApiClient = org.mockito.Mockito.mock(InternalApiClient.class);
-        when(internalApiClient.get()).thenReturn(mockApiClient);
-        PrivateSendEmailHandler mockPrivateSendEmailHandler = org.mockito.Mockito.mock(PrivateSendEmailHandler.class);
-        when(mockApiClient.sendEmailHandler()).thenReturn(mockPrivateSendEmailHandler);
-
-        emailService.sendObjectionSubmittedCustomerEmail(objection, COMPANY_NAME, requestId);
-
-        ArgumentCaptor<SendEmail> emailContentArgumentCaptor = ArgumentCaptor.forClass(SendEmail.class);
-        verify(mockPrivateSendEmailHandler, times(1)).postSendEmail(eq("/send-email"), emailContentArgumentCaptor.capture());
-
-        SendEmail sendEmail = emailContentArgumentCaptor.getValue();
-        assertEquals("testAppId", sendEmail.getAppId());
-        assertEquals("customerType", sendEmail.getMessageType());
-        assertEquals("user@test.com", sendEmail.getEmailAddress());
+        when(internalApiClient.sendEmailHandler()).thenReturn(privateSendEmailHandler);
+        when(privateSendEmailHandler.postSendEmail(anyString(), any())).thenReturn(privateSendEmailPost);
 
         emailService.sendObjectionSubmittedDissolutionTeamEmail(COMPANY_NAME, jurisdiction, objection, requestId);
 
-        verify(logger, atLeastOnce()).debugContext(eq(requestId), contains(SUCCESSFULLY_SENT_EMAIL_LOG));
-    }
+        verify(internalApiClient, times(2)).sendEmailHandler();
+        verify(privateSendEmailHandler, times(2)).postSendEmail(eq("/send-email"), sendEmailCaptor.capture());
+        verify(privateSendEmailPost, times(2)).execute();
 
-    @Test
-    void testSendObjectionSubmittedDissolutionTeamEmail_Scotland() throws Exception {
-        Objection objection = createObjection();
-        String requestId = "req-4";
-        String jurisdiction = "scotland";
+        SendEmail sendEmail1 = sendEmailCaptor.getAllValues().getFirst();
+        assertEquals("testAppId", sendEmail1.getAppId());
+        assertEquals("teamType", sendEmail1.getMessageType());
+        assertEquals("cardiff1@test.com", sendEmail1.getEmailAddress());
 
-        InternalApiClient mockApiClient = org.mockito.Mockito.mock(InternalApiClient.class);
-        when(internalApiClient.get()).thenReturn(mockApiClient);
-        PrivateSendEmailHandler mockPrivateSendEmailHandler = org.mockito.Mockito.mock(PrivateSendEmailHandler.class);
-        when(mockApiClient.sendEmailHandler()).thenReturn(mockPrivateSendEmailHandler);
-
-        emailService.sendObjectionSubmittedCustomerEmail(objection, COMPANY_NAME, requestId);
-
-
-        ArgumentCaptor<SendEmail> emailContentArgumentCaptor = ArgumentCaptor.forClass(SendEmail.class);
-        verify(mockPrivateSendEmailHandler, times(1)).postSendEmail(eq("/send-email"), emailContentArgumentCaptor.capture());
-
-        SendEmail sendEmail = emailContentArgumentCaptor.getValue();
-        assertEquals("testAppId", sendEmail.getAppId());
-        assertEquals("customerType", sendEmail.getMessageType());
-        assertEquals("user@test.com", sendEmail.getEmailAddress());
-        emailService.sendObjectionSubmittedDissolutionTeamEmail(COMPANY_NAME, jurisdiction, objection, requestId);
-    }
-
-    @Test
-    void testSendObjectionSubmittedDissolutionTeamEmail_Belfast() throws Exception {
-        Objection objection = createObjection();
-        String requestId = "req-5";
-        String jurisdiction = "northern-ireland";
-
-        InternalApiClient mockApiClient = org.mockito.Mockito.mock(InternalApiClient.class);
-        when(internalApiClient.get()).thenReturn(mockApiClient);
-        PrivateSendEmailHandler mockPrivateSendEmailHandler = org.mockito.Mockito.mock(PrivateSendEmailHandler.class);
-        when(mockApiClient.sendEmailHandler()).thenReturn(mockPrivateSendEmailHandler);
-        emailService.sendObjectionSubmittedCustomerEmail(objection, COMPANY_NAME, requestId);
-        ArgumentCaptor<SendEmail> emailContentArgumentCaptor = ArgumentCaptor.forClass(SendEmail.class);
-        verify(mockPrivateSendEmailHandler, times(1)).postSendEmail(eq("/send-email"), emailContentArgumentCaptor.capture());
-
-        SendEmail sendEmail = emailContentArgumentCaptor.getValue();
-        assertEquals("testAppId", sendEmail.getAppId());
-        assertEquals("customerType", sendEmail.getMessageType());
-        assertEquals("user@test.com", sendEmail.getEmailAddress());
-
-        emailService.sendObjectionSubmittedDissolutionTeamEmail(COMPANY_NAME, jurisdiction, objection, requestId);
+        SendEmail sendEmail2 = sendEmailCaptor.getAllValues().get(1);
+        assertEquals("testAppId", sendEmail2.getAppId());
+        assertEquals("teamType", sendEmail2.getMessageType());
+        assertEquals("cardiff2@test.com", sendEmail2.getEmailAddress());
     }
 
     @Test
@@ -256,8 +184,8 @@ class EmailServiceTest {
             assertNotNull(sendEmail.getMessageId());
             assertNotNull(sendEmail.getJsonData());
             // Check that the jsonData contains some expected fields
-            assert(sendEmail.getJsonData().contains("user@test.com"));
-            assert(sendEmail.getJsonData().contains("Objection for 12345678"));
+            assert (sendEmail.getJsonData().contains("user@test.com"));
+            assert (sendEmail.getJsonData().contains("Objection for 12345678"));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -282,7 +210,7 @@ class EmailServiceTest {
             assertEquals(email, sendEmail.getEmailAddress());
             assertNotNull(sendEmail.getMessageId());
             assertNotNull(sendEmail.getJsonData());
-            assert(sendEmail.getJsonData().contains("team@test.com"));
+            assert (sendEmail.getJsonData().contains("team@test.com"));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -300,13 +228,15 @@ class EmailServiceTest {
             var objectMapperField = EmailService.class.getDeclaredField("objectMapper");
             objectMapperField.setAccessible(true);
             ObjectMapper mockMapper = org.mockito.Mockito.mock(ObjectMapper.class);
-            org.mockito.Mockito.doThrow(new com.fasterxml.jackson.core.JsonProcessingException("fail"){}).when(mockMapper).writeValueAsString(any());
+            org.mockito.Mockito.doThrow(new com.fasterxml.jackson.core.JsonProcessingException("fail") {
+            }).when(mockMapper).writeValueAsString(any());
             objectMapperField.set(spyService, mockMapper);
 
             var m = EmailService.class.getDeclaredMethod("constructChsKafkaApiMessage", EmailType.class, String.class, Map.class);
             m.setAccessible(true);
 
-            assertThrows(java.lang.reflect.InvocationTargetException.class, () -> m.invoke(spyService, EmailType.CUSTOMER, email, data));
+            assertThrows(java.lang.reflect.InvocationTargetException.class,
+                    () -> m.invoke(spyService, EmailType.CUSTOMER, email, data));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -334,5 +264,17 @@ class EmailServiceTest {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private Objection createObjection() {
+        CreatedBy user = new CreatedBy("user123", "user@test.com", "objector", "Test User", true);
+        Objection objection = new Objection();
+        objection.setId("obj123");
+        objection.setCompanyNumber("12345678");
+        objection.setCreatedOn(LocalDateTime.of(2023, 5, 10, 12, 0));
+        objection.setCreatedBy(user);
+        objection.setReason("Test reason");
+        objection.setAttachments(Utils.getTestAttachments());
+        return objection;
     }
 }

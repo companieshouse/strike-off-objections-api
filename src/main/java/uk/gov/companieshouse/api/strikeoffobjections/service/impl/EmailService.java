@@ -1,36 +1,25 @@
 package uk.gov.companieshouse.api.strikeoffobjections.service.impl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Supplier;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import uk.gov.companieshouse.api.strikeoffobjections.config.EmailProperties;
 import org.springframework.stereotype.Service;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import uk.gov.companieshouse.api.InternalApiClient;
 import uk.gov.companieshouse.api.chskafka.SendEmail;
-import uk.gov.companieshouse.api.handler.chskafka.PrivateSendEmailHandler;
 import uk.gov.companieshouse.api.strikeoffobjections.common.ApiLogger;
 import uk.gov.companieshouse.api.strikeoffobjections.common.FormatUtils;
+import uk.gov.companieshouse.api.strikeoffobjections.config.EmailProperties;
 import uk.gov.companieshouse.api.strikeoffobjections.exception.EmailSendException;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Objection;
 import uk.gov.companieshouse.api.strikeoffobjections.service.IEmailService;
-import uk.gov.companieshouse.service.ServiceException;
 
 @Service
 public class EmailService implements IEmailService {
-
-    private ApiLogger logger;
-
-    private Supplier<InternalApiClient> internalApiClient;
-
-    private final EmailProperties emailProperties;
 
     private static final String SEND_EMAIL = "/send-email";
     private static final String SUBJECT = "subject";
@@ -46,14 +35,15 @@ public class EmailService implements IEmailService {
     private static final String ATTACHMENTS_DOWNLOAD_URL_PREFIX = "attachments_download_url_prefix";
     private static final String CUSTOMER_NUMBER_SUBSTITUTION = "{{ COMPANY_NUMBER }}";
     private static final String CUSTOMER_EMAIL = "customer_email";
-
     private static final String SCOTLAND = "scotland";
     private static final String NORTHERN_IRELAND = "northern-ireland";
-
     private static final String SUCCESSFULLY_SENT_EMAIL_LOG = "Email sent successfully via CHS-Kafka-API";
     private static final String FAILED_TO_SEND_EMAIL = "Failed to send email via CHS-Kafka-API";
 
     private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ApiLogger logger;
+    private final Supplier<InternalApiClient> internalApiClient;
+    private final EmailProperties emailProperties;
 
     @Autowired
     public EmailService(ApiLogger logger, Supplier<InternalApiClient> internalApiClient, EmailProperties emailProperties) {
@@ -63,8 +53,7 @@ public class EmailService implements IEmailService {
     }
 
     @Override
-    public void sendObjectionSubmittedCustomerEmail( Objection objection, String companyName, String requestId) throws ServiceException {
-
+    public void sendObjectionSubmittedCustomerEmail(Objection objection, String companyName, String requestId) {
         String emailAddress = objection.getCreatedBy().getEmail();
         Map<String, Object> data = constructCommonEmailMap(companyName, objection, emailAddress);
         SendEmail emailContent = constructChsKafkaApiMessage(EmailType.CUSTOMER, emailAddress, data);
@@ -73,19 +62,21 @@ public class EmailService implements IEmailService {
     }
 
     @Override
-    public void sendObjectionSubmittedDissolutionTeamEmail(String companyName, String jurisdiction, Objection objection, String requestId) throws ServiceException {
+    public void  sendObjectionSubmittedDissolutionTeamEmail(String companyName, String jurisdiction, Objection objection,
+            String requestId) {
         for (String emailAddress : getDissolutionTeamRecipients(jurisdiction)) {
             Map<String, Object> data = constructCommonEmailMap(companyName, objection, emailAddress);
             data.put(CUSTOMER_EMAIL, objection.getCreatedBy().getEmail());
             SendEmail emailContent = constructChsKafkaApiMessage(EmailType.DISSOLUTION_TEAM, emailAddress, data);
-            logger.debugContext(requestId, String.format("Calling CHS-Kafka-API client to send dissolution team email to %s", emailAddress));
+            logger.debugContext(requestId,
+                    String.format("Calling CHS-Kafka-API client to send dissolution team email to %s", emailAddress));
             sendEmailMessageToChsKafkaApi(emailContent, requestId);
         }
     }
 
     private SendEmail constructChsKafkaApiMessage(EmailType emailType, String emailAddress, Map<String, Object> data) {
-
-        String typeOfEmail = (emailType == EmailType.CUSTOMER)? emailProperties.getSubmittedExternalTemplateMessageType() : emailProperties.getSubmittedInternalTemplateMessageType();
+        String typeOfEmail = (emailType == EmailType.CUSTOMER) ? emailProperties.getSubmittedExternalTemplateMessageType()
+                : emailProperties.getSubmittedInternalTemplateMessageType();
         SendEmail sendEmail = new SendEmail();
         sendEmail.setAppId(emailProperties.getSenderAppId());
         sendEmail.setMessageId(UUID.randomUUID().toString());
@@ -136,8 +127,10 @@ public class EmailService implements IEmailService {
 
     private void sendEmailMessageToChsKafkaApi(SendEmail sendEmail, String requestId) {
         try {
-            PrivateSendEmailHandler sendEmailHandler = internalApiClient.get().sendEmailHandler();
-            sendEmailHandler.postSendEmail(SEND_EMAIL, sendEmail);
+            internalApiClient.get()
+                    .sendEmailHandler()
+                    .postSendEmail(SEND_EMAIL, sendEmail)
+                    .execute();
             logger.debugContext(requestId, SUCCESSFULLY_SENT_EMAIL_LOG);
         } catch (Exception e) {
             logger.errorContext(requestId, FAILED_TO_SEND_EMAIL, e);
