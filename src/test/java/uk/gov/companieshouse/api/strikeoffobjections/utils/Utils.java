@@ -125,7 +125,7 @@ public class Utils {
 
     public static FileTransferApiClientResponse getSuccessfulUploadResponse() {
         FileTransferApiClientResponse fileTransferApiClientResponse = new FileTransferApiClientResponse();
-        fileTransferApiClientResponse.setFileId(UPLOAD_ID);
+        fileTransferApiClientResponse.fileId(UPLOAD_ID);
         return fileTransferApiClientResponse;
     }
 

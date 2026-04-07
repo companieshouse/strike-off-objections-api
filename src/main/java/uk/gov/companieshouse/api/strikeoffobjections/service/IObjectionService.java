@@ -41,8 +41,7 @@ public interface IObjectionService {
     void deleteAttachment(String requestId, String objectionId, String attachmentId)
             throws ObjectionNotFoundException, AttachmentNotFoundException, ServiceException;
 
-    FileTransferApiClientResponse downloadAttachment(
-            String requestId, String objectionId, String attachmentId, HttpServletResponse response);
+    void downloadAttachment(String attachmentId, HttpServletResponse response);
 
     ObjectionEligibility isCompanyEligible(String companyNumber, String requestId);
 }

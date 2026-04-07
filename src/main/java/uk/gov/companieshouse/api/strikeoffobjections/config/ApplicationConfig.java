@@ -9,6 +9,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestTemplate;
 
+import uk.gov.companieshouse.api.handler.filetransfer.FileTransferHttpClient;
+import uk.gov.companieshouse.api.handler.filetransfer.InternalFileTransferClient;
 import uk.gov.companieshouse.api.strikeoffobjections.chips.ChipsKafkaClient;
 import uk.gov.companieshouse.api.strikeoffobjections.chips.ChipsRestClient;
 import uk.gov.companieshouse.api.strikeoffobjections.chips.ChipsSender;
@@ -41,5 +43,17 @@ public class ApplicationConfig {
         logger.info("CHS ENV CONFIG - FEATURE_FLAG_USE_KAFKA_FOR_CHIPS_CALL_170121 = " + isChipsKafkaFeatureFlagOn);
 
         return (isChipsKafkaFeatureFlagOn) ? chipsKafkaClient : chipsRestClient;
+    }
+
+    @Bean
+    public Supplier<InternalFileTransferClient> internalFileTransferClient(
+        @Value("${internal.api.key}") String internalApiKey,
+        @Value("${file.transfer.service.url}") String fileTransferServiceUrl) {
+        return () -> {
+            var httpClient = new FileTransferHttpClient(internalApiKey);
+            var internalApiClient = new InternalFileTransferClient(httpClient);
+            internalApiClient.setBasePath(fileTransferServiceUrl);
+            return internalApiClient;
+        };
     }
 }

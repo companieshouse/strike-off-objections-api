@@ -16,7 +16,7 @@ import uk.gov.companieshouse.api.strikeoffobjections.common.LogConstants;
 import uk.gov.companieshouse.api.strikeoffobjections.exception.AttachmentNotFoundException;
 import uk.gov.companieshouse.api.strikeoffobjections.exception.InvalidObjectionStatusException;
 import uk.gov.companieshouse.api.strikeoffobjections.exception.ObjectionNotFoundException;
-import uk.gov.companieshouse.api.strikeoffobjections.file.FileTransferApiClient;
+import uk.gov.companieshouse.api.strikeoffobjections.file.FileTransferServiceClient;
 import uk.gov.companieshouse.api.strikeoffobjections.file.FileTransferApiClientResponse;
 import uk.gov.companieshouse.api.strikeoffobjections.file.ObjectionsLinkKeys;
 import uk.gov.companieshouse.api.strikeoffobjections.model.create.ObjectionCreate;
@@ -69,7 +69,7 @@ public class ObjectionService implements IObjectionService {
     private ObjectionPatcher objectionPatcher;
 
     @Autowired
-    private FileTransferApiClient fileTransferApiClient;
+    private FileTransferServiceClient fileTransferServiceClient;
 
     @Autowired
     private ERICHeaderParser ericHeaderParser;
@@ -296,7 +296,7 @@ public class ObjectionService implements IObjectionService {
             throws ServiceException, ObjectionNotFoundException {
         Map<String, Object> logMap = buildLogMap(null, objectionId, null);
         logger.infoContext(requestId, "Uploading attachments", logMap);
-        FileTransferApiClientResponse response = fileTransferApiClient.upload(requestId, file);
+        FileTransferApiClientResponse response = fileTransferServiceClient.upload(file);
         logger.infoContext(requestId, "Finished uploading attachments", logMap);
 
         HttpStatus responseHttpStatus = response.getHttpStatus();
@@ -400,7 +400,7 @@ public class ObjectionService implements IObjectionService {
     private void deleteFromS3(String requestId, String attachmentId, Map<String, Object> logMap) throws ServiceException {
         String errorMessage = null;
         try {
-            FileTransferApiClientResponse response = fileTransferApiClient.delete(requestId, attachmentId);
+            FileTransferApiClientResponse response = fileTransferServiceClient.delete(attachmentId);
 
             if (response == null || response.getHttpStatus() == null) {
                 errorMessage = String.format(ATTACHMENT_NOT_DELETED_SHORT, attachmentId);
@@ -420,11 +420,8 @@ public class ObjectionService implements IObjectionService {
         }
     }
 
-    public FileTransferApiClientResponse downloadAttachment(String requestId,
-                                                            String objectionId,
-                                                            String attachmentId,
-                                                            HttpServletResponse response) {
-        return fileTransferApiClient.download(requestId, attachmentId, response);
+    public void downloadAttachment(String attachmentId, HttpServletResponse response) {
+        fileTransferServiceClient.download(attachmentId, response);
     }
 
     private Map<String, Object> buildLogMap(String companyNumber, String objectionId, String attachmentId) {

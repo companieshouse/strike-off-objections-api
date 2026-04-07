@@ -734,25 +734,18 @@ class ObjectionControllerTest {
     @Test
     void testReturnOkStatusForDownload() {
         HttpServletResponse httpServletResponse = new MockHttpServletResponse();
-        FileTransferApiClientResponse dummyDownloadResponse = Utils.dummyDownloadResponse();
-        dummyDownloadResponse.setHttpStatus(HttpStatus.OK);
-        when(objectionService.downloadAttachment(REQUEST_ID, OBJECTION_ID, ATTACHMENT_ID, httpServletResponse))
-                .thenReturn(dummyDownloadResponse);
 
-        ResponseEntity<Void> responseEntity =
-                objectionController.downloadAttachment(
+        objectionController.downloadAttachment(
                         COMPANY_NUMBER, OBJECTION_ID, ATTACHMENT_ID, REQUEST_ID, httpServletResponse);
 
-        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
-        assertNull(responseEntity.getBody());
-        assertTrue(responseEntity.getHeaders().isEmpty());
+        assertEquals(HttpStatus.OK, httpServletResponse.getStatus());
+        assertTrue(httpServletResponse.getHeaderNames().isEmpty());
 
         InOrder logOrder = inOrder(apiLogger);
         Map<String, Object> logMap = new HashMap<>();
         logMap.put(LogConstants.COMPANY_NUMBER.getValue(), COMPANY_NUMBER);
         logMap.put(LogConstants.OBJECTION_ID.getValue(), OBJECTION_ID);
         logOrder.verify(apiLogger).infoContext(eq(REQUEST_ID), contains("Processing GET /87651234/attachments/12348765/download request"),eq(logMap));
-        logOrder.verify(apiLogger).infoContext(eq(REQUEST_ID), contains("Successfully processed GET /87651234/attachments/12348765/download request"),eq(logMap));
     }
 
     @Test
@@ -760,16 +753,12 @@ class ObjectionControllerTest {
         HttpServletResponse httpServletResponse = new MockHttpServletResponse();
         FileTransferApiClientResponse dummyDownloadResponse = Utils.dummyDownloadResponse();
         dummyDownloadResponse.setHttpStatus(HttpStatus.UNAUTHORIZED);
-        when(objectionService.downloadAttachment(REQUEST_ID, OBJECTION_ID, ATTACHMENT_ID, httpServletResponse))
-                .thenReturn(dummyDownloadResponse);
 
-        ResponseEntity<Void> responseEntity =
-                objectionController.downloadAttachment(
+        objectionController.downloadAttachment(
                         COMPANY_NUMBER, OBJECTION_ID, ATTACHMENT_ID, REQUEST_ID, httpServletResponse);
 
-        assertEquals(HttpStatus.UNAUTHORIZED, responseEntity.getStatusCode());
-        assertNull(responseEntity.getBody());
-        assertTrue(responseEntity.getHeaders().isEmpty());
+        assertEquals(HttpStatus.UNAUTHORIZED, httpServletResponse.getStatus());
+        assertTrue(httpServletResponse.getHeaderNames().isEmpty());
 
         InOrder logOrder = inOrder(apiLogger);
         Map<String, Object> logMap = new HashMap<>();
@@ -784,16 +773,12 @@ class ObjectionControllerTest {
         HttpServletResponse httpServletResponse = new MockHttpServletResponse();
         FileTransferApiClientResponse dummyDownloadResponse = Utils.dummyDownloadResponse();
         dummyDownloadResponse.setHttpStatus(HttpStatus.FORBIDDEN);
-        when(objectionService.downloadAttachment(REQUEST_ID, OBJECTION_ID, ATTACHMENT_ID, httpServletResponse))
-                .thenReturn(dummyDownloadResponse);
 
-        ResponseEntity<Void> responseEntity =
-                objectionController.downloadAttachment(
+        objectionController.downloadAttachment(
                         COMPANY_NUMBER, OBJECTION_ID, ATTACHMENT_ID, REQUEST_ID, httpServletResponse);
 
-        assertEquals(HttpStatus.FORBIDDEN, responseEntity.getStatusCode());
-        assertNull(responseEntity.getBody());
-        assertTrue(responseEntity.getHeaders().isEmpty());
+        assertEquals(HttpStatus.FORBIDDEN, httpServletResponse.getStatus());
+        assertTrue(httpServletResponse.getHeaderNames().isEmpty());
 
         InOrder logOrder = inOrder(apiLogger);
         Map<String, Object> logMap = new HashMap<>();
@@ -807,14 +792,12 @@ class ObjectionControllerTest {
     void testDownloadWillCatchHttpClientExceptions() {
         HttpServletResponse httpServletResponse = new MockHttpServletResponse();
 
-        when(objectionService.downloadAttachment(REQUEST_ID, OBJECTION_ID, ATTACHMENT_ID, httpServletResponse))
-                .thenThrow(new HttpClientErrorException(HttpStatus.BAD_REQUEST));
 
-        ResponseEntity<Void> responseEntity = objectionController.downloadAttachment(
+        objectionController.downloadAttachment(
                 COMPANY_NUMBER, OBJECTION_ID, ATTACHMENT_ID, REQUEST_ID, httpServletResponse);
-        assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
-        assertNull(responseEntity.getBody());
-        assertTrue(responseEntity.getHeaders().isEmpty());
+        assertEquals(HttpStatus.BAD_REQUEST, httpServletResponse.getStatus());
+        assertTrue(httpServletResponse.getHeaderNames().isEmpty());
+
         InOrder logOrder = inOrder(apiLogger);
         Map<String, Object> logMap = new HashMap<>();
         logMap.put(LogConstants.COMPANY_NUMBER.getValue(), COMPANY_NUMBER);
@@ -827,15 +810,11 @@ class ObjectionControllerTest {
     void testDownloadWillCatchHttpServerExceptions() {
         HttpServletResponse httpServletResponse = new MockHttpServletResponse();
 
-        when(objectionService.downloadAttachment(REQUEST_ID, OBJECTION_ID, ATTACHMENT_ID, httpServletResponse))
-                .thenThrow(new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR));
-
-        ResponseEntity<Void> responseEntity = objectionController.downloadAttachment(
+        objectionController.downloadAttachment(
                 COMPANY_NUMBER, OBJECTION_ID, ATTACHMENT_ID, REQUEST_ID, httpServletResponse);
 
-        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, responseEntity.getStatusCode());
-        assertNull(responseEntity.getBody());
-        assertTrue(responseEntity.getHeaders().isEmpty());
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, httpServletResponse.getStatus());
+        assertTrue(httpServletResponse.getHeaderNames().isEmpty());
 
         InOrder logOrder = inOrder(apiLogger);
         Map<String, Object> logMap = new HashMap<>();

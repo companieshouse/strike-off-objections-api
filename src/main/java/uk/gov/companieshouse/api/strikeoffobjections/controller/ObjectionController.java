@@ -33,7 +33,6 @@ import uk.gov.companieshouse.api.strikeoffobjections.common.LogConstants;
 import uk.gov.companieshouse.api.strikeoffobjections.exception.AttachmentNotFoundException;
 import uk.gov.companieshouse.api.strikeoffobjections.exception.InvalidObjectionStatusException;
 import uk.gov.companieshouse.api.strikeoffobjections.exception.ObjectionNotFoundException;
-import uk.gov.companieshouse.api.strikeoffobjections.file.FileTransferApiClientResponse;
 import uk.gov.companieshouse.api.strikeoffobjections.model.create.ObjectionCreate;
 import uk.gov.companieshouse.api.strikeoffobjections.model.eligibility.ObjectionEligibility;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Attachment;
@@ -60,7 +59,6 @@ public class ObjectionController {
     private static final String ERROR_500 = "Internal server error";
     private static final String COULD_NOT_DELETE = "Could not delete attachment";
     private static final String OBJECTION_NOT_PROCESSED = "Objection not processed";
-    private static final String DOWNLOAD_ERROR = "Download Error";
 
     private PluggableResponseEntityFactory responseEntityFactory;
     private IObjectionService objectionService;
@@ -445,7 +443,7 @@ public class ObjectionController {
     }
 
     @GetMapping("/{objectionId}/attachments/{attachmentId}/download")
-    public ResponseEntity<Void> downloadAttachment(@PathVariable String companyNumber,
+    public void downloadAttachment(@PathVariable String companyNumber,
                                                    @PathVariable String objectionId,
                                                    @PathVariable String attachmentId,
                                                    @RequestHeader(value = ERIC_REQUEST_ID) String requestId,
@@ -459,25 +457,8 @@ public class ObjectionController {
                 String.format("Processing GET /%s/attachments/%s/download request", objectionId, attachmentId),
                 logMap);
 
-        try {
-            FileTransferApiClientResponse downloadServiceResult = objectionService.downloadAttachment(
-                    requestId, objectionId, attachmentId, response);
+        objectionService.downloadAttachment(attachmentId, response);
 
-            apiLogger.infoContext(
-                    requestId,
-                    String.format("Successfully processed GET /%s/attachments/%s/download request", objectionId, attachmentId),
-                    logMap);
-
-            return ResponseEntity.status(downloadServiceResult.getHttpStatus()).build();
-        } catch (HttpClientErrorException | HttpServerErrorException e) {
-            apiLogger.errorContext(
-                    requestId,
-                    DOWNLOAD_ERROR,
-                    e,
-                    logMap
-            );
-            return ResponseEntity.status(e.getStatusCode()).build();
-        }
     }
 
     @GetMapping("/eligibility")

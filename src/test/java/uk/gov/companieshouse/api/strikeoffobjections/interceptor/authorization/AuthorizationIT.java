@@ -66,10 +66,9 @@ class AuthorizationIT {
         objection.setStatus(ObjectionStatus.OPEN);
         objection.setCompanyNumber("00006400");
         FileTransferApiClientResponse transferResponse = new FileTransferApiClientResponse();
-        transferResponse.setFileId("123");
+        transferResponse.fileId("123");
         transferResponse.setHttpStatus(HttpStatus.OK);
-        when(objectionService.downloadAttachment(anyString(), anyString(), anyString(), any(HttpServletResponse.class)))
-            .thenReturn(transferResponse);
+
         when(objectionService.getObjection(any(), any())).thenReturn(objection);
     }
 
