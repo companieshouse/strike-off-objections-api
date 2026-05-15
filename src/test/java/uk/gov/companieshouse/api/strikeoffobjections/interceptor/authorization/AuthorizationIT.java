@@ -2,11 +2,8 @@ package uk.gov.companieshouse.api.strikeoffobjections.interceptor.authorization;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
-
-import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,7 +23,6 @@ import uk.gov.companieshouse.api.strikeoffobjections.controller.AttachmentMapper
 import uk.gov.companieshouse.api.strikeoffobjections.controller.ObjectionController;
 import uk.gov.companieshouse.api.strikeoffobjections.controller.ObjectionMapper;
 import uk.gov.companieshouse.api.strikeoffobjections.exception.ObjectionNotFoundException;
-import uk.gov.companieshouse.api.strikeoffobjections.file.FileTransferApiClientResponse;
 import uk.gov.companieshouse.api.strikeoffobjections.groups.Integration;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Objection;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.ObjectionStatus;
@@ -65,9 +61,6 @@ class AuthorizationIT {
         Objection objection = new Objection();
         objection.setStatus(ObjectionStatus.OPEN);
         objection.setCompanyNumber("00006400");
-        FileTransferApiClientResponse transferResponse = new FileTransferApiClientResponse();
-        transferResponse.fileId("123");
-        transferResponse.setHttpStatus(HttpStatus.OK);
 
         when(objectionService.getObjection(any(), any())).thenReturn(objection);
     }

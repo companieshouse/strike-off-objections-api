@@ -7,7 +7,6 @@ import org.springframework.web.multipart.MultipartFile;
 import uk.gov.companieshouse.api.strikeoffobjections.exception.AttachmentNotFoundException;
 import uk.gov.companieshouse.api.strikeoffobjections.exception.InvalidObjectionStatusException;
 import uk.gov.companieshouse.api.strikeoffobjections.exception.ObjectionNotFoundException;
-import uk.gov.companieshouse.api.strikeoffobjections.file.FileTransferApiClientResponse;
 import uk.gov.companieshouse.api.strikeoffobjections.model.create.ObjectionCreate;
 import uk.gov.companieshouse.api.strikeoffobjections.model.eligibility.ObjectionEligibility;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Attachment;

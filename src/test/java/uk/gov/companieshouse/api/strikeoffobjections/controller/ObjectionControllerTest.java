@@ -734,16 +734,18 @@ class ObjectionControllerTest {
         HttpServletResponse httpServletResponse = new MockHttpServletResponse();
 
         objectionController.downloadAttachment(
-                        COMPANY_NUMBER, OBJECTION_ID, ATTACHMENT_ID, REQUEST_ID, httpServletResponse);
+                COMPANY_NUMBER, OBJECTION_ID, ATTACHMENT_ID, REQUEST_ID, httpServletResponse);
 
         assertEquals(HttpStatus.OK.value(), httpServletResponse.getStatus());
         assertTrue(httpServletResponse.getHeaderNames().isEmpty());
+
+        verify(objectionService).downloadAttachment(eq(ATTACHMENT_ID), eq(httpServletResponse));
 
         InOrder logOrder = inOrder(apiLogger);
         Map<String, Object> logMap = new HashMap<>();
         logMap.put(LogConstants.COMPANY_NUMBER.getValue(), COMPANY_NUMBER);
         logMap.put(LogConstants.OBJECTION_ID.getValue(), OBJECTION_ID);
-        logOrder.verify(apiLogger).infoContext(eq(REQUEST_ID), contains("Processing GET /87651234/attachments/12348765/download request"),eq(logMap));
+        logOrder.verify(apiLogger).infoContext(eq(REQUEST_ID), contains("Processing GET /87651234/attachments/12348765/download request"), eq(logMap));
     }
 
     @Test

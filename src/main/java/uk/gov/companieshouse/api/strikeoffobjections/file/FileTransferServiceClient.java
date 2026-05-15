@@ -8,6 +8,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.function.Supplier;
+
+import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
@@ -28,7 +30,7 @@ import uk.gov.companieshouse.api.strikeoffobjections.common.ApiLogger;
 public class FileTransferServiceClient {
 
     private static final String DOWNLOAD = "download";
-    private static final String NULL_RESPONSE_MESSAGE = "null response from file transfer api url";
+    private static final String NULL_RESPONSE_MESSAGE = "null response from file transfer service url";
     private static final String URI_VALIDATION_FAILED_MESSAGE = "uri validation failed from file transfer service url";
     private static final String API_ERROR_RESPONSE_MESSAGE = "Api Error Response from file transfer service url";
     private static final String CONTENT_TYPE = "Content-Type";
@@ -150,12 +152,13 @@ public class FileTransferServiceClient {
 
         FileApi fileData = apiResponse.getData();
 
-        logger.debug(format("Content-Type set using body data: %s", apiResponse.getData().getMimeType()));
+        logger.debug(format("Content-Type set using body data: %s", fileData.getMimeType()));
         servletResponse.setHeader(CONTENT_TYPE, fileData.getMimeType());
-        logger.debug(format("Content-Length set using body data: %d byte(s)", apiResponse.getData().getBody().length));
+        logger.debug(format("Content-Length set using body data: %d byte(s)", fileData.getBody().length));
         servletResponse.setHeader(CONTENT_LENGTH, String.valueOf(fileData.getSize()));
         logger.debug(format("Content-Disposition set using body data: %s", fileData.getFileName()));
-        servletResponse.setHeader(CONTENT_DISPOSITION, format("attachment; filename=\"%s\"", apiResponse.getData().getFileName()));
+        ContentDisposition contentDisposition = ContentDisposition.attachment().filename(fileData.getFileName()).build();
+        servletResponse.setHeader(CONTENT_DISPOSITION, contentDisposition.toString());
     }
 
     private void buildDownloadResponse(final HttpServletResponse httpServletResponse, final FileApi fileApi) {
