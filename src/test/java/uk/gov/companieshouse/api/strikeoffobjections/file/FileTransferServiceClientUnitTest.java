@@ -307,7 +307,7 @@ class FileTransferServiceClientUnitTest {
             @Override
             public boolean isReady() { return true; }
             @Override
-            public void setWriteListener(WriteListener writeListener) {}
+            public void setWriteListener(WriteListener writeListener) { /* Empty Implementation as dummy */ }
         };
 
         doReturn(servletOutputStream).when(servletResponse).getOutputStream();
