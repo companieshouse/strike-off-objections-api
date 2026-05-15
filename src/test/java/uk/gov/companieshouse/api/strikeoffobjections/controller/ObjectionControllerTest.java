@@ -49,7 +49,6 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -140,7 +139,7 @@ class ObjectionControllerTest {
         Map<String, Object> logMap = new HashMap<>();
         logMap.put(LogConstants.COMPANY_NUMBER.getValue(), COMPANY_NUMBER);
         logOrder.verify(apiLogger).infoContext(eq(REQUEST_ID), contains("Processing POST / request"),eq(logMap));
-        logOrder.verify(apiLogger).infoContext(eq(REQUEST_ID), contains("Successfully processed POST / request"), eq(logMap));        ;
+        logOrder.verify(apiLogger).infoContext(eq(REQUEST_ID), contains("Successfully processed POST / request"), eq(logMap));
     }
 
     @Test
