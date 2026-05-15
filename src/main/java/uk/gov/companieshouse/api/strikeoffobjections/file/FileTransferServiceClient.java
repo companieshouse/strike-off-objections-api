@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Arrays;
-import java.util.Map;
 import java.util.function.Supplier;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
@@ -96,7 +95,7 @@ public class FileTransferServiceClient {
                 }
 
             } else {
-                logger.errorContext(NULL_RESPONSE_MESSAGE + " " + UPLOAD, new ApiErrorResponseException(null));
+                logger.errorContext(NULL_RESPONSE_MESSAGE + " " + UPLOAD, null);
                 response.httpStatus(HttpStatus.INTERNAL_SERVER_ERROR);
             }
 
@@ -149,37 +148,14 @@ public class FileTransferServiceClient {
     private void setDownloadResponseHeaders(final HttpServletResponse servletResponse, final ApiResponse<FileApi> apiResponse) {
         logger.info(format("setDownloadResponseHeaders(headers=%d) method called.", apiResponse.getHeaders().size()));
 
-        // Define the headers we want to copy from the response.
-        Map<String, Object> incomingHeaders = apiResponse.getHeaders();
+        FileApi fileData = apiResponse.getData();
 
-        // Check the content-type is available and set it in the response.
-        Object contentType = incomingHeaders.get(CONTENT_TYPE);
-        if(contentType != null) {
-            logger.debug(format("Content-Type is available: %s", contentType));
-            servletResponse.setHeader(CONTENT_TYPE, contentType.toString());
-        } else {
-            logger.debug(format("Content-Type is NOT available in the response headers, using body data: %s", apiResponse.getData().getMimeType()));
-            servletResponse.setHeader(CONTENT_TYPE, apiResponse.getData().getMimeType());
-        }
-
-        Object contentLength = incomingHeaders.get(CONTENT_LENGTH);
-        if(contentLength != null) {
-            logger.debug(format("Content-Length is available: %s", contentLength));
-            servletResponse.setHeader(CONTENT_LENGTH, String.valueOf(contentLength));
-        } else {
-            logger.debug(format("Content-Length is NOT available in the response headers, using body data: %d byte(s)", apiResponse.getData().getBody().length));
-            servletResponse.setHeader(CONTENT_LENGTH, String.valueOf(apiResponse.getData().getSize()));
-        }
-
-        // Set the content-disposition header if it exists in the incoming headers.
-        Object contentDisposition = incomingHeaders.get(CONTENT_DISPOSITION);
-        if(contentDisposition != null) {
-            logger.debug(format("Content-Disposition is available: %s", contentDisposition));
-            servletResponse.setHeader(CONTENT_DISPOSITION, contentDisposition.toString());
-        } else {
-            logger.debug(format("Content-Disposition is NOT available in the response headers, using body data: %s", apiResponse.getData().getFileName()));
-            servletResponse.setHeader(CONTENT_DISPOSITION, format("attachment; filename=\"%s\"", apiResponse.getData().getFileName()));
-        }
+        logger.debug(format("Content-Type set using body data: %s", apiResponse.getData().getMimeType()));
+        servletResponse.setHeader(CONTENT_TYPE, fileData.getMimeType());
+        logger.debug(format("Content-Length set using body data: %d byte(s)", apiResponse.getData().getBody().length));
+        servletResponse.setHeader(CONTENT_LENGTH, String.valueOf(fileData.getSize()));
+        logger.debug(format("Content-Disposition set using body data: %s", fileData.getFileName()));
+        servletResponse.setHeader(CONTENT_DISPOSITION, format("attachment; filename=\"%s\"", apiResponse.getData().getFileName()));
     }
 
     private void buildDownloadResponse(final HttpServletResponse httpServletResponse, final FileApi fileApi) {
