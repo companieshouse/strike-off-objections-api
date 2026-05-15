@@ -737,7 +737,7 @@ class ObjectionServiceTest {
         verify(fileTransferServiceClient, only()).download(ATTACHMENT_ID, httpServletResponse);
         verify(fileTransferServiceClient, times(1)).download(ATTACHMENT_ID, httpServletResponse);
 
-        assertEquals(HttpStatus.OK, httpServletResponse.getStatus());
+        assertEquals(HttpStatus.OK.value(), httpServletResponse.getStatus());
     }
 
     @Test
