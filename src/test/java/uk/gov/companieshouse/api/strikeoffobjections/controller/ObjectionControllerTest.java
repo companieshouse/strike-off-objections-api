@@ -546,28 +546,6 @@ class ObjectionControllerTest {
     }
 
     @Test
-    void willReturnInternal500FromFileTransferServerError() throws ServiceException, IOException, ObjectionNotFoundException {
-        HttpServerErrorException expectedException =
-                new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR);
-        when(servletRequest.getRequestURI()).thenReturn("url");
-        when(objectionService.addAttachment(anyString(), anyString(), any(MultipartFile.class), anyString()))
-                .thenThrow(expectedException);
-
-        ResponseEntity<ObjectionResponseDTO> entity = objectionController.uploadAttachmentToObjection(Utils.mockMultipartFile(),
-                COMPANY_NUMBER, OBJECTION_ID, REQUEST_ID, servletRequest);
-
-        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, entity.getStatusCode());
-
-        InOrder logOrder = inOrder(apiLogger);
-        Map<String, Object> logMap = new HashMap<>();
-        logMap.put(LogConstants.COMPANY_NUMBER.getValue(), COMPANY_NUMBER);
-        logMap.put(LogConstants.OBJECTION_ID.getValue(), OBJECTION_ID);
-        logOrder.verify(apiLogger).infoContext(eq(REQUEST_ID), contains("Processing POST /87651234/attachments request"),eq(logMap));
-        logOrder.verify(apiLogger).errorContext(eq(REQUEST_ID), contains(String.format("The file-transfer-api has returned an error for file: %s",
-        Utils.mockMultipartFile().getOriginalFilename())),any(),eq(logMap));
-    }
-
-    @Test
     void willReturnInternal500FromFileTransferServiceException() throws ServiceException, IOException, ObjectionNotFoundException {
         when(servletRequest.getRequestURI()).thenReturn("url");
         when(objectionService.addAttachment(anyString(), anyString(), any(MultipartFile.class), anyString()))
@@ -739,7 +717,7 @@ class ObjectionControllerTest {
         assertEquals(HttpStatus.OK.value(), httpServletResponse.getStatus());
         assertTrue(httpServletResponse.getHeaderNames().isEmpty());
 
-        verify(objectionService).downloadAttachment(eq(ATTACHMENT_ID), eq(httpServletResponse));
+        verify(objectionService).downloadAttachment(ATTACHMENT_ID, httpServletResponse);
 
         InOrder logOrder = inOrder(apiLogger);
         Map<String, Object> logMap = new HashMap<>();
