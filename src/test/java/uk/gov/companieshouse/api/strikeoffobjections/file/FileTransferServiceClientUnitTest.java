@@ -102,7 +102,7 @@ class FileTransferServiceClientUnitTest {
 
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getHttpStatus());
         assertNull(response.getFileId());
-        verify(apiLogger).errorContext(contains("null response from file transfer api url UPLOAD"), eq(null));
+        verify(apiLogger).errorContext(contains("null response from file transfer service url UPLOAD"), eq(null));
     }
 
     @Test
