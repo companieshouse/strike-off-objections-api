@@ -28,8 +28,10 @@ To checkout and build the service:
 2. Run ./bin/chs-dev modules enable strike-off-objections
 3. Run ./bin/chs-dev development enable strike-off-objections-api (this will allow you to make changes).
 4. Run docker using "chs-dev up" in the docker-chs-development directory.
-5. Open your browser and go to page http://chs.local/strike-off-objections
-6. Work though the pages using example company THE BEAR RETAIL 05916434
+5. Use the postman collection Strike Off Objections, in the Titans Devs workspace
+6. Select the postman environment as docker CHS
+7. Login using the demo@ch.gov.uk account (ask password from a team member if you don't have it)
+8. Work though the api using example company THE BEAR RETAIL 05916434
 
 These instructions are for a local docker environment.
 
