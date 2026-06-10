@@ -20,7 +20,6 @@ import uk.gov.companieshouse.api.strikeoffobjections.common.LogConstants;
 import uk.gov.companieshouse.api.strikeoffobjections.exception.AttachmentNotFoundException;
 import uk.gov.companieshouse.api.strikeoffobjections.exception.InvalidObjectionStatusException;
 import uk.gov.companieshouse.api.strikeoffobjections.exception.ObjectionNotFoundException;
-import uk.gov.companieshouse.api.strikeoffobjections.file.FileTransferApiClientResponse;
 import uk.gov.companieshouse.api.strikeoffobjections.groups.Unit;
 import uk.gov.companieshouse.api.strikeoffobjections.model.create.ObjectionCreate;
 import uk.gov.companieshouse.api.strikeoffobjections.model.eligibility.EligibilityStatus;
@@ -50,7 +49,6 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -141,7 +139,7 @@ class ObjectionControllerTest {
         Map<String, Object> logMap = new HashMap<>();
         logMap.put(LogConstants.COMPANY_NUMBER.getValue(), COMPANY_NUMBER);
         logOrder.verify(apiLogger).infoContext(eq(REQUEST_ID), contains("Processing POST / request"),eq(logMap));
-        logOrder.verify(apiLogger).infoContext(eq(REQUEST_ID), contains("Successfully processed POST / request"), eq(logMap));        ;
+        logOrder.verify(apiLogger).infoContext(eq(REQUEST_ID), contains("Successfully processed POST / request"), eq(logMap));
     }
 
     @Test
@@ -548,28 +546,6 @@ class ObjectionControllerTest {
     }
 
     @Test
-    void willReturnInternal500FromFileTransferServerError() throws ServiceException, IOException, ObjectionNotFoundException {
-        HttpServerErrorException expectedException =
-                new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR);
-        when(servletRequest.getRequestURI()).thenReturn("url");
-        when(objectionService.addAttachment(anyString(), anyString(), any(MultipartFile.class), anyString()))
-                .thenThrow(expectedException);
-
-        ResponseEntity<ObjectionResponseDTO> entity = objectionController.uploadAttachmentToObjection(Utils.mockMultipartFile(),
-                COMPANY_NUMBER, OBJECTION_ID, REQUEST_ID, servletRequest);
-
-        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, entity.getStatusCode());
-
-        InOrder logOrder = inOrder(apiLogger);
-        Map<String, Object> logMap = new HashMap<>();
-        logMap.put(LogConstants.COMPANY_NUMBER.getValue(), COMPANY_NUMBER);
-        logMap.put(LogConstants.OBJECTION_ID.getValue(), OBJECTION_ID);
-        logOrder.verify(apiLogger).infoContext(eq(REQUEST_ID), contains("Processing POST /87651234/attachments request"),eq(logMap));
-        logOrder.verify(apiLogger).errorContext(eq(REQUEST_ID), contains(String.format("The file-transfer-api has returned an error for file: %s",
-        Utils.mockMultipartFile().getOriginalFilename())),any(),eq(logMap));
-    }
-
-    @Test
     void willReturnInternal500FromFileTransferServiceException() throws ServiceException, IOException, ObjectionNotFoundException {
         when(servletRequest.getRequestURI()).thenReturn("url");
         when(objectionService.addAttachment(anyString(), anyString(), any(MultipartFile.class), anyString()))
@@ -734,115 +710,20 @@ class ObjectionControllerTest {
     @Test
     void testReturnOkStatusForDownload() {
         HttpServletResponse httpServletResponse = new MockHttpServletResponse();
-        FileTransferApiClientResponse dummyDownloadResponse = Utils.dummyDownloadResponse();
-        dummyDownloadResponse.setHttpStatus(HttpStatus.OK);
-        when(objectionService.downloadAttachment(REQUEST_ID, OBJECTION_ID, ATTACHMENT_ID, httpServletResponse))
-                .thenReturn(dummyDownloadResponse);
 
-        ResponseEntity<Void> responseEntity =
-                objectionController.downloadAttachment(
-                        COMPANY_NUMBER, OBJECTION_ID, ATTACHMENT_ID, REQUEST_ID, httpServletResponse);
-
-        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
-        assertNull(responseEntity.getBody());
-        assertTrue(responseEntity.getHeaders().isEmpty());
-
-        InOrder logOrder = inOrder(apiLogger);
-        Map<String, Object> logMap = new HashMap<>();
-        logMap.put(LogConstants.COMPANY_NUMBER.getValue(), COMPANY_NUMBER);
-        logMap.put(LogConstants.OBJECTION_ID.getValue(), OBJECTION_ID);
-        logOrder.verify(apiLogger).infoContext(eq(REQUEST_ID), contains("Processing GET /87651234/attachments/12348765/download request"),eq(logMap));
-        logOrder.verify(apiLogger).infoContext(eq(REQUEST_ID), contains("Successfully processed GET /87651234/attachments/12348765/download request"),eq(logMap));
-    }
-
-    @Test
-    void testReturnUnauthorizedStatusForDownload() {
-        HttpServletResponse httpServletResponse = new MockHttpServletResponse();
-        FileTransferApiClientResponse dummyDownloadResponse = Utils.dummyDownloadResponse();
-        dummyDownloadResponse.setHttpStatus(HttpStatus.UNAUTHORIZED);
-        when(objectionService.downloadAttachment(REQUEST_ID, OBJECTION_ID, ATTACHMENT_ID, httpServletResponse))
-                .thenReturn(dummyDownloadResponse);
-
-        ResponseEntity<Void> responseEntity =
-                objectionController.downloadAttachment(
-                        COMPANY_NUMBER, OBJECTION_ID, ATTACHMENT_ID, REQUEST_ID, httpServletResponse);
-
-        assertEquals(HttpStatus.UNAUTHORIZED, responseEntity.getStatusCode());
-        assertNull(responseEntity.getBody());
-        assertTrue(responseEntity.getHeaders().isEmpty());
-
-        InOrder logOrder = inOrder(apiLogger);
-        Map<String, Object> logMap = new HashMap<>();
-        logMap.put(LogConstants.COMPANY_NUMBER.getValue(), COMPANY_NUMBER);
-        logMap.put(LogConstants.OBJECTION_ID.getValue(), OBJECTION_ID);
-        logOrder.verify(apiLogger).infoContext(eq(REQUEST_ID), contains("Processing GET /87651234/attachments/12348765/download request"),eq(logMap));
-        logOrder.verify(apiLogger).infoContext(eq(REQUEST_ID), contains("Successfully processed GET /87651234/attachments/12348765/download request"),eq(logMap));
-    }
-
-    @Test
-    void testReturnForbiddenStatusForDownload() {
-        HttpServletResponse httpServletResponse = new MockHttpServletResponse();
-        FileTransferApiClientResponse dummyDownloadResponse = Utils.dummyDownloadResponse();
-        dummyDownloadResponse.setHttpStatus(HttpStatus.FORBIDDEN);
-        when(objectionService.downloadAttachment(REQUEST_ID, OBJECTION_ID, ATTACHMENT_ID, httpServletResponse))
-                .thenReturn(dummyDownloadResponse);
-
-        ResponseEntity<Void> responseEntity =
-                objectionController.downloadAttachment(
-                        COMPANY_NUMBER, OBJECTION_ID, ATTACHMENT_ID, REQUEST_ID, httpServletResponse);
-
-        assertEquals(HttpStatus.FORBIDDEN, responseEntity.getStatusCode());
-        assertNull(responseEntity.getBody());
-        assertTrue(responseEntity.getHeaders().isEmpty());
-
-        InOrder logOrder = inOrder(apiLogger);
-        Map<String, Object> logMap = new HashMap<>();
-        logMap.put(LogConstants.COMPANY_NUMBER.getValue(), COMPANY_NUMBER);
-        logMap.put(LogConstants.OBJECTION_ID.getValue(), OBJECTION_ID);
-        logOrder.verify(apiLogger).infoContext(eq(REQUEST_ID), contains("Processing GET /87651234/attachments/12348765/download request"),eq(logMap));
-        logOrder.verify(apiLogger).infoContext(eq(REQUEST_ID), contains("Successfully processed GET /87651234/attachments/12348765/download request"),eq(logMap));
-    }
-
-    @Test
-    void testDownloadWillCatchHttpClientExceptions() {
-        HttpServletResponse httpServletResponse = new MockHttpServletResponse();
-
-        when(objectionService.downloadAttachment(REQUEST_ID, OBJECTION_ID, ATTACHMENT_ID, httpServletResponse))
-                .thenThrow(new HttpClientErrorException(HttpStatus.BAD_REQUEST));
-
-        ResponseEntity<Void> responseEntity = objectionController.downloadAttachment(
-                COMPANY_NUMBER, OBJECTION_ID, ATTACHMENT_ID, REQUEST_ID, httpServletResponse);
-        assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
-        assertNull(responseEntity.getBody());
-        assertTrue(responseEntity.getHeaders().isEmpty());
-        InOrder logOrder = inOrder(apiLogger);
-        Map<String, Object> logMap = new HashMap<>();
-        logMap.put(LogConstants.COMPANY_NUMBER.getValue(), COMPANY_NUMBER);
-        logMap.put(LogConstants.OBJECTION_ID.getValue(), OBJECTION_ID);
-        logOrder.verify(apiLogger).infoContext(eq(REQUEST_ID), contains("Processing GET /87651234/attachments/12348765/download request"),eq(logMap));
-        logOrder.verify(apiLogger).errorContext(eq(REQUEST_ID), contains("Download Error"),any(), eq(logMap));
-    }
-
-    @Test
-    void testDownloadWillCatchHttpServerExceptions() {
-        HttpServletResponse httpServletResponse = new MockHttpServletResponse();
-
-        when(objectionService.downloadAttachment(REQUEST_ID, OBJECTION_ID, ATTACHMENT_ID, httpServletResponse))
-                .thenThrow(new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR));
-
-        ResponseEntity<Void> responseEntity = objectionController.downloadAttachment(
+        objectionController.downloadAttachment(
                 COMPANY_NUMBER, OBJECTION_ID, ATTACHMENT_ID, REQUEST_ID, httpServletResponse);
 
-        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, responseEntity.getStatusCode());
-        assertNull(responseEntity.getBody());
-        assertTrue(responseEntity.getHeaders().isEmpty());
+        assertEquals(HttpStatus.OK.value(), httpServletResponse.getStatus());
+        assertTrue(httpServletResponse.getHeaderNames().isEmpty());
+
+        verify(objectionService).downloadAttachment(ATTACHMENT_ID, httpServletResponse);
 
         InOrder logOrder = inOrder(apiLogger);
         Map<String, Object> logMap = new HashMap<>();
         logMap.put(LogConstants.COMPANY_NUMBER.getValue(), COMPANY_NUMBER);
         logMap.put(LogConstants.OBJECTION_ID.getValue(), OBJECTION_ID);
-        logOrder.verify(apiLogger).infoContext(eq(REQUEST_ID), contains("Processing GET /87651234/attachments/12348765/download request"),eq(logMap));
-        logOrder.verify(apiLogger).errorContext(eq(REQUEST_ID), contains("Download Error"),any(), eq(logMap));
+        logOrder.verify(apiLogger).infoContext(eq(REQUEST_ID), contains("Processing GET /87651234/attachments/12348765/download request"), eq(logMap));
     }
 
     @Test

@@ -7,7 +7,6 @@ import org.springframework.web.multipart.MultipartFile;
 import uk.gov.companieshouse.api.strikeoffobjections.exception.AttachmentNotFoundException;
 import uk.gov.companieshouse.api.strikeoffobjections.exception.InvalidObjectionStatusException;
 import uk.gov.companieshouse.api.strikeoffobjections.exception.ObjectionNotFoundException;
-import uk.gov.companieshouse.api.strikeoffobjections.file.FileTransferApiClientResponse;
 import uk.gov.companieshouse.api.strikeoffobjections.model.create.ObjectionCreate;
 import uk.gov.companieshouse.api.strikeoffobjections.model.eligibility.ObjectionEligibility;
 import uk.gov.companieshouse.api.strikeoffobjections.model.entity.Attachment;
@@ -41,8 +40,7 @@ public interface IObjectionService {
     void deleteAttachment(String requestId, String objectionId, String attachmentId)
             throws ObjectionNotFoundException, AttachmentNotFoundException, ServiceException;
 
-    FileTransferApiClientResponse downloadAttachment(
-            String requestId, String objectionId, String attachmentId, HttpServletResponse response);
+    void downloadAttachment(String attachmentId, HttpServletResponse response);
 
     ObjectionEligibility isCompanyEligible(String companyNumber, String requestId);
 }

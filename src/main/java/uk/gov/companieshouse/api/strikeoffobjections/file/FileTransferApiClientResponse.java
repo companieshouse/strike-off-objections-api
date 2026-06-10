@@ -16,8 +16,9 @@ public class FileTransferApiClientResponse {
         return fileId;
     }
 
-    public void setFileId(String fileId) {
+    public FileTransferApiClientResponse fileId(String fileId) {
         this.fileId = fileId;
+        return this;
     }
 
     public HttpStatus getHttpStatus() {
@@ -28,8 +29,9 @@ public class FileTransferApiClientResponse {
         this.httpStatus = httpStatus;
     }
 
-    public void setHttpStatus(HttpStatusCode httpStatusCode) {
+    public FileTransferApiClientResponse httpStatus(HttpStatusCode httpStatusCode) {
         this.httpStatus = valueOf(httpStatusCode.value());
+        return this;
     }
 
 
@@ -37,7 +39,8 @@ public class FileTransferApiClientResponse {
         return httpHeaders;
     }
 
-    public void setHttpHeaders(HttpHeaders httpHeaders) {
+    public FileTransferApiClientResponse httpHeaders(HttpHeaders httpHeaders) {
         this.httpHeaders = httpHeaders;
+        return this;
     }
 }

@@ -19,8 +19,8 @@ import uk.gov.companieshouse.api.strikeoffobjections.common.ApiLogger;
 import uk.gov.companieshouse.api.strikeoffobjections.exception.AttachmentNotFoundException;
 import uk.gov.companieshouse.api.strikeoffobjections.exception.InvalidObjectionStatusException;
 import uk.gov.companieshouse.api.strikeoffobjections.exception.ObjectionNotFoundException;
-import uk.gov.companieshouse.api.strikeoffobjections.file.FileTransferApiClient;
 import uk.gov.companieshouse.api.strikeoffobjections.file.FileTransferApiClientResponse;
+import uk.gov.companieshouse.api.strikeoffobjections.file.FileTransferServiceClient;
 import uk.gov.companieshouse.api.strikeoffobjections.file.ObjectionsLinkKeys;
 import uk.gov.companieshouse.api.strikeoffobjections.groups.Unit;
 import uk.gov.companieshouse.api.strikeoffobjections.model.eligibility.EligibilityStatus;
@@ -53,7 +53,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
@@ -98,7 +97,7 @@ class ObjectionServiceTest {
     private ObjectionPatcher objectionPatcher;
 
     @Mock
-    private FileTransferApiClient fileTransferApiClient;
+    private FileTransferServiceClient fileTransferServiceClient;
 
     @Mock
     private ERICHeaderParser ericHeaderParser;
@@ -381,7 +380,7 @@ class ObjectionServiceTest {
     void canAddAnAttachment() throws Exception {
         Objection existingObjection = new Objection();
         existingObjection.setId(OBJECTION_ID);
-        when(fileTransferApiClient.upload(anyString(), any(MultipartFile.class)))
+        when(fileTransferServiceClient.upload(any(MultipartFile.class)))
                 .thenReturn(Utils.getSuccessfulUploadResponse());
         when(objectionRepository.findById(any())).thenReturn(Optional.of(existingObjection));
         ServiceResult<String> attachmentIdResult =
@@ -409,7 +408,7 @@ class ObjectionServiceTest {
         Objection existingObjection = new Objection();
         existingObjection.setId(OBJECTION_ID);
 
-        when(fileTransferApiClient.upload(anyString(), any(MultipartFile.class)))
+        when(fileTransferServiceClient.upload(any(MultipartFile.class)))
                 .thenReturn(Utils.getSuccessfulUploadResponse());
 
         Attachment attachment = new Attachment();
@@ -460,7 +459,7 @@ class ObjectionServiceTest {
 
     @Test
     void willThrowServiceExceptionIfUploadErrors() throws Exception {
-        when(fileTransferApiClient.upload(anyString(), any(MultipartFile.class)))
+        when(fileTransferServiceClient.upload(any(MultipartFile.class)))
                 .thenReturn(Utils.getUnsuccessfulFileTransferApiResponse());
         try {
             objectionService.addAttachment(REQUEST_ID, OBJECTION_ID, Utils.mockMultipartFile(), ACCESS_URL);
@@ -472,7 +471,7 @@ class ObjectionServiceTest {
 
     @Test
     void willPropagateServerRuntimeExceptions() throws Exception {
-        when(fileTransferApiClient.upload(anyString(), any(MultipartFile.class)))
+        when(fileTransferServiceClient.upload(any(MultipartFile.class)))
                 .thenThrow(new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR));
 
         MultipartFile mockFile = Utils.mockMultipartFile();
@@ -486,7 +485,7 @@ class ObjectionServiceTest {
 
     @Test
     void willPropagateClientRuntimeExceptions() throws Exception {
-        when(fileTransferApiClient.upload(anyString(), any(MultipartFile.class)))
+        when(fileTransferServiceClient.upload(any(MultipartFile.class)))
                 .thenThrow(new HttpClientErrorException(HttpStatus.BAD_REQUEST));
 
         MultipartFile mockFile = Utils.mockMultipartFile();
@@ -501,8 +500,8 @@ class ObjectionServiceTest {
     @Test
     void willThrowServiceExceptions() {
         FileTransferApiClientResponse response = new FileTransferApiClientResponse();
-        response.setFileId("");
-                when(fileTransferApiClient.upload(anyString(), any(MultipartFile.class)))
+        response.fileId("");
+                when(fileTransferServiceClient.upload(any(MultipartFile.class)))
                 .thenReturn(response);
 
         assertThrows(ServiceException.class, () ->
@@ -566,7 +565,7 @@ class ObjectionServiceTest {
         attachment.setId(ATTACHMENT_ID);
         existingObjection.addAttachment(attachment);
         when(objectionRepository.findById(any())).thenReturn(Optional.of(existingObjection));
-        when(fileTransferApiClient.delete(REQUEST_ID, ATTACHMENT_ID)).thenReturn(Utils.getSuccessfulDeleteResponse());
+        when(fileTransferServiceClient.delete(ATTACHMENT_ID)).thenReturn(Utils.getSuccessfulDeleteResponse());
         objectionService.deleteAttachment(
                 REQUEST_ID,
                 OBJECTION_ID,
@@ -574,7 +573,7 @@ class ObjectionServiceTest {
         );
 
         verify(objectionRepository, times(1)).save(existingObjection);
-        verify(fileTransferApiClient, times(1)).delete(REQUEST_ID, ATTACHMENT_ID);
+        verify(fileTransferServiceClient, times(1)).delete(ATTACHMENT_ID);
         assertFalse(existingObjection.getAttachments().contains(attachment));
     }
 
@@ -605,7 +604,7 @@ class ObjectionServiceTest {
         Objection objection = Utils.getSimpleTestObjection(OBJECTION_ID);
         Utils.getTestAttachmentsContainingKey(ATTACHMENT_ID).forEach(objection::addAttachment);
         HttpServerErrorException clientException = new HttpServerErrorException(HttpStatus.BAD_REQUEST);
-        when(fileTransferApiClient.delete(REQUEST_ID, ATTACHMENT_ID)).thenThrow(clientException);
+        when(fileTransferServiceClient.delete(ATTACHMENT_ID)).thenThrow(clientException);
         when(objectionRepository.findById(objection.getId()))
                 .thenReturn(Optional.of(objection));
 
@@ -617,7 +616,7 @@ class ObjectionServiceTest {
         );
 
         verify(objectionRepository, never()).save(objection);
-        verify(fileTransferApiClient, times(1)).delete(REQUEST_ID, ATTACHMENT_ID);
+        verify(fileTransferServiceClient, times(1)).delete(ATTACHMENT_ID);
         verify(apiLogger).errorContext(
                 eq(REQUEST_ID),
                 eq(String.format("Unable to delete attachment %s, status code 400 BAD_REQUEST", ATTACHMENT_ID)),
@@ -631,7 +630,7 @@ class ObjectionServiceTest {
         Utils.getTestAttachmentsContainingKey(ATTACHMENT_ID).forEach(objection::addAttachment);
 
         HttpServerErrorException serviceException = new HttpServerErrorException(HttpStatus.GATEWAY_TIMEOUT);
-        when(fileTransferApiClient.delete(REQUEST_ID, ATTACHMENT_ID)).thenThrow(serviceException);
+        when(fileTransferServiceClient.delete(ATTACHMENT_ID)).thenThrow(serviceException);
         when(objectionRepository.findById(objection.getId()))
                 .thenReturn(Optional.of(objection));
 
@@ -642,7 +641,7 @@ class ObjectionServiceTest {
             )
         );
         verify(objectionRepository, never()).save(objection);
-        verify(fileTransferApiClient, times(1)).delete(REQUEST_ID, ATTACHMENT_ID);
+        verify(fileTransferServiceClient, times(1)).delete(ATTACHMENT_ID);
         verify(apiLogger).errorContext(
                 eq(REQUEST_ID),
                 eq(String.format("Unable to delete attachment %s, status code 504 GATEWAY_TIMEOUT", ATTACHMENT_ID)),
@@ -655,7 +654,7 @@ class ObjectionServiceTest {
         Objection objection = Utils.getSimpleTestObjection(OBJECTION_ID);
         Utils.getTestAttachmentsContainingKey(ATTACHMENT_ID).forEach(objection::addAttachment);
 
-        when(fileTransferApiClient.delete(REQUEST_ID, ATTACHMENT_ID))
+        when(fileTransferServiceClient.delete(ATTACHMENT_ID))
                 .thenReturn(Utils.getUnsuccessfulFileTransferApiResponse());
 
 
@@ -672,7 +671,7 @@ class ObjectionServiceTest {
         );
 
         verify(objectionRepository, never()).save(objection);
-        verify(fileTransferApiClient, times(1)).delete(REQUEST_ID, ATTACHMENT_ID);
+        verify(fileTransferServiceClient, times(1)).delete(ATTACHMENT_ID);
         verify(apiLogger).infoContext(
                 eq(REQUEST_ID),
                 eq(String.format("Unable to delete attachment %s, status code 500 INTERNAL_SERVER_ERROR", ATTACHMENT_ID)),
@@ -683,7 +682,7 @@ class ObjectionServiceTest {
     void deleteAttachmentHandleNullApiResponseOnDeleteAttachment() {
         Objection objection = Utils.getSimpleTestObjection(OBJECTION_ID);
         Utils.getTestAttachmentsContainingKey(ATTACHMENT_ID).forEach(objection::addAttachment);
-        when(fileTransferApiClient.delete(REQUEST_ID, ATTACHMENT_ID)).thenReturn(null);
+        when(fileTransferServiceClient.delete(ATTACHMENT_ID)).thenReturn(null);
 
         when(objectionRepository.findById(objection.getId()))
                 .thenReturn(Optional.of(objection));
@@ -696,7 +695,7 @@ class ObjectionServiceTest {
         );
 
         verify(objectionRepository, never()).save(objection);
-        verify(fileTransferApiClient, times(1)).delete(REQUEST_ID, ATTACHMENT_ID);
+        verify(fileTransferServiceClient, times(1)).delete(ATTACHMENT_ID);
         verify(apiLogger).infoContext(
                 eq(REQUEST_ID),
                 eq(String.format("Unable to delete attachment %s", ATTACHMENT_ID)),
@@ -709,7 +708,7 @@ class ObjectionServiceTest {
         Utils.getTestAttachmentsContainingKey(ATTACHMENT_ID).forEach(objection::addAttachment);
         FileTransferApiClientResponse response = new FileTransferApiClientResponse();
         response.setHttpStatus(null);
-        when(fileTransferApiClient.delete(REQUEST_ID, ATTACHMENT_ID)).thenReturn(response);
+        when(fileTransferServiceClient.delete(ATTACHMENT_ID)).thenReturn(response);
 
         when(objectionRepository.findById(objection.getId()))
                 .thenReturn(Optional.of(objection));
@@ -722,7 +721,7 @@ class ObjectionServiceTest {
         );
 
         verify(objectionRepository, never()).save(objection);
-        verify(fileTransferApiClient, times(1)).delete(REQUEST_ID, ATTACHMENT_ID);
+        verify(fileTransferServiceClient, times(1)).delete(ATTACHMENT_ID);
         verify(apiLogger).infoContext(
                 eq(REQUEST_ID),
                 eq(String.format("Unable to delete attachment %s", ATTACHMENT_ID)),
@@ -732,18 +731,13 @@ class ObjectionServiceTest {
     @Test
     void willCallFileTransferApiForDownload() {
         HttpServletResponse httpServletResponse = new MockHttpServletResponse();
-        FileTransferApiClientResponse dummyDownloadResponse = Utils.dummyDownloadResponse();
 
-        when(fileTransferApiClient.download(REQUEST_ID, ATTACHMENT_ID, httpServletResponse)).thenReturn(dummyDownloadResponse);
+        objectionService.downloadAttachment(ATTACHMENT_ID, httpServletResponse);
 
-        FileTransferApiClientResponse downloadServiceResult = objectionService.downloadAttachment(
-                REQUEST_ID, OBJECTION_ID, ATTACHMENT_ID, httpServletResponse);
+        verify(fileTransferServiceClient, only()).download(ATTACHMENT_ID, httpServletResponse);
+        verify(fileTransferServiceClient, times(1)).download(ATTACHMENT_ID, httpServletResponse);
 
-        verify(fileTransferApiClient, only()).download(REQUEST_ID, ATTACHMENT_ID, httpServletResponse);
-        verify(fileTransferApiClient, times(1)).download(REQUEST_ID, ATTACHMENT_ID, httpServletResponse);
-
-        assertNotNull(downloadServiceResult);
-        assertEquals(HttpStatus.OK, downloadServiceResult.getHttpStatus());
+        assertEquals(HttpStatus.OK.value(), httpServletResponse.getStatus());
     }
 
     @Test
