@@ -3,7 +3,7 @@ package uk.gov.companieshouse.api.strikeoffobjections;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-import jakarta.annotation.PostConstruct;
+import javax.annotation.PostConstruct;
 import java.util.TimeZone;
 
 @SpringBootApplication
