@@ -12,7 +12,7 @@ import uk.gov.companieshouse.api.strikeoffobjections.service.impl.ERICHeaderFiel
 import uk.gov.companieshouse.api.strikeoffobjections.service.impl.ERICHeaderParser;
 import uk.gov.companieshouse.service.ServiceException;
 
-import jakarta.validation.constraints.NotNull;
+import javax.validation.constraints.NotNull;
 
 public class AttachmentDownloadAuthorizationInterceptor implements HandlerInterceptor {
 
