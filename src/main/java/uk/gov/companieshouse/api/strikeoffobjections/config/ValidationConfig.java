@@ -10,7 +10,7 @@ import uk.gov.companieshouse.api.strikeoffobjections.validation.AllowedValuesVal
 import uk.gov.companieshouse.api.strikeoffobjections.validation.DisallowedValuesValidationRule;
 import uk.gov.companieshouse.api.strikeoffobjections.validation.ValidationRule;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 import java.util.Arrays;
 import java.util.List;
 
