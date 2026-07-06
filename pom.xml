@@ -29,7 +29,7 @@
         <kafka-clients.version>4.2.0</kafka-clients.version>
         <rest-service-common-library.version>2.0.14</rest-service-common-library.version>
         <ch-kafka.version>3.0.15</ch-kafka.version>
-        <private-api-sdk-java.version>7.0.4</private-api-sdk-java.version>
+        <private-api-sdk-java.version>6.0.33</private-api-sdk-java.version>
         <jib-maven-plugin.version>3.5.1</jib-maven-plugin.version>
         <jacoco-maven-plugin.version>0.8.14</jacoco-maven-plugin.version>
         <maven-compiler-plugin.version>3.14.1</maven-compiler-plugin.version>
@@ -59,6 +59,17 @@
                 <version>${log4j.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
+            </dependency>
+            <!--Temporary managed transitive dependency remove once spring-boot.version >= 3.5.16-->
+            <dependency>
+                <groupId>org.apache.tomcat.embed</groupId>
+                <artifactId>tomcat-embed-core</artifactId>
+                <version>10.1.56</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.tomcat.embed</groupId>
+                <artifactId>tomcat-embed-websocket</artifactId>
+                <version>10.1.56</version>
             </dependency>
             <!--Temporary managed transitive dependency remove once uk.gov.companieshouse:structured-logging >= 3.0.57-->
             <dependency>
