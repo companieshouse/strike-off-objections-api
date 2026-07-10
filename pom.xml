@@ -29,7 +29,7 @@
         <kafka-clients.version>4.2.0</kafka-clients.version>
         <rest-service-common-library.version>2.0.14</rest-service-common-library.version>
         <ch-kafka.version>3.0.15</ch-kafka.version>
-        <private-api-sdk-java.version>6.0.33</private-api-sdk-java.version>
+        <private-api-sdk-java.version>7.0.9</private-api-sdk-java.version>
         <jib-maven-plugin.version>3.5.1</jib-maven-plugin.version>
         <jacoco-maven-plugin.version>0.8.14</jacoco-maven-plugin.version>
         <maven-compiler-plugin.version>3.14.1</maven-compiler-plugin.version>
@@ -87,6 +87,12 @@
         </dependencies>
     </dependencyManagement>
     <dependencies>
+        <!-- Temporary managed transitive dependency remove once migrated to spring-boot.version 4 -->
+        <dependency>
+            <groupId>tools.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>3.2.0</version>
+        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
