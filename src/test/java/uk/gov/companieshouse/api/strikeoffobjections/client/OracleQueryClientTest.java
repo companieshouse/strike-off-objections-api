@@ -3,6 +3,8 @@ package uk.gov.companieshouse.api.strikeoffobjections.client;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import tools.jackson.databind.exc.MismatchedInputException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.ArgumentMatchers.eq;
@@ -165,6 +167,50 @@ class OracleQueryClientTest {
         Exception exception = assertThrows(OracleQueryClientException.class, () -> oracleQueryClient.getRequestedGaz2(COMPANY_NUMBER, REQUEST_ID));
         assertEquals("Company number invalid", exception.getMessage());
         verify(apiLogger).errorContext(eq(REQUEST_ID), eq("Company number invalid"), any(), anyMap());
+    }
+
+    @Test
+    void testCompanyGaz2RequestedReturnsNullWhenResponseBodyIsEmpty() throws Exception {
+        when(privateCompanyResourceHandler.getGaz2Requested(String.format("/company/%s/gaz2-requested", COMPANY_NUMBER)))
+                .thenReturn(privateCompanyGaz2RequestedGet);
+        when(privateCompanyGaz2RequestedGet.execute()).thenReturn(gaz2ApiResponse);
+        when(gaz2ApiResponse.getData()).thenThrow(MismatchedInputException.from(null, Gaz2TransactionJson.class, "No content to map due to end-of-input"));
+
+        String result = oracleQueryClient.getRequestedGaz2(COMPANY_NUMBER, REQUEST_ID);
+
+        assertNull(result);
+        verify(apiLogger).infoContext(eq(REQUEST_ID), eq("No Gaz2 data found for company (empty response body), returning null"), anyMap());
+    }
+
+    @Test
+    void testCompanyGaz2RequestedThrowsOnUnexpectedException() throws Exception {
+        when(privateCompanyResourceHandler.getGaz2Requested(String.format("/company/%s/gaz2-requested", COMPANY_NUMBER)))
+                .thenReturn(privateCompanyGaz2RequestedGet);
+        when(privateCompanyGaz2RequestedGet.execute()).thenReturn(gaz2ApiResponse);
+        when(gaz2ApiResponse.getData()).thenThrow(new RuntimeException("Unexpected error"));
+
+        Exception exception = assertThrows(OracleQueryClientException.class,
+                () -> oracleQueryClient.getRequestedGaz2(COMPANY_NUMBER, REQUEST_ID));
+
+        assertEquals("Unexpected error occurred while retrieving Gaz2 data for Company", exception.getMessage());
+        verify(apiLogger).errorContext(eq(REQUEST_ID), eq("Unexpected error occurred while retrieving Gaz2 data for Company"), any(), anyMap());
+    }
+
+    @Test
+    void testCompanyGaz2RequestedThrowsWhenResponseShapeChanges() throws Exception {
+        when(privateCompanyResourceHandler.getGaz2Requested(String.format("/company/%s/gaz2-requested", COMPANY_NUMBER)))
+                .thenReturn(privateCompanyGaz2RequestedGet);
+        when(privateCompanyGaz2RequestedGet.execute()).thenReturn(gaz2ApiResponse);
+        when(gaz2ApiResponse.getData()).thenThrow(MismatchedInputException.from(
+                null,
+                Gaz2TransactionJson.class,
+                "Cannot deserialize value of type `uk.gov.companieshouse.api.model.company.Gaz2TransactionJson` from START_ARRAY token"));
+
+        Exception exception = assertThrows(OracleQueryClientException.class,
+                () -> oracleQueryClient.getRequestedGaz2(COMPANY_NUMBER, REQUEST_ID));
+
+        assertEquals("Mismatched input error occurred while retrieving Gaz2 data for Company", exception.getMessage());
+        verify(apiLogger).errorContext(eq(REQUEST_ID), eq("Mismatched input error occurred while retrieving Gaz2 data for Company"), any(), anyMap());
     }
 
 }

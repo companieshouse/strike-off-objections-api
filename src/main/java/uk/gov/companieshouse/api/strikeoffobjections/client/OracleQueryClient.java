@@ -3,6 +3,7 @@ package uk.gov.companieshouse.api.strikeoffobjections.client;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import tools.jackson.databind.exc.MismatchedInputException;
 import uk.gov.companieshouse.api.error.ApiErrorResponseException;
 import uk.gov.companieshouse.api.handler.exception.URIValidationException;
 import uk.gov.companieshouse.api.model.company.Gaz2TransactionJson;
@@ -31,6 +32,9 @@ public class OracleQueryClient {
     private static final String ERROR_COMPANY_NUMBER_INVALID = "Company number invalid";
     private static final String ERROR_ACTION_CODE_RETRIEVAL = "Error Retrieving Registered Action Code for Company";
     private static final String ERROR_GAZ2_RETRIEVAL = "Error Retrieving Gaz2 data for Company";
+    private static final String ERROR_GAZ2_MISMATCHED_INPUT = "Mismatched input error occurred while retrieving Gaz2 data for Company";
+    private static final String ERROR_OTHER = "Unexpected error occurred while retrieving Gaz2 data for Company";
+    private static final String EMPTY_BODY_MISMATCH_MESSAGE = "No content to map due to end-of-input";
 
 
     public Long getCompanyActionCode(String companyNumber, String requestId) {
@@ -91,6 +95,20 @@ public class OracleQueryClient {
         } catch (URIValidationException e) {
             apiLogger.errorContext(requestId, ERROR_COMPANY_NUMBER_INVALID, e, logMap);
             throw new OracleQueryClientException(ERROR_COMPANY_NUMBER_INVALID);
+        } catch (MismatchedInputException e) {
+            if (isEmptyResponseBody(e)) {
+                apiLogger.infoContext(requestId, "No Gaz2 data found for company (empty response body), returning null", logMap);
+                return null;
+            }
+            apiLogger.errorContext(requestId, ERROR_GAZ2_MISMATCHED_INPUT, e, logMap);
+            throw new OracleQueryClientException(ERROR_GAZ2_MISMATCHED_INPUT);
+        } catch (Exception e) {
+            apiLogger.errorContext(requestId, ERROR_OTHER, e, logMap);
+            throw new OracleQueryClientException(ERROR_OTHER);
         }
+    }
+
+    private boolean isEmptyResponseBody(MismatchedInputException e) {
+        return e.getMessage() != null && e.getMessage().contains(EMPTY_BODY_MISMATCH_MESSAGE);
     }
 }
