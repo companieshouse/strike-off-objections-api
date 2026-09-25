@@ -13,7 +13,7 @@ import uk.gov.companieshouse.api.http.ApiKeyHttpClient;
 public class ApiClientConfig {
 
     @Bean
-    public Supplier<InternalApiClient> internalApiClientSupplier(@Value("${chs.api.key}") String apiKey, @Value("${chs.kafka.api.url}") String apiUrl) {
+    public Supplier<InternalApiClient> internalApiClientSupplier(@Value("${chs.kafka.api.key}") String apiKey, @Value("${chs.kafka.api.url}") String apiUrl) {
         return () -> {
             var client = new InternalApiClient(new ApiKeyHttpClient(apiKey));
             client.setBasePath(apiUrl);
