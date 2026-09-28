@@ -22,12 +22,11 @@
         <!--Companies House-->
         <ch-dependency-bom.version>0.1.27</ch-dependency-bom.version>
         <ch-test-bom.version>0.1.27</ch-test-bom.version>
-        <private-api-sdk-java.version>7.2.30</private-api-sdk-java.version>
+        <private-api-sdk-java.version>7.2.33</private-api-sdk-java.version>
         <rest-service-common-library.version>2.0.15</rest-service-common-library.version>
         <!--External-->
         <avro.version>1.12.2</avro.version>
         <commons-lang3.version>3.21.0</commons-lang3.version>
-        <jackson-databind.version>3.2.3</jackson-databind.version>
         <kafka-clients.version>4.2.2</kafka-clients.version>
         <log4j.version>2.26.1</log4j.version>
         <opentelemetry-bom.version>2.31.1</opentelemetry-bom.version>
@@ -35,12 +34,15 @@
         <org-json.version>20260814</org-json.version>
         <org.mapstruct.version>1.6.3</org.mapstruct.version>
         <spring-boot.version>4.1.1</spring-boot.version>
-        <!--Test-->
-        <pitest-junit5-plugin.version>1.2.3</pitest-junit5-plugin.version>
         <!--Plugin-->
         <jacoco-maven-plugin.version>0.8.15</jacoco-maven-plugin.version>
+        <jib-maven-plugin.version>3.5.2</jib-maven-plugin.version>
+        <maven-compiler-plugin.version>3.16.0</maven-compiler-plugin.version>
+        <maven-dependency-plugin.version>3.10.0</maven-dependency-plugin.version>
         <maven-failsafe-plugin.version>3.6.0</maven-failsafe-plugin.version>
         <maven-surefire-plugin.version>3.6.0</maven-surefire-plugin.version>
+        <pitest-junit5-plugin.version>1.2.3</pitest-junit5-plugin.version>
+        <pitest-maven.version>1.30.0</pitest-maven.version>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -194,6 +196,7 @@
             <plugin>
                 <groupId>com.google.cloud.tools</groupId>
                 <artifactId>jib-maven-plugin</artifactId>
+                <version>${jib-maven-plugin.version}</version>
                 <configuration>
                     <from>
                         <image>416670754337.dkr.ecr.eu-west-2.amazonaws.com/ci-corretto-build-21:latest</image>
@@ -209,6 +212,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
+                <version>${maven-compiler-plugin.version}</version>
                 <configuration>
                     <source>${java.version}</source>
                     <target>${java.version}</target>
@@ -225,10 +229,12 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
+                <version>${maven-dependency-plugin.version}</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
+                <version>${maven-failsafe-plugin.version}</version>
                 <executions>
                     <execution>
                         <phase>integration-test</phase>
@@ -247,6 +253,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
+                <version>${maven-surefire-plugin.version}</version>
                 <configuration>
                     <argLine>${surefireArgLine} -Dfile.encoding=UTF-8</argLine>
                     <skipTests>${skip.unit.tests}</skipTests>
@@ -255,6 +262,7 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
+                <version>${jacoco-maven-plugin.version}</version>
                 <executions>
                     <execution>
                         <id>pre-unit-test</id>
@@ -294,6 +302,7 @@
             <plugin>
                 <groupId>org.pitest</groupId>
                 <artifactId>pitest-maven</artifactId>
+                <version>${pitest-maven.version}</version>
                 <configuration>
                     <testStrengthThreshold>80</testStrengthThreshold>
                     <coverageThreshold>80</coverageThreshold>
@@ -326,6 +335,7 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>${spring-boot.version}</version>
                 <configuration>
                     <mainClass>uk.gov.companieshouse.api.strikeoffobjections.Application</mainClass>
                 </configuration>
