@@ -20,10 +20,9 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <!--Companies House-->
-        <ch-dependency-bom.version>0.1.25</ch-dependency-bom.version>
-        <ch-test-bom.version>0.1.25</ch-test-bom.version>
-        <kafka-models.version>3.0.40</kafka-models.version>
-        <private-api-sdk-java.version>7.2.29</private-api-sdk-java.version>
+        <ch-dependency-bom.version>0.1.27</ch-dependency-bom.version>
+        <ch-test-bom.version>0.1.27</ch-test-bom.version>
+        <private-api-sdk-java.version>7.2.30</private-api-sdk-java.version>
         <rest-service-common-library.version>2.0.15</rest-service-common-library.version>
         <!--External-->
         <avro.version>1.12.2</avro.version>
@@ -97,7 +96,6 @@
         <dependency>
             <groupId>uk.gov.companieshouse</groupId>
             <artifactId>kafka-models</artifactId>
-            <version>${kafka-models.version}</version>
         </dependency>
         <dependency>
             <groupId>uk.gov.companieshouse</groupId>
@@ -178,11 +176,6 @@
                     <artifactId>logback-classic</artifactId>
                 </exclusion>
             </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>tools.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-            <version>${jackson-databind.version}</version>
         </dependency>
         <!--Test-->
         <dependency>
