@@ -4,11 +4,10 @@ import java.time.LocalDateTime;
 import java.util.function.Supplier;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.boot.restclient.RestTemplateBuilder;
 import org.springframework.web.client.RestTemplate;
-
 import uk.gov.companieshouse.api.handler.filetransfer.FileTransferHttpClient;
 import uk.gov.companieshouse.api.handler.filetransfer.InternalFileTransferClient;
 import uk.gov.companieshouse.api.strikeoffobjections.chips.ChipsKafkaClient;
